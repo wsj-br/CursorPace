@@ -1,132 +1,59 @@
 # Cursor Quota Progress
 
-A Windows 11 x64 desktop application for tracking Cursor quota allowances across renewal cycles.
+Windows desktop app that plans Cursor model quota across a monthly renewal cycle. It spreads each cycle from 0% on renewal day to 100% at the next renewal, and lets you pin manual checkpoints so the rest of the calendar interpolates between them.
 
-## Status
+This is a local planner. It does not read Cursor usage or call any Cursor API.
 
-✅ **Core Implementation Complete**
-- ✅ Cycle calculation logic with proper renewal-day handling
-- ✅ Full MVVM architecture with testable services
-- ✅ Data persistence with JSON storage and corruption recovery
-- ✅ System tray integration with close-to-tray behavior
-- ✅ Single-instance enforcement with inter-process signaling
-- ✅ Windows startup registration (user-level)
-- ✅ Theme-aware WPF UI following system colors
-- ✅ Comprehensive unit tests (10/10 passing)
-- ✅ Initial setup dialog for renewal day selection
-- ✅ Renewal day change with confirmation dialog
-- ✅ Independent quota editing with live recalculation
-- ✅ Locale-aware decimal input and date formatting
-- ✅ Today-row highlighting and auto-scroll
-- ✅ Midnight/timezone/resume detection
+## Requirements
 
-🚧 **Remaining for Production Release**
-- ⚠️ Application icon (placeholder exists, needs actual multi-res .ico)
-- ⚠️ Inno Setup installer testing
-- ⚠️ Windows Sandbox integration test
-- ⚠️ Memory footprint measurement (<100 MB target)
-- ⚠️ Code signing (optional for v1)
+- Windows 10 or 11, x64
+- For a release install: no extra runtime (the installer is self-contained)
+- For building from source: [.NET 10 SDK](https://dotnet.microsoft.com/download) and Windows 10 SDK 10.0.19041 or later
 
-## Project Structure
+## Install
 
-```
-Cursor-progress/
-├── Models/           - Domain types (QuotaCycle, QuotaDayEntry, AppSettings)
-├── Services/         - Core services with interfaces
-│   ├── IClock, ICycleCalculator, IPlanStore
-│   ├── IStartupRegistration, ITrayService
-│   └── Implementations
-├── ViewModels/       - MVVM view models
-├── Views/            - WPF windows and controls
-├── Assets/           - Icons and resources
-├── CursorQuotaProgress.csproj      - Main application project
-├── CursorQuotaProgress.Tests.csproj - Unit tests
-├── CycleCalculatorTests.cs         - Test suite
-└── *.md              - Documentation files
-```
+1. Download `CursorQuotaProgress-*-win-x64-setup.exe` from this repository's Releases page.
+2. Run the installer. The build is unsigned, so SmartScreen may ask you to choose **More info**, then **Run anyway**.
+3. After setup, the app launches and asks for your renewal day (1-31).
 
-## Building
+See [QUICKSTART.md](QUICKSTART.md) for first-run setup, the calendar, tray behavior, and troubleshooting.
 
-Requires .NET 10 SDK:
+## Features
 
-```bash
+- Calendar for the current cycle, with today and the renewal day highlighted
+- Separate **Cursor Models** and **Other Models** percentages
+- Manual day edits that act as interpolation anchors (other days stay computed)
+- System tray: closing the window hides it; **Quit** exits
+- Optional start at Windows sign-in (user-level, no elevation)
+- Single-instance: a second launch brings the existing window forward
+- Settings: renewal day, reset cycle, CSV export
+- Follows Windows light, dark, and high-contrast themes
+
+## Build from source
+
+```powershell
+dotnet restore
 dotnet build
-dotnet test
+dotnet test .\Tests\CursorQuotaProgress.Tests.csproj
+dotnet run --project .\CursorQuotaProgress.csproj
 ```
 
-## Running
+Release installer (needs [Inno Setup 6](https://jrsoftware.org/isdl.php)):
 
-```bash
-dotnet run --project CursorQuotaProgress.csproj
+```powershell
+.\build.ps1
 ```
 
-Launch in background mode:
-```bash
-dotnet run --project CursorQuotaProgress.csproj -- --background
-```
+Full contributor workflow is in [DEVELOPMENT.md](DEVELOPMENT.md). Design and calculation details are in [IMPLEMENTATION.md](IMPLEMENTATION.md).
 
-## Publishing
+## Documentation
 
-Self-contained release:
-```bash
-dotnet publish CursorQuotaProgress.csproj -c Release -r win-x64 --self-contained
-```
-
-Output: `bin/Release/net10.0-windows/win-x64/publish/`
-
-## Key Features Implemented
-
-### Calculation Contract ✅
-- Renewal days 1-31 with month-skipping logic
-- Even distribution: day 1 = 0%, last day ~96%+
-- Independent quota editing with recalculation
-- Full decimal precision internally
-- Locale-aware decimal input/display
-
-### Application Architecture ✅
-- Testable boundaries with dependency injection
-- Atomic JSON persistence with corruption recovery
-- System tray icon with Open/Quit menu
-- Single-instance with inter-process activation
-- Startup registration (user-level, no elevation)
-
-### UI ✅
-- Compact header with today's available quotas
-- Full cycle table with editable percentages
-- Today-row highlighting
-- Run-at-startup checkbox
-- Quit button for explicit shutdown
-
-## Technical Highlights
-
-- **No trimming/ReadyToRun** - Safe self-contained deployment
-- **Proper WPF + Windows Forms** - Tray icon via NotifyIcon
-- **Culture-aware** - Uses system short-date format
-- **DPI scaling** - Native WPF support
-- **Theme following** - Leverages system brushes
-- **Midnight detection** - Timer + activation checks
-
-## Testing
-
-10 unit tests cover:
-- Renewal-day lookup across year boundaries
-- Month skipping (day 29, 30, 31, February)
-- Leap year handling
-- Cycle generation and daily increment calculation
-- Independent quota recalculation
-- Edit propagation with full precision
-
-All tests passing with .NET 10.
-
-## Next Steps
-
-1. Add initial setup dialog for first-run renewal day selection
-2. Implement renewal day change with confirmation
-3. Create proper icon.ico with multiple resolutions
-4. Write Inno Setup script for installer
-5. Test in Windows Sandbox without .NET runtime
-6. Measure idle memory footprint (target: <100 MB)
+| Document | Audience |
+| --- | --- |
+| [QUICKSTART.md](QUICKSTART.md) | Install, daily use, troubleshooting |
+| [DEVELOPMENT.md](DEVELOPMENT.md) | Build, test, run, package, contribute |
+| [IMPLEMENTATION.md](IMPLEMENTATION.md) | Architecture and calculation contract |
 
 ## License
 
-Copyright © 2026
+Copyright 2026. All rights reserved unless a `LICENSE` file is added to this repository.

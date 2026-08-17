@@ -1,220 +1,149 @@
-# Cursor Quota Progress - Quick Start Guide
+# Quick start
 
-## Installation
+End-user guide for Cursor Quota Progress. For building from source, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
-1. Download `CursorQuotaProgress-1.0.0-win-x64-setup.exe` from the releases page
-2. Run the installer (SmartScreen may warn since the app is unsigned - click "More info" → "Run anyway")
-3. Follow the installation wizard
-4. The app will launch automatically after installation
+## Install
 
-## First Run
+1. Download `CursorQuotaProgress-*-win-x64-setup.exe` from this repository's Releases page.
+2. Run the installer. If SmartScreen warns that the app is unsigned, choose **More info**, then **Run anyway**.
+3. Finish the wizard. The app launches when setup completes.
 
-On first launch, you'll see the **Set Renewal Day** dialog:
+## First run
 
-1. Enter your Cursor quota renewal day (1-31)
-   - This is the day of the month when your Cursor quotas reset
-   - Example: If your quota renews on the 15th of each month, enter **15**
+A **Set renewal day** dialog appears:
 
-2. The dialog shows a preview of your current cycle:
-   - Current cycle dates
-   - Number of days until next renewal
+1. Enter the day of the month your Cursor quota resets (1-31). Example: enter **15** if quotas reset on the 15th.
+2. Confirm the cycle preview (start date, next renewal, day count). Months that do not contain that day are skipped (for example, day 31 in February).
+3. Choose **OK**.
 
-3. Click **OK** to save and continue
+Canceling this dialog exits the app. You can change the day later in **Settings**.
 
-## Main Window
+## Main window
 
-The main window displays:
+The header shows:
 
-### Header
-- **Current Cycle**: Start date of current cycle
-- **Next Renewal**: When quotas reset to 0%
-- **Available Today**: Current day's quota allowances for both models
+- **Cycle start** and **Next renewal**
+- **Cursor Models today** and **Other Models today** (rounded to whole percents)
 
-### Quota Table
-Shows the complete cycle with columns:
-- **Day**: Day number (1, 2, 3...)
-- **Date**: Calendar date
-- **Cursor Models %**: Available quota percentage for Cursor models
-- **Other Models %**: Available quota percentage for other models
+The body is a month calendar for the current cycle. Today and the renewal day are highlighted.
 
-The current day is **highlighted** and automatically scrolled into view.
+Title bar actions:
 
-### Bottom Controls
-- **Run at Windows sign-in**: Check to start the app automatically
-- **Change Renewal Day**: Update your renewal day (discards manual edits)
-- **Quit**: Exit the application
+| Control | Action |
+| --- | --- |
+| **Reset** | Clear all manual edits and regenerate an even distribution |
+| **Settings** | Startup, renewal day, reset, CSV export |
+| **Quit** | Exit the process (does not keep the tray icon) |
+| Window close (X) | Hide the window; the app stays in the tray |
 
-## Using the App
+The window is a fixed size. Selecting a day expands it to show the edit panel.
 
-### Viewing Today's Allowance
+## Edit a day
 
-The header shows your current quota percentages:
-- **Available Today → Cursor Models: 45.16%**
-- **Available Today → Other Models: 45.16%**
+1. Click a day in the calendar.
+2. Set **Cursor Models Quota** and/or **Other Models Quota**.
+3. Choose **Apply** to save, **Reset** to clear that day's manual values, or the close control to leave the panel without applying.
 
-These update automatically when crossing midnight or changing time zones.
+Notes:
 
-### Editing Quotas
+- Each quota is independent. Editing Cursor Models never changes Other Models.
+- Manual days are anchors. Days before the first edit interpolate from 0% toward that edit. Days between two edits interpolate between them. Days after the last edit interpolate toward 100% at renewal.
+- Unedited days are not stored; they are recomputed from cycle length and the surrounding anchors.
+- **Reset** in the title bar (or **Reset cycle** in Settings) discards every manual edit for the cycle.
 
-You can manually adjust quota percentages:
+### Example
 
-1. Click on any percentage cell in the table
-2. Type a new value (0-100)
-3. Press **Enter** or click outside the cell
-4. The app recalculates all future days from that point
+In a 31-day cycle, set day 15 to 35% with no other edits:
 
-**Notes:**
-- Earlier days remain unchanged
-- Later days recalculate to reach 100% by renewal
-- Each quota (Cursor Models / Other Models) is independent
-- Invalid values are rejected and the previous value is retained
+- Days 1-14 rise from 0% toward 35%.
+- Day 15 is 35% (manual).
+- Days 16-31 rise from 35% toward 100% at the next renewal (day 31 is still below 100%).
 
-### Example Edit
+## Settings
 
-In a 31-day cycle, if you edit Day 15 to `35%`:
-- Days 1-14 remain as originally calculated
-- Day 15 becomes `35%`
-- Days 16-31 recalculate to reach ~96% on day 31
-- Daily increment: `(100 - 35) / 17 = 3.82%` per day
+Open **Settings** from the title bar.
 
-### Changing Renewal Day
+| Setting | Effect |
+| --- | --- |
+| **Run at Windows sign-in** | Starts the app at sign-in, minimized to the tray (`--background`) |
+| **Change renewal day** | Builds a new cycle and discards manual edits |
+| **Reset cycle** | Same as title-bar Reset: even distribution, current renewal day kept |
+| **Export CSV** | Writes the current cycle (linear vs recalculated percents, and which days are manual) |
 
-1. Click **Change Renewal Day**
-2. Confirm you want to discard manual edits
-3. Enter new renewal day
-4. App generates new cycle immediately
+## System tray
 
-**Warning:** This discards all manual edits and creates a fresh even distribution.
+While the process is running, an icon stays in the notification area.
 
-## System Tray
+- **Left-click** or **Open**: show the window
+- **Quit** (tray menu or title bar): exit
 
-The app lives in the Windows notification area (system tray) when closed:
+If the icon is missing, expand the overflow chevron (`^`). After Explorer or a session switch (lock/unlock), the icon should return within a few seconds.
 
-### Closing the Window
-- Click the **X** button to hide the window
-- The app continues running in the tray
-- Your settings and edits are preserved
+## Startup and single instance
 
-### Opening from Tray
-- **Left-click** the tray icon to restore the window
-- Or **right-click** → **Open**
+- With **Run at Windows sign-in** on, a new sign-in starts the app in the tray. Click the icon to open the window.
+- From the Start menu, the window opens immediately.
+- Only one process runs. Launching again activates the existing window.
 
-### Quitting
-- Click **Quit** button in the main window
-- Or **right-click** tray icon → **Quit**
-- This fully exits the application
+## Data
 
-## Startup Behavior
+Settings live at:
 
-### Auto-Start at Sign-In
-When enabled (checkbox in main window):
-- App starts when you sign in to Windows
-- Launches minimized to tray (window hidden)
-- Click tray icon to show the window
-
-### Manual Launch
-If auto-start is disabled:
-- Use Start menu shortcut
-- Window opens immediately
-
-### Single Instance
-The app allows only one running copy:
-- Launching while already running just shows the existing window
-- No duplicate processes created
-
-## Data Storage
-
-Your settings are stored at:
-```
+```text
 %LocalAppData%\CursorQuotaProgress\settings.json
 ```
 
-This includes:
-- Renewal day
-- Current cycle data
-- Manual edits
-- Startup preference
+That file holds renewal day, startup preference, and manual edits for the current cycle. Copy the folder to back up. Delete it to start over (the next launch asks for a renewal day).
 
-**Backup:** Copy this folder to preserve your settings.
+If the file cannot be read, the app copies it to `settings.corrupt.json` and writes a blank settings file.
 
-**Reset:** Delete this folder to start fresh (app will ask for renewal day again).
+Uninstalling removes this folder. Back it up first if you want to keep edits.
 
-## Renewal Behavior
+## Renewal
 
-At midnight on your renewal day:
-1. App detects the new cycle
-2. Discards old cycle and manual edits
-3. Generates fresh even distribution for new cycle
-4. Today's percentages update to the new values
+On the next activation after midnight on renewal day (window shown, or the five-minute timer while the window is open):
 
-The window doesn't need to be open - detection happens on next app activation.
+1. The old cycle and its manual edits are discarded.
+2. A new even distribution is generated for the new cycle.
+3. Today's percentages update.
+
+The window does not need to stay visible, but the process must be running.
+
+## Uninstall
+
+1. Quit from the title bar or the tray menu.
+2. Windows Settings, **Apps**, **Installed apps**, **Cursor Quota Progress**, **Uninstall**.
 
 ## Troubleshooting
 
-### App won't start
-- Check Task Manager for existing `CursorQuotaProgress.exe` process
-- End the process and try again
-- If still failing, check Windows Event Viewer for error details
+**App will not start**
 
-### Tray icon disappeared
-- Windows sometimes hides overflow icons
-- Click the up arrow (^) in the system tray to expand
-- The icon should reappear after locking/unlocking Windows
+- In Task Manager, end any `CursorQuotaProgress.exe` process, then launch again.
+- If it still fails, check Windows Event Viewer for the application error.
 
-### Settings not saving
-- Check folder permissions on `%LocalAppData%\CursorQuotaProgress`
-- If `settings.corrupt.json` exists, your file was malformed
-- Delete both files to reset
+**Tray icon disappeared**
 
-### Wrong today's percentage
-- Verify your system date/time is correct
-- Check your timezone setting
-- App uses local time, not UTC
+- Expand the notification overflow (`^`).
+- Lock and unlock Windows, or restart the app.
 
-### Auto-start not working
-- Open Registry Editor (regedit)
-- Navigate to: `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`
-- Verify `CursorQuotaProgress` key exists with correct path
+**Settings not saving**
 
-## Uninstallation
+- Confirm write access to `%LocalAppData%\CursorQuotaProgress`.
+- If `settings.corrupt.json` exists, the previous file was unreadable. Delete both files to reset.
 
-1. Quit the application (tray → Quit)
-2. Use Windows Settings → Apps → Installed apps
-3. Find "Cursor Quota Progress"
-4. Click three dots → Uninstall
-5. Choose whether to keep settings folder
+**Wrong percentage for today**
 
-## Support
+- Confirm system date, time, and time zone. The app uses local time.
 
-For issues or questions:
-- Check `DEVELOPMENT.md` for technical details
-- Review `IMPLEMENTATION.md` for architecture info
-- Submit issues on the GitHub repository
+**Auto-start not working**
+
+- Confirm **Run at Windows sign-in** is on in Settings.
+- Registry (current user): `Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorQuotaProgress`, command including `--background`.
 
 ## Tips
 
-- **Keyboard Navigation**: Tab through cells, Enter to edit
-- **Locale Support**: Dates use your system's short date format
-- **Decimal Separator**: Accepts locale-specific decimal separator (. or ,)
-- **Theme**: Follows Windows light/dark/high-contrast theme automatically
-- **DPI Scaling**: Properly scales on high-DPI displays
+- Dates use the system short-date format.
+- The UI follows Windows light, dark, and high-contrast themes.
+- High-DPI scaling is handled by WinUI.
 
-## Example Scenarios
-
-### Scenario 1: Conservative Usage
-Edit early days to higher percentages:
-- Day 1: Change from 0% to 10%
-- Day 5: Change from 13% to 25%
-- Later days automatically increase daily increment
-
-### Scenario 2: Frontload Usage
-Don't edit - the default even distribution works perfectly.
-
-### Scenario 3: Quota Tracking
-Check "Available Today" each morning to know your current allowance.
-
----
-
-**Version:** 1.0.0  
-**Last Updated:** August 2026  
-**System Requirements:** Windows 10/11 x64
+For calculation details, see [IMPLEMENTATION.md](IMPLEMENTATION.md).

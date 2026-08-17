@@ -1,279 +1,144 @@
-# Implementation Summary
+# Architecture
 
-## What Was Built
+Design and calculation reference for Cursor Quota Progress. Build and test commands are in [DEVELOPMENT.md](DEVELOPMENT.md).
 
-A complete Windows desktop application for tracking Cursor quota progress across renewal cycles, built with C#, WPF, and .NET 10.
+## Purpose
 
-## Architecture
+A WinUI 3 desktop app that plans two independent quota series (Cursor Models and Other Models) over the billing cycle defined by a monthly renewal day. Percentages are a local plan, not live Cursor usage.
 
-### Layer Separation
-- **Models**: Pure data types (no logic)
-- **Services**: Testable business logic with interfaces
-- **ViewModels**: MVVM binding layer with INotifyPropertyChanged
-- **Views**: XAML UI with minimal code-behind
+## Layers
 
-### Key Design Decisions
+| Layer | Role |
+| --- | --- |
+| **Models** | Data types only: `QuotaKind`, `QuotaDayEntry`, `QuotaDayEdit`, `QuotaCycle`, `AppSettings` |
+| **Services** | Interfaces plus implementations: clock, cycle math, JSON store, startup registry, tray |
+| **ViewModels** | MVVM: `MainViewModel`, calendar VMs, `DayRowViewModel`, `RelayCommand` |
+| **Views** | WinUI windows and `CalendarControl`; dialogs in code-behind where needed |
+| **Converters** | XAML value converters for today, renewal day, and edit styling |
 
-1. **Testable Boundaries**
-   - All time operations through `IClock` interface
-   - Calculation logic in pure `ICycleCalculator`
-   - Storage abstracted behind `IPlanStore`
-   - Enables full unit testing without mocks
+Time, persistence, and calculations go through `IClock`, `IPlanStore`, and `ICycleCalculator` so unit tests do not need the UI or the real clock.
 
-2. **Decimal Precision**
-   - All percentages stored as `decimal` (not `double`)
-   - Avoids floating-point rounding errors
-   - Display formats to 2 decimals, but calculates with full precision
+## Design decisions
 
-3. **Independent Quotas**
-   - CursorModels and OtherModels calculated separately
-   - Editing one never affects the other
-   - Separate manual-edit flags for each
+**Decimal percents.** Stored and computed as `decimal`. The main window shows whole percents (rounded half away from zero). CSV export uses a finer ratio format.
 
-4. **Atomic Persistence**
-   - Write to temp file first
-   - Move to final location (atomic on Windows)
-   - Corrupt file preserved as backup
-   - Never lose data on crash during save
+**Edits as anchors, not a full day list.** `QuotaCycle.Edits` is what is saved. `Days` is rebuilt in memory. A later edit is another anchor; it is not wiped when you edit an earlier day.
 
-5. **Single Instance**
-   - Mutex prevents multiple processes
-   - Named EventWaitHandle for inter-process signaling
-   - Second launch activates existing window
+**Independent quotas.** Cursor Models and Other Models have separate optional values on each `QuotaDayEdit`.
 
-6. **Tray-First Design**
-   - Tray icon exists for full process lifetime
-   - Close hides window, doesn't exit
-   - Explicit Quit button required
-   - Survives Explorer restarts via SessionSwitch events
+**Atomic JSON.** Write `settings.json.tmp`, then move over `settings.json`. On deserialize failure, copy the bad file to `settings.corrupt.json` and start from blank settings.
 
-## Calculation Implementation
+**Single instance.** Mutex `CursorQuotaProgress_SingleInstance`. A second process signals `CursorQuotaProgress_SingleInstance_Event` and exits; the first process shows the window.
 
-### Cycle Lookup Algorithm
+**Tray-first lifetime.** The tray icon lasts for the process. Closing the window hides it. **Quit** disposes the icon and calls `Application.Exit`.
 
-```
+**Per-user install.** Inno Setup uses `{localappdata}\Programs` and `PrivilegesRequired=lowest`. Uninstall deletes `%LocalAppData%\CursorQuotaProgress`.
+
+## Cycle lookup
+
+Renewal day is an integer 1-31.
+
+```text
 FindCycleStart(renewalDay, today):
-  candidate = first day of current month
-  if current month has renewalDay and that date <= today:
+  if this month contains renewalDay and that date <= today:
     return that date
   else:
-    loop backwards through months until valid renewalDay found
+    walk months backward until the month contains renewalDay
 
 FindNextRenewal(renewalDay, cycleStart):
-  candidate = cycleStart + 1 month
-  loop forward through months until valid renewalDay found
+  start at cycleStart + 1 month
+  walk months forward until the month contains renewalDay
 
 GenerateCycle:
-  start = FindCycleStart(renewalDay, today)
-  end = FindNextRenewal(renewalDay, start)
-  D = days between start and end
-  for k = 0 to D-1:
-    day[k].percent = 100 * k / D
+  start = FindCycleStart(...)
+  end = FindNextRenewal(...)
+  D = (end - start).Days
+  for dayNumber 1..D:
+    default percent = 100 * (dayNumber - 1) / D
 ```
 
-### Edit Recalculation
+Months that do not contain the day (31 February, 31 April, 29 February in a common year) are skipped. Example: renewal day 31 with a January start yields a cycle through 31 March.
 
-```
-RecalculateQuota(cycle, kind, fromDayNumber):
-  k = fromDayNumber - 1 (convert to 0-based index)
-  x = day[k].percent (the edited value)
-  remaining = D - k
-  increment = (100 - x) / remaining
+Day 1 of the cycle is 0%. The last stored day is the day before next renewal, so it is below 100%. Renewal itself is the start of the next cycle.
 
-  for j = k+1 to D-1:
-    day[j].percent = x + (j - k) * increment
-    day[j].isManual = false  // overwrites any later manual edits
-```
+## Interpolation
 
-## File Organization
+Anchors for one quota kind:
 
-```
-CursorQuotaProgress/
-├── Models/
-│   ├── QuotaKind.cs          - Enum: CursorModels, OtherModels
-│   ├── QuotaDayEntry.cs      - Single day with both quotas
-│   ├── QuotaCycle.cs         - Complete cycle with metadata
-│   └── AppSettings.cs        - Persistent configuration
-├── Services/
-│   ├── IClock.cs             - Time abstraction + SystemClock impl
-│   ├── ICycleCalculator.cs   - Calculation interface
-│   ├── CycleCalculator.cs    - Core calculation logic
-│   ├── IPlanStore.cs         - Storage interface
-│   ├── JsonPlanStore.cs      - JSON persistence with atomic writes
-│   ├── IStartupRegistration.cs - Startup interface
-│   ├── WindowsStartupRegistration.cs - Registry-based startup
-│   ├── ITrayService.cs       - Tray icon interface
-│   └── TrayService.cs        - NotifyIcon implementation
-├── ViewModels/
-│   ├── ViewModelBase.cs      - INotifyPropertyChanged base
-│   ├── RelayCommand.cs       - ICommand implementation
-│   ├── MainViewModel.cs      - Main window logic
-│   └── DayRowViewModel.cs    - DataGrid row binding
-├── Views/
-│   ├── MainWindow.xaml       - Main UI
-│   ├── MainWindow.xaml.cs    - Window lifecycle
-│   ├── RenewalDayDialog.xaml - Setup/change dialog
-│   └── RenewalDayDialog.xaml.cs
-├── App.xaml                  - Application resources
-└── App.xaml.cs              - Single-instance logic, DI setup
+- Implicit start: day 1 at 0% unless day 1 is edited
+- Each `QuotaDayEdit` that has a value for that kind
+- Implicit end: next renewal at 100% (one day past the last cycle day)
 
-CursorQuotaProgress.Tests/
-└── CycleCalculatorTests.cs   - 10 comprehensive unit tests
+For day `d` between previous anchor `(startDay, startPercent)` and next anchor `(endDay, endPercent)`:
+
+```text
+span = endDay - startDay
+percent = startPercent + (d - startDay) * (endPercent - startPercent) / span
 ```
 
-## Testing Coverage
+`SetManual` writes or updates an edit and rebuilds `Days`. `ClearManual` removes that kind from the edit (and the edit row if both kinds are empty), then rebuilds.
 
-### Unit Tests (10/10 passing)
+Editing one kind never changes the other.
 
-1. **FindCycleStart_CurrentMonthHasDay_ReturnsCurrentMonth**
-   - Normal case: renewal day exists in current month
+## Persistence
 
-2. **FindCycleStart_CurrentMonthBeforeRenewal_ReturnsPreviousValidMonth**
-   - Edge case: today is before renewal day this month
+Path: `%LocalAppData%\CursorQuotaProgress\settings.json`
 
-3. **FindCycleStart_Day31InFebruary_SkipsToJanuary**
-   - Month skipping: Feb has no day 31
+Current shape (camelCase JSON):
 
-4. **FindNextRenewal_SkipsMonthsWithoutDay**
-   - Jan 31 → Mar 31 (skips February)
+```json
+{
+  "version": 1,
+  "renewalDay": 15,
+  "runAtStartup": false,
+  "activeCycle": {
+    "renewalDay": 15,
+    "cycleStart": "2026-01-15T00:00:00",
+    "nextRenewal": "2026-02-15T00:00:00",
+    "edits": [
+      {
+        "dayNumber": 15,
+        "cursorModelsPercent": 35
+      }
+    ]
+  }
+}
+```
 
-5. **FindNextRenewal_LeapYearFebruary29**
-   - Leap year handling
+`JsonPlanStore` still reads a legacy `days` array with `cursorModelsIsManual` / `otherModelsIsManual` and converts flagged rows into `edits`.
 
-6. **GenerateCycle_30DayCycle_CorrectDailyIncrement**
-   - Actually 31 days (Jan 15 - Feb 15)
-   - Verifies default percentage distribution
+`Days` on `QuotaCycle` is not written.
 
-7. **GenerateCycle_31DayCycle_SkipsFebruary**
-   - 59-day cycle (Jan 31 - Mar 31)
+## Process lifecycle
 
-8. **RecalculateQuota_EditDay15Of31_CorrectRemainingCalculation**
-   - Edit on day 15 → 17 remaining intervals
-   - Verifies increment: (100 - 35) / 17
+1. **Start:** take the mutex, create tray and view model, load settings. If there is no renewal day, show the window and the setup dialog. If `--background` and already initialized, keep the window hidden.
+2. **Close (X):** cancel close, hide `AppWindow`.
+3. **Quit:** dispose tray, interrupt the named-event thread, release the mutex, exit.
+4. **Second instance:** set the named event, exit.
+5. **Day change:** on window activation and on a five-minute timer, `MainViewModel.CheckForNewDay` regenerates the cycle when the calendar day (or timezone-adjusted date) has moved.
 
-9. **RecalculateQuota_IndependentQuotas_OnlyAffectsSpecifiedKind**
-   - CursorModels edit doesn't change OtherModels
+## UI map
 
-10. **All tests use full decimal precision**
-    - `Assert.Equal` with precision parameter
+| Surface | Responsibility |
+| --- | --- |
+| `MainWindow` | Custom title bar, info cards, `CalendarControl`, day edit panel |
+| `CalendarControl` | Month grid bound to `CalendarMonthViewModel` |
+| `SettingsWindow` | Run at sign-in, change renewal day, reset cycle, CSV export |
+| `RenewalDayDialog` | ContentDialog for first run and renewal-day change |
+| `TrayService` | NotifyIcon, Open/Quit, tooltip, SessionSwitch recovery |
 
-### Manual Testing Checklist
+Startup registration writes `HKCU\Software\Microsoft\Windows\CurrentVersion\Run\CursorQuotaProgress` to `"<exe>" --background`.
 
-See DEVELOPMENT.md for full integration test plan.
+## Out of scope
 
-## Performance Characteristics
+- Cursor API or any live usage feed
+- History of past cycles (only the active cycle is kept)
+- Cloud sync
+- Code signing (SmartScreen will warn)
+- Automatic updates
 
-### Measured
-- Build time: ~2 seconds (Release)
-- Test execution: ~150ms for all 10 tests
-- Published size: 173 MB (self-contained with .NET 10 runtime)
+CSV export of the current cycle is implemented in Settings.
 
-### Targets (Not Yet Verified)
-- Startup: < 1 second
-- Idle memory: < 100 MB private working set
-- UI refresh: 60fps
-- Tray click response: < 100ms
+## Packaging notes
 
-## What's NOT Implemented
-
-Per the spec, these are explicitly out of scope for v1:
-
-1. **Actual Cursor API Integration**
-   - App tracks percentages, not real usage
-   - No telemetry or cloud sync
-
-2. **Historical Data**
-   - Only current cycle is retained
-   - Past cycles are not stored
-
-3. **Multi-Resolution Icon**
-   - Placeholder file exists
-   - Need proper .ico with 16/32/48/256px
-
-4. **Code Signing**
-   - Installer will be unsigned
-   - SmartScreen will warn users
-
-5. **Automatic Updates**
-   - Manual download and install only
-
-6. **Advanced UI**
-   - No themes, charts, mini mode
-   - Basic WPF with system colors
-
-## Known Issues
-
-None. All planned features working as specified.
-
-## Deployment Instructions
-
-1. **Build Release Package**
-   ```
-   dotnet publish CursorQuotaProgress -c Release -r win-x64 --self-contained
-   ```
-
-2. **Create Icon** (Not Done)
-   - Replace `Assets/icon-placeholder.txt` with `icon.ico`
-   - Multi-resolution: 16x16, 32x32, 48x48, 256x256
-
-3. **Build Installer**
-   - Install Inno Setup 6.x
-   - Run: `iscc setup.iss`
-   - Output: `installer/CursorQuotaProgress-1.0.0-win-x64-setup.exe`
-
-4. **Generate Checksum**
-   ```
-   certutil -hashfile installer/CursorQuotaProgress-*.exe SHA256 > installer/checksum.txt
-   ```
-
-5. **GitHub Release**
-   - Upload installer .exe
-   - Upload checksum.txt
-   - Include README.md in release notes
-
-## Future Maintenance
-
-### Version Bumps
-1. Update version in `CursorQuotaProgress.csproj` (3 places)
-2. Update `#define MyAppVersion` in `setup.iss`
-3. Tag git commit: `git tag v1.0.1`
-
-### Settings Migration
-Current format is version 1. When adding fields:
-- Add with sensible defaults in `AppSettings` constructor
-- Increment `Version` field
-- Old settings auto-populate missing fields (JSON deserializer)
-
-### Breaking Changes
-If changing the calculation contract:
-- Increment `AppSettings.Version` to 2
-- Detect old version on load
-- Show migration warning
-- Regenerate active cycle
-
-## Lessons Learned
-
-1. **WPF + Windows Forms**: Needed both for WPF UI + tray NotifyIcon
-2. **Namespace Ambiguity**: MessageBox exists in both, required explicit `using MessageBox = System.Windows.MessageBox`
-3. **Decimal Math**: Critical for financial-like percentages
-4. **Atomic Writes**: Temp file + move = no corruption on crash
-5. **Testability**: Interfaces for time/storage made tests trivial
-
-## Time Estimate
-
-Implementation completed in single session:
-- Architecture & models: ~30 min
-- Core calculation logic: ~45 min
-- Services & persistence: ~40 min
-- ViewModels & UI: ~60 min
-- Testing & fixes: ~30 min
-- Dialogs & polish: ~20 min
-- Documentation: ~25 min
-
-**Total: ~4 hours**
-
-## Conclusion
-
-Fully functional Windows desktop app ready for user testing. Only remaining work is cosmetic (icon) and packaging verification (Inno Setup test in Windows Sandbox).
-
-The architecture is clean, testable, and maintainable. All core requirements from the specification have been implemented and verified.
+Self-contained `win-x64` publish, Windows App SDK self-contained, not single-file. See `build.ps1` and `setup.iss`.

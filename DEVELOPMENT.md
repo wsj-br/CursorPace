@@ -1,205 +1,154 @@
-# Development Notes
+# Development
 
-## Project Architecture
+Contributor guide: environment, build, test, layout, and release. Architecture and the calculation contract are in [IMPLEMENTATION.md](IMPLEMENTATION.md). End-user steps are in [QUICKSTART.md](QUICKSTART.md).
 
-### Core Components
+## Prerequisites
 
-**Models** (`Models/`)
-- `QuotaKind` - Enum for CursorModels and OtherModels
-- `QuotaDayEntry` - Represents one day in the cycle with percentages
-- `QuotaCycle` - Complete cycle with start, end, and all days
-- `AppSettings` - Persistent application settings
+- Windows 10 or 11, x64
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- Windows 10 SDK 10.0.19041 or later (comes with Visual Studio 2022/2026 with the WinUI workload, or the standalone SDK)
+- Optional: [Inno Setup 6](https://jrsoftware.org/isdl.php) for `.\build.ps1`
+- Optional: Visual Studio or VS Code / Cursor
 
-**Services** (`Services/`)
-- `IClock` / `SystemClock` - Time abstraction for testing
-- `ICycleCalculator` / `CycleCalculator` - Core calculation logic
-- `IPlanStore` / `JsonPlanStore` - JSON persistence
-- `IStartupRegistration` / `WindowsStartupRegistration` - Windows Registry startup
-- `ITrayService` / `TrayService` - System tray icon management
+The app is WinUI 3 (Windows App SDK), not WPF.
 
-**ViewModels** (`ViewModels/`)
-- `MainViewModel` - Main window logic
-- `DayRowViewModel` - Individual row in the data grid
-- `ViewModelBase` - Base class with INotifyPropertyChanged
-- `RelayCommand` - ICommand implementation
+## Clone and restore
 
-**Views** (`Views/`)
-- `MainWindow` - Main application window
-- `RenewalDayDialog` - Setup/change renewal day
-
-## Calculation Logic
-
-The cycle calculator implements the contract specified in the requirements:
-
-```
-Days in cycle: D = (NextRenewal - CycleStart).Days
-Day k (0-indexed): defaultPercent = 100 * k / D
-
-Example: 31-day cycle
-- Day 1 (k=0): 0%
-- Day 2 (k=1): 3.225...%
-- Day 31 (k=30): 96.774...%
-- Renewal (not shown): 100%
-```
-
-### Renewal Day Lookup
-
-1. Check if current month has the renewal day
-2. If yes and date <= today, use it as cycle start
-3. Otherwise, search backwards month-by-month for valid renewal day
-4. Skip months that don't have the day (e.g., Feb 30, Feb 31)
-
-### Recalculation After Edit
-
-When editing day `k` to value `x`:
-- Previous days (0 to k-1) remain unchanged
-- Remaining intervals: `D - k`
-- Daily increment: `(100 - x) / (D - k)`
-- Day `j` (j > k): `x + (j - k) × dailyIncrement`
-
-## Data Persistence
-
-Settings stored at: `%LocalAppData%\CursorQuotaProgress\settings.json`
-
-Format:
-```json
-{
-  "version": 1,
-  "renewalDay": 15,
-  "runAtStartup": false,
-  "activeCycle": {
-    "renewalDay": 15,
-    "cycleStart": "2026-01-15T00:00:00",
-    "nextRenewal": "2026-02-15T00:00:00",
-    "days": [
-      {
-        "dayNumber": 1,
-        "date": "2026-01-15T00:00:00",
-        "cursorModelsPercent": 0,
-        "otherModelsPercent": 0,
-        "cursorModelsIsManual": false,
-        "otherModelsIsManual": false
-      },
-      ...
-    ]
-  }
-}
-```
-
-Atomic write using temp file + move for crash safety.
-
-## Window Lifecycle
-
-1. **Process Start**
-   - Create mutex for single-instance
-   - Initialize tray icon
-   - Load settings
-   - Show setup dialog if first run
-   - Show main window unless `--background` flag
-
-2. **Close Window** (X button)
-   - Cancel close event
-   - Hide window
-   - Keep tray icon visible
-   - Process continues running
-
-3. **Quit** (explicit button or tray menu)
-   - Shutdown application
-   - Dispose tray icon
-   - Exit process
-
-4. **Second Instance Launch**
-   - Detect existing mutex
-   - Signal first instance via EventWaitHandle
-   - Exit immediately
-
-## Testing Strategy
-
-Unit tests cover:
-- Renewal day calculation across year boundaries
-- Month skipping (28, 29, 30, 31)
-- Leap year handling (Feb 29)
-- Cycle generation with correct day counts
-- Default percentage distribution
-- Independent quota recalculation
-- Edit propagation with full precision
-
-Integration testing checklist:
-- [ ] First-run setup flow
-- [ ] Renewal day change with confirmation
-- [ ] Edit cells and verify recalculation
-- [ ] Invalid input rejection
-- [ ] Startup registration
-- [ ] Single-instance enforcement
-- [ ] Close to tray behavior
-- [ ] Tray icon recovery after Explorer restart
-- [ ] Midnight/timezone change detection
-- [ ] Theme switching (light/dark/high-contrast)
-
-## Known Limitations
-
-1. **Icon**: Placeholder only - needs proper multi-resolution .ico
-2. **Manual Edits**: Discarded on renewal day change (by design)
-3. **Historical Data**: Not retained across cycles
-4. **No Cloud Sync**: Local machine only
-5. **No Cursor API**: Manual percentage tracking, not actual usage
-
-## Performance Targets
-
-- **Startup**: < 1 second on typical hardware
-- **Idle Memory**: < 100 MB private working set
-- **Tray Latency**: < 100ms to show window on click
-- **UI Responsiveness**: 60fps for scrolling and updates
-
-## Future Enhancements (Out of Scope for v1)
-
-- Historical cycle viewer
-- Usage statistics and charts
-- Custom themes
-- Multiple quota profiles
-- Export to CSV
-- Cloud sync
-- Cursor API integration for actual usage tracking
-- Reminder notifications
-- Mini mode (compact view)
-
-## Building from Source
-
-Requirements:
-- .NET 10 SDK
-- Windows 10/11 x64
-- Visual Studio 2022 or VS Code (optional)
-
-Build commands:
-```bash
+```powershell
+git clone <repository-url>
+cd Cursor-progress
 dotnet restore
-dotnet build -c Release
-dotnet test -c Release
-dotnet publish CursorQuotaProgress -c Release -r win-x64 --self-contained
 ```
+
+## Everyday commands
+
+| Task | Command |
+| --- | --- |
+| Build | `dotnet build` |
+| Tests | `dotnet test .\Tests\CursorQuotaProgress.Tests.csproj` |
+| Run (window) | `.\dev.ps1` or `dotnet run --project .\CursorQuotaProgress.csproj` |
+| Run (tray only) | `.\dev.ps1 -Background` |
+| Tests via script | `.\dev.ps1 -Test` |
+| Publish + installer | `.\build.ps1` |
+| Publish only | `.\build.ps1 -SkipInstaller` |
+| Publish, skip tests | `.\build.ps1 -SkipTests` |
+
+Launch flags after `--`:
+
+```powershell
+dotnet run --project .\CursorQuotaProgress.csproj -- --background
+```
+
+`--background` starts the tray icon without showing the main window (used by the Run-at-sign-in registry value).
+
+## Solution layout
+
+```text
+Cursor-progress/
+├── App.xaml, App.xaml.cs
+├── CursorQuotaProgress.csproj
+├── CursorQuotaProgress.slnx
+├── Models/
+├── Services/
+├── ViewModels/
+├── Views/
+├── Converters/
+├── Assets/                      # cursor_quota_progress.ico / .png
+├── Tests/
+│   ├── CursorQuotaProgress.Tests.csproj
+│   └── CycleCalculatorTests.cs
+├── setup.iss                    # Inno Setup
+├── build.ps1
+└── dev.ps1
+```
+
+Open `CursorQuotaProgress.slnx` in Visual Studio, or build the `.csproj` files directly.
+
+## Stack
+
+| Area | Choice |
+| --- | --- |
+| UI | WinUI 3, Windows App SDK (`net10.0-windows10.0.19041.0`) |
+| Tray | `H.NotifyIcon.WinUI` |
+| Tests | xUnit, project under `Tests/` |
+| Settings | JSON under `%LocalAppData%\CursorQuotaProgress\` |
+| Installer | Inno Setup 6, per-user (`PrivilegesRequired=lowest`) |
+
+Manual construction in `App.OnLaunched` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. There is no DI container.
+
+## Tests
+
+`Tests/CycleCalculatorTests.cs` covers:
+
+- Cycle start and next renewal across year boundaries
+- Months that lack the renewal day (28, 29, 30, 31)
+- Leap-year 29 February
+- Default linear percents
+- Manual edits as interpolation anchors (including later edits and days before the first edit)
+- Independent Cursor Models vs Other Models
+- `ClearManual` restoring computed values
+
+Add cases next to the existing facts when you change `CycleCalculator`.
+
+## Packaging
+
+`.\build.ps1`:
+
+1. Runs tests (unless `-SkipTests`)
+2. `dotnet publish` self-contained `win-x64` (not single-file; trimming and ReadyToRun stay off)
+3. Compiles `setup.iss` unless `-SkipInstaller`
+4. Writes `installer\CursorQuotaProgress-<version>-win-x64-setup.exe` and a sibling `.sha256` file
+
+`installer/` is gitignored. Attach the exe and checksum to a GitHub Release.
+
+Do not commit built binaries.
+
+## Version bumps
+
+Keep these in sync:
+
+1. `<Version>` in `CursorQuotaProgress.csproj` (the script reads this)
+2. Default `MyAppVersion` in `setup.iss` (overridden by `build.ps1` when you pass `/DMyAppVersion=...`)
+3. Git tag, for example `v1.0.1`
+
+## Settings format
+
+On-disk cycle data stores **edits only**. Full day lists from older files are migrated on load. See [IMPLEMENTATION.md](IMPLEMENTATION.md) for the JSON shape, atomic writes, and version field.
+
+When you add settings fields, give them defaults on `AppSettings` / `StoredSettings` so older files still deserialize. Bump `Version` when the contract is incompatible, then migrate or regenerate the active cycle on load.
 
 ## Troubleshooting
 
-**App won't start after update**
-- Kill existing process
-- Check mutex is released
-- Verify .NET 10 runtime in published folder
+**App will not start after an update**
+
+- End `CursorQuotaProgress.exe` so the single-instance mutex is released.
+- Confirm the published folder contains the Windows App SDK payload (self-contained publish).
 
 **Tray icon missing after Explorer restart**
-- App listens for SessionSwitch events
-- Should auto-recover within seconds
-- If not, restart the app
+
+- `TrayService` listens for `SessionSwitch` and recreates the icon. If it does not return, restart the app.
 
 **Settings lost**
-- Check `%LocalAppData%\CursorQuotaProgress\`
-- Look for `settings.corrupt.json` backup
-- JSON deserialization errors trigger regeneration
 
-**Startup registration not working**
-- Check: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`
-- Key name: `CursorQuotaProgress`
-- Value should include `--background` flag
+- `%LocalAppData%\CursorQuotaProgress\`
+- `settings.corrupt.json` is a backup of a file that failed to parse
 
-## License
+**Startup registration**
 
-Copyright © 2026. Internal tool, no public distribution planned for v1.
+- `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`
+- Value name `CursorQuotaProgress`
+- Command: quoted exe path plus `--background`
+
+**Tests or publish path wrong**
+
+- Tests live under `Tests/`, not the repo root.
+- Publish output is `bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\`.
+
+## Contributing
+
+1. Match existing naming, MVVM boundaries, and interface-based services.
+2. Put calculation changes in `CycleCalculator` and cover them with xUnit facts.
+3. Keep user-facing docs (`README.md`, `QUICKSTART.md`) in sync with UI changes.
+4. Do not commit `bin/`, `obj/`, or `installer/` outputs.
+
+Open an issue for bugs or proposals. There is no published code of conduct or security policy file yet; treat this repository as a private/internal project unless the maintainers say otherwise.
