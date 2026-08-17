@@ -1,9 +1,9 @@
 using System.Threading;
-using System.Windows;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
 using CursorQuotaProgress.Services;
 using CursorQuotaProgress.ViewModels;
 using CursorQuotaProgress.Views;
-using Application = System.Windows.Application;
 
 namespace CursorQuotaProgress;
 
@@ -18,8 +18,9 @@ public partial class App : Application
     private ITrayService? _trayService;
     private MainWindow? _mainWindow;
     private MainViewModel? _viewModel;
+    private DispatcherQueue? _dispatcherQueue;
 
-    private void OnStartup(object sender, StartupEventArgs e)
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         bool createdNew;
         _mutex = new Mutex(true, MutexName, out createdNew);
@@ -27,9 +28,11 @@ public partial class App : Application
         if (!createdNew)
         {
             SignalExistingInstance();
-            Shutdown();
+            Exit();
             return;
         }
+
+        _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
         ListenForActivationSignal();
 
@@ -43,68 +46,42 @@ public partial class App : Application
         _trayService = new TrayService();
         _trayService.Initialize(
             onOpenRequested: ShowMainWindow,
-            onQuitRequested: () => Shutdown());
+            onQuitRequested: () => _dispatcherQueue!.TryEnqueue(Exit));
 
         _mainWindow = new MainWindow(_viewModel, calculator, clock);
 
-        bool launchInBackground = e.Args.Contains("--background");
+        bool launchInBackground = Environment.GetCommandLineArgs().Contains("--background");
 
-        // Show initial setup if no renewal day is configured
         if (!_viewModel.IsInitialized)
         {
-            // Show main window first so it can be the owner of the dialog
-            _mainWindow.Show();
-
-            var dialog = new RenewalDayDialog(calculator, clock) { Owner = _mainWindow };
-            if (dialog.ShowDialog() == true && dialog.RenewalDay.HasValue)
-            {
-                _viewModel.SetRenewalDay(dialog.RenewalDay.Value);
-            }
-            else
-            {
-                Shutdown();
-                return;
-            }
+            _mainWindow.Activate();
+            _mainWindow.ShowRenewalDaySetup();
         }
         else if (!launchInBackground)
         {
-            _mainWindow.Show();
+            _mainWindow.Activate();
         }
-    }
-
-    private void OnExit(object sender, ExitEventArgs e)
-    {
-        _trayService?.Dispose();
-
-        _namedEventThread?.Interrupt();
-        _eventWaitHandle?.Close();
-        _mutex?.ReleaseMutex();
-        _mutex?.Dispose();
     }
 
     private void ShowMainWindow()
     {
-        if (_mainWindow != null)
+        _dispatcherQueue?.TryEnqueue(() =>
         {
-            Dispatcher.Invoke(() =>
+            if (_mainWindow != null)
             {
-                _mainWindow.Show();
-                _mainWindow.WindowState = WindowState.Normal;
-                _mainWindow.Activate();
-            });
-        }
+                _mainWindow.BringToFront();
+            }
+        });
     }
 
     private void SignalExistingInstance()
     {
         try
         {
-            var eventWaitHandle = EventWaitHandle.OpenExisting(MutexName + "_Event");
-            eventWaitHandle.Set();
+            var handle = EventWaitHandle.OpenExisting(MutexName + "_Event");
+            handle.Set();
         }
-        catch
-        {
-        }
+        catch { }
     }
 
     private void ListenForActivationSignal()
@@ -126,11 +103,8 @@ public partial class App : Application
                 }
             }
         })
-        {
-            IsBackground = true
-        };
+        { IsBackground = true };
 
         _namedEventThread.Start();
     }
 }
-

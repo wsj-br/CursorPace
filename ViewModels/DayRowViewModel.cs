@@ -43,6 +43,9 @@ public sealed class DayRowViewModel : ViewModelBase
         }
     }
 
+    public double CursorModelsValue => (double)_model.CursorModelsPercent;
+    public double OtherModelsValue => (double)_model.OtherModelsPercent;
+
     public bool IsToday
     {
         get => _isToday;
@@ -56,5 +59,7 @@ public sealed class DayRowViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(CursorModelsText));
         OnPropertyChanged(nameof(OtherModelsText));
+        OnPropertyChanged(nameof(CursorModelsValue));
+        OnPropertyChanged(nameof(OtherModelsValue));
     }
 }

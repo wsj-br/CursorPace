@@ -1,12 +1,13 @@
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+using H.NotifyIcon;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.Win32;
+using System.Windows.Input;
 
 namespace CursorQuotaProgress.Services;
 
 public sealed class TrayService : ITrayService
 {
-    private NotifyIcon? _notifyIcon;
+    private TaskbarIcon? _taskbarIcon;
     private Action? _onOpenRequested;
     private Action? _onQuitRequested;
 
@@ -15,63 +16,55 @@ public sealed class TrayService : ITrayService
         _onOpenRequested = onOpenRequested;
         _onQuitRequested = onQuitRequested;
 
-        _notifyIcon = new NotifyIcon
+        var openCommand = new ActionCommand(() => _onOpenRequested?.Invoke());
+        var quitCommand = new ActionCommand(() => _onQuitRequested?.Invoke());
+
+        _taskbarIcon = new TaskbarIcon
         {
-            Icon = LoadIcon(),
-            Text = "Cursor Quota Progress",
-            Visible = true
+            ToolTipText = "Cursor Quota Progress",
+            LeftClickCommand = openCommand,
+            DoubleClickCommand = openCommand,
+            NoLeftClickDelay = true,
         };
 
-        _notifyIcon.MouseClick += OnIconClick;
+        var openItem = new MenuFlyoutItem { Text = "Open", Command = openCommand };
+        var quitItem = new MenuFlyoutItem { Text = "Quit", Command = quitCommand };
+        var menu = new MenuFlyout();
+        menu.Items.Add(openItem);
+        menu.Items.Add(quitItem);
+        _taskbarIcon.ContextFlyout = menu;
 
-        var contextMenu = new ContextMenuStrip();
-        contextMenu.Items.Add("Open", null, (s, e) => _onOpenRequested?.Invoke());
-        contextMenu.Items.Add("Quit", null, (s, e) => _onQuitRequested?.Invoke());
-        _notifyIcon.ContextMenuStrip = contextMenu;
+        var iconPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico");
+        if (System.IO.File.Exists(iconPath))
+            _taskbarIcon.SetValue(TaskbarIcon.IconSourceProperty, new BitmapIconSource { UriSource = new Uri(iconPath) });
 
-        Microsoft.Win32.SystemEvents.SessionSwitch += OnSessionSwitch;
+        SystemEvents.SessionSwitch += OnSessionSwitch;
     }
 
-    public void ShowWindow()
-    {
-        _onOpenRequested?.Invoke();
-    }
+    public void ShowWindow() => _onOpenRequested?.Invoke();
 
     public void Dispose()
     {
-        if (_notifyIcon != null)
+        if (_taskbarIcon != null)
         {
-            Microsoft.Win32.SystemEvents.SessionSwitch -= OnSessionSwitch;
-            _notifyIcon.Visible = false;
-            _notifyIcon.Dispose();
-            _notifyIcon = null;
+            SystemEvents.SessionSwitch -= OnSessionSwitch;
+            _taskbarIcon.Dispose();
+            _taskbarIcon = null;
         }
     }
 
-    private void OnIconClick(object? sender, MouseEventArgs e)
+    private void OnSessionSwitch(object sender, SessionSwitchEventArgs e)
     {
-        if (e.Button == MouseButtons.Left)
-        {
-            _onOpenRequested?.Invoke();
-        }
+        if (e.Reason == SessionSwitchReason.SessionUnlock && _taskbarIcon != null)
+            _taskbarIcon.ForceCreate();
     }
 
-    private void OnSessionSwitch(object sender, Microsoft.Win32.SessionSwitchEventArgs e)
+    private sealed class ActionCommand : ICommand
     {
-        if (e.Reason == Microsoft.Win32.SessionSwitchReason.SessionUnlock && _notifyIcon != null)
-        {
-            _notifyIcon.Visible = false;
-            _notifyIcon.Visible = true;
-        }
-    }
-
-    private static Icon LoadIcon()
-    {
-        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico");
-        if (File.Exists(iconPath))
-            return new Icon(iconPath);
-
-        return SystemIcons.Application;
+        private readonly Action _action;
+        public ActionCommand(Action action) => _action = action;
+        public event EventHandler? CanExecuteChanged;
+        public bool CanExecute(object? parameter) => true;
+        public void Execute(object? parameter) => _action();
     }
 }
-
