@@ -1,0 +1,4 @@
+Placeholder for icon.ico
+To complete the app, replace this with a proper multi-resolution .ico file containing:
+- 16x16, 32x32, 48x48, 256x256 pixel images
+- For use in: window title bar, taskbar, notification area, installer

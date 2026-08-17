@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CursorQuotaProgress.csproj" />
+  <Project Path="CursorQuotaProgress.Tests.csproj" />
+</Solution>
