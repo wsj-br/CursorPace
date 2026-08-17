@@ -5,158 +5,189 @@
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:CursorQuotaProgress.Converters"
+    xmlns:local="using:CursorQuotaProgress.Views"
     mc:Ignorable="d">
 
-    <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto">
+    <Grid x:Name="RootGrid" RowDefinitions="Auto,*">
 
-        <!-- Custom title bar -->
-        <Grid x:Name="AppTitleBar" Grid.Row="0" Height="48"
-              Background="Transparent" Padding="12,0">
-            <TextBlock Text="Cursor Quota Progress"
-                       VerticalAlignment="Center"
-                       Style="{StaticResource CaptionTextBlockStyle}"
-                       Opacity="0.8"/>
+        <!-- Custom title bar with seamless background -->
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Height="48">
+            <Grid Padding="16,0,150,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="Cursor Quota Progress"
+                           VerticalAlignment="Center"
+                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                           FontSize="13"
+                           Opacity="0.9"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                    <Button Click="OnResetClick"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Height="32"
+                            Padding="12,0"
+                            CornerRadius="4">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE72C;" FontSize="14"/>
+                            <TextBlock Text="Reset" VerticalAlignment="Center" FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Click="OnSettingsClick"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Height="32"
+                            Padding="12,0"
+                            CornerRadius="4">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE713;" FontSize="14"/>
+                            <TextBlock Text="Settings" VerticalAlignment="Center" FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Click="OnQuitClick"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Height="32"
+                            Padding="12,0"
+                            CornerRadius="4">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE711;" FontSize="14"/>
+                            <TextBlock Text="Quit" VerticalAlignment="Center" FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Grid>
 
-        <!-- Body: info cards + list/edit panel -->
-        <Grid Grid.Row="1" Padding="16,0,16,0" RowDefinitions="Auto,*">
+        <!-- Body: info cards + calendar/edit panel -->
+        <Grid Grid.Row="1" Padding="16,16,16,16" RowDefinitions="Auto,*">
 
             <!-- Info cards row -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,20">
 
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1" CornerRadius="8" Padding="16,10">
+                        BorderThickness="1" CornerRadius="8" Padding="14,10">
                     <StackPanel>
-                        <TextBlock Text="Cycle start" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.6"/>
-                        <TextBlock Text="{Binding CycleStartText}" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Cycle start" Style="{StaticResource CaptionTextBlockStyle}"
+                                   Opacity="0.6" FontSize="11"/>
+                        <TextBlock Text="{Binding CycleStartText}"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   FontSize="14" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Border>
 
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1" CornerRadius="8" Padding="16,10">
+                        BorderThickness="1" CornerRadius="8" Padding="14,10">
                     <StackPanel>
-                        <TextBlock Text="Next renewal" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.6"/>
-                        <TextBlock Text="{Binding NextRenewalText}" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Next renewal" Style="{StaticResource CaptionTextBlockStyle}"
+                                   Opacity="0.6" FontSize="11"/>
+                        <TextBlock Text="{Binding NextRenewalText}"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   FontSize="14" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Border>
 
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1" CornerRadius="8" Padding="16,10">
+                        BorderThickness="1" CornerRadius="8" Padding="14,10">
                     <StackPanel>
-                        <TextBlock Text="Cursor Models today" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.6"/>
-                        <TextBlock Text="{Binding CursorModelsTodayText}" Style="{StaticResource BodyStrongTextBlockStyle}"
-                                   Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                        <TextBlock Text="Cursor Models today" Style="{StaticResource CaptionTextBlockStyle}"
+                                   Opacity="0.6" FontSize="11"/>
+                        <TextBlock Text="{Binding CursorModelsTodayText}"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                   FontSize="14" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Border>
 
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1" CornerRadius="8" Padding="16,10">
+                        BorderThickness="1" CornerRadius="8" Padding="14,10">
                     <StackPanel>
-                        <TextBlock Text="Other Models today" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.6"/>
-                        <TextBlock Text="{Binding OtherModelsTodayText}" Style="{StaticResource BodyStrongTextBlockStyle}"
-                                   Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                        <TextBlock Text="Other Models today" Style="{StaticResource CaptionTextBlockStyle}"
+                                   Opacity="0.6" FontSize="11"/>
+                        <TextBlock Text="{Binding OtherModelsTodayText}"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                   FontSize="14" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Border>
 
             </StackPanel>
 
-            <!-- List + edit panel -->
+            <!-- Calendar + edit panel (panel only occupies space while editing) -->
             <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
 
-                <!-- Days list -->
-                <ListView x:Name="DaysList" Grid.Column="0"
-                          ItemsSource="{Binding Days}"
-                          SelectionChanged="OnDaySelectionChanged"
-                          SelectionMode="Single">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Setter Property="Padding" Value="12,6"/>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid ColumnDefinitions="52,120,*,*">
-                                <TextBlock Grid.Column="0" Text="{Binding DayNumber}"
-                                           VerticalAlignment="Center"
-                                           Opacity="0.6"
-                                           Style="{StaticResource CaptionTextBlockStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding DateText}"
-                                           VerticalAlignment="Center"/>
-                                <StackPanel Grid.Column="2" Margin="0,0,16,0">
-                                    <TextBlock Text="{Binding CursorModelsText}"
-                                               Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.6"/>
-                                    <ProgressBar Value="{Binding CursorModelsValue}"
-                                                 Maximum="100" Height="4"
-                                                 Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="3">
-                                    <TextBlock Text="{Binding OtherModelsText}"
-                                               Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.6"/>
-                                    <ProgressBar Value="{Binding OtherModelsValue}"
-                                                 Maximum="100" Height="4"/>
-                                </StackPanel>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                <!-- Calendar -->
+                <local:CalendarControl x:Name="CalendarView"
+                                       Weeks="{Binding Calendar.Weeks, Mode=OneWay}"
+                                       CellSelected="OnCellSelected"/>
 
                 <!-- Edit panel -->
-                <Border x:Name="EditPanel" Grid.Column="1"
-                        Width="240"
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1,0,0,0"
-                        Padding="20,16"
-                        Visibility="Collapsed">
-                    <StackPanel Spacing="16">
-                        <TextBlock x:Name="EditPanelTitle"
-                                   Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                <Border Grid.Column="1" Width="220" Padding="12" Margin="16,0,0,0"
+                        Visibility="{x:Bind ViewModel.EditPanelVisibility, Mode=OneWay}"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                        BorderThickness="1,0,0,0">
+                    <StackPanel Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="{x:Bind ViewModel.EditingDayText, Mode=OneWay}"
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                       VerticalAlignment="Center"
+                                       TextWrapping="Wrap"/>
+                            <Button Grid.Column="1"
+                                    Command="{x:Bind ViewModel.CancelEditCommand}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="8"
+                                    ToolTipService.ToolTip="Close">
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE711;" FontSize="12"/>
+                            </Button>
+                        </Grid>
 
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Cursor Models %" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7"/>
-                            <NumberBox x:Name="CursorModelsBox"
-                                       Minimum="0" Maximum="100"
-                                       SmallChange="1" LargeChange="5"
-                                       SpinButtonPlacementMode="Compact"/>
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Cursor Models Quota" FontSize="12" Opacity="0.8"/>
+                            <NumberBox x:Name="CursorQuotaBox"
+                                       Value="{x:Bind ViewModel.EditingCursorQuota, Mode=TwoWay}"
+                                       SpinButtonPlacementMode="Inline"
+                                       SmallChange="1"
+                                       LargeChange="10"
+                                       Minimum="0" Maximum="1000000"/>
                         </StackPanel>
 
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Other Models %" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7"/>
-                            <NumberBox x:Name="OtherModelsBox"
-                                       Minimum="0" Maximum="100"
-                                       SmallChange="1" LargeChange="5"
-                                       SpinButtonPlacementMode="Compact"/>
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Other Models Quota" FontSize="12" Opacity="0.8"/>
+                            <NumberBox x:Name="OtherQuotaBox"
+                                       Value="{x:Bind ViewModel.EditingOtherQuota, Mode=TwoWay}"
+                                       SpinButtonPlacementMode="Inline"
+                                       SmallChange="1"
+                                       LargeChange="10"
+                                       Minimum="0" Maximum="1000000"/>
                         </StackPanel>
 
-                        <Button Content="Apply" HorizontalAlignment="Stretch"
-                                Style="{StaticResource AccentButtonStyle}"
-                                Click="OnApplyEdit"/>
-
-                        <Button Content="Cancel" HorizontalAlignment="Stretch"
-                                Click="OnCancelEdit"/>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <Button Content="Reset"
+                                    Click="OnResetDayClick"
+                                    HorizontalAlignment="Stretch"/>
+                            <Button Grid.Column="1"
+                                    Content="Apply"
+                                    Click="OnApplyClick"
+                                    HorizontalAlignment="Stretch"
+                                    Style="{StaticResource AccentButtonStyle}"/>
+                        </Grid>
                     </StackPanel>
                 </Border>
 
             </Grid>
-        </Grid>
-
-        <!-- Footer -->
-        <Grid Grid.Row="2" Padding="16,12" ColumnDefinitions="*,Auto,Auto">
-            <ToggleSwitch Grid.Column="0"
-                          Header="Run at Windows sign-in"
-                          IsOn="{Binding RunAtStartup, Mode=TwoWay}"
-                          VerticalAlignment="Center"
-                          Margin="0"/>
-            <Button Grid.Column="1" Content="Change renewal day"
-                    Command="{Binding ChangeRenewalDayCommand}"
-                    Margin="0,0,8,0"/>
-            <Button Grid.Column="2" Content="Quit"
-                    Command="{Binding QuitCommand}"/>
         </Grid>
 
     </Grid>

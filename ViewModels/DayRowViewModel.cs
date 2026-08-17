@@ -7,10 +7,14 @@ public sealed class DayRowViewModel : ViewModelBase
 {
     private readonly QuotaDayEntry _model;
     private bool _isToday;
+    private readonly double _linearQuotaCursor;
+    private readonly double _linearQuotaOther;
 
-    public DayRowViewModel(QuotaDayEntry model)
+    public DayRowViewModel(QuotaDayEntry model, double linearQuotaCursor, double linearQuotaOther)
     {
         _model = model;
+        _linearQuotaCursor = linearQuotaCursor;
+        _linearQuotaOther = linearQuotaOther;
     }
 
     public int DayNumber => _model.DayNumber;
@@ -46,11 +50,18 @@ public sealed class DayRowViewModel : ViewModelBase
     public double CursorModelsValue => (double)_model.CursorModelsPercent;
     public double OtherModelsValue => (double)_model.OtherModelsPercent;
 
+    public double LinearQuotaCursor => _linearQuotaCursor;
+    public double LinearQuotaOther => _linearQuotaOther;
+
+    public bool IsModified => _model.CursorModelsIsManual || _model.OtherModelsIsManual;
+
     public bool IsToday
     {
         get => _isToday;
         set => SetProperty(ref _isToday, value);
     }
+
+    public bool IsManuallyEdited => _model.CursorModelsIsManual || _model.OtherModelsIsManual;
 
     public event Action<int, decimal>? CursorModelsEdited;
     public event Action<int, decimal>? OtherModelsEdited;
@@ -61,5 +72,7 @@ public sealed class DayRowViewModel : ViewModelBase
         OnPropertyChanged(nameof(OtherModelsText));
         OnPropertyChanged(nameof(CursorModelsValue));
         OnPropertyChanged(nameof(OtherModelsValue));
+        OnPropertyChanged(nameof(IsModified));
+        OnPropertyChanged(nameof(IsManuallyEdited));
     }
 }

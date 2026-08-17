@@ -46,7 +46,9 @@ public partial class App : Application
         _trayService = new TrayService();
         _trayService.Initialize(
             onOpenRequested: ShowMainWindow,
-            onQuitRequested: () => _dispatcherQueue!.TryEnqueue(Exit));
+            onQuitRequested: Quit);
+        _trayService.UpdateToolTip(_viewModel.TrayToolTipText);
+        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
 
         _mainWindow = new MainWindow(_viewModel, calculator, clock);
 
@@ -61,6 +63,28 @@ public partial class App : Application
         {
             _mainWindow.Activate();
         }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainViewModel.TrayToolTipText))
+            _trayService?.UpdateToolTip(_viewModel!.TrayToolTipText);
+    }
+
+    public void Quit()
+    {
+        if (_dispatcherQueue == null || !_dispatcherQueue.TryEnqueue(QuitCore))
+            QuitCore();
+    }
+
+    private void QuitCore()
+    {
+        _trayService?.Dispose();
+        _trayService = null;
+        _namedEventThread?.Interrupt();
+        _eventWaitHandle?.Dispose();
+        _mutex?.Dispose();
+        Exit();
     }
 
     private void ShowMainWindow()

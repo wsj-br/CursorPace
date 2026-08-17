@@ -2,9 +2,14 @@
 ; Inno Setup 6.x required
 
 #define MyAppName "Cursor Quota Progress"
+#ifndef MyAppVersion
 #define MyAppVersion "1.0.0"
+#endif
 #define MyAppPublisher "Cursor Quota Progress"
 #define MyAppExeName "CursorQuotaProgress.exe"
+#ifndef PublishDir
+#define PublishDir "bin\Release\net10.0-windows10.0.19041.0\win-x64\publish"
+#endif
 
 [Setup]
 AppId={{B4F8A9C2-5E3D-4F1A-9B2C-8D7E6F4A5C3B}
@@ -21,8 +26,7 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\{#MyAppExeName}
-SetupIconFile=Assets\icon-placeholder.txt
-; Note: Replace icon-placeholder.txt with actual icon.ico before building installer
+SetupIconFile=Assets\cursor_quota_progress.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -31,7 +35,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "bin\Release\net10.0-windows\win-x64\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

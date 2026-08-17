@@ -1,12 +1,21 @@
 <Application
     x:Class="CursorQuotaProgress.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:CursorQuotaProgress.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
+
+            <converters:TodayToBackgroundConverter x:Key="TodayToBackgroundConverter"/>
+            <converters:TodayToFontWeightConverter x:Key="TodayToFontWeightConverter"/>
+            <converters:ManualEditToForegroundConverter x:Key="ManualEditToForegroundConverter"/>
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <converters:RenewalDayToBackgroundConverter x:Key="RenewalDayToBackgroundConverter"/>
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
+            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

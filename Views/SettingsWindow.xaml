@@ -1,0 +1,70 @@
+<Window
+    x:Class="CursorQuotaProgress.Views.SettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid x:Name="RootGrid" RowDefinitions="Auto,*">
+
+        <!-- Custom title bar -->
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Height="48"
+              Background="Transparent" Padding="12,0">
+            <TextBlock Text="Settings"
+                       VerticalAlignment="Center"
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Opacity="0.8"/>
+        </Grid>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" Padding="24,16,24,24">
+            <StackPanel Spacing="24" MaxWidth="500">
+
+                <!-- Startup section -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Startup"
+                               Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <ToggleSwitch Header="Run at Windows sign-in"
+                                  IsOn="{Binding RunAtStartup, Mode=TwoWay}"/>
+                </StackPanel>
+
+                <!-- Renewal section -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Renewal Day"
+                               Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <TextBlock Text="Choose the day of the month when your Cursor quota renews."
+                               TextWrapping="Wrap"
+                               Opacity="0.7"
+                               Style="{StaticResource CaptionTextBlockStyle}"/>
+                    <Button Content="Change renewal day"
+                            Command="{Binding ChangeRenewalDayCommand}"
+                            HorizontalAlignment="Left"/>
+                </StackPanel>
+
+                <!-- Data section -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Data"
+                               Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <TextBlock Text="Reset will clear all manual edits and regenerate the cycle from scratch."
+                               TextWrapping="Wrap"
+                               Opacity="0.7"
+                               Style="{StaticResource CaptionTextBlockStyle}"/>
+                    <Button Content="Reset cycle"
+                            Command="{Binding ResetCycleCommand}"
+                            HorizontalAlignment="Left"/>
+                    <TextBlock Text="Export the current cycle as a CSV file for analysis."
+                               TextWrapping="Wrap"
+                               Opacity="0.7"
+                               Style="{StaticResource CaptionTextBlockStyle}"/>
+                    <Button Content="Export CSV"
+                            Click="OnExportCsvClick"
+                            IsEnabled="{Binding IsInitialized}"
+                            HorizontalAlignment="Left"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+    </Grid>
+</Window>

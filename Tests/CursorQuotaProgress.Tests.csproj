@@ -1,23 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="AssemblyInfo.cs" />
-    <Compile Remove="App.xaml.cs" />
-    <Compile Remove="Models/**" />
-    <Compile Remove="Services/**" />
-    <Compile Remove="ViewModels/**" />
-    <Compile Remove="Views/**" />
-    <None Remove="App.xaml" />
-    <None Remove="Views/**" />
-    <None Remove="Assets/**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
@@ -31,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="CursorQuotaProgress.csproj" />
+    <ProjectReference Include="..\CursorQuotaProgress.csproj" />
   </ItemGroup>
 
 </Project>

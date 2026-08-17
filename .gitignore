@@ -1,9 +1,43 @@
 # Build outputs
 bin/
 obj/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+artifacts/
+[Ll]og/
+[Ll]ogs/
 *.exe
 *.dll
 *.pdb
+*.deps.json
+*.runtimeconfig.json
+
+# WinUI / XAML compiled output (also leaks next to custom -o folders)
+*.xbf
+*.pri
+
+# Ad-hoc build output (e.g. dotnet build -o _build-check)
+_build-check
+_build-check*
+
+# Publish / installer / packaging
+publish/
+installer/
+AppPackages/
+BundleArtifacts/
+*.appx
+*.msix
+*.msixbundle
+*.appxbundle
+*.appxupload
+*.msi
 
 # User-specific files
 *.suo
@@ -19,23 +53,9 @@ obj/
 *.swo
 *~
 
-# Build results
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-[Aa]rm/
-[Aa]rm64/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Ll]ogs/
-
-# .NET Core
+# .NET
 project.lock.json
 project.fragment.lock.json
-artifacts/
 
 # NuGet
 *.nupkg
@@ -47,7 +67,24 @@ artifacts/
 
 # Test results
 [Tt]est[Rr]esult*/
+TestResults/
 [Bb]uild[Ll]og.*
 *.trx
 *.coverage
 *.coveragexml
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# Logs and temp
+*.log
+*.tlog
+*.tmp
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Debug screenshots dumped at repo root
+/screenshot.png
