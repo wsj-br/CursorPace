@@ -1,6 +1,6 @@
 # Development
 
-Contributor guide: environment, build, test, layout, and release. Architecture and the calculation contract are in [../IMPLEMENTATION.md](../IMPLEMENTATION.md). End-user steps are in [../QUICKSTART.md](../QUICKSTART.md).
+Contributor guide: environment, build, test, layout, and release. End-user steps are in [../QUICKSTART.md](../QUICKSTART.md).
 
 ## Prerequisites
 
@@ -32,6 +32,9 @@ dotnet restore
 | Publish + installer | `.\scripts\build.ps1` |
 | Publish only | `.\scripts\build.ps1 -SkipInstaller` |
 | Publish, skip tests | `.\scripts\build.ps1 -SkipTests` |
+| Clean artifacts | `.\scripts\clean.ps1` |
+| GitHub release from HEAD | `.\scripts\release.ps1` |
+| Dry-run release | `.\scripts\release.ps1 -DryRun` |
 
 Launch flags after `--`:
 
@@ -58,11 +61,15 @@ Cursor-progress/
 │   ├── CursorQuotaProgress.Tests.csproj
 │   └── CycleCalculatorTests.cs
 ├── setup.iss                    # Inno Setup
-└── scripts/
-    ├── build.ps1
-    ├── clean.ps1
-    ├── dev.ps1
-    └── release.ps1
+├── scripts/
+│   ├── build.ps1
+│   ├── clean.ps1
+│   ├── dev.ps1
+│   └── release.ps1
+└── dev/
+    ├── CHANGELOG.md
+    ├── DEVELOPMENT.md
+    └── release-new-version-prompt.md
 ```
 
 Open `CursorQuotaProgress.slnx` in Visual Studio, or build the `.csproj` files directly.
@@ -111,13 +118,17 @@ Do not commit built binaries.
 
 Keep these in sync:
 
-1. `<Version>` in `CursorQuotaProgress.csproj` (the script reads this)
-2. Default `MyAppVersion` in `setup.iss` (overridden by `scripts/build.ps1` when you pass `/DMyAppVersion=...`)
-3. Git tag, for example `v1.0.1`
+1. `<Version>` in `CursorQuotaProgress.csproj` (`scripts/build.ps1` and `scripts/release.ps1` read this)
+2. Default `MyAppVersion` in `setup.iss` (overridden by `scripts/build.ps1` with `/DMyAppVersion=...`)
+3. `dev/CHANGELOG.md`: when releasing, move `[Unreleased]` bullets into `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`
+4. `release-notes/RELEASE_NOTES_<version>.md` (required by `scripts/release.ps1`)
+5. Git tag `v<version>`
+
+`.\scripts\release.ps1` creates the annotated tag and GitHub Release from HEAD. The Release workflow (`.github/workflows/dotnet-desktop.yml`) then runs `scripts/build.ps1` and attaches the installer.
 
 ## Settings format
 
-On-disk cycle data stores **edits only**. Full day lists from older files are migrated on load. See [../IMPLEMENTATION.md](../IMPLEMENTATION.md) for the JSON shape, atomic writes, and version field.
+On-disk cycle data stores **edits only**. `JsonPlanStore` writes camelCase JSON to `%LocalAppData%\CursorQuotaProgress\settings.json` (atomic: write `settings.json.tmp`, then move). Full day lists from older files are migrated on load, then dropped on save. The `Version` field on `AppSettings` / `StoredSettings` is currently `1`.
 
 When you add settings fields, give them defaults on `AppSettings` / `StoredSettings` so older files still deserialize. Bump `Version` when the contract is incompatible, then migrate or regenerate the active cycle on load.
 
@@ -152,8 +163,8 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 
 1. Match existing naming, MVVM boundaries, and interface-based services.
 2. Put calculation changes in `CycleCalculator` and cover them with xUnit facts.
-3. Keep user-facing docs (`README.md`, `QUICKSTART.md`) in sync with UI changes.
+3. Keep user-facing docs (`README.md`, `QUICKSTART.md`) in sync with UI changes. Log user-visible work under `## [Unreleased]` in `dev/CHANGELOG.md`.
 4. Do not commit `bin/`, `obj/`, or `installer/` outputs.
 
-Open an issue for bugs or proposals. There is no published code of conduct or security policy file yet; treat this repository as a private/internal project unless the maintainers say otherwise.
+The project is MIT licensed (`LICENSE`). Open an issue for bugs or proposals. There is no published code of conduct or security policy file yet.
 

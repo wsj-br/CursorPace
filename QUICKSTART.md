@@ -148,5 +148,3 @@ The window does not need to stay visible, but the process must be running.
 - The UI follows Windows light, dark, and high-contrast themes.
 - High-DPI scaling is handled by WinUI.
 
-For calculation details, see [IMPLEMENTATION.md](IMPLEMENTATION.md).
-

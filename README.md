@@ -44,7 +44,7 @@ Release installer (needs [Inno Setup 6](https://jrsoftware.org/isdl.php)):
 .\scripts\build.ps1
 ```
 
-Full contributor workflow is in [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md). Design and calculation details are in [IMPLEMENTATION.md](IMPLEMENTATION.md).
+Full contributor workflow is in [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md).
 
 ## Documentation
 
@@ -52,9 +52,8 @@ Full contributor workflow is in [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md). Design
 | --- | --- |
 | [QUICKSTART.md](QUICKSTART.md) | Install, daily use, troubleshooting |
 | [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md) | Build, test, run, package, contribute |
-| [IMPLEMENTATION.md](IMPLEMENTATION.md) | Architecture and calculation contract |
 
 ## License
 
-Copyright 2026. All rights reserved unless a `LICENSE` file is added to this repository.
+MIT. See [LICENSE](LICENSE).
 
