@@ -182,4 +182,130 @@ public class CycleCalculatorTests
         Assert.False(cycle.Days[19].CursorModelsIsManual);
         Assert.Single(cycle.Edits);
     }
+
+    [Fact]
+    public void EstimateDailyUsage_WithNoEdits_ReturnsNull()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+
+        Assert.Null(_calculator.EstimateDailyUsage(cycle, QuotaKind.CursorModels));
+        Assert.Null(_calculator.EstimateRunOutDayNumber(cycle, QuotaKind.CursorModels));
+        Assert.Null(_calculator.ProjectedPercent(cycle, QuotaKind.CursorModels, 10));
+    }
+
+    [Fact]
+    public void EstimateDailyUsage_SingleEditAfterDay1_UsesOriginSlope()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 10, 45m);
+
+        var rate = _calculator.EstimateDailyUsage(cycle, QuotaKind.CursorModels);
+        Assert.Equal(45m / 9m, rate);
+
+        // Remaining 55% at 5%/day from day 10 → run-out on day 21
+        Assert.Equal(21, _calculator.EstimateRunOutDayNumber(cycle, QuotaKind.CursorModels));
+        Assert.Equal(45m, _calculator.ProjectedPercent(cycle, QuotaKind.CursorModels, 10));
+        Assert.Equal(50m, _calculator.ProjectedPercent(cycle, QuotaKind.CursorModels, 11));
+    }
+
+    [Fact]
+    public void EstimateDailyUsage_Day1OnlyEdit_ReturnsNull()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 1, 12m);
+
+        Assert.Null(_calculator.EstimateDailyUsage(cycle, QuotaKind.CursorModels));
+        Assert.Null(_calculator.EstimateRunOutDayNumber(cycle, QuotaKind.CursorModels));
+        Assert.Null(_calculator.ProjectedPercent(cycle, QuotaKind.CursorModels, 5));
+    }
+
+    [Fact]
+    public void EstimateDailyUsage_ThreePointsWithOutlier_UsesMedianNotLastInterval()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 2, 10m);
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 10, 20m);
+
+        // Pairwise: 10/1=10, 20/9, 10/8=1.25. Median is 20/9, not last-interval 1.25 or OLS.
+        Assert.Equal(20m / 9m, _calculator.EstimateDailyUsage(cycle, QuotaKind.CursorModels));
+    }
+
+    [Fact]
+    public void EstimateRunOutDayNumber_ZeroRate_ReturnsNull()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 1, 40m);
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 10, 40m);
+
+        Assert.Equal(0m, _calculator.EstimateDailyUsage(cycle, QuotaKind.CursorModels));
+        Assert.Null(_calculator.EstimateRunOutDayNumber(cycle, QuotaKind.CursorModels));
+    }
+
+    [Fact]
+    public void EstimateRunOutDayNumber_NegativeRate_ReturnsNull()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 1, 50m);
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 10, 20m);
+
+        Assert.True(_calculator.EstimateDailyUsage(cycle, QuotaKind.CursorModels) < 0m);
+        Assert.Null(_calculator.EstimateRunOutDayNumber(cycle, QuotaKind.CursorModels));
+    }
+
+    [Fact]
+    public void EstimateRunOutDayNumber_LastPointAt100_ReturnsThatDay()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 10, 100m);
+
+        Assert.Equal(10, _calculator.EstimateRunOutDayNumber(cycle, QuotaKind.CursorModels));
+    }
+
+    [Fact]
+    public void EstimateRunOutDayNumber_Hits100AtRenewal_ReturnsNull()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        var totalDays = cycle.Days.Count;
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 16, 100m * 15 / totalDays);
+
+        Assert.Null(_calculator.EstimateRunOutDayNumber(cycle, QuotaKind.CursorModels));
+        var lastDayProjected = _calculator.ProjectedPercent(cycle, QuotaKind.CursorModels, totalDays);
+        Assert.True(lastDayProjected < 100m);
+    }
+
+    [Fact]
+    public void ProjectedPercent_AfterRunOut_ContinuesPast100ThroughLastDay()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 10, 50m);
+
+        Assert.Equal(19, _calculator.EstimateRunOutDayNumber(cycle, QuotaKind.CursorModels));
+        Assert.Equal(100m, _calculator.ProjectedPercent(cycle, QuotaKind.CursorModels, 19));
+        Assert.True(_calculator.ProjectedPercent(cycle, QuotaKind.CursorModels, 20) > 100m);
+        Assert.True(_calculator.ProjectedPercent(cycle, QuotaKind.CursorModels, 31) > 100m);
+    }
+
+    [Fact]
+    public void EstimateDailyUsage_IndependentQuotas()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 10, 45m);
+
+        Assert.Equal(45m / 9m, _calculator.EstimateDailyUsage(cycle, QuotaKind.CursorModels));
+        Assert.Null(_calculator.EstimateDailyUsage(cycle, QuotaKind.OtherModels));
+        Assert.Equal(21, _calculator.EstimateRunOutDayNumber(cycle, QuotaKind.CursorModels));
+        Assert.Null(_calculator.EstimateRunOutDayNumber(cycle, QuotaKind.OtherModels));
+    }
+
+    [Fact]
+    public void EstimateDailyUsage_EvenPairCount_AveragesTwoCentralSlopes()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 3, 2m);
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 5, 10m);
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 9, 12m);
+
+        // Pairwise: 1, 2.5, 1.5, 4, 10/6, 0.5. Sorted middle pair is 1.5 and 10/6.
+        Assert.Equal((1.5m + 10m / 6m) / 2m, _calculator.EstimateDailyUsage(cycle, QuotaKind.CursorModels));
+    }
 }

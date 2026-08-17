@@ -22,7 +22,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-Set-Location $PSScriptRoot
+$RepoRoot = Split-Path -Parent $PSScriptRoot
+Set-Location $RepoRoot
 
 if ($Test) {
     Write-Host "Running tests ($Configuration)..."

@@ -25,6 +25,8 @@ Flat repo. App project: `CursorQuotaProgress.csproj`. Tests: `Tests/CursorQuotaP
 | `Converters/` | XAML value converters registered in `App.xaml`. |
 | `Assets/` | Icon and tray image. |
 | `Tests/` | Unit tests. App csproj excludes this folder. |
+| `dev/` | Maintainer files: `CHANGELOG.md`, `DEVELOPMENT.md`, release-notes prompt. |
+| `scripts/` | Maintainer PowerShell: `dev.ps1`, `build.ps1`, `clean.ps1`, `release.ps1`. |
 | `App.xaml.cs` | Process entry: mutex, DI wiring, tray, `--background`. |
 
 Root `UnitTest1.cs` is excluded from the app project. Do not revive it. Put new tests under `Tests/`.
@@ -48,7 +50,7 @@ Renewal day is 1-31. Months that lack that day are skipped (Jan 31 -> Mar 31).
 
 `D = (NextRenewal - CycleStart).Days`. Day numbers are 1..D. Day 1 is always 0% unless edited. Renewal itself is not a row; it is the 100% anchor after the last day.
 
-Unedited days are interpolated between anchors: cycle start (0%), each manual edit of that `QuotaKind`, then renewal (100%). Editing one kind never changes the other. A later edit is an interpolation endpoint, not something to wipe.
+Unedited days are interpolated between anchors: cycle start (0%), each manual edit of that `QuotaKind`, then renewal (100%). Editing one kind never changes the other. A later edit is an interpolation endpoint, not something to wipe. `ExpectedPercent` is the renewal-paced series. Daily burn, projected percents, and run-out dates are a separate derived Theil-Sen series and must not replace `ExpectedPercent`.
 
 `QuotaCycle.Edits` is the source of truth for overrides. `QuotaCycle.Days` is a derived in-memory calendar. `RebuildDays` after any edit/clear. `JsonPlanStore` persists edits only (legacy `days[]` is migrated on load, then dropped on save). Atomic save: write `.tmp`, then move.
 
@@ -69,19 +71,29 @@ Main window is fixed size, custom title bar, Mica/theme from system. Do not make
 ```
 dotnet test .\Tests\CursorQuotaProgress.Tests.csproj
 dotnet run --project .\CursorQuotaProgress.csproj
-.\dev.ps1                  # Debug run
-.\dev.ps1 -Test
-.\dev.ps1 -Background
-.\build.ps1 -SkipInstaller # self-contained win-x64 publish
+.\scripts\dev.ps1                  # Debug run
+.\scripts\dev.ps1 -Test
+.\scripts\dev.ps1 -Background
+.\scripts\build.ps1 -SkipInstaller # self-contained win-x64 publish
 ```
 
-Do not add trim, ReadyToRun, or PublishSingleFile. `build.ps1` already sets `PublishSingleFile=false` and `WindowsAppSDKSelfContained=true`.
+Do not add trim, ReadyToRun, or PublishSingleFile. `scripts/build.ps1` already sets `PublishSingleFile=false` and `WindowsAppSDKSelfContained=true`.
+
+## Changelog
+After any behavioral change, bug fix, settings/schema change, or dependency update, add a bullet under `## [Unreleased]` in `dev/CHANGELOG.md` in the same edit session as the code.
+
+Format: `- **{Type}**: {scope} - description.` Types: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`. Use backticks for identifiers. One bullet per logical change. Scopes are short (`calendar`, `tray`, `cycle`, `persistence`, `settings`, `install`).
+
+Skip only for documentation-only or comment-only edits with no user-visible effect.
+
+Do not move `[Unreleased]` into a versioned section, and do not write `release-notes/RELEASE_NOTES_*.md`, unless you are following `dev/release-new-version-prompt.md`.
 
 ## When changing code
 - Match existing naming, file placement, and WinUI namespaces (`Microsoft.UI.Xaml`, not WPF `System.Windows` except `ICommand`).
 - Prefer editing an existing service/VM over new layers.
 - Keep view code-behind thin: window lifetime, dialogs, scrolling, theme. Put state and commands on the view model.
 - After calculator or persistence changes: `dotnet test .\Tests\CursorQuotaProgress.Tests.csproj`.
-- After UI changes: run the app (`.\dev.ps1`) and check first-run, close-to-tray, quit, and second-instance activation if those paths were touched.
+- After UI changes: run the app (`.\scripts\dev.ps1`) and check first-run, close-to-tray, quit, and second-instance activation if those paths were touched.
+- Log user-visible work in `dev/CHANGELOG.md` (see Changelog above).
 - Do not commit installer output, `bin/`, `obj/`, or files under `installer/` (gitignored).
 - Do not commit unless asked.

@@ -1,13 +1,13 @@
 # Development
 
-Contributor guide: environment, build, test, layout, and release. Architecture and the calculation contract are in [IMPLEMENTATION.md](IMPLEMENTATION.md). End-user steps are in [QUICKSTART.md](QUICKSTART.md).
+Contributor guide: environment, build, test, layout, and release. Architecture and the calculation contract are in [../IMPLEMENTATION.md](../IMPLEMENTATION.md). End-user steps are in [../QUICKSTART.md](../QUICKSTART.md).
 
 ## Prerequisites
 
 - Windows 10 or 11, x64
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - Windows 10 SDK 10.0.19041 or later (comes with Visual Studio 2022/2026 with the WinUI workload, or the standalone SDK)
-- Optional: [Inno Setup 6](https://jrsoftware.org/isdl.php) for `.\build.ps1`
+- Optional: [Inno Setup 6](https://jrsoftware.org/isdl.php) for `.\scripts\build.ps1`
 - Optional: Visual Studio or VS Code / Cursor
 
 The app is WinUI 3 (Windows App SDK), not WPF.
@@ -26,12 +26,12 @@ dotnet restore
 | --- | --- |
 | Build | `dotnet build` |
 | Tests | `dotnet test .\Tests\CursorQuotaProgress.Tests.csproj` |
-| Run (window) | `.\dev.ps1` or `dotnet run --project .\CursorQuotaProgress.csproj` |
-| Run (tray only) | `.\dev.ps1 -Background` |
-| Tests via script | `.\dev.ps1 -Test` |
-| Publish + installer | `.\build.ps1` |
-| Publish only | `.\build.ps1 -SkipInstaller` |
-| Publish, skip tests | `.\build.ps1 -SkipTests` |
+| Run (window) | `.\scripts\dev.ps1` or `dotnet run --project .\CursorQuotaProgress.csproj` |
+| Run (tray only) | `.\scripts\dev.ps1 -Background` |
+| Tests via script | `.\scripts\dev.ps1 -Test` |
+| Publish + installer | `.\scripts\build.ps1` |
+| Publish only | `.\scripts\build.ps1 -SkipInstaller` |
+| Publish, skip tests | `.\scripts\build.ps1 -SkipTests` |
 
 Launch flags after `--`:
 
@@ -58,8 +58,11 @@ Cursor-progress/
 │   ├── CursorQuotaProgress.Tests.csproj
 │   └── CycleCalculatorTests.cs
 ├── setup.iss                    # Inno Setup
-├── build.ps1
-└── dev.ps1
+└── scripts/
+    ├── build.ps1
+    ├── clean.ps1
+    ├── dev.ps1
+    └── release.ps1
 ```
 
 Open `CursorQuotaProgress.slnx` in Visual Studio, or build the `.csproj` files directly.
@@ -85,6 +88,7 @@ Manual construction in `App.OnLaunched` wires `IClock`, `ICycleCalculator`, `IPl
 - Leap-year 29 February
 - Default linear percents
 - Manual edits as interpolation anchors (including later edits and days before the first edit)
+- Theil-Sen daily usage, uncapped burn projections, run-out dates, and independent quota estimates
 - Independent Cursor Models vs Other Models
 - `ClearManual` restoring computed values
 
@@ -92,7 +96,7 @@ Add cases next to the existing facts when you change `CycleCalculator`.
 
 ## Packaging
 
-`.\build.ps1`:
+`.\scripts\build.ps1`:
 
 1. Runs tests (unless `-SkipTests`)
 2. `dotnet publish` self-contained `win-x64` (not single-file; trimming and ReadyToRun stay off)
@@ -108,12 +112,12 @@ Do not commit built binaries.
 Keep these in sync:
 
 1. `<Version>` in `CursorQuotaProgress.csproj` (the script reads this)
-2. Default `MyAppVersion` in `setup.iss` (overridden by `build.ps1` when you pass `/DMyAppVersion=...`)
+2. Default `MyAppVersion` in `setup.iss` (overridden by `scripts/build.ps1` when you pass `/DMyAppVersion=...`)
 3. Git tag, for example `v1.0.1`
 
 ## Settings format
 
-On-disk cycle data stores **edits only**. Full day lists from older files are migrated on load. See [IMPLEMENTATION.md](IMPLEMENTATION.md) for the JSON shape, atomic writes, and version field.
+On-disk cycle data stores **edits only**. Full day lists from older files are migrated on load. See [../IMPLEMENTATION.md](../IMPLEMENTATION.md) for the JSON shape, atomic writes, and version field.
 
 When you add settings fields, give them defaults on `AppSettings` / `StoredSettings` so older files still deserialize. Bump `Version` when the contract is incompatible, then migrate or regenerate the active cycle on load.
 
@@ -152,3 +156,4 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 4. Do not commit `bin/`, `obj/`, or `installer/` outputs.
 
 Open an issue for bugs or proposals. There is no published code of conduct or security policy file yet; treat this repository as a private/internal project unless the maintainers say otherwise.
+

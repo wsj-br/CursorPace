@@ -49,42 +49,25 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppName}}
 Type: filesandordirs; Name: "{localappdata}\CursorQuotaProgress"
 
 [Code]
-function InitializeSetup(): Boolean;
-var
-  ResultCode: Integer;
+function WaitUntilAppClosed(const ActionPhrase: String): Boolean;
 begin
   Result := True;
-
-  // Check if app is running
-  if CheckForMutexes('CursorQuotaProgress_SingleInstance') then
+  while CheckForMutexes('CursorQuotaProgress_SingleInstance') do
   begin
-    if MsgBox('Cursor Quota Progress is currently running. Please close it before continuing the installation.', mbError, MB_OKCANCEL) = IDOK then
+    if MsgBox('Cursor Quota Progress is currently running. Close it, then click Retry to continue ' + ActionPhrase + ', or click Cancel to abort.', mbError, MB_RETRYCANCEL) <> IDRETRY then
     begin
       Result := False;
-    end
-    else
-    begin
-      Result := False;
+      Exit;
     end;
   end;
 end;
 
-function InitializeUninstall(): Boolean;
-var
-  ResultCode: Integer;
+function InitializeSetup(): Boolean;
 begin
-  Result := True;
+  Result := WaitUntilAppClosed('the installation');
+end;
 
-  // Check if app is running
-  if CheckForMutexes('CursorQuotaProgress_SingleInstance') then
-  begin
-    if MsgBox('Cursor Quota Progress is currently running. Please close it before continuing the uninstallation.', mbError, MB_OKCANCEL) = IDOK then
-    begin
-      Result := False;
-    end
-    else
-    begin
-      Result := False;
-    end;
-  end;
+function InitializeUninstall(): Boolean;
+begin
+  Result := WaitUntilAppClosed('the uninstallation');
 end;

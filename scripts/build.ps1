@@ -15,10 +15,11 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-Set-Location $PSScriptRoot
+$RepoRoot = Split-Path -Parent $PSScriptRoot
+Set-Location $RepoRoot
 
-$appCsproj = Join-Path $PSScriptRoot 'CursorQuotaProgress.csproj'
-$issScript = Join-Path $PSScriptRoot 'setup.iss'
+$appCsproj = Join-Path $RepoRoot 'CursorQuotaProgress.csproj'
+$issScript = Join-Path $RepoRoot 'setup.iss'
 $rid = 'win-x64'
 
 function Get-CsprojProperty {
@@ -58,7 +59,7 @@ function Find-ISCC {
 
 $tfm = Get-CsprojProperty -Path $appCsproj -Name 'TargetFramework'
 $version = Get-CsprojProperty -Path $appCsproj -Name 'Version'
-$publishDir = Join-Path $PSScriptRoot "bin\Release\$tfm\$rid\publish"
+$publishDir = Join-Path $RepoRoot "bin\Release\$tfm\$rid\publish"
 $publishDirRelative = "bin\Release\$tfm\$rid\publish"
 
 Write-Host "Publishing $version ($tfm / $rid, self-contained)..."
@@ -97,7 +98,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $installerName = "CursorQuotaProgress-$version-win-x64-setup.exe"
-$installerPath = Join-Path $PSScriptRoot "installer\$installerName"
+$installerPath = Join-Path $RepoRoot "installer\$installerName"
 if (-not (Test-Path -LiteralPath $installerPath)) {
     throw "Inno Setup finished but $installerPath was not created"
 }

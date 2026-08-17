@@ -100,9 +100,9 @@
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="14,10">
                     <StackPanel>
-                        <TextBlock Text="Cursor Models today" Style="{StaticResource CaptionTextBlockStyle}"
+                        <TextBlock Text="Cursor Models run out" Style="{StaticResource CaptionTextBlockStyle}"
                                    Opacity="0.6" FontSize="11"/>
-                        <TextBlock Text="{Binding CursorModelsTodayText}"
+                        <TextBlock Text="{Binding CursorModelsRunOutText}"
                                    Style="{StaticResource BodyStrongTextBlockStyle}"
                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
                                    FontSize="14" Margin="0,2,0,0"/>
@@ -113,9 +113,9 @@
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="14,10">
                     <StackPanel>
-                        <TextBlock Text="Other Models today" Style="{StaticResource CaptionTextBlockStyle}"
+                        <TextBlock Text="Other Models run out" Style="{StaticResource CaptionTextBlockStyle}"
                                    Opacity="0.6" FontSize="11"/>
-                        <TextBlock Text="{Binding OtherModelsTodayText}"
+                        <TextBlock Text="{Binding OtherModelsRunOutText}"
                                    Style="{StaticResource BodyStrongTextBlockStyle}"
                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
                                    FontSize="14" Margin="0,2,0,0"/>

@@ -20,13 +20,13 @@ See [QUICKSTART.md](QUICKSTART.md) for first-run setup, the calendar, tray behav
 
 ## Features
 
-- Calendar for the current cycle, with today and the renewal day highlighted
+- Calendar for the current cycle, with today, renewal, and projected run-out days highlighted
 - Separate **Cursor Models** and **Other Models** percentages
-- Manual day edits that act as interpolation anchors (other days stay computed)
+- Manual day edits that act as interpolation anchors, plus Theil-Sen daily usage and run-out estimates
 - System tray: closing the window hides it; **Quit** exits
 - Optional start at Windows sign-in (user-level, no elevation)
 - Single-instance: a second launch brings the existing window forward
-- Settings: renewal day, reset cycle, CSV export
+- Settings: renewal day, reset cycle, CSV export; the tray tooltip shows renewal-paced and estimated values for today
 - Follows Windows light, dark, and high-contrast themes
 
 ## Build from source
@@ -41,19 +41,20 @@ dotnet run --project .\CursorQuotaProgress.csproj
 Release installer (needs [Inno Setup 6](https://jrsoftware.org/isdl.php)):
 
 ```powershell
-.\build.ps1
+.\scripts\build.ps1
 ```
 
-Full contributor workflow is in [DEVELOPMENT.md](DEVELOPMENT.md). Design and calculation details are in [IMPLEMENTATION.md](IMPLEMENTATION.md).
+Full contributor workflow is in [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md). Design and calculation details are in [IMPLEMENTATION.md](IMPLEMENTATION.md).
 
 ## Documentation
 
 | Document | Audience |
 | --- | --- |
 | [QUICKSTART.md](QUICKSTART.md) | Install, daily use, troubleshooting |
-| [DEVELOPMENT.md](DEVELOPMENT.md) | Build, test, run, package, contribute |
+| [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md) | Build, test, run, package, contribute |
 | [IMPLEMENTATION.md](IMPLEMENTATION.md) | Architecture and calculation contract |
 
 ## License
 
 Copyright 2026. All rights reserved unless a `LICENSE` file is added to this repository.
+

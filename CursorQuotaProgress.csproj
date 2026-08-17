@@ -10,10 +10,10 @@
     <WindowsPackageType>None</WindowsPackageType>
     <WindowsAppSDKSelfContained Condition="'$(RuntimeIdentifier)' != ''">true</WindowsAppSDKSelfContained>
     <ApplicationIcon>Assets\cursor_quota_progress.ico</ApplicationIcon>
-    <Version>1.0.0</Version>
-    <Company>Cursor Quota Progress</Company>
+    <Version>0.1.0</Version>
+    <Company>https://github.com/wsj-br/Cursor-progress</Company>
     <Product>Cursor Quota Progress</Product>
-    <Copyright>Copyright © 2026</Copyright>
+    <Copyright>Copyright © 2026 Waldemar Scudeller Jr.</Copyright>
     <DefaultItemExcludes>$(DefaultItemExcludes);Tests/**</DefaultItemExcludes>
   </PropertyGroup>
 

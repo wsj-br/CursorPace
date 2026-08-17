@@ -72,7 +72,8 @@ public sealed class CalendarMonthViewModel : ViewModelBase
             var cell = new CalendarCellViewModel(
                 currentDate,
                 hasData ? dayData : null,
-                isRenewalDay);
+                isRenewalDay,
+                hasData && dayData!.IsRunOutDay);
 
             _cellLookup[currentDate.Date] = cell;
             currentWeek.Add(cell);
@@ -97,5 +98,3 @@ public sealed class CalendarMonthViewModel : ViewModelBase
         return cell;
     }
 }
-
-

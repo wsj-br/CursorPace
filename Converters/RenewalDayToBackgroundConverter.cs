@@ -10,8 +10,8 @@ public sealed class RenewalDayToBackgroundConverter : IValueConverter
     {
         if (value is bool isRenewalDay && isRenewalDay)
         {
-            // Subtle amber/gold tint for renewal days - professional
-            return new SolidColorBrush(Color.FromArgb(25, 251, 191, 36));
+            // Subtle violet tint for cycle start and renewal days
+            return new SolidColorBrush(Color.FromArgb(28, 139, 92, 246));
         }
 
         return new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));

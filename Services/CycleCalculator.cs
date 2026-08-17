@@ -104,6 +104,67 @@ public sealed class CycleCalculator : ICycleCalculator
         return startPercent + (dayNumber - startDay) * (endPercent - startPercent) / span;
     }
 
+    public decimal? EstimateDailyUsage(QuotaCycle cycle, QuotaKind kind)
+    {
+        var points = CollectUsagePoints(cycle, kind);
+        if (points.Count < 2)
+            return null;
+
+        var slopes = new List<decimal>();
+        for (var i = 0; i < points.Count; i++)
+        {
+            for (var j = i + 1; j < points.Count; j++)
+            {
+                var span = points[j].Day - points[i].Day;
+                if (span <= 0)
+                    continue;
+                slopes.Add((points[j].Percent - points[i].Percent) / span);
+            }
+        }
+
+        if (slopes.Count == 0)
+            return null;
+
+        return Median(slopes);
+    }
+
+    public decimal? ProjectedPercent(QuotaCycle cycle, QuotaKind kind, int dayNumber)
+    {
+        var totalDays = TotalDays(cycle);
+        if (dayNumber < 1 || dayNumber > totalDays)
+            throw new ArgumentOutOfRangeException(nameof(dayNumber));
+
+        var rate = EstimateDailyUsage(cycle, kind);
+        if (rate is null)
+            return null;
+
+        var last = CollectUsagePoints(cycle, kind)[^1];
+        return last.Percent + rate.Value * (dayNumber - last.Day);
+    }
+
+    public int? EstimateRunOutDayNumber(QuotaCycle cycle, QuotaKind kind)
+    {
+        var points = CollectUsagePoints(cycle, kind);
+        if (points.Count == 0)
+            return null;
+
+        var last = points[^1];
+        if (last.Percent >= 100m)
+            return last.Day;
+
+        var rate = EstimateDailyUsage(cycle, kind);
+        if (rate is null || rate.Value <= 0m)
+            return null;
+
+        var totalDays = TotalDays(cycle);
+        var delta = (100m - last.Percent) / rate.Value;
+        var runOutDay = last.Day + (int)decimal.Ceiling(delta);
+        if (runOutDay <= last.Day || runOutDay > totalDays)
+            return null;
+
+        return runOutDay;
+    }
+
     public void RebuildDays(QuotaCycle cycle)
     {
         var totalDays = TotalDays(cycle);
@@ -191,13 +252,54 @@ public sealed class CycleCalculator : ICycleCalculator
     }
 
     private static decimal? GetEditValue(QuotaDayEdit edit, QuotaKind kind) =>
-        kind == QuotaKind.CursorModels ? edit.CursorModelsPercent : edit.OtherModelsPercent;
+        kind switch
+        {
+            QuotaKind.CursorModels => edit.CursorModelsPercent,
+            QuotaKind.OtherModels => edit.OtherModelsPercent,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
+        };
 
     private static void SetEditValue(QuotaDayEdit edit, QuotaKind kind, decimal? percent)
     {
-        if (kind == QuotaKind.CursorModels)
-            edit.CursorModelsPercent = percent;
-        else
-            edit.OtherModelsPercent = percent;
+        switch (kind)
+        {
+            case QuotaKind.CursorModels:
+                edit.CursorModelsPercent = percent;
+                break;
+            case QuotaKind.OtherModels:
+                edit.OtherModelsPercent = percent;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(kind), kind, null);
+        }
+    }
+
+    private static List<(int Day, decimal Percent)> CollectUsagePoints(QuotaCycle cycle, QuotaKind kind)
+    {
+        var points = new List<(int Day, decimal Percent)>();
+        var day1Edit = GetEditValue(cycle, kind, 1);
+        points.Add((1, day1Edit ?? 0m));
+
+        foreach (var edit in cycle.Edits.OrderBy(e => e.DayNumber))
+        {
+            if (edit.DayNumber <= 1)
+                continue;
+
+            var value = GetEditValue(edit, kind);
+            if (value.HasValue)
+                points.Add((edit.DayNumber, value.Value));
+        }
+
+        return points;
+    }
+
+    private static decimal Median(List<decimal> values)
+    {
+        values.Sort();
+        var count = values.Count;
+        if (count % 2 == 1)
+            return values[count / 2];
+
+        return (values[count / 2 - 1] + values[count / 2]) / 2m;
     }
 }

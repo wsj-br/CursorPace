@@ -62,27 +62,32 @@ public sealed class MainViewModel : ViewModelBase
     public CalendarMonthViewModel Calendar { get; }
 
     public string CycleStartText => _cycle != null
-        ? _cycle.CycleStart.ToString("d", CultureInfo.CurrentCulture)
+        ? _cycle.CycleStart.ToString("dd-MMM", CultureInfo.CurrentCulture)
         : string.Empty;
 
     public string NextRenewalText => _cycle != null
-        ? _cycle.NextRenewal.ToString("d", CultureInfo.CurrentCulture)
+        ? _cycle.NextRenewal.ToString("dd-MMM", CultureInfo.CurrentCulture)
         : string.Empty;
 
-    public string CursorModelsTodayText => FormatTodayPercent(QuotaKind.CursorModels);
+    public string CursorModelsRunOutText => FormatRunOutDate(QuotaKind.CursorModels);
 
-    public string OtherModelsTodayText => FormatTodayPercent(QuotaKind.OtherModels);
+    public string OtherModelsRunOutText => FormatRunOutDate(QuotaKind.OtherModels);
 
     public string TrayToolTipText
     {
         get
         {
-            if (!TryGetTodayPercents(out var cursor, out var other))
+            if (!TryGetTodayDay(out var day))
                 return "Cursor Quota Progress";
 
-            return $"Cursor Quota Progress\nCursor: {FormatPercent(cursor)}\nOther Models: {FormatPercent(other)}";
+            var cursorProjected = _calculator.ProjectedPercent(_cycle!, QuotaKind.CursorModels, day.DayNumber);
+            var otherProjected = _calculator.ProjectedPercent(_cycle!, QuotaKind.OtherModels, day.DayNumber);
+            return $"Cursor Quota Progress\nCursor: {FormatPercent(day.CursorModelsPercent)} pace{FormatEstimated(cursorProjected)}\nOther Models: {FormatPercent(day.OtherModelsPercent)} pace{FormatEstimated(otherProjected)}";
         }
     }
+
+    private static string FormatEstimated(decimal? value) =>
+        value.HasValue ? $" · {FormatPercent(value.Value)} estimated" : string.Empty;
 
     public bool RunAtStartup
     {
@@ -186,11 +191,21 @@ public sealed class MainViewModel : ViewModelBase
         Days.Clear();
         var totalDays = _calculator.TotalDays(_cycle);
 
+        var cursorRunOutDay = _calculator.EstimateRunOutDayNumber(_cycle, QuotaKind.CursorModels);
+        var otherRunOutDay = _calculator.EstimateRunOutDayNumber(_cycle, QuotaKind.OtherModels);
+
         foreach (var day in _cycle.Days)
         {
-            var linearQuota = (double)_calculator.LinearPercent(day.DayNumber, totalDays);
-
-            var vm = new DayRowViewModel(day, linearQuota, linearQuota);
+            var projectedCursor = _calculator.ProjectedPercent(_cycle, QuotaKind.CursorModels, day.DayNumber);
+            var projectedOther = _calculator.ProjectedPercent(_cycle, QuotaKind.OtherModels, day.DayNumber);
+            var vm = new DayRowViewModel(
+                day,
+                (double)day.CursorModelsPercent,
+                (double)day.OtherModelsPercent,
+                projectedCursor,
+                projectedOther,
+                cursorRunOutDay == day.DayNumber,
+                otherRunOutDay == day.DayNumber);
             vm.CursorModelsEdited += OnCursorModelsEdited;
             vm.OtherModelsEdited += OnOtherModelsEdited;
             Days.Add(vm);
@@ -351,33 +366,31 @@ public sealed class MainViewModel : ViewModelBase
 
     private void NotifyTodayQuotaTexts()
     {
-        OnPropertyChanged(nameof(CursorModelsTodayText));
-        OnPropertyChanged(nameof(OtherModelsTodayText));
+        OnPropertyChanged(nameof(CursorModelsRunOutText));
+        OnPropertyChanged(nameof(OtherModelsRunOutText));
         OnPropertyChanged(nameof(TrayToolTipText));
     }
 
-    private string FormatTodayPercent(QuotaKind kind)
+    private string FormatRunOutDate(QuotaKind kind)
     {
-        if (!TryGetTodayPercents(out var cursor, out var other))
+        if (_cycle == null)
             return "—";
 
-        return FormatPercent(kind == QuotaKind.CursorModels ? cursor : other);
+        var dayNumber = _calculator.EstimateRunOutDayNumber(_cycle, kind);
+        return dayNumber.HasValue
+            ? _cycle.CycleStart.AddDays(dayNumber.Value - 1).ToString("dd-MMM", CultureInfo.CurrentCulture)
+            : "—";
     }
 
-    private bool TryGetTodayPercents(out decimal cursor, out decimal other)
+    private bool TryGetTodayDay(out QuotaDayEntry day)
     {
-        cursor = 0;
-        other = 0;
-
+        day = null!;
         if (_cycle == null || _currentDayNumber <= 0 || _currentDayNumber > _cycle.Days.Count)
             return false;
 
-        var day = _cycle.Days[_currentDayNumber - 1];
-        cursor = day.CursorModelsPercent;
-        other = day.OtherModelsPercent;
+        day = _cycle.Days[_currentDayNumber - 1];
         return true;
     }
-
     private static string FormatPercent(decimal value) =>
         $"{(int)Math.Round(value, MidpointRounding.AwayFromZero)}%";
 

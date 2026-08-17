@@ -7,18 +7,33 @@ public sealed class DayRowViewModel : ViewModelBase
 {
     private readonly QuotaDayEntry _model;
     private bool _isToday;
-    private readonly double _linearQuotaCursor;
-    private readonly double _linearQuotaOther;
+    private readonly double _expectedQuotaCursor;
+    private readonly double _expectedQuotaOther;
+    private readonly double? _projectedQuotaCursor;
+    private readonly double? _projectedQuotaOther;
+    private readonly bool _cursorWillRunOut;
+    private readonly bool _otherWillRunOut;
 
-    public DayRowViewModel(QuotaDayEntry model, double linearQuotaCursor, double linearQuotaOther)
+    public DayRowViewModel(
+        QuotaDayEntry model,
+        double expectedQuotaCursor,
+        double expectedQuotaOther,
+        decimal? projectedQuotaCursor,
+        decimal? projectedQuotaOther,
+        bool cursorWillRunOut,
+        bool otherWillRunOut)
     {
         _model = model;
-        _linearQuotaCursor = linearQuotaCursor;
-        _linearQuotaOther = linearQuotaOther;
+        _expectedQuotaCursor = expectedQuotaCursor;
+        _expectedQuotaOther = expectedQuotaOther;
+        _projectedQuotaCursor = projectedQuotaCursor is null ? null : (double)projectedQuotaCursor.Value;
+        _projectedQuotaOther = projectedQuotaOther is null ? null : (double)projectedQuotaOther.Value;
+        _cursorWillRunOut = cursorWillRunOut;
+        _otherWillRunOut = otherWillRunOut;
     }
 
     public int DayNumber => _model.DayNumber;
-
+    public DateTime Date => _model.Date;
     public string DateText => _model.Date.ToString("d", CultureInfo.CurrentCulture);
 
     public string CursorModelsText
@@ -50,8 +65,15 @@ public sealed class DayRowViewModel : ViewModelBase
     public double CursorModelsValue => (double)_model.CursorModelsPercent;
     public double OtherModelsValue => (double)_model.OtherModelsPercent;
 
-    public double LinearQuotaCursor => _linearQuotaCursor;
-    public double LinearQuotaOther => _linearQuotaOther;
+    public double ExpectedQuotaCursor => _expectedQuotaCursor;
+    public double ExpectedQuotaOther => _expectedQuotaOther;
+    public double? ProjectedQuotaCursor => _projectedQuotaCursor;
+    public double? ProjectedQuotaOther => _projectedQuotaOther;
+    public bool HasCursorProjection => _projectedQuotaCursor.HasValue;
+    public bool HasOtherProjection => _projectedQuotaOther.HasValue;
+    public bool CursorWillRunOut => _cursorWillRunOut;
+    public bool OtherWillRunOut => _otherWillRunOut;
+    public bool IsRunOutDay => _cursorWillRunOut || _otherWillRunOut;
 
     public bool IsModified => _model.CursorModelsIsManual || _model.OtherModelsIsManual;
 

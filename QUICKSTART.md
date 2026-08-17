@@ -1,6 +1,6 @@
 # Quick start
 
-End-user guide for Cursor Quota Progress. For building from source, see [DEVELOPMENT.md](DEVELOPMENT.md).
+End-user guide for Cursor Quota Progress. For building from source, see [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md).
 
 ## Install
 
@@ -23,9 +23,9 @@ Canceling this dialog exits the app. You can change the day later in **Settings*
 The header shows:
 
 - **Cycle start** and **Next renewal**
-- **Cursor Models today** and **Other Models today** (rounded to whole percents)
+- **Cursor Models run out** and **Other Models run out** (formatted dd-MMM, or — when the quota is not projected to run out before renewal)
 
-The body is a month calendar for the current cycle. Today and the renewal day are highlighted.
+The body is a month calendar for the current cycle. Today and the renewal day are highlighted. A projected run-out day has a subtle yellow background. Each day shows the renewal-paced value on the left and, when enough data exists, the estimated burn value on the right.
 
 Title bar actions:
 
@@ -47,7 +47,7 @@ The window is a fixed size. Selecting a day expands it to show the edit panel.
 Notes:
 
 - Each quota is independent. Editing Cursor Models never changes Other Models.
-- Manual days are anchors. Days before the first edit interpolate from 0% toward that edit. Days between two edits interpolate between them. Days after the last edit interpolate toward 100% at renewal.
+- Manual days are anchors. Days before the first edit interpolate from 0% toward that edit. Days between two edits interpolate between them. Days after the last edit interpolate toward 100% at renewal for the left-hand renewal-paced value. The right-hand estimate uses the observed burn rate and can exceed 100% before renewal.
 - Unedited days are not stored; they are recomputed from cycle length and the surrounding anchors.
 - **Reset** in the title bar (or **Reset cycle** in Settings) discards every manual edit for the cycle.
 
@@ -76,6 +76,8 @@ While the process is running, an icon stays in the notification area.
 
 - **Left-click** or **Open**: show the window
 - **Quit** (tray menu or title bar): exit
+
+Hover over the tray icon to see today's renewal-paced percentage and estimated burn percentage for Cursor and Other Models. The estimate is omitted until enough manual data points exist.
 
 If the icon is missing, expand the overflow chevron (`^`). After Explorer or a session switch (lock/unlock), the icon should return within a few seconds.
 
@@ -142,8 +144,9 @@ The window does not need to stay visible, but the process must be running.
 
 ## Tips
 
-- Dates use the system short-date format.
+- Info-card dates use dd-MMM; calendar and edit-panel dates use the system format.
 - The UI follows Windows light, dark, and high-contrast themes.
 - High-DPI scaling is handled by WinUI.
 
 For calculation details, see [IMPLEMENTATION.md](IMPLEMENTATION.md).
+
