@@ -80,14 +80,15 @@ public sealed class MainViewModel : ViewModelBase
             if (!TryGetTodayDay(out var day))
                 return "Cursor Usage Progress";
 
-            var cursorProjected = _calculator.ProjectedPercent(_cycle!, QuotaKind.CursorModels, day.DayNumber);
-            var otherProjected = _calculator.ProjectedPercent(_cycle!, QuotaKind.OtherModels, day.DayNumber);
-            return $"Cursor Usage Progress\nCursor: {FormatPercent(day.CursorModelsPercent)} pace{FormatEstimated(cursorProjected)}\nOther Models: {FormatPercent(day.OtherModelsPercent)} pace{FormatEstimated(otherProjected)}";
+            var lastDay = _calculator.TotalDays(_cycle!);
+            var cursorEop = _calculator.ProjectedPercent(_cycle!, QuotaKind.CursorModels, lastDay);
+            var otherEop = _calculator.ProjectedPercent(_cycle!, QuotaKind.OtherModels, lastDay);
+            return $"Cursor Usage Progress\nCursor: {FormatPercent(day.CursorModelsPercent)}{FormatEop(cursorEop)}\nOther models: {FormatPercent(day.OtherModelsPercent)}{FormatEop(otherEop)}";
         }
     }
 
-    private static string FormatEstimated(decimal? value) =>
-        value.HasValue ? $" · {FormatPercent(value.Value)} estimated" : string.Empty;
+    private static string FormatEop(decimal? value) =>
+        value.HasValue ? $" - EOP {FormatPercent(value.Value)}" : string.Empty;
 
     public bool RunAtStartup
     {
