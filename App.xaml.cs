@@ -43,7 +43,7 @@ public partial class App : Application
         var startupReg = new WindowsStartupRegistration();
         var sampleStore = new JsonUsageSampleStore();
         var usageClient = new WebView2CursorUsageClient();
-        var sync = new UsageSyncService(_dispatcherQueue, usageClient, sampleStore, clock);
+        var sync = new UsageSyncService(_dispatcherQueue, usageClient, sampleStore, clock, store);
         _syncService = sync;
 
         _viewModel = new MainViewModel(clock, calculator, store, startupReg, sync);

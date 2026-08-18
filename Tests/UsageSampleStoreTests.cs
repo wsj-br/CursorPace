@@ -63,6 +63,28 @@ public class UsageSampleStoreTests : IDisposable
     }
 
     [Fact]
+    public void Serialize_MatchesSavedFileContents()
+    {
+        var document = new UsageSampleDocument
+        {
+            CycleStartUtc = DateTimeOffset.Parse("2026-08-02T21:19:47Z"),
+            Samples =
+            [
+                new UsageSample
+                {
+                    TimestampUtc = DateTimeOffset.Parse("2026-08-03T12:00:00Z"),
+                    CursorModelsPercent = 4.5m,
+                    OtherModelsPercent = 6m
+                }
+            ]
+        };
+
+        _store.Save(document);
+
+        Assert.Equal(File.ReadAllText(_filePath), JsonUsageSampleStore.Serialize(document));
+    }
+
+    [Fact]
     public void Save_OrdersSamplesByTimestamp()
     {
         var later = DateTimeOffset.Parse("2026-08-03T12:00:00Z");

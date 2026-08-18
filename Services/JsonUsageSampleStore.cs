@@ -75,6 +75,14 @@ public sealed class JsonUsageSampleStore : IUsageSampleStore
         if (!string.IsNullOrEmpty(directory))
             Directory.CreateDirectory(directory);
 
+        var json = Serialize(document);
+        var tempPath = _filePath + ".tmp";
+        File.WriteAllText(tempPath, json);
+        File.Move(tempPath, _filePath, overwrite: true);
+    }
+
+    public static string Serialize(UsageSampleDocument document)
+    {
         var payload = new UsageSampleDocument
         {
             Version = document.Version <= 0 ? 1 : document.Version,
@@ -84,9 +92,6 @@ public sealed class JsonUsageSampleStore : IUsageSampleStore
                 .ToList()
         };
 
-        var json = JsonSerializer.Serialize(payload, Options);
-        var tempPath = _filePath + ".tmp";
-        File.WriteAllText(tempPath, json);
-        File.Move(tempPath, _filePath, overwrite: true);
+        return JsonSerializer.Serialize(payload, Options);
     }
 }

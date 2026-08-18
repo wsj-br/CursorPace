@@ -32,7 +32,8 @@
                             BorderThickness="0"
                             Height="32"
                             Padding="12,0"
-                            CornerRadius="4">
+                            CornerRadius="4"
+                            Visibility="{Binding IsCursorConnected, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE72C;" FontSize="14"/>
                             <TextBlock Text="Reset" VerticalAlignment="Center" FontSize="12"/>
@@ -69,7 +70,13 @@
         <!-- Body: info cards + calendar/edit panel -->
         <Grid Grid.Row="1" Padding="16,16,16,16" RowDefinitions="Auto,*">
 
-            <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,20">
+            <Grid Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Spacing="8">
             <!-- Info cards row -->
             <StackPanel Orientation="Horizontal" Spacing="12">
 
@@ -130,13 +137,49 @@
                        FontSize="11"/>
             </StackPanel>
 
-            <!-- Calendar + edit panel (panel only occupies space while editing) -->
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Top"
+                        Margin="12,8,0,0"
+                        Spacing="2">
+                <Button x:Name="CalendarViewButton"
+                        Click="OnCalendarViewClick"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Padding="8"
+                        ToolTipService.ToolTip="Calendar">
+                    <FontIcon x:Name="CalendarViewIcon"
+                              FontFamily="Segoe Fluent Icons"
+                              Glyph="&#xE8C0;"
+                              FontSize="18"/>
+                </Button>
+                <Button x:Name="ChartViewButton"
+                        Click="OnChartViewClick"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Padding="8"
+                        ToolTipService.ToolTip="Chart">
+                    <FontIcon x:Name="ChartViewIcon"
+                              FontFamily="Segoe Fluent Icons"
+                              Glyph="&#xE9D9;"
+                              FontSize="18"/>
+                </Button>
+            </StackPanel>
+            </Grid>
+
+            <!-- Calendar + chart + edit panel (panel only occupies space while editing) -->
             <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
 
                 <!-- Calendar -->
                 <local:CalendarControl x:Name="CalendarView"
                                        Weeks="{Binding Calendar.Weeks, Mode=OneWay}"
-                                       CellSelected="OnCellSelected"/>
+                                       DaySelectionEnabled="{Binding CanEditDays, Mode=OneWay}"
+                                       CellSelected="OnCellSelected"
+                                       Visibility="{Binding IsCalendarView, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                <local:UsageChartControl x:Name="UsageChartView"
+                                         Document="{Binding Chart.Document, Mode=OneWay}"
+                                         Visibility="{Binding IsChartView, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                 <!-- Edit panel -->
                 <Border Grid.Column="1" Width="220" Padding="12" Margin="16,0,0,0"

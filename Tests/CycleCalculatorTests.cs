@@ -106,7 +106,7 @@ public class CycleCalculatorTests
     }
 
     [Fact]
-    public void SetManual_WithLaterEdit_InterpolatesUntilThatDayThenToRenewal()
+    public void SetManual_WithLaterEdit_GapAimsAtRenewalNotNextEdit()
     {
         var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
         _calculator.SetManual(cycle, QuotaKind.CursorModels, 10, 20m);
@@ -115,19 +115,20 @@ public class CycleCalculatorTests
         Assert.Equal(20m, cycle.Days[9].CursorModelsPercent);
         Assert.Equal(50m, cycle.Days[19].CursorModelsPercent);
 
-        // Days 11-19 interpolate 20% → 50% over 10 day-steps
-        Assert.Equal(20m + 5m * 30m / 10m, cycle.Days[14].CursorModelsPercent, precision: 10);
+        var remainingFromTen = 31 - 9;
+        var incrementFromTen = (100m - 20m) / remainingFromTen;
+        Assert.Equal(20m + 5m * incrementFromTen, cycle.Days[14].CursorModelsPercent, precision: 10);
+        Assert.NotEqual(20m + 5m * 30m / 10m, cycle.Days[14].CursorModelsPercent);
 
-        // Days after 20 interpolate 50% → 100% until renewal
-        var remaining = 31 - 19;
-        var increment = (100m - 50m) / remaining;
-        Assert.Equal(50m + increment, cycle.Days[20].CursorModelsPercent, precision: 10);
+        var remainingFromTwenty = 31 - 19;
+        var incrementFromTwenty = (100m - 50m) / remainingFromTwenty;
+        Assert.Equal(50m + incrementFromTwenty, cycle.Days[20].CursorModelsPercent, precision: 10);
         Assert.False(cycle.Days[14].CursorModelsIsManual);
         Assert.False(cycle.Days[20].CursorModelsIsManual);
     }
 
     [Fact]
-    public void SetManual_DaysBeforeFirstEdit_InterpolateTowardThatEdit()
+    public void SetManual_DaysBeforeFirstEdit_KeepLinearPercent()
     {
         var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
         _calculator.SetManual(cycle, QuotaKind.CursorModels, 20, 50m);
@@ -135,10 +136,90 @@ public class CycleCalculatorTests
         Assert.Equal(50m, cycle.Days[19].CursorModelsPercent);
         Assert.True(cycle.Days[19].CursorModelsIsManual);
 
-        // Day 10 sits on 0% (day 1) → 50% (day 20), not on the full-cycle linear line
-        Assert.Equal(9m * 50m / 19m, cycle.Days[9].CursorModelsPercent, precision: 10);
-        Assert.Equal(18m * 50m / 19m, cycle.Days[18].CursorModelsPercent, precision: 10);
+        Assert.Equal(_calculator.LinearPercent(10, 31), cycle.Days[9].CursorModelsPercent);
+        Assert.Equal(_calculator.LinearPercent(19, 31), cycle.Days[18].CursorModelsPercent);
         Assert.False(cycle.Days[18].CursorModelsIsManual);
+    }
+
+    [Fact]
+    public void ExpectedPercent_LastSamplePinsDay_ThenPacesToRenewal()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        var samples = new List<UsageSample>
+        {
+            SampleAt(cycle.CycleStart.AddDays(16).AddHours(12), 75.425m, 72.56m)
+        };
+
+        Assert.Equal(75.425m, _calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, 17, samples));
+        Assert.Equal(72.56m, _calculator.ExpectedPercent(cycle, QuotaKind.OtherModels, 17, samples));
+        Assert.Equal(_calculator.LinearPercent(16, 31), _calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, 16, samples));
+        Assert.NotEqual(_calculator.LinearPercent(17, 31), _calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, 17, samples));
+
+        var increment = (100m - 75.425m) / (32m - 17m);
+        Assert.Equal(75.425m + increment, _calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, 18, samples), precision: 10);
+        Assert.Equal(75.425m + 14m * increment, _calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, 31, samples), precision: 10);
+    }
+
+    [Fact]
+    public void ExpectedPercent_TwoSamples_GapAimsAtRenewalNotNextSample()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        var samples = new List<UsageSample>
+        {
+            SampleAt(cycle.CycleStart.AddDays(9), 20m, 20m),
+            SampleAt(cycle.CycleStart.AddDays(21), 50m, 50m)
+        };
+
+        Assert.Equal(20m, _calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, 10, samples));
+        Assert.Equal(50m, _calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, 22, samples));
+
+        var increment = (100m - 20m) / (32m - 10m);
+        Assert.Equal(20m + 6m * increment, _calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, 16, samples), precision: 10);
+        Assert.NotEqual(20m + 6m * 30m / 12m, _calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, 16, samples));
+    }
+
+    [Fact]
+    public void ExpectedPercent_SameDay_SampleWinsOverEdit()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 10, 40m);
+        var samples = new List<UsageSample>
+        {
+            SampleAt(cycle.CycleStart.AddDays(9).AddHours(18), 55m, 12m)
+        };
+
+        Assert.Equal(55m, _calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, 10, samples));
+        Assert.Equal(40m, _calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, 10));
+    }
+
+    [Fact]
+    public void TryGetLastUpdate_PrefersLaterSampleOverEarlierEdit()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 5, 20m);
+        var sampleLocal = cycle.CycleStart.AddDays(9).AddHours(20);
+        var samples = new List<UsageSample>
+        {
+            SampleAt(sampleLocal, 40m, 41m)
+        };
+
+        Assert.True(_calculator.TryGetLastUpdate(cycle, QuotaKind.CursorModels, samples, out var instant, out var percent));
+        Assert.Equal(sampleLocal, instant);
+        Assert.Equal(40m, percent);
+    }
+
+    [Fact]
+    public void ProjectedPercentAt_NextRenewal_ExtendsPastLastDay()
+    {
+        var cycle = _calculator.GenerateCycle(1, new DateTime(2026, 1, 10));
+        _calculator.SetManual(cycle, QuotaKind.CursorModels, 10, 50m);
+
+        var atLastDay = _calculator.ProjectedPercent(cycle, QuotaKind.CursorModels, 31);
+        var atRenewal = _calculator.ProjectedPercentAt(cycle, QuotaKind.CursorModels, cycle.NextRenewal, samples: null);
+
+        Assert.NotNull(atLastDay);
+        Assert.NotNull(atRenewal);
+        Assert.True(atRenewal > atLastDay);
     }
 
     [Fact]
@@ -307,5 +388,16 @@ public class CycleCalculatorTests
 
         // Pairwise: 1, 2.5, 1.5, 4, 10/6, 0.5. Sorted middle pair is 1.5 and 10/6.
         Assert.Equal((1.5m + 10m / 6m) / 2m, _calculator.EstimateDailyUsage(cycle, QuotaKind.CursorModels));
+    }
+
+    private static UsageSample SampleAt(DateTime local, decimal cursor, decimal other)
+    {
+        var offset = TimeZoneInfo.Local.GetUtcOffset(local);
+        return new UsageSample
+        {
+            TimestampUtc = new DateTimeOffset(DateTime.SpecifyKind(local, DateTimeKind.Unspecified), offset),
+            CursorModelsPercent = cursor,
+            OtherModelsPercent = other
+        };
     }
 }

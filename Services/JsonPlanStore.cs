@@ -80,7 +80,12 @@ public sealed class JsonPlanStore : IPlanStore
             ActiveCycle = cycle,
             RunAtStartup = stored.RunAtStartup,
             AutoSyncEnabled = stored.AutoSyncEnabled,
-            SyncIntervalHours = SyncInterval.Clamp(stored.SyncIntervalHours)
+            SyncIntervalHours = SyncInterval.Clamp(stored.SyncIntervalHours),
+            ShowChartView = stored.ShowChartView,
+            CursorAccountConnected = stored.CursorAccountConnected,
+            LastUsageSyncUtc = stored.LastUsageSyncUtc,
+            WindowX = stored.WindowX,
+            WindowY = stored.WindowY
         };
     }
 
@@ -130,7 +135,12 @@ public sealed class JsonPlanStore : IPlanStore
             ActiveCycle = cycle,
             RunAtStartup = settings.RunAtStartup,
             AutoSyncEnabled = settings.AutoSyncEnabled,
-            SyncIntervalHours = SyncInterval.Clamp(settings.SyncIntervalHours)
+            SyncIntervalHours = SyncInterval.Clamp(settings.SyncIntervalHours),
+            ShowChartView = settings.ShowChartView,
+            CursorAccountConnected = settings.CursorAccountConnected,
+            LastUsageSyncUtc = settings.LastUsageSyncUtc,
+            WindowX = settings.WindowX,
+            WindowY = settings.WindowY
         };
     }
 
@@ -142,6 +152,11 @@ public sealed class JsonPlanStore : IPlanStore
         public bool RunAtStartup { get; set; }
         public bool AutoSyncEnabled { get; set; } = true;
         public int SyncIntervalHours { get; set; } = 1;
+        public bool ShowChartView { get; set; }
+        public bool CursorAccountConnected { get; set; }
+        public DateTimeOffset? LastUsageSyncUtc { get; set; }
+        public int? WindowX { get; set; }
+        public int? WindowY { get; set; }
     }
 
     private sealed class StoredCycle

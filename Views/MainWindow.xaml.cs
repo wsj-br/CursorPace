@@ -9,6 +9,7 @@ using CursorUsageProgress;
 using CursorUsageProgress.Services;
 using CursorUsageProgress.ViewModels;
 using Windows.Globalization.NumberFormatting;
+using Windows.Graphics;
 
 namespace CursorUsageProgress.Views;
 
@@ -24,6 +25,8 @@ public sealed partial class MainWindow : Window
     private readonly IClock _clock;
     private readonly DispatcherQueueTimer _dayCheckTimer;
     private SettingsWindow? _settingsWindow;
+    private PointInt32? _lastNormalPosition;
+    private bool _restorePlacementPending;
 
     public MainViewModel ViewModel => _viewModel;
 
@@ -37,6 +40,7 @@ public sealed partial class MainWindow : Window
 
         RootGrid.DataContext = _viewModel;
         ConfigureIntegerNumberBoxes();
+        UpdateViewModeIcons();
 
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
         _viewModel.QuitRequested += () => DispatcherQueue.TryEnqueue(CloseForReal);
@@ -52,7 +56,9 @@ public sealed partial class MainWindow : Window
         _dayCheckTimer.Tick += (_, _) => _viewModel.CheckForNewDay();
         _dayCheckTimer.Start();
 
-        Activated += (_, _) => _viewModel.CheckForNewDay();
+        _restorePlacementPending = _viewModel.TryGetSavedWindowPosition(out _, out _);
+        Activated += OnWindowActivated;
+        AppWindow.Changed += OnAppWindowChanged;
         AppWindow.Closing += OnAppWindowClosing;
 
         // Scroll to today after window is ready
@@ -126,12 +132,15 @@ public sealed partial class MainWindow : Window
         var bg = settings.GetColorValue(Windows.UI.ViewManagement.UIColorType.Background);
         var isDark = bg.R < 128;
         RootGrid.RequestedTheme = isDark ? ElementTheme.Dark : ElementTheme.Light;
+        UpdateViewModeIcons();
     }
 
     public void BringToFront()
     {
+        _restorePlacementPending = true;
         AppWindow.Show();
         Activate();
+        RestoreWindowPosition();
         _viewModel.CheckForNewDay();
         ScrollToToday();
     }
@@ -185,6 +194,8 @@ public sealed partial class MainWindow : Window
     {
         if (e.PropertyName == nameof(MainViewModel.IsEditingDay))
             UpdateWindowSizeForEditPanel();
+        else if (e.PropertyName is nameof(MainViewModel.IsChartView) or nameof(MainViewModel.IsCalendarView))
+            UpdateViewModeIcons();
     }
 
     private void UpdateWindowSizeForEditPanel()
@@ -195,10 +206,34 @@ public sealed partial class MainWindow : Window
 
     private void OnCellSelected(object sender, CalendarCellViewModel cell)
     {
+        if (!_viewModel.CanEditDays)
+            return;
+
         if (cell?.DayData != null)
         {
             _viewModel.StartEditingDay(cell.DayData);
         }
+    }
+
+    private void OnCalendarViewClick(object sender, RoutedEventArgs e) =>
+        _viewModel.IsChartView = false;
+
+    private void OnChartViewClick(object sender, RoutedEventArgs e) =>
+        _viewModel.IsChartView = true;
+
+    private void UpdateViewModeIcons()
+    {
+        var accent = ThemeBrush("AccentTextFillColorPrimaryBrush", Windows.UI.Color.FromArgb(255, 0, 120, 212));
+        var dimmed = ThemeBrush("TextFillColorDisabledBrush", Windows.UI.Color.FromArgb(255, 138, 138, 138));
+        CalendarViewIcon.Foreground = _viewModel.IsCalendarView ? accent : dimmed;
+        ChartViewIcon.Foreground = _viewModel.IsChartView ? accent : dimmed;
+    }
+
+    private static Brush ThemeBrush(string key, Windows.UI.Color fallback)
+    {
+        if (Application.Current.Resources.TryGetValue(key, out var value) && value is Brush brush)
+            return brush;
+        return new SolidColorBrush(fallback);
     }
 
     private void OnApplyClick(object sender, RoutedEventArgs e)
@@ -261,16 +296,92 @@ public sealed partial class MainWindow : Window
         if (_reallyClosing) return;
         // Hide instead of close — keep app alive in tray
         args.Cancel = true;
+        PersistWindowPosition();
+        _restorePlacementPending = true;
         AppWindow.Hide();
     }
 
     private void CloseForReal()
     {
         _reallyClosing = true;
+        PersistWindowPosition();
         _dayCheckTimer.Stop();
         _settingsWindow?.Close();
         (Application.Current as App)?.Quit();
     }
+
+    private void OnWindowActivated(object sender, WindowActivatedEventArgs args)
+    {
+        if (args.WindowActivationState == WindowActivationState.Deactivated)
+            return;
+
+        _viewModel.CheckForNewDay();
+
+        if (!_restorePlacementPending)
+            return;
+
+        _restorePlacementPending = false;
+        RestoreWindowPosition();
+        DispatcherQueue.TryEnqueue(RestoreWindowPosition);
+    }
+
+    private void OnAppWindowChanged(AppWindow sender, AppWindowChangedEventArgs args)
+    {
+        if (!args.DidPositionChange || IsMinimized())
+            return;
+
+        var position = sender.Position;
+        if (!IsPlausiblePosition(position))
+            return;
+
+        _lastNormalPosition = position;
+    }
+
+    private void PersistWindowPosition()
+    {
+        if (!TryGetNormalPosition(out var position))
+            return;
+
+        _viewModel.SaveWindowPosition(position.X, position.Y);
+    }
+
+    private bool TryGetNormalPosition(out PointInt32 position)
+    {
+        if (_lastNormalPosition is { } saved && IsPlausiblePosition(saved))
+        {
+            position = saved;
+            return true;
+        }
+
+        position = AppWindow.Position;
+        return !IsMinimized() && IsPlausiblePosition(position);
+    }
+
+    private void RestoreWindowPosition()
+    {
+        if (!_viewModel.TryGetSavedWindowPosition(out var x, out var y))
+            return;
+
+        try
+        {
+            var size = AppWindow.Size;
+            var display = DisplayArea.GetFromPoint(new PointInt32(x, y), DisplayAreaFallback.Nearest);
+            var work = display.WorkArea;
+            var (clampedX, clampedY) = WindowPlacement.ClampToWorkArea(
+                x, y, size.Width, size.Height, work.X, work.Y, work.Width, work.Height);
+            AppWindow.Move(new PointInt32(clampedX, clampedY));
+        }
+        catch
+        {
+        }
+    }
+
+    private bool IsMinimized() =>
+        AppWindow.Presenter is OverlappedPresenter presenter
+        && presenter.State == OverlappedPresenterState.Minimized;
+
+    private static bool IsPlausiblePosition(PointInt32 position) =>
+        position.X > -10_000 && position.Y > -10_000;
 
     private void OnSettingsClick(object sender, RoutedEventArgs e)
     {
@@ -287,7 +398,8 @@ public sealed partial class MainWindow : Window
 
     private void OnResetClick(object sender, RoutedEventArgs e)
     {
-        OnResetCycleRequested();
+        if (_viewModel.ResetCycleCommand.CanExecute(null))
+            OnResetCycleRequested();
     }
 
     private void OnQuitClick(object sender, RoutedEventArgs e)

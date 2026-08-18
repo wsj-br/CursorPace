@@ -12,7 +12,7 @@ Create a new release notes file `release-notes/RELEASE_NOTES_<version>.md` for C
      - `## Why this release matters` — One or two sentences on the main impact or reason for this release.
      - `## Detailed Changes` — The `[Unreleased]` bullets, cleaned up but not rewritten into marketing copy. Keep conventional types (**Added**, **Changed**, **Fixed**, **Removed**) and a short scope.
      - `---`
-     - `## Install` — Tell users to download `CursorUsageProgress-<version>-win-x64-setup.exe` from this GitHub Release. Note that the build is unsigned and SmartScreen may require **More info**, then **Run anyway**.
+     - `## Install` — Tell users to download `CursorUsageProgress-<version>-win-x64-setup.exe` from this GitHub Release. Note that the build is unsigned and SmartScreen may require **More info**, then **Run anyway**. Note that **Sign in** needs the Microsoft Edge WebView2 Runtime.
      - `---`
      - `## Documentation` — Link QUICKSTART, DEVELOPMENT, and README as in the example below. Use the `master` branch on `https://github.com/wsj-br/CursorUsageProgress`.
      - `---`
@@ -45,13 +45,13 @@ One or two sentences describing the practical impact (for example, "Fixes tray r
 
 ## Install
 
-Download `CursorUsageProgress-1.0.1-win-x64-setup.exe` from this release. The build is unsigned, so SmartScreen may ask you to choose **More info**, then **Run anyway**.
+Download `CursorUsageProgress-1.0.1-win-x64-setup.exe` from this release. The build is unsigned, so SmartScreen may ask you to choose **More info**, then **Run anyway**. **Sign in** needs the Microsoft Edge WebView2 Runtime; the installer offers the download page if it is missing.
 
 ---
 
 ## Documentation
 
-- [Quick start](https://github.com/wsj-br/CursorUsageProgress/blob/master/QUICKSTART.md) — install, daily use, tray, troubleshooting.
+- [Quick start](https://github.com/wsj-br/CursorUsageProgress/blob/master/QUICKSTART.md) — install, sign-in, daily use, tray, troubleshooting.
 - [Development](https://github.com/wsj-br/CursorUsageProgress/blob/master/dev/DEVELOPMENT.md) — build, test, package, contribute.
 - [README](https://github.com/wsj-br/CursorUsageProgress/blob/master/README.md) — product overview and source build.
 

@@ -15,6 +15,7 @@ public sealed class UsageSyncService : IUsageSyncService
     private readonly DispatcherQueueTimer _timer;
 
     private UsageSampleDocument _document;
+    private DateTimeOffset? _lastSuccessUtc;
     private bool _autoSyncEnabled = true;
     private int _intervalHours = 1;
     private DateTimeOffset? _backoffUntilUtc;
@@ -24,7 +25,8 @@ public sealed class UsageSyncService : IUsageSyncService
         DispatcherQueue dispatcher,
         ICursorUsageClient client,
         IUsageSampleStore sampleStore,
-        IClock clock)
+        IClock clock,
+        IPlanStore planStore)
     {
         _dispatcher = dispatcher;
         _client = client;
@@ -32,20 +34,36 @@ public sealed class UsageSyncService : IUsageSyncService
         _clock = clock;
         _document = _sampleStore.Load();
 
+        var settings = planStore.Load();
+        _lastSuccessUtc = settings.LastUsageSyncUtc
+            ?? (_document.Samples.Count == 0 ? null : _document.Samples[^1].TimestampUtc);
+
         _timer = _dispatcher.CreateTimer();
+        _timer.IsRepeating = false;
         _timer.Tick += OnTimerTick;
 
-        Status = _document.Samples.Count > 0
-            ? SyncStatus.Ok
-            : (_client.HasPersistedProfile ? SyncStatus.Idle : SyncStatus.SignedOut);
-        IsSignedIn = Status is SyncStatus.Ok or SyncStatus.Idle;
+        var connected = settings.CursorAccountConnected || _client.HasPersistedProfile;
+        if (connected)
+        {
+            Status = _lastSuccessUtc != null || _document.Samples.Count > 0
+                ? SyncStatus.Ok
+                : SyncStatus.Idle;
+            IsSignedIn = true;
+            StatusText = Status == SyncStatus.Ok ? FormatUpdatedText() : "Connected";
+        }
+        else
+        {
+            Status = SyncStatus.SignedOut;
+            IsSignedIn = false;
+            StatusText = "Not signed in";
+        }
     }
 
     public SyncStatus Status { get; private set; }
     public bool IsSignedIn { get; private set; }
     public string StatusText { get; private set; } = "Not signed in";
     public DateTimeOffset? LastSuccessUtc =>
-        _document.Samples.Count == 0 ? null : _document.Samples[^1].TimestampUtc;
+        _lastSuccessUtc ?? (_document.Samples.Count == 0 ? null : _document.Samples[^1].TimestampUtc);
     public IReadOnlyList<UsageSample> Samples => _document.Samples;
 
     public event EventHandler? StateChanged;
@@ -56,10 +74,18 @@ public sealed class UsageSyncService : IUsageSyncService
         _autoSyncEnabled = autoSyncEnabled;
         _intervalHours = SyncInterval.Clamp(intervalHours);
         _started = true;
-        ResetTimer();
 
-        if (_autoSyncEnabled)
+        if (SyncSchedule.ShouldRefreshOnStart(
+                _autoSyncEnabled,
+                IsSignedIn,
+                new DateTimeOffset(_clock.Now),
+                LastSuccessUtc,
+                _intervalHours))
+        {
             await RefreshNowAsync(allowInteractiveLogin: false);
+        }
+
+        ResetTimer();
     }
 
     public Task RefreshNowAsync(bool allowInteractiveLogin) =>
@@ -72,6 +98,7 @@ public sealed class UsageSyncService : IUsageSyncService
     {
         await _client.DisconnectAsync();
         SetStatus(SyncStatus.SignedOut, "Not signed in");
+        ResetTimer();
     }
 
     public void SetIntervalHours(int hours)
@@ -94,12 +121,18 @@ public sealed class UsageSyncService : IUsageSyncService
 
     private async void OnTimerTick(DispatcherQueueTimer sender, object args)
     {
-        if (!_autoSyncEnabled)
+        if (!_autoSyncEnabled
+            || Status is SyncStatus.AuthRequired or SyncStatus.SignedOut or SyncStatus.Syncing)
+        {
+            ResetTimer();
             return;
-        if (Status is SyncStatus.AuthRequired or SyncStatus.SignedOut or SyncStatus.Syncing)
-            return;
+        }
+
         if (_backoffUntilUtc is { } until && new DateTimeOffset(_clock.Now) < until)
+        {
+            ResetTimer();
             return;
+        }
 
         await RunFetchAsync(allowInteractiveLogin: false);
     }
@@ -112,6 +145,7 @@ public sealed class UsageSyncService : IUsageSyncService
         SetStatus(SyncStatus.Syncing, "Updating…");
         var result = await _client.FetchAsync(allowInteractiveLogin);
         ApplyFetchResult(result);
+        ResetTimer();
     }
 
     private void ApplyFetchResult(UsageFetchResult result)
@@ -120,6 +154,7 @@ public sealed class UsageSyncService : IUsageSyncService
         {
             case UsageFetchStatus.Ok when result.Snapshot != null:
                 _backoffUntilUtc = null;
+                _lastSuccessUtc = result.Snapshot.FetchedAtUtc;
                 var changed = UsageSampleAppender.ApplySnapshot(
                     _document,
                     result.Snapshot,
@@ -153,10 +188,25 @@ public sealed class UsageSyncService : IUsageSyncService
     private void ResetTimer()
     {
         _timer.Stop();
-        if (!_started || !_autoSyncEnabled)
+        if (!_started || !_autoSyncEnabled || !IsSignedIn)
+            return;
+        if (Status is SyncStatus.AuthRequired or SyncStatus.SignedOut)
             return;
 
-        _timer.Interval = TimeSpan.FromHours(_intervalHours);
+        var now = _clock.Now;
+        var next = SyncSchedule.NextAlignedLocal(now, _intervalHours);
+        if (_backoffUntilUtc is { } until)
+        {
+            var untilLocal = until.LocalDateTime;
+            if (untilLocal > next)
+                next = untilLocal;
+        }
+
+        var delay = next - now;
+        if (delay < TimeSpan.FromSeconds(1))
+            delay = TimeSpan.FromSeconds(1);
+
+        _timer.Interval = delay;
         _timer.Start();
     }
 

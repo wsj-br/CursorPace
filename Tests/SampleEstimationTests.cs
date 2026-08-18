@@ -50,7 +50,9 @@ public class SampleEstimationTests
         Assert.Equal(10m, second.CursorModelsPercent);
         Assert.True(second.CursorModelsIsActual);
         Assert.False(third.CursorModelsIsActual);
-        Assert.Equal(_calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, third.DayNumber), third.CursorModelsPercent);
+        Assert.Equal(
+            _calculator.ExpectedPercent(cycle, QuotaKind.CursorModels, third.DayNumber, samples),
+            third.CursorModelsPercent);
     }
 
     [Fact]

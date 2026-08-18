@@ -47,7 +47,7 @@
                                   VerticalAlignment="Bottom"
                                   SelectionChanged="OnIntervalChanged"/>
                     </StackPanel>
-                    <TextBlock Text="While signed in, the billing cycle comes from Cursor. Changing the renewal day is available after you sign out."
+                    <TextBlock Text="While signed in, the billing cycle comes from Cursor. Changing the renewal day and editing calendar days are available after you sign out."
                                TextWrapping="Wrap"
                                Opacity="0.7"
                                Style="{StaticResource CaptionTextBlockStyle}"/>
@@ -82,18 +82,24 @@
                     <TextBlock Text="Reset will clear all manual edits and regenerate the cycle from scratch."
                                TextWrapping="Wrap"
                                Opacity="0.7"
-                               Style="{StaticResource CaptionTextBlockStyle}"/>
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Visibility="{Binding IsCursorConnected, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                     <Button Content="Reset cycle"
                             Command="{Binding ResetCycleCommand}"
-                            HorizontalAlignment="Left"/>
-                    <TextBlock Text="Export the current cycle as a CSV file for analysis."
+                            HorizontalAlignment="Left"
+                            Visibility="{Binding IsCursorConnected, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                    <TextBlock Text="Export the current cycle, or collected usage samples, as CSV."
                                TextWrapping="Wrap"
                                Opacity="0.7"
                                Style="{StaticResource CaptionTextBlockStyle}"/>
-                    <Button Content="Export CSV"
-                            Click="OnExportCsvClick"
-                            IsEnabled="{Binding IsInitialized}"
-                            HorizontalAlignment="Left"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="Export Cycle CSV"
+                                Click="OnExportCsvClick"
+                                IsEnabled="{Binding IsInitialized}"/>
+                        <Button Content="Export Usage"
+                                Click="OnExportUsageClick"
+                                Visibility="{Binding IsCursorConnected, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    </StackPanel>
                 </StackPanel>
 
             </StackPanel>

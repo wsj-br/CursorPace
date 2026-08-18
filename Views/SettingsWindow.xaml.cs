@@ -96,6 +96,31 @@ public sealed partial class SettingsWindow : Window
         await ShowMessageAsync("Export complete", $"Saved to {result.Path}");
     }
 
+    private async void OnExportUsageClick(object sender, RoutedEventArgs e)
+    {
+        if (!_viewModel.TryBuildUsageSamplesCsv(out var csv))
+        {
+            await ShowMessageAsync("Export failed", "There is no usage data to export.");
+            return;
+        }
+
+        var picker = new FileSavePicker(AppWindow.Id)
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = $"usage-samples-{DateTime.Today:yyyy-MM-dd}",
+            DefaultFileExtension = ".csv"
+        };
+        picker.FileTypeChoices.Add("CSV", new List<string> { ".csv" });
+
+        var result = await picker.PickSaveFileAsync();
+        if (result == null)
+            return;
+
+        await File.WriteAllTextAsync(result.Path, csv);
+
+        await ShowMessageAsync("Export complete", $"Saved to {result.Path}");
+    }
+
     private void OnIntervalChanged(object sender, SelectionChangedEventArgs e)
     {
         if (IntervalBox.SelectedItem is int hours)

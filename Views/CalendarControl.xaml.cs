@@ -16,6 +16,13 @@ public sealed partial class CalendarControl : UserControl
             typeof(CalendarControl),
             new PropertyMetadata(null));
 
+    public static readonly DependencyProperty DaySelectionEnabledProperty =
+        DependencyProperty.Register(
+            nameof(DaySelectionEnabled),
+            typeof(bool),
+            typeof(CalendarControl),
+            new PropertyMetadata(true));
+
     public event EventHandler<CalendarCellViewModel>? CellSelected;
 
     public CalendarControl()
@@ -32,10 +39,19 @@ public sealed partial class CalendarControl : UserControl
         set => SetValue(WeeksProperty, value);
     }
 
+    public bool DaySelectionEnabled
+    {
+        get => (bool)GetValue(DaySelectionEnabledProperty);
+        set => SetValue(DaySelectionEnabledProperty, value);
+    }
+
     public List<string> DayNames { get; }
 
     private void OnCellPointerPressed(object sender, PointerRoutedEventArgs e)
     {
+        if (!DaySelectionEnabled)
+            return;
+
         if (sender is Border border && border.Tag is CalendarCellViewModel cell)
         {
             if (cell.DayData != null) // Only select cells with data

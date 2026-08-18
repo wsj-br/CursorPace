@@ -1,21 +1,22 @@
 # Development
 
-Contributor guide: environment, build, test, layout, and release. End-user steps are in [../QUICKSTART.md](../QUICKSTART.md).
+Contributor guide: environment, build, test, layout, and release. End-user steps are in [../QUICKSTART.md](../QUICKSTART.md). Agent and architecture constraints are in [../AGENTS.md](../AGENTS.md).
 
 ## Prerequisites
 
 - Windows 10 or 11, x64
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - Windows 10 SDK 10.0.19041 or later (comes with Visual Studio 2022/2026 with the WinUI workload, or the standalone SDK)
+- [Microsoft Edge WebView2 Runtime](https://go.microsoft.com/fwlink/p/?LinkId=2124703) (Evergreen x64) to exercise **Sign in**
 - Optional: [Inno Setup 6](https://jrsoftware.org/isdl.php) for `.\scripts\build.ps1`
 - Optional: Visual Studio or VS Code / Cursor
 
-The app is WinUI 3 (Windows App SDK), not WPF.
+The app is WinUI 3 (Windows App SDK), not WPF. WebView2 types come from Windows App SDK; do not add a separate `Microsoft.Web.WebView2` package unless the SDK stops shipping them.
 
 ## Clone and restore
 
 ```powershell
-git clone <repository-url>
+git clone https://github.com/wsj-br/CursorUsageProgress.git
 cd CursorUsageProgress
 dotnet restore
 ```
@@ -52,15 +53,14 @@ CursorUsageProgress/
 ├── CursorUsageProgress.csproj
 ├── CursorUsageProgress.slnx
 ├── Models/
-├── Services/
-├── ViewModels/
-├── Views/
+├── Services/                    # cycle math, JSON stores, WebView2 client, sync
+├── ViewModels/                  # MainViewModel, calendar, UsageChartViewModel
+├── Views/                       # MainWindow, Settings, chart, WebView2 host
 ├── Converters/
 ├── Assets/                      # cursor_usage_progress.ico / .png
 ├── Tests/
-│   ├── CursorUsageProgress.Tests.csproj
-│   └── CycleCalculatorTests.cs
-├── setup.iss                    # Inno Setup
+│   └── CursorUsageProgress.Tests.csproj
+├── setup.iss                    # Inno Setup (checks WebView2 Runtime)
 ├── scripts/
 │   ├── build.ps1
 │   ├── clean.ps1
@@ -80,26 +80,42 @@ Open `CursorUsageProgress.slnx` in Visual Studio, or build the `.csproj` files d
 | --- | --- |
 | UI | WinUI 3, Windows App SDK (`net10.0-windows10.0.19041.0`) |
 | Tray | `H.NotifyIcon.WinUI` |
+| Cursor session | WebView2 host window + persistent profile under LocalAppData |
 | Tests | xUnit, project under `Tests/` |
 | Settings | JSON under `%LocalAppData%\CursorUsageProgress\` |
 | Installer | Inno Setup 6, per-user (`PrivilegesRequired=lowest`) |
 
-Manual construction in `App.OnLaunched` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. There is no DI container.
+Manual construction in `App.OnLaunched` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IUsageSampleStore`, `ICursorUsageClient`, `IUsageSyncService`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. There is no DI container.
+
+Keep the usage HTTP call inside WebView2 (`fetch` with credentials). Do not copy Cursor cookies into `HttpClient`.
 
 ## Tests
 
-`Tests/CycleCalculatorTests.cs` covers:
+| File | When to update |
+| --- | --- |
+| `CycleCalculatorTests.cs` | Cycle bounds, `ExpectedPercent`, manual edits, Theil-Sen, run-out |
+| `SampleEstimationTests.cs` | Sample-driven expected percents, burn, and run-out |
+| `UsageChartSeriesBuilderTests.cs` | Chart X/Y mapping, markers, axis ticks |
+| `SyncScheduleTests.cs` | Launch skip window and clock-aligned intervals |
+| `UsageSummaryParserTests.cs` | `usage-summary` JSON shape |
+| `WebView2ScriptResultParserTests.cs` | Object vs JSON-string script results |
+| `UsageSampleStoreTests.cs` / `UsageSampleAppenderTests.cs` | Sample file and cycle rollover |
+| `CycleCsvBuilderTests.cs` / `UsageSamplesCsvBuilderTests.cs` | CSV columns |
+| `MainViewModelTests.cs` / `DayRowViewModelTests.cs` | Connected-account UI flags, exports |
+| `WindowPlacementTests.cs` | Restore clamped to the work area |
+
+`CycleCalculatorTests` still covers:
 
 - Cycle start and next renewal across year boundaries
 - Months that lack the renewal day (28, 29, 30, 31)
 - Leap-year 29 February
-- Default linear percents
-- Manual edits as interpolation anchors (including later edits and days before the first edit)
+- Default expected percents (`ExpectedPercent`)
+- Pins then pace remaining quota to `NextRenewal` (later pins do not pull the gap; days before the first pin stay on `LinearPercent`)
 - Theil-Sen daily usage, uncapped burn projections, run-out dates, and independent quota estimates
 - Independent Cursor Models vs Other Models
 - `ClearManual` restoring computed values
 
-Add cases next to the existing facts when you change `CycleCalculator`.
+Add cases next to the existing facts when you change those areas. `dev/api_usage-summary.json` is a captured dashboard payload; `dev/api_usage-summary.ps1` fetches a live copy when `CURSOR_SESSION_TOKEN` is set. Do not commit session tokens.
 
 ## Packaging
 
@@ -109,6 +125,8 @@ Add cases next to the existing facts when you change `CycleCalculator`.
 2. `dotnet publish` self-contained `win-x64` (not single-file; trimming and ReadyToRun stay off)
 3. Compiles `setup.iss` unless `-SkipInstaller`
 4. Writes `installer\CursorUsageProgress-<version>-win-x64-setup.exe` and a sibling `.sha256` file
+
+The installer prompts to open the WebView2 Runtime download page when the runtime is missing. Uninstall deletes `%LocalAppData%\CursorUsageProgress`.
 
 `installer/` is gitignored. Attach the exe and checksum to a GitHub Release.
 
@@ -130,6 +148,22 @@ Keep these in sync:
 
 On-disk cycle data stores **edits only**. `JsonPlanStore` writes camelCase JSON to `%LocalAppData%\CursorUsageProgress\settings.json` (atomic: write `settings.json.tmp`, then move). Full day lists from older files are migrated on load, then dropped on save. The `Version` field on `AppSettings` / `StoredSettings` is currently `1`.
 
+Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so older files still deserialize):
+
+| Field | Role |
+| --- | --- |
+| `renewalDay` | 1-31; unset means first-run dialog |
+| `activeCycle` | `renewalDay`, `cycleStart`, `nextRenewal`, `edits` |
+| `runAtStartup` | Current-user Run key |
+| `autoSyncEnabled` | Default `true` |
+| `syncIntervalHours` | 1, 2, 4, 6, or 12; other values clamp to 1 |
+| `showChartView` | Last main-window body (calendar vs chart) |
+| `cursorAccountConnected` | Last known signed-in state for launch skip |
+| `lastUsageSyncUtc` | Last successful usage fetch |
+| `windowX` / `windowY` | Last window position |
+
+`usage-samples.json` is a separate document: `version`, `cycleStartUtc`, and `samples` (`ts`, `cursor`, `other`). A new Cursor billing-cycle start clears that sample list.
+
 When you add settings fields, give them defaults on `AppSettings` / `StoredSettings` so older files still deserialize. Bump `Version` when the contract is incompatible, then migrate or regenerate the active cycle on load.
 
 ## Troubleshooting
@@ -139,6 +173,11 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 - End `CursorUsageProgress.exe` so the single-instance mutex is released.
 - Confirm the published folder contains the Windows App SDK payload (self-contained publish).
 
+**Sign in fails in a local run**
+
+- Confirm x64 (`PlatformTarget`) and the WebView2 Runtime.
+- Profile folder: `%LocalAppData%\CursorUsageProgress\WebView2`. Delete it to force a fresh login. Do not delete `settings.json` unless you also want to reset the cycle.
+
 **Tray icon missing after Explorer restart**
 
 - `TrayService` listens for `SessionSwitch` and recreates the icon. If it does not return, restart the app.
@@ -146,7 +185,7 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 **Settings lost**
 
 - `%LocalAppData%\CursorUsageProgress\`
-- `settings.corrupt.json` is a backup of a file that failed to parse
+- `settings.corrupt.json` / `usage-samples.corrupt.json` are backups of files that failed to parse
 
 **Startup registration**
 
@@ -161,10 +200,9 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 
 ## Contributing
 
-1. Match existing naming, MVVM boundaries, and interface-based services.
-2. Put calculation changes in `CycleCalculator` and cover them with xUnit facts.
+1. Match existing naming, MVVM boundaries, and interface-based services. Follow [../AGENTS.md](../AGENTS.md) for cycle math, sync, and persistence.
+2. Put calculation changes in `CycleCalculator` and cover them with xUnit facts. Chart mapping belongs in `UsageChartSeriesBuilder`.
 3. Keep user-facing docs (`README.md`, `QUICKSTART.md`) in sync with UI changes. Log user-visible work under `## [Unreleased]` in `dev/CHANGELOG.md`.
 4. Do not commit `bin/`, `obj/`, or `installer/` outputs.
 
 The project is MIT licensed (`LICENSE`). Open an issue for bugs or proposals. There is no published code of conduct or security policy file yet.
-

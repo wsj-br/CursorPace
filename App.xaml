@@ -13,6 +13,7 @@
             <converters:TodayToFontWeightConverter x:Key="TodayToFontWeightConverter"/>
             <converters:ManualEditToForegroundConverter x:Key="ManualEditToForegroundConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <converters:BoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" Invert="True"/>
             <converters:RenewalDayToBackgroundConverter x:Key="RenewalDayToBackgroundConverter"/>
             <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
             <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
