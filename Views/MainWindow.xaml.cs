@@ -15,7 +15,7 @@ namespace CursorUsageProgress.Views;
 public sealed partial class MainWindow : Window
 {
     private const int DefaultWindowWidth = 760;
-    private const int DefaultWindowHeight = 717;
+    private const int DefaultWindowHeight = 749;
     private const int EditPanelWidth = 220;
     private const int EditPanelGap = 16;
 
@@ -45,6 +45,7 @@ public sealed partial class MainWindow : Window
 
         SetupWindow();
         SetupTheme();
+        RootGrid.Loaded += (_, _) => TextBlockSelection.EnableOnLabels(RootGrid, AppTitleBar);
 
         _dayCheckTimer = DispatcherQueue.CreateTimer();
         _dayCheckTimer.Interval = TimeSpan.FromMinutes(5);
@@ -228,7 +229,8 @@ public sealed partial class MainWindow : Window
             var confirmDialog = new ContentDialog
             {
                 Title = "Change renewal day",
-                Content = "Changing the renewal day will discard any manual edits and generate a new cycle. Continue?",
+                Content = TextBlockSelection.Message(
+                    "Changing the renewal day will discard any manual edits and generate a new cycle. Continue?"),
                 PrimaryButtonText = "Yes",
                 CloseButtonText = "No",
                 XamlRoot = RootGrid.XamlRoot,
@@ -298,7 +300,8 @@ public sealed partial class MainWindow : Window
         var confirmDialog = new ContentDialog
         {
             Title = "Reset cycle",
-            Content = "This will clear all manual edits and regenerate the cycle from scratch. Continue?",
+            Content = TextBlockSelection.Message(
+                "This will clear all manual edits and regenerate the cycle from scratch. Continue?"),
             PrimaryButtonText = "Reset",
             CloseButtonText = "Cancel",
             XamlRoot = RootGrid.XamlRoot,

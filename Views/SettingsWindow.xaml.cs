@@ -22,6 +22,10 @@ public sealed partial class SettingsWindow : Window
 
         SetupWindow();
         SetupTheme();
+        RootGrid.Loaded += (_, _) => TextBlockSelection.EnableOnLabels(RootGrid, AppTitleBar);
+
+        IntervalBox.ItemsSource = viewModel.SyncIntervalOptions;
+        IntervalBox.SelectedItem = viewModel.SyncIntervalHours;
 
         if (ownerWindow != null)
             CenterOver(ownerWindow);
@@ -33,7 +37,7 @@ public sealed partial class SettingsWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
 
-        AppWindow.Resize(new Windows.Graphics.SizeInt32(600, 560));
+        AppWindow.Resize(new Windows.Graphics.SizeInt32(600, 760));
 
         // Mica backdrop (Windows 11), Acrylic fallback on Windows 10
         if (MicaController.IsSupported())
@@ -92,12 +96,39 @@ public sealed partial class SettingsWindow : Window
         await ShowMessageAsync("Export complete", $"Saved to {result.Path}");
     }
 
+    private void OnIntervalChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (IntervalBox.SelectedItem is int hours)
+            _viewModel.SyncIntervalHours = hours;
+    }
+
+    private async void OnDisconnectClick(object sender, RoutedEventArgs e)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = "Sign out of Cursor",
+            Content = TextBlockSelection.Message(
+                "This signs out of Cursor in this app, including any Google or GitHub session stored in the app's private browser profile. Your regular browser is not affected. Manual entries are kept."),
+            PrimaryButtonText = "Sign out",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = RootGrid.XamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary
+            && _viewModel.DisconnectCommand.CanExecute(null))
+        {
+            _viewModel.DisconnectCommand.Execute(null);
+        }
+    }
+
     private async Task ShowMessageAsync(string title, string content)
     {
         var dialog = new ContentDialog
         {
             Title = title,
-            Content = content,
+            Content = TextBlockSelection.Message(content),
             CloseButtonText = "OK",
             XamlRoot = RootGrid.XamlRoot
         };

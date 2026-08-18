@@ -55,8 +55,7 @@ public sealed class CalendarMonthViewModel : ViewModelBase
         }
 
         // Create lookup for quick access to day data by date
-        var dayLookup = days.ToDictionary(
-            d => DateTime.ParseExact(d.DateText, "d", CultureInfo.CurrentCulture).Date);
+        var dayLookup = days.ToDictionary(d => d.Date.Date);
 
         // Build calendar grid
         var currentDate = calendarStart;

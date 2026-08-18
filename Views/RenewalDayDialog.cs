@@ -39,7 +39,8 @@ public sealed class RenewalDayDialog : ContentDialog
         {
             Opacity = 0.7,
             TextWrapping = TextWrapping.Wrap,
-            Margin = new Thickness(0, 8, 0, 0)
+            Margin = new Thickness(0, 8, 0, 0),
+            IsTextSelectionEnabled = true
         };
 
         var panel = new StackPanel { Spacing = 4 };
@@ -47,7 +48,8 @@ public sealed class RenewalDayDialog : ContentDialog
         {
             Text = "Select the day of the month your Cursor quota renews.",
             TextWrapping = TextWrapping.Wrap,
-            Margin = new Thickness(0, 0, 0, 12)
+            Margin = new Thickness(0, 0, 0, 12),
+            IsTextSelectionEnabled = true
         });
         panel.Children.Add(_dayBox);
         panel.Children.Add(_previewText);

@@ -18,6 +18,7 @@ public partial class App : Application
     private ITrayService? _trayService;
     private MainWindow? _mainWindow;
     private MainViewModel? _viewModel;
+    private IUsageSyncService? _syncService;
     private DispatcherQueue? _dispatcherQueue;
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
@@ -40,8 +41,12 @@ public partial class App : Application
         var calculator = new CycleCalculator();
         var store = new JsonPlanStore();
         var startupReg = new WindowsStartupRegistration();
+        var sampleStore = new JsonUsageSampleStore();
+        var usageClient = new WebView2CursorUsageClient();
+        var sync = new UsageSyncService(_dispatcherQueue, usageClient, sampleStore, clock);
+        _syncService = sync;
 
-        _viewModel = new MainViewModel(clock, calculator, store, startupReg);
+        _viewModel = new MainViewModel(clock, calculator, store, startupReg, sync);
 
         _trayService = new TrayService();
         _trayService.Initialize(
@@ -63,6 +68,8 @@ public partial class App : Application
         {
             _mainWindow.Activate();
         }
+
+        _ = _viewModel.StartSyncAsync();
     }
 
     private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -79,6 +86,8 @@ public partial class App : Application
 
     private void QuitCore()
     {
+        _syncService?.Dispose();
+        _syncService = null;
         _trayService?.Dispose();
         _trayService = null;
         _namedEventThread?.Interrupt();

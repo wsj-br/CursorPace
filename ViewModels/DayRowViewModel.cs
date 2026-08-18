@@ -69,6 +69,16 @@ public sealed class DayRowViewModel : ViewModelBase
     public double ExpectedQuotaOther => _expectedQuotaOther;
     public double? ProjectedQuotaCursor => _projectedQuotaCursor;
     public double? ProjectedQuotaOther => _projectedQuotaOther;
+
+    public int ShownExpectedCursor => (int)_expectedQuotaCursor;
+    public int ShownExpectedOther => (int)_expectedQuotaOther;
+    public int? ShownProjectedCursor => ToShownProjected(_projectedQuotaCursor);
+    public int? ShownProjectedOther => ToShownProjected(_projectedQuotaOther);
+
+    private static int? ToShownProjected(double? value) =>
+        value is double percent
+            ? (int)Math.Round(percent, MidpointRounding.AwayFromZero)
+            : null;
     public bool HasCursorProjection => _projectedQuotaCursor.HasValue;
     public bool HasOtherProjection => _projectedQuotaOther.HasValue;
     public bool CursorWillRunOut => _cursorWillRunOut;
@@ -84,6 +94,7 @@ public sealed class DayRowViewModel : ViewModelBase
     }
 
     public bool IsManuallyEdited => _model.CursorModelsIsManual || _model.OtherModelsIsManual;
+    public bool IsActual => _model.CursorModelsIsActual || _model.OtherModelsIsActual;
 
     public event Action<int, decimal>? CursorModelsEdited;
     public event Action<int, decimal>? OtherModelsEdited;
@@ -96,5 +107,6 @@ public sealed class DayRowViewModel : ViewModelBase
         OnPropertyChanged(nameof(OtherModelsValue));
         OnPropertyChanged(nameof(IsModified));
         OnPropertyChanged(nameof(IsManuallyEdited));
+        OnPropertyChanged(nameof(IsActual));
     }
 }

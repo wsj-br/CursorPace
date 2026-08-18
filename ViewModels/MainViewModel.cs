@@ -14,6 +14,7 @@ public sealed class MainViewModel : ViewModelBase
     private readonly ICycleCalculator _calculator;
     private readonly IPlanStore _store;
     private readonly IStartupRegistration _startupReg;
+    private readonly IUsageSyncService _sync;
 
     private AppSettings _settings;
     private QuotaCycle? _cycle;
@@ -24,27 +25,35 @@ public sealed class MainViewModel : ViewModelBase
         IClock clock,
         ICycleCalculator calculator,
         IPlanStore store,
-        IStartupRegistration startupReg)
+        IStartupRegistration startupReg,
+        IUsageSyncService sync)
     {
         _clock = clock;
         _calculator = calculator;
         _store = store;
         _startupReg = startupReg;
+        _sync = sync;
 
         _settings = _store.Load();
         _cycle = _settings.ActiveCycle;
         if (_cycle != null)
-            _calculator.RebuildDays(_cycle);
+            _calculator.RebuildDays(_cycle, _sync.Samples, _clock.Today);
 
         Days = new ObservableCollection<DayRowViewModel>();
         Calendar = new CalendarMonthViewModel();
 
-        ChangeRenewalDayCommand = new RelayCommand(OnChangeRenewalDay);
+        ChangeRenewalDayCommand = new RelayCommand(OnChangeRenewalDay, () => !IsCursorConnected);
         ResetCycleCommand = new RelayCommand(OnResetCycle, () => _isInitialized);
         QuitCommand = new RelayCommand(OnQuit);
         ApplyEditCommand = new RelayCommand(OnApplyEdit);
         ResetDayCommand = new RelayCommand(OnResetEditingDay);
         CancelEditCommand = new RelayCommand(StopEditing);
+        RefreshNowCommand = new RelayCommand(async () => await _sync.RefreshNowAsync(false), () => !IsSyncing);
+        SignInCommand = new RelayCommand(async () => await _sync.SignInAsync(), () => !IsSyncing && !IsCursorConnected);
+        DisconnectCommand = new RelayCommand(async () => await _sync.DisconnectAsync(), () => !IsSyncing && _sync.Status != SyncStatus.SignedOut);
+
+        _sync.StateChanged += OnSyncStateChanged;
+        _sync.SnapshotReceived += OnSnapshotReceived;
 
         if (_settings.RenewalDay.HasValue && _cycle != null)
         {
@@ -81,8 +90,9 @@ public sealed class MainViewModel : ViewModelBase
                 return "Cursor Usage Progress";
 
             var lastDay = _calculator.TotalDays(_cycle!);
-            var cursorEop = _calculator.ProjectedPercent(_cycle!, QuotaKind.CursorModels, lastDay);
-            var otherEop = _calculator.ProjectedPercent(_cycle!, QuotaKind.OtherModels, lastDay);
+            var samples = _sync.Samples;
+            var cursorEop = _calculator.ProjectedPercent(_cycle!, QuotaKind.CursorModels, lastDay, samples);
+            var otherEop = _calculator.ProjectedPercent(_cycle!, QuotaKind.OtherModels, lastDay, samples);
             return $"Cursor Usage Progress\nCursor: {FormatPercent(day.CursorModelsPercent)}{FormatEop(cursorEop)}\nOther models: {FormatPercent(day.OtherModelsPercent)}{FormatEop(otherEop)}";
         }
     }
@@ -110,12 +120,57 @@ public sealed class MainViewModel : ViewModelBase
         }
     }
 
+    public bool AutoSyncEnabled
+    {
+        get => _settings.AutoSyncEnabled;
+        set
+        {
+            if (_settings.AutoSyncEnabled == value) return;
+            _settings.AutoSyncEnabled = value;
+            OnPropertyChanged();
+            _store.Save(_settings);
+            _sync.SetAutoSyncEnabled(value);
+        }
+    }
+
+    public int SyncIntervalHours
+    {
+        get => SyncInterval.Clamp(_settings.SyncIntervalHours);
+        set
+        {
+            var hours = SyncInterval.Clamp(value);
+            if (_settings.SyncIntervalHours == hours) return;
+            _settings.SyncIntervalHours = hours;
+            OnPropertyChanged();
+            _store.Save(_settings);
+            _sync.SetIntervalHours(hours);
+        }
+    }
+
+    public IReadOnlyList<int> SyncIntervalOptions => SyncInterval.AllowedHours;
+
+    public string SyncStatusText => _sync.StatusText;
+
+    public string LastSyncText => _sync.StatusText;
+
+    public bool IsSyncing => _sync.Status == SyncStatus.Syncing;
+
+    public bool IsCursorConnected => _sync.IsSignedIn;
+
+    public bool ShowRenewalDaySettings => !IsCursorConnected;
+
+    public string CursorAccountTitle =>
+        IsCursorConnected ? "Cursor account (connected)" : "Cursor account (disconnected)";
+
     public ICommand ChangeRenewalDayCommand { get; }
     public ICommand ResetCycleCommand { get; }
     public ICommand QuitCommand { get; }
     public ICommand ApplyEditCommand { get; }
     public ICommand ResetDayCommand { get; }
     public ICommand CancelEditCommand { get; }
+    public ICommand RefreshNowCommand { get; }
+    public ICommand SignInCommand { get; }
+    public ICommand DisconnectCommand { get; }
 
     private bool _isEditingDay;
     private DayRowViewModel? _editingDay;
@@ -189,16 +244,18 @@ public sealed class MainViewModel : ViewModelBase
     {
         if (_cycle == null) return;
 
-        Days.Clear();
-        var totalDays = _calculator.TotalDays(_cycle);
+        _calculator.RebuildDays(_cycle, _sync.Samples, _clock.Today);
 
-        var cursorRunOutDay = _calculator.EstimateRunOutDayNumber(_cycle, QuotaKind.CursorModels);
-        var otherRunOutDay = _calculator.EstimateRunOutDayNumber(_cycle, QuotaKind.OtherModels);
+        Days.Clear();
+        var samples = _sync.Samples;
+
+        var cursorRunOutDay = _calculator.EstimateRunOutDayNumber(_cycle, QuotaKind.CursorModels, samples);
+        var otherRunOutDay = _calculator.EstimateRunOutDayNumber(_cycle, QuotaKind.OtherModels, samples);
 
         foreach (var day in _cycle.Days)
         {
-            var projectedCursor = _calculator.ProjectedPercent(_cycle, QuotaKind.CursorModels, day.DayNumber);
-            var projectedOther = _calculator.ProjectedPercent(_cycle, QuotaKind.OtherModels, day.DayNumber);
+            var projectedCursor = _calculator.ProjectedPercent(_cycle, QuotaKind.CursorModels, day.DayNumber, samples);
+            var projectedOther = _calculator.ProjectedPercent(_cycle, QuotaKind.OtherModels, day.DayNumber, samples);
             var vm = new DayRowViewModel(
                 day,
                 (double)day.CursorModelsPercent,
@@ -214,7 +271,7 @@ public sealed class MainViewModel : ViewModelBase
 
         // Build calendar grid from days with cycle start/end dates
         // NextRenewal is the actual renewal date, so pass NextRenewal.AddDays(-1) as the last day of data
-        Calendar.BuildCalendar(Days.ToList(), _cycle.CycleStart, _cycle.NextRenewal.AddDays(-1));
+        Calendar.BuildCalendar(Days.ToList(), _cycle.CycleStart.Date, _cycle.NextRenewal.Date.AddDays(-1));
 
         RefreshCurrentDay();
         OnPropertyChanged(nameof(CycleStartText));
@@ -377,9 +434,9 @@ public sealed class MainViewModel : ViewModelBase
         if (_cycle == null)
             return "—";
 
-        var dayNumber = _calculator.EstimateRunOutDayNumber(_cycle, kind);
+        var dayNumber = _calculator.EstimateRunOutDayNumber(_cycle, kind, _sync.Samples);
         return dayNumber.HasValue
-            ? _cycle.CycleStart.AddDays(dayNumber.Value - 1).ToString("dd-MMM", CultureInfo.CurrentCulture)
+            ? _cycle.CycleStart.Date.AddDays(dayNumber.Value - 1).ToString("dd-MMM", CultureInfo.CurrentCulture)
             : "—";
     }
 
@@ -392,36 +449,84 @@ public sealed class MainViewModel : ViewModelBase
         day = _cycle.Days[_currentDayNumber - 1];
         return true;
     }
+    public Task StartSyncAsync() =>
+        _sync.StartAsync(_settings.AutoSyncEnabled, _settings.SyncIntervalHours);
+
+    private void OnSyncStateChanged(object? sender, EventArgs e)
+    {
+        OnPropertyChanged(nameof(SyncStatusText));
+        OnPropertyChanged(nameof(LastSyncText));
+        OnPropertyChanged(nameof(IsSyncing));
+        OnPropertyChanged(nameof(IsCursorConnected));
+        OnPropertyChanged(nameof(ShowRenewalDaySettings));
+        OnPropertyChanged(nameof(CursorAccountTitle));
+        OnPropertyChanged(nameof(TrayToolTipText));
+        ((RelayCommand)ChangeRenewalDayCommand).RaiseCanExecuteChanged();
+        ((RelayCommand)RefreshNowCommand).RaiseCanExecuteChanged();
+        ((RelayCommand)SignInCommand).RaiseCanExecuteChanged();
+        ((RelayCommand)DisconnectCommand).RaiseCanExecuteChanged();
+    }
+
+    private void OnSnapshotReceived(object? sender, UsageSnapshot snapshot)
+    {
+        var startLocal = snapshot.BillingCycleStartUtc.LocalDateTime;
+        var endLocal = snapshot.BillingCycleEndUtc.LocalDateTime;
+
+        if (_cycle == null || _cycle.CycleStart.Date != startLocal.Date)
+        {
+            _cycle = _calculator.GenerateCycleFromBounds(startLocal, endLocal);
+            _settings.RenewalDay = startLocal.Day;
+            _isInitialized = true;
+            OnPropertyChanged(nameof(IsInitialized));
+            OnPropertyChanged(nameof(RenewalDay));
+            ((RelayCommand)ResetCycleCommand).RaiseCanExecuteChanged();
+        }
+        else if (_cycle.CycleStart != startLocal || _cycle.NextRenewal != endLocal)
+        {
+            _cycle = new QuotaCycle
+            {
+                RenewalDay = startLocal.Day,
+                CycleStart = startLocal,
+                NextRenewal = endLocal,
+                Edits = _cycle.Edits
+            };
+            _settings.RenewalDay = startLocal.Day;
+            OnPropertyChanged(nameof(RenewalDay));
+        }
+
+        _settings.ActiveCycle = _cycle;
+        _store.Save(_settings);
+        RefreshCycle();
+    }
+
     private static string FormatPercent(decimal value) =>
         $"{(int)Math.Round(value, MidpointRounding.AwayFromZero)}%";
 
     public bool TryBuildCycleCsv(out string csv)
     {
         csv = string.Empty;
-        if (_cycle == null || _cycle.Days.Count == 0)
+        if (_cycle == null || Days.Count == 0)
             return false;
 
-        var totalDays = _calculator.TotalDays(_cycle);
         var builder = new StringBuilder();
         builder.AppendLine(
             "day number,date,Cursor (linear),Other Models (linear),Cursor (recalculated),Other Models (recalculated),IsDataPoint");
 
-        foreach (var day in _cycle.Days)
+        foreach (var day in Days)
         {
-            var linear = _calculator.LinearPercent(day.DayNumber, totalDays);
-            var isDataPoint = day.CursorModelsIsManual || day.OtherModelsIsManual ? 1 : 0;
+            var isDataPoint = day.IsManuallyEdited || day.IsActual ? 1 : 0;
 
             builder.Append(day.DayNumber);
             builder.Append(',');
             builder.Append(day.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
             builder.Append(',');
-            builder.Append(FormatCsvRatio(linear));
+            builder.Append(FormatCsvRatio(day.ShownExpectedCursor));
             builder.Append(',');
-            builder.Append(FormatCsvRatio(linear));
+            builder.Append(FormatCsvRatio(day.ShownExpectedOther));
             builder.Append(',');
-            builder.Append(FormatCsvRatio(day.CursorModelsPercent));
+            builder.Append(FormatCsvRatio(day.ShownProjectedCursor));
             builder.Append(',');
-            builder.Append(FormatCsvRatio(day.OtherModelsPercent));
+            builder.Append(FormatCsvRatio(day.ShownProjectedOther));
             builder.Append(',');
             builder.Append(isDataPoint);
             builder.AppendLine();
@@ -431,6 +536,8 @@ public sealed class MainViewModel : ViewModelBase
         return true;
     }
 
-    private static string FormatCsvRatio(decimal percent) =>
-        (percent / 100m).ToString("0.0000", CultureInfo.InvariantCulture);
+    private static string FormatCsvRatio(int? percent) =>
+        percent is int value
+            ? (value / 100m).ToString("0.0000", CultureInfo.InvariantCulture)
+            : string.Empty;
 }

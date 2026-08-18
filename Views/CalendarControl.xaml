@@ -87,13 +87,19 @@
                                                            FontWeight="SemiBold"
                                                            HorizontalAlignment="Left"
                                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                           Visibility="{x:Bind IsModified, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay}"/>
+                                                           Visibility="{x:Bind HasAccentDayNumber, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay}"/>
                                                 <TextBlock Text="{x:Bind DayNumberText}"
                                                            FontSize="15"
                                                            FontWeight="SemiBold"
                                                            HorizontalAlignment="Left"
                                                            Foreground="#1D4ED8"
                                                            Visibility="{x:Bind IsModified, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"/>
+                                                <TextBlock Text="{x:Bind DayNumberText}"
+                                                           FontSize="15"
+                                                           FontWeight="SemiBold"
+                                                           HorizontalAlignment="Left"
+                                                           Foreground="#0F766E"
+                                                           Visibility="{x:Bind ShowAsActual, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"/>
                                             </Grid>
 
                                             <!-- Cursor Models: renewal-paced quota (left) vs burn estimate (right) -->

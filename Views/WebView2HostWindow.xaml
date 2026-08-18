@@ -1,0 +1,30 @@
+<Window
+    x:Class="CursorUsageProgress.Views.WebView2HostWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid x:Name="RootGrid" RowDefinitions="Auto,*">
+        <Border x:Name="SignInBanner" Grid.Row="0" Padding="16,12" Visibility="Collapsed"
+                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <TextBlock x:Name="SignInBannerText"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center"
+                           Opacity="0.85"
+                           Text="Sign in with your Cursor account (Google, GitHub, and two-factor authentication work here). This window closes by itself when the session is accepted. If you already see your Cursor account, click Continue."/>
+                <Button x:Name="ContinueButton"
+                        Grid.Column="1"
+                        Content="Continue"
+                        VerticalAlignment="Center"
+                        Click="OnContinueClick"
+                        Style="{StaticResource AccentButtonStyle}"/>
+            </Grid>
+        </Border>
+        <WebView2 x:Name="Browser" Grid.Row="1"/>
+    </Grid>
+</Window>

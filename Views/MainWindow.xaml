@@ -69,8 +69,9 @@
         <!-- Body: info cards + calendar/edit panel -->
         <Grid Grid.Row="1" Padding="16,16,16,16" RowDefinitions="Auto,*">
 
+            <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,20">
             <!-- Info cards row -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal" Spacing="12">
 
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
@@ -122,6 +123,11 @@
                     </StackPanel>
                 </Border>
 
+            </StackPanel>
+
+            <TextBlock Text="{Binding LastSyncText}"
+                       Opacity="0.55"
+                       FontSize="11"/>
             </StackPanel>
 
             <!-- Calendar + edit panel (panel only occupies space while editing) -->

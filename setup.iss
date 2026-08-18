@@ -49,6 +49,21 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppName}}
 Type: filesandordirs; Name: "{localappdata}\CursorUsageProgress"
 
 [Code]
+function IsWebView2Installed(): Boolean;
+var
+  Version: String;
+begin
+  Result := False;
+  if RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) then
+    Result := True
+  else if RegQueryStringValue(HKCU, 'Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) then
+    Result := True
+  else if RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) then
+    Result := True;
+  if Result then
+    Result := (Version <> '') and (Version <> '0.0.0.0');
+end;
+
 function WaitUntilAppClosed(const ActionPhrase: String): Boolean;
 begin
   Result := True;
@@ -63,8 +78,18 @@ begin
 end;
 
 function InitializeSetup(): Boolean;
+var
+  ErrorCode: Integer;
 begin
   Result := WaitUntilAppClosed('the installation');
+  if not Result then
+    Exit;
+
+  if not IsWebView2Installed then
+  begin
+    if MsgBox('Microsoft Edge WebView2 Runtime is required for automatic Cursor usage updates. Open the download page now?', mbConfirmation, MB_YESNO) = IDYES then
+      ShellExec('open', 'https://go.microsoft.com/fwlink/p/?LinkId=2124703', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+  end;
 end;
 
 function InitializeUninstall(): Boolean;

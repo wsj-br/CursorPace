@@ -8,6 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWinUI>true</UseWinUI>
     <WindowsPackageType>None</WindowsPackageType>
+    <PlatformTarget>x64</PlatformTarget>
     <WindowsAppSDKSelfContained Condition="'$(RuntimeIdentifier)' != ''">true</WindowsAppSDKSelfContained>
     <ApplicationIcon>Assets\cursor_usage_progress.ico</ApplicationIcon>
     <Version>0.1.0</Version>

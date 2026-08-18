@@ -78,7 +78,9 @@ public sealed class JsonPlanStore : IPlanStore
             Version = stored.Version,
             RenewalDay = stored.RenewalDay,
             ActiveCycle = cycle,
-            RunAtStartup = stored.RunAtStartup
+            RunAtStartup = stored.RunAtStartup,
+            AutoSyncEnabled = stored.AutoSyncEnabled,
+            SyncIntervalHours = SyncInterval.Clamp(stored.SyncIntervalHours)
         };
     }
 
@@ -126,7 +128,9 @@ public sealed class JsonPlanStore : IPlanStore
             Version = settings.Version,
             RenewalDay = settings.RenewalDay,
             ActiveCycle = cycle,
-            RunAtStartup = settings.RunAtStartup
+            RunAtStartup = settings.RunAtStartup,
+            AutoSyncEnabled = settings.AutoSyncEnabled,
+            SyncIntervalHours = SyncInterval.Clamp(settings.SyncIntervalHours)
         };
     }
 
@@ -136,6 +140,8 @@ public sealed class JsonPlanStore : IPlanStore
         public int? RenewalDay { get; set; }
         public StoredCycle? ActiveCycle { get; set; }
         public bool RunAtStartup { get; set; }
+        public bool AutoSyncEnabled { get; set; } = true;
+        public int SyncIntervalHours { get; set; } = 1;
     }
 
     private sealed class StoredCycle

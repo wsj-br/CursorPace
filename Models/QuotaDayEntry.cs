@@ -8,4 +8,6 @@ public sealed class QuotaDayEntry
     public decimal OtherModelsPercent { get; set; }
     public bool CursorModelsIsManual { get; set; }
     public bool OtherModelsIsManual { get; set; }
+    public bool CursorModelsIsActual { get; set; }
+    public bool OtherModelsIsActual { get; set; }
 }
