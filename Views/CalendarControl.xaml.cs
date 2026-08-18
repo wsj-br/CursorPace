@@ -3,9 +3,9 @@ using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using CursorQuotaProgress.ViewModels;
+using CursorUsageProgress.ViewModels;
 
-namespace CursorQuotaProgress.Views;
+namespace CursorUsageProgress.Views;
 
 public sealed partial class CalendarControl : UserControl
 {

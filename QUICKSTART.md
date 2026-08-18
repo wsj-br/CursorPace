@@ -1,10 +1,10 @@
 # Quick start
 
-End-user guide for Cursor Quota Progress. For building from source, see [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md).
+End-user guide for Cursor Usage Progress. For building from source, see [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md).
 
 ## Install
 
-1. Download `CursorQuotaProgress-*-win-x64-setup.exe` from this repository's Releases page.
+1. Download `CursorUsageProgress-*-win-x64-setup.exe` from this repository's Releases page.
 2. Run the installer. If SmartScreen warns that the app is unsigned, choose **More info**, then **Run anyway**.
 3. Finish the wizard. The app launches when setup completes.
 
@@ -92,7 +92,7 @@ If the icon is missing, expand the overflow chevron (`^`). After Explorer or a s
 Settings live at:
 
 ```text
-%LocalAppData%\CursorQuotaProgress\settings.json
+%LocalAppData%\CursorUsageProgress\settings.json
 ```
 
 That file holds renewal day, startup preference, and manual edits for the current cycle. Copy the folder to back up. Delete it to start over (the next launch asks for a renewal day).
@@ -114,13 +114,13 @@ The window does not need to stay visible, but the process must be running.
 ## Uninstall
 
 1. Quit from the title bar or the tray menu.
-2. Windows Settings, **Apps**, **Installed apps**, **Cursor Quota Progress**, **Uninstall**.
+2. Windows Settings, **Apps**, **Installed apps**, **Cursor Usage Progress**, **Uninstall**.
 
 ## Troubleshooting
 
 **App will not start**
 
-- In Task Manager, end any `CursorQuotaProgress.exe` process, then launch again.
+- In Task Manager, end any `CursorUsageProgress.exe` process, then launch again.
 - If it still fails, check Windows Event Viewer for the application error.
 
 **Tray icon disappeared**
@@ -130,7 +130,7 @@ The window does not need to stay visible, but the process must be running.
 
 **Settings not saving**
 
-- Confirm write access to `%LocalAppData%\CursorQuotaProgress`.
+- Confirm write access to `%LocalAppData%\CursorUsageProgress`.
 - If `settings.corrupt.json` exists, the previous file was unreadable. Delete both files to reset.
 
 **Wrong percentage for today**
@@ -140,7 +140,7 @@ The window does not need to stay visible, but the process must be running.
 **Auto-start not working**
 
 - Confirm **Run at Windows sign-in** is on in Settings.
-- Registry (current user): `Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorQuotaProgress`, command including `--background`.
+- Registry (current user): `Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorUsageProgress`, command including `--background`.
 
 ## Tips
 

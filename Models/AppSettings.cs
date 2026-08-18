@@ -1,4 +1,4 @@
-namespace CursorQuotaProgress.Models;
+namespace CursorUsageProgress.Models;
 
 public sealed class AppSettings
 {

@@ -1,4 +1,4 @@
-namespace CursorQuotaProgress.Services;
+namespace CursorUsageProgress.Services;
 
 public interface IStartupRegistration
 {

@@ -1,5 +1,5 @@
 # Builds the Inno Setup installer and attaches it to a GitHub Release.
-# Publish a release (tag v1.0.0 matching <Version> in CursorQuotaProgress.csproj).
+# Publish a release (tag v1.0.0 matching <Version> in CursorUsageProgress.csproj).
 # workflow_dispatch builds the same installer without attaching it to a release.
 
 name: Release
@@ -33,9 +33,9 @@ jobs:
       if: github.event_name == 'release'
       shell: pwsh
       run: |
-        $csproj = Get-Content -LiteralPath CursorQuotaProgress.csproj -Raw
+        $csproj = Get-Content -LiteralPath CursorUsageProgress.csproj -Raw
         if ($csproj -notmatch '<Version>([^<]+)</Version>') {
-          throw 'Could not find <Version> in CursorQuotaProgress.csproj'
+          throw 'Could not find <Version> in CursorUsageProgress.csproj'
         }
         $version = $Matches[1].Trim()
         $tag = '${{ github.event.release.tag_name }}'
@@ -64,6 +64,6 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: >
         gh release upload "${{ github.event.release.tag_name }}"
-        installer/CursorQuotaProgress-*-win-x64-setup.exe
-        installer/CursorQuotaProgress-*-win-x64-setup.exe.sha256
+        installer/CursorUsageProgress-*-win-x64-setup.exe
+        installer/CursorUsageProgress-*-win-x64-setup.exe.sha256
         --clobber

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CursorQuotaProgress.ViewModels;
+namespace CursorUsageProgress.ViewModels;
 
 /// <summary>
 /// Represents one week row in the calendar grid (7 cells).

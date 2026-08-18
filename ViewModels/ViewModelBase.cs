@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace CursorQuotaProgress.ViewModels;
+namespace CursorUsageProgress.ViewModels;
 
 public abstract class ViewModelBase : INotifyPropertyChanged
 {

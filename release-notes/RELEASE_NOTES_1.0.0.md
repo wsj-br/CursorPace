@@ -1,4 +1,4 @@
-# Cursor Quota Progress 1.0.0 Release Notes
+# Cursor Usage Progress 1.0.0 Release Notes
 
 ## Highlights
 
@@ -21,24 +21,24 @@ First public build of a local Windows planner for Cursor model quota. It does no
 - **Added**: estimates — Theil-Sen daily usage and run-out day projection.
 - **Added**: tray — close hides the window; Quit exits; optional Run at Windows sign-in (per-user, no elevation).
 - **Added**: process — single-instance mutex; a second launch shows the existing window.
-- **Added**: install — per-user Inno Setup build (`CursorQuotaProgress-<version>-win-x64-setup.exe`).
+- **Added**: install — per-user Inno Setup build (`CursorUsageProgress-<version>-win-x64-setup.exe`).
 
 ---
 
 ## Install
 
-Download `CursorQuotaProgress-1.0.0-win-x64-setup.exe` from this release. The build is unsigned, so SmartScreen may ask you to choose **More info**, then **Run anyway**.
+Download `CursorUsageProgress-1.0.0-win-x64-setup.exe` from this release. The build is unsigned, so SmartScreen may ask you to choose **More info**, then **Run anyway**.
 
 ---
 
 ## Documentation
 
-- [Quick start](https://github.com/wsj-br/Cursor-progress/blob/master/QUICKSTART.md) — install, daily use, tray, troubleshooting.
-- [Development](https://github.com/wsj-br/Cursor-progress/blob/master/dev/DEVELOPMENT.md) — build, test, package, contribute.
-- [README](https://github.com/wsj-br/Cursor-progress/blob/master/README.md) — product overview and source build.
+- [Quick start](https://github.com/wsj-br/CursorUsageProgress/blob/master/QUICKSTART.md) — install, daily use, tray, troubleshooting.
+- [Development](https://github.com/wsj-br/CursorUsageProgress/blob/master/dev/DEVELOPMENT.md) — build, test, package, contribute.
+- [README](https://github.com/wsj-br/CursorUsageProgress/blob/master/README.md) — product overview and source build.
 
 ---
 
 ## License
 
-MIT © [Waldemar Scudeller Jr.](https://github.com/wsj-br/Cursor-progress)
+MIT © [Waldemar Scudeller Jr.](https://github.com/wsj-br/CursorUsageProgress)

@@ -1,15 +1,15 @@
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CursorQuotaProgress.Models;
+using CursorUsageProgress.Models;
 
-namespace CursorQuotaProgress.Services;
+namespace CursorUsageProgress.Services;
 
 public sealed class JsonPlanStore : IPlanStore
 {
     private static readonly string AppDataPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "CursorQuotaProgress");
+        "CursorUsageProgress");
 
     private static readonly string SettingsPath = Path.Combine(AppDataPath, "settings.json");
     private static readonly string CorruptBackupPath = Path.Combine(AppDataPath, "settings.corrupt.json");

@@ -1,6 +1,6 @@
-using CursorQuotaProgress.Models;
+using CursorUsageProgress.Models;
 
-namespace CursorQuotaProgress.Services;
+namespace CursorUsageProgress.Services;
 
 public sealed class CycleCalculator : ICycleCalculator
 {

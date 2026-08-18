@@ -1,8 +1,8 @@
-using CursorQuotaProgress.Models;
-using CursorQuotaProgress.Services;
+using CursorUsageProgress.Models;
+using CursorUsageProgress.Services;
 using Xunit;
 
-namespace CursorQuotaProgress.Tests;
+namespace CursorUsageProgress.Tests;
 
 public class CycleCalculatorTests
 {

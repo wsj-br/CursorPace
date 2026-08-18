@@ -1,9 +1,9 @@
 using System.Globalization;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using CursorQuotaProgress.Services;
+using CursorUsageProgress.Services;
 
-namespace CursorQuotaProgress.Views;
+namespace CursorUsageProgress.Views;
 
 public sealed class RenewalDayDialog : ContentDialog
 {

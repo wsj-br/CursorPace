@@ -2,11 +2,11 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text;
 using System.Windows.Input;
-using CursorQuotaProgress.Models;
-using CursorQuotaProgress.Services;
+using CursorUsageProgress.Models;
+using CursorUsageProgress.Services;
 using Microsoft.UI.Xaml;
 
-namespace CursorQuotaProgress.ViewModels;
+namespace CursorUsageProgress.ViewModels;
 
 public sealed class MainViewModel : ViewModelBase
 {
@@ -78,11 +78,11 @@ public sealed class MainViewModel : ViewModelBase
         get
         {
             if (!TryGetTodayDay(out var day))
-                return "Cursor Quota Progress";
+                return "Cursor Usage Progress";
 
             var cursorProjected = _calculator.ProjectedPercent(_cycle!, QuotaKind.CursorModels, day.DayNumber);
             var otherProjected = _calculator.ProjectedPercent(_cycle!, QuotaKind.OtherModels, day.DayNumber);
-            return $"Cursor Quota Progress\nCursor: {FormatPercent(day.CursorModelsPercent)} pace{FormatEstimated(cursorProjected)}\nOther Models: {FormatPercent(day.OtherModelsPercent)} pace{FormatEstimated(otherProjected)}";
+            return $"Cursor Usage Progress\nCursor: {FormatPercent(day.CursorModelsPercent)} pace{FormatEstimated(cursorProjected)}\nOther Models: {FormatPercent(day.OtherModelsPercent)} pace{FormatEstimated(otherProjected)}";
         }
     }
 

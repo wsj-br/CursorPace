@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 
-namespace CursorQuotaProgress.ViewModels;
+namespace CursorUsageProgress.ViewModels;
 
 /// <summary>
 /// Organizes cycle days into a calendar grid structure with weeks and cells.

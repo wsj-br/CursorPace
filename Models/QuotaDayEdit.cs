@@ -1,4 +1,4 @@
-namespace CursorQuotaProgress.Models;
+namespace CursorUsageProgress.Models;
 
 /// <summary>
 /// A user override for one day. Unedited days are not stored; their

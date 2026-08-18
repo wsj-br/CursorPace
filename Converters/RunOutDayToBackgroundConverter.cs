@@ -1,8 +1,8 @@
-﻿using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 using Windows.UI;
 
-namespace CursorQuotaProgress.Converters;
+namespace CursorUsageProgress.Converters;
 
 public sealed class RunOutDayToBackgroundConverter : IValueConverter
 {

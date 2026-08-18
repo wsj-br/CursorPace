@@ -5,9 +5,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.Windows.Storage.Pickers;
-using CursorQuotaProgress.ViewModels;
+using CursorUsageProgress.ViewModels;
 
-namespace CursorQuotaProgress.Views;
+namespace CursorUsageProgress.Views;
 
 public sealed partial class SettingsWindow : Window
 {
@@ -78,7 +78,7 @@ public sealed partial class SettingsWindow : Window
         var picker = new FileSavePicker(AppWindow.Id)
         {
             SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = $"cursor-quota-progress-{DateTime.Today:yyyy-MM-dd}",
+            SuggestedFileName = $"cursor-usage-progress-{DateTime.Today:yyyy-MM-dd}",
             DefaultFileExtension = ".csv"
         };
         picker.FileTypeChoices.Add("CSV", new List<string> { ".csv" });

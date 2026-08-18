@@ -1,15 +1,15 @@
 using System.Threading;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using CursorQuotaProgress.Services;
-using CursorQuotaProgress.ViewModels;
-using CursorQuotaProgress.Views;
+using CursorUsageProgress.Services;
+using CursorUsageProgress.ViewModels;
+using CursorUsageProgress.Views;
 
-namespace CursorQuotaProgress;
+namespace CursorUsageProgress;
 
 public partial class App : Application
 {
-    private const string MutexName = "CursorQuotaProgress_SingleInstance";
+    private const string MutexName = "CursorUsageProgress_SingleInstance";
 
     private Mutex? _mutex;
     private EventWaitHandle? _eventWaitHandle;

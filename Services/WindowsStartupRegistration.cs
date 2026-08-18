@@ -1,10 +1,10 @@
 using Microsoft.Win32;
 
-namespace CursorQuotaProgress.Services;
+namespace CursorUsageProgress.Services;
 
 public sealed class WindowsStartupRegistration : IStartupRegistration
 {
-    private const string AppName = "CursorQuotaProgress";
+    private const string AppName = "CursorUsageProgress";
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
     public bool IsRegistered

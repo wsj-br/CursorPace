@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CursorQuotaProgress.csproj" />
+    <ProjectReference Include="..\CursorUsageProgress.csproj" />
   </ItemGroup>
 
 </Project>

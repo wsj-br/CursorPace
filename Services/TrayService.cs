@@ -6,7 +6,7 @@ using Microsoft.Win32;
 using System.Windows.Input;
 using Windows.UI;
 
-namespace CursorQuotaProgress.Services;
+namespace CursorUsageProgress.Services;
 
 public sealed class TrayService : ITrayService
 {
@@ -30,7 +30,7 @@ public sealed class TrayService : ITrayService
 
         _taskbarIcon = new TaskbarIcon
         {
-            ToolTipText = "Cursor Quota Progress",
+            ToolTipText = "Cursor Usage Progress",
             LeftClickCommand = openCommand,
             DoubleClickCommand = openCommand,
             NoLeftClickDelay = true,
@@ -54,7 +54,7 @@ public sealed class TrayService : ITrayService
     {
         if (_taskbarIcon == null) return;
         _taskbarIcon.ToolTipText = string.IsNullOrWhiteSpace(text)
-            ? "Cursor Quota Progress"
+            ? "Cursor Usage Progress"
             : text;
     }
 
@@ -70,7 +70,7 @@ public sealed class TrayService : ITrayService
 
     private static System.Drawing.Icon? LoadTrayIcon()
     {
-        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "cursor_quota_progress.ico");
+        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "cursor_usage_progress.ico");
         if (!File.Exists(iconPath))
             return null;
 

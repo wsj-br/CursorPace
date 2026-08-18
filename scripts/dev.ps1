@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Run Cursor Quota Progress for local development.
+  Run Cursor Usage Progress for local development.
 
 .PARAMETER Background
   Launch in tray-only mode (--background).
@@ -27,14 +27,14 @@ Set-Location $RepoRoot
 
 if ($Test) {
     Write-Host "Running tests ($Configuration)..."
-    dotnet test .\Tests\CursorQuotaProgress.Tests.csproj -c $Configuration
+    dotnet test .\Tests\CursorUsageProgress.Tests.csproj -c $Configuration
     exit $LASTEXITCODE
 }
 
-Write-Host "Starting Cursor Quota Progress ($Configuration)..."
+Write-Host "Starting Cursor Usage Progress ($Configuration)..."
 $runArgs = @(
     'run',
-    '--project', '.\CursorQuotaProgress.csproj',
+    '--project', '.\CursorUsageProgress.csproj',
     '-c', $Configuration
 )
 if ($Background) {

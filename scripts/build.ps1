@@ -18,7 +18,7 @@ $ErrorActionPreference = 'Stop'
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $RepoRoot
 
-$appCsproj = Join-Path $RepoRoot 'CursorQuotaProgress.csproj'
+$appCsproj = Join-Path $RepoRoot 'CursorUsageProgress.csproj'
 $issScript = Join-Path $RepoRoot 'setup.iss'
 $rid = 'win-x64'
 
@@ -65,7 +65,7 @@ $publishDirRelative = "bin\Release\$tfm\$rid\publish"
 Write-Host "Publishing $version ($tfm / $rid, self-contained)..."
 if (-not $SkipTests) {
     Write-Host "Running tests..."
-    dotnet test .\Tests\CursorQuotaProgress.Tests.csproj -c Release
+    dotnet test .\Tests\CursorUsageProgress.Tests.csproj -c Release
     if ($LASTEXITCODE -ne 0) {
         throw "dotnet test failed with exit code $LASTEXITCODE"
     }
@@ -78,7 +78,7 @@ if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed with exit code $LASTEXITCODE"
 }
 
-$publishedExe = Join-Path $publishDir 'CursorQuotaProgress.exe'
+$publishedExe = Join-Path $publishDir 'CursorUsageProgress.exe'
 if (-not (Test-Path -LiteralPath $publishedExe)) {
     throw "Publish succeeded but did not produce $publishedExe"
 }
@@ -97,7 +97,7 @@ if ($LASTEXITCODE -ne 0) {
     throw "Inno Setup compiler failed with exit code $LASTEXITCODE"
 }
 
-$installerName = "CursorQuotaProgress-$version-win-x64-setup.exe"
+$installerName = "CursorUsageProgress-$version-win-x64-setup.exe"
 $installerPath = Join-Path $RepoRoot "installer\$installerName"
 if (-not (Test-Path -LiteralPath $installerPath)) {
     throw "Inno Setup finished but $installerPath was not created"

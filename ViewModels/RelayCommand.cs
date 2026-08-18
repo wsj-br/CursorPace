@@ -1,6 +1,6 @@
 using System.Windows.Input;
 
-namespace CursorQuotaProgress.ViewModels;
+namespace CursorUsageProgress.ViewModels;
 
 public sealed class RelayCommand : ICommand
 {

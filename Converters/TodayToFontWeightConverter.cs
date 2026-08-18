@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 
-namespace CursorQuotaProgress.Converters;
+namespace CursorUsageProgress.Converters;
 
 public sealed class TodayToFontWeightConverter : IValueConverter
 {

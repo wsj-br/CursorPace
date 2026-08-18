@@ -1,12 +1,12 @@
-; Cursor Quota Progress Installer Script
+; Cursor Usage Progress Installer Script
 ; Inno Setup 6.x required
 
-#define MyAppName "Cursor Quota Progress"
+#define MyAppName "Cursor Usage Progress"
 #ifndef MyAppVersion
 #define MyAppVersion "1.0.0"
 #endif
-#define MyAppPublisher "Cursor Quota Progress"
-#define MyAppExeName "CursorQuotaProgress.exe"
+#define MyAppPublisher "Cursor Usage Progress"
+#define MyAppExeName "CursorUsageProgress.exe"
 #ifndef PublishDir
 #define PublishDir "bin\Release\net10.0-windows10.0.19041.0\win-x64\publish"
 #endif
@@ -21,12 +21,12 @@ DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=installer
-OutputBaseFilename=CursorQuotaProgress-{#MyAppVersion}-win-x64-setup
+OutputBaseFilename=CursorUsageProgress-{#MyAppVersion}-win-x64-setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\{#MyAppExeName}
-SetupIconFile=Assets\cursor_quota_progress.ico
+SetupIconFile=Assets\cursor_usage_progress.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -46,15 +46,15 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppName}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
-Type: filesandordirs; Name: "{localappdata}\CursorQuotaProgress"
+Type: filesandordirs; Name: "{localappdata}\CursorUsageProgress"
 
 [Code]
 function WaitUntilAppClosed(const ActionPhrase: String): Boolean;
 begin
   Result := True;
-  while CheckForMutexes('CursorQuotaProgress_SingleInstance') do
+  while CheckForMutexes('CursorUsageProgress_SingleInstance') do
   begin
-    if MsgBox('Cursor Quota Progress is currently running. Close it, then click Retry to continue ' + ActionPhrase + ', or click Cancel to abort.', mbError, MB_RETRYCANCEL) <> IDRETRY then
+    if MsgBox('Cursor Usage Progress is currently running. Close it, then click Retry to continue ' + ActionPhrase + ', or click Cancel to abort.', mbError, MB_RETRYCANCEL) <> IDRETRY then
     begin
       Result := False;
       Exit;

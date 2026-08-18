@@ -5,12 +5,12 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using CursorQuotaProgress;
-using CursorQuotaProgress.Services;
-using CursorQuotaProgress.ViewModels;
+using CursorUsageProgress;
+using CursorUsageProgress.Services;
+using CursorUsageProgress.ViewModels;
 using Windows.Globalization.NumberFormatting;
 
-namespace CursorQuotaProgress.Views;
+namespace CursorUsageProgress.Views;
 
 public sealed partial class MainWindow : Window
 {
@@ -60,11 +60,11 @@ public sealed partial class MainWindow : Window
 
     private void SetupWindow()
     {
-        Title = "Cursor Quota Progress";
+        Title = "Cursor Usage Progress";
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
 
-        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "cursor_quota_progress.ico");
+        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "cursor_usage_progress.ico");
         if (File.Exists(iconPath))
             AppWindow.SetIcon(iconPath);
 

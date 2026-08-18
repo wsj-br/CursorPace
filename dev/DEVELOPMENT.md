@@ -16,7 +16,7 @@ The app is WinUI 3 (Windows App SDK), not WPF.
 
 ```powershell
 git clone <repository-url>
-cd Cursor-progress
+cd CursorUsageProgress
 dotnet restore
 ```
 
@@ -25,8 +25,8 @@ dotnet restore
 | Task | Command |
 | --- | --- |
 | Build | `dotnet build` |
-| Tests | `dotnet test .\Tests\CursorQuotaProgress.Tests.csproj` |
-| Run (window) | `.\scripts\dev.ps1` or `dotnet run --project .\CursorQuotaProgress.csproj` |
+| Tests | `dotnet test .\Tests\CursorUsageProgress.Tests.csproj` |
+| Run (window) | `.\scripts\dev.ps1` or `dotnet run --project .\CursorUsageProgress.csproj` |
 | Run (tray only) | `.\scripts\dev.ps1 -Background` |
 | Tests via script | `.\scripts\dev.ps1 -Test` |
 | Publish + installer | `.\scripts\build.ps1` |
@@ -39,7 +39,7 @@ dotnet restore
 Launch flags after `--`:
 
 ```powershell
-dotnet run --project .\CursorQuotaProgress.csproj -- --background
+dotnet run --project .\CursorUsageProgress.csproj -- --background
 ```
 
 `--background` starts the tray icon without showing the main window (used by the Run-at-sign-in registry value).
@@ -47,18 +47,18 @@ dotnet run --project .\CursorQuotaProgress.csproj -- --background
 ## Solution layout
 
 ```text
-Cursor-progress/
+CursorUsageProgress/
 ├── App.xaml, App.xaml.cs
-├── CursorQuotaProgress.csproj
-├── CursorQuotaProgress.slnx
+├── CursorUsageProgress.csproj
+├── CursorUsageProgress.slnx
 ├── Models/
 ├── Services/
 ├── ViewModels/
 ├── Views/
 ├── Converters/
-├── Assets/                      # cursor_quota_progress.ico / .png
+├── Assets/                      # cursor_usage_progress.ico / .png
 ├── Tests/
-│   ├── CursorQuotaProgress.Tests.csproj
+│   ├── CursorUsageProgress.Tests.csproj
 │   └── CycleCalculatorTests.cs
 ├── setup.iss                    # Inno Setup
 ├── scripts/
@@ -72,7 +72,7 @@ Cursor-progress/
     └── release-new-version-prompt.md
 ```
 
-Open `CursorQuotaProgress.slnx` in Visual Studio, or build the `.csproj` files directly.
+Open `CursorUsageProgress.slnx` in Visual Studio, or build the `.csproj` files directly.
 
 ## Stack
 
@@ -81,7 +81,7 @@ Open `CursorQuotaProgress.slnx` in Visual Studio, or build the `.csproj` files d
 | UI | WinUI 3, Windows App SDK (`net10.0-windows10.0.19041.0`) |
 | Tray | `H.NotifyIcon.WinUI` |
 | Tests | xUnit, project under `Tests/` |
-| Settings | JSON under `%LocalAppData%\CursorQuotaProgress\` |
+| Settings | JSON under `%LocalAppData%\CursorUsageProgress\` |
 | Installer | Inno Setup 6, per-user (`PrivilegesRequired=lowest`) |
 
 Manual construction in `App.OnLaunched` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. There is no DI container.
@@ -108,7 +108,7 @@ Add cases next to the existing facts when you change `CycleCalculator`.
 1. Runs tests (unless `-SkipTests`)
 2. `dotnet publish` self-contained `win-x64` (not single-file; trimming and ReadyToRun stay off)
 3. Compiles `setup.iss` unless `-SkipInstaller`
-4. Writes `installer\CursorQuotaProgress-<version>-win-x64-setup.exe` and a sibling `.sha256` file
+4. Writes `installer\CursorUsageProgress-<version>-win-x64-setup.exe` and a sibling `.sha256` file
 
 `installer/` is gitignored. Attach the exe and checksum to a GitHub Release.
 
@@ -118,7 +118,7 @@ Do not commit built binaries.
 
 Keep these in sync:
 
-1. `<Version>` in `CursorQuotaProgress.csproj` (`scripts/build.ps1` and `scripts/release.ps1` read this)
+1. `<Version>` in `CursorUsageProgress.csproj` (`scripts/build.ps1` and `scripts/release.ps1` read this)
 2. Default `MyAppVersion` in `setup.iss` (overridden by `scripts/build.ps1` with `/DMyAppVersion=...`)
 3. `dev/CHANGELOG.md`: when releasing, move `[Unreleased]` bullets into `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`
 4. `release-notes/RELEASE_NOTES_<version>.md` (required by `scripts/release.ps1`)
@@ -128,7 +128,7 @@ Keep these in sync:
 
 ## Settings format
 
-On-disk cycle data stores **edits only**. `JsonPlanStore` writes camelCase JSON to `%LocalAppData%\CursorQuotaProgress\settings.json` (atomic: write `settings.json.tmp`, then move). Full day lists from older files are migrated on load, then dropped on save. The `Version` field on `AppSettings` / `StoredSettings` is currently `1`.
+On-disk cycle data stores **edits only**. `JsonPlanStore` writes camelCase JSON to `%LocalAppData%\CursorUsageProgress\settings.json` (atomic: write `settings.json.tmp`, then move). Full day lists from older files are migrated on load, then dropped on save. The `Version` field on `AppSettings` / `StoredSettings` is currently `1`.
 
 When you add settings fields, give them defaults on `AppSettings` / `StoredSettings` so older files still deserialize. Bump `Version` when the contract is incompatible, then migrate or regenerate the active cycle on load.
 
@@ -136,7 +136,7 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 
 **App will not start after an update**
 
-- End `CursorQuotaProgress.exe` so the single-instance mutex is released.
+- End `CursorUsageProgress.exe` so the single-instance mutex is released.
 - Confirm the published folder contains the Windows App SDK payload (self-contained publish).
 
 **Tray icon missing after Explorer restart**
@@ -145,13 +145,13 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 
 **Settings lost**
 
-- `%LocalAppData%\CursorQuotaProgress\`
+- `%LocalAppData%\CursorUsageProgress\`
 - `settings.corrupt.json` is a backup of a file that failed to parse
 
 **Startup registration**
 
 - `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`
-- Value name `CursorQuotaProgress`
+- Value name `CursorUsageProgress`
 - Command: quoted exe path plus `--background`
 
 **Tests or publish path wrong**

@@ -9,12 +9,12 @@
 ## Project
 Windows 11 desktop app that tracks Cursor quota allowances across a billing cycle. Users pick a renewal day (1-31), see two independent percentages (Cursor models vs other models), and can pin manual values on specific days. There is no Cursor API; tracking is manual.
 
-Stack: C# / .NET 10 / WinUI 3 (Windows App SDK). Unpackaged (`WindowsPackageType` None). Namespace `CursorQuotaProgress`. Target `net10.0-windows10.0.19041.0`.
+Stack: C# / .NET 10 / WinUI 3 (Windows App SDK). Unpackaged (`WindowsPackageType` None). Namespace `CursorUsageProgress`. Target `net10.0-windows10.0.19041.0`.
 
 Treat source and `.csproj` as truth. Other markdown in this repo may lag the code and is being reviewed separately. Do not "fix" README or sibling docs unless asked.
 
 ## Layout
-Flat repo. App project: `CursorQuotaProgress.csproj`. Tests: `Tests/CursorQuotaProgress.Tests.csproj` (xUnit). Solution file: `CursorQuotaProgress.slnx`.
+Flat repo. App project: `CursorUsageProgress.csproj`. Tests: `Tests/CursorUsageProgress.Tests.csproj` (xUnit). Solution file: `CursorUsageProgress.slnx`.
 
 | Path | Role |
 |---|---|
@@ -36,7 +36,7 @@ Construct services in `App.OnLaunched` and pass them in. Do not add a DI contain
 
 - Time: `IClock` / `SystemClock`. Never call `DateTime.Now`/`Today` from calculator or view models.
 - Cycle math: `ICycleCalculator` / `CycleCalculator`. Keep it pure (no file I/O, no UI).
-- Persistence: `IPlanStore` / `JsonPlanStore`. Path `%LocalAppData%\CursorQuotaProgress\settings.json`.
+- Persistence: `IPlanStore` / `JsonPlanStore`. Path `%LocalAppData%\CursorUsageProgress\settings.json`.
 - Startup: `IStartupRegistration` / `WindowsStartupRegistration` (current-user Run key).
 - Tray: `ITrayService` / `TrayService` (`H.NotifyIcon.WinUI`). Lives for the whole process.
 - UI state: `MainViewModel` plus calendar/day row VMs. Views subscribe to VM events; they do not own cycle math.
@@ -59,7 +59,7 @@ Changing renewal day starts a new cycle and drops previous edits. That is intent
 If you change `CycleCalculator`, `QuotaCycle`, `QuotaDayEdit`, or `JsonPlanStore` serialization, update and run `Tests/CycleCalculatorTests.cs`.
 
 ## Process and window
-Single instance via named mutex `CursorQuotaProgress_SingleInstance`. A second launch signals an EventWaitHandle and exits; the first instance shows its window.
+Single instance via named mutex `CursorUsageProgress_SingleInstance`. A second launch signals an EventWaitHandle and exits; the first instance shows its window.
 
 Close hides the window. Process stays in the tray. Only Quit (button or tray menu) calls `App.Quit()`. `--background` skips showing the main window when already initialized.
 
@@ -69,8 +69,8 @@ Main window is fixed size, custom title bar, Mica/theme from system. Do not make
 
 ## Commands
 ```
-dotnet test .\Tests\CursorQuotaProgress.Tests.csproj
-dotnet run --project .\CursorQuotaProgress.csproj
+dotnet test .\Tests\CursorUsageProgress.Tests.csproj
+dotnet run --project .\CursorUsageProgress.csproj
 .\scripts\dev.ps1                  # Debug run
 .\scripts\dev.ps1 -Test
 .\scripts\dev.ps1 -Background
@@ -92,7 +92,7 @@ Do not move `[Unreleased]` into a versioned section, and do not write `release-n
 - Match existing naming, file placement, and WinUI namespaces (`Microsoft.UI.Xaml`, not WPF `System.Windows` except `ICommand`).
 - Prefer editing an existing service/VM over new layers.
 - Keep view code-behind thin: window lifetime, dialogs, scrolling, theme. Put state and commands on the view model.
-- After calculator or persistence changes: `dotnet test .\Tests\CursorQuotaProgress.Tests.csproj`.
+- After calculator or persistence changes: `dotnet test .\Tests\CursorUsageProgress.Tests.csproj`.
 - After UI changes: run the app (`.\scripts\dev.ps1`) and check first-run, close-to-tray, quit, and second-instance activation if those paths were touched.
 - Log user-visible work in `dev/CHANGELOG.md` (see Changelog above).
 - Do not commit installer output, `bin/`, `obj/`, or files under `installer/` (gitignored).

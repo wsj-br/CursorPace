@@ -1,6 +1,6 @@
 using System;
 
-namespace CursorQuotaProgress.ViewModels;
+namespace CursorUsageProgress.ViewModels;
 
 public sealed class CalendarCellViewModel : ViewModelBase
 {

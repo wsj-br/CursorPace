@@ -1,4 +1,4 @@
-# Cursor Quota Progress
+# Cursor Usage Progress
 
 Windows desktop app that plans Cursor model quota across a monthly renewal cycle. It spreads each cycle from 0% on renewal day to 100% at the next renewal, and lets you pin manual checkpoints so the rest of the calendar interpolates between them.
 
@@ -12,7 +12,7 @@ This is a local planner. It does not read Cursor usage or call any Cursor API.
 
 ## Install
 
-1. Download `CursorQuotaProgress-*-win-x64-setup.exe` from this repository's Releases page.
+1. Download `CursorUsageProgress-*-win-x64-setup.exe` from this repository's Releases page.
 2. Run the installer. The build is unsigned, so SmartScreen may ask you to choose **More info**, then **Run anyway**.
 3. After setup, the app launches and asks for your renewal day (1-31).
 
@@ -34,8 +34,8 @@ See [QUICKSTART.md](QUICKSTART.md) for first-run setup, the calendar, tray behav
 ```powershell
 dotnet restore
 dotnet build
-dotnet test .\Tests\CursorQuotaProgress.Tests.csproj
-dotnet run --project .\CursorQuotaProgress.csproj
+dotnet test .\Tests\CursorUsageProgress.Tests.csproj
+dotnet run --project .\CursorUsageProgress.csproj
 ```
 
 Release installer (needs [Inno Setup 6](https://jrsoftware.org/isdl.php)):
@@ -55,5 +55,6 @@ Full contributor workflow is in [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md).
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Copyright 2026 Waldemar Scudeller Jr.
 
+This software is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

@@ -1,6 +1,6 @@
 using Microsoft.UI.Xaml.Data;
 
-namespace CursorQuotaProgress.Converters;
+namespace CursorUsageProgress.Converters;
 
 public sealed class BoolToOpacityConverter : IValueConverter
 {

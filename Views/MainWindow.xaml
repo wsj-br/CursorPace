@@ -1,12 +1,12 @@
 <Window
-    x:Class="CursorQuotaProgress.Views.MainWindow"
+    x:Class="CursorUsageProgress.Views.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:converters="using:CursorQuotaProgress.Converters"
-    xmlns:local="using:CursorQuotaProgress.Views"
+    xmlns:converters="using:CursorUsageProgress.Converters"
+    xmlns:local="using:CursorUsageProgress.Views"
     mc:Ignorable="d">
 
     <Grid x:Name="RootGrid" RowDefinitions="Auto,*">
@@ -20,7 +20,7 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0"
-                           Text="Cursor Quota Progress"
+                           Text="Cursor Usage Progress"
                            VerticalAlignment="Center"
                            Style="{StaticResource BodyStrongTextBlockStyle}"
                            FontSize="13"
