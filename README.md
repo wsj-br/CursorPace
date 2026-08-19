@@ -28,9 +28,9 @@ See [QUICKSTART.md](QUICKSTART.md) for first-run setup, sign-in, the calendar an
 
 - Sign in to Cursor from the empty state or Settings; optional automatic updates on clock-aligned 1, 2, 4, 6, or 12 hour intervals
 - Billing cycle start and next renewal come from Cursor
-- Calendar or chart for the current cycle, with today, renewal, and projected run-out days highlighted
+- Calendar or chart for the current cycle, with today, renewal, and projected run-out days highlighted. Calendar left is the day's last sample when one exists, otherwise the interpolated expected percent; estimated on the right appears only after the last sample date
 - Separate **Cursor Models** and **Other Models** percentages
-- Chart axis runs from cycle start to next renewal in elapsed seconds; midnight ticks are day markers
+- Chart axis runs from cycle start to next renewal in elapsed seconds; midnight ticks are day markers, and labels use the day of the month (the truncated first slot is unlabeled)
 - System tray: closing the window hides it; **Quit** exits. The tooltip shows today's expected percent and end-of-period (`EOP`) projection
 - Optional start at Windows sign-in (user-level, no elevation)
 - Single-instance: a second launch brings the existing window forward

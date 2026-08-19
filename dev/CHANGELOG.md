@@ -8,6 +8,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Fixed**: build - `dotnet test` and `scripts/build.ps1` succeed with `EnableMsixTooling` on RID-less AnyCPU builds (`AllowNeutralPackageWithAppHost`).
+- **Fixed**: install - unpackaged publish now includes `resources.pri`, so the Inno-installed exe no longer starts and exits immediately (`Microsoft.UI.Xaml.dll` `0xc000027b`).
 - **Added**: settings - `Start in notification tray` beside `Run at Windows sign-in`; when on, launch hides the window and the Run key uses `--background`.
 - **Changed**: settings - Startup toggles use a 48px gap and line up with automatic updates and the refresh interval.
 - **Changed**: calendar - the renewal date shows expected and estimated percents when `NextRenewal` is after midnight.

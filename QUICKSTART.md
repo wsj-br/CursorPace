@@ -58,9 +58,9 @@ The header shows:
 
 The body is a month calendar or a usage chart for the current cycle. Switch with the calendar and chart icons on the right of the info cards (selected is accent color, the other is dimmed). The calendar shows the month name above the weekday row, highlights today and the renewal day, and includes the renewal date when the cycle still has time left that day. A projected run-out day has a subtle yellow background.
 
-Each calendar day shows the expected (renewal-paced) value on the left. The estimated burn value on the right appears only on days after the last sample for that quota. A teal day number means that day has a synced sample.
+Each calendar day shows two percents. On the left, a day with a synced sample shows that day's last reading (teal day number); a day without a sample shows the expected (renewal-paced) value at that day's midnight. The estimated burn value on the right appears only on days after the last sample for that quota.
 
-The chart is read-only: expected percents are dashed lines from cycle start to next renewal, estimated percents are solid from the last sample to next renewal, and a gray line marks 100%. The left and right edges are the cycle start and next renewal instants. Vertical gridlines sit at midnight; day numbers label full calendar slots, and a trailing partial slot on the renewal date has a date label only. Markers are the cycle-start origin and every sync sample (placed by timestamp).
+The chart is read-only: expected percents are dashed lines from 0% at cycle start through each sample to 100% at next renewal, estimated percents are solid from the last sample to next renewal, and a gray line marks 100%. The left and right edges are the cycle start and next renewal instants. Vertical gridlines sit at midnight. Axis labels are the day of the month: the truncated slot before the first midnight is unlabeled, and every other slot (including the renewal-date slot) is labelled. Markers are the cycle-start origin and every sync sample (placed by timestamp).
 
 Title bar actions:
 
@@ -74,8 +74,8 @@ The window is a fixed size. It restores its last position on show and launch. In
 
 ## Expected vs estimated
 
-- **Expected** (calendar left, chart dashed): a continuous line from 0% at cycle start through each sample's timestamp, then remaining quota paced to 100% at the next renewal. Days before the first sample rise toward that sample.
-- **Estimated** (calendar right, chart solid): Theil-Sen daily burn from samples. It can exceed 100% before renewal. On the chart it is a straight line from the last sample to next renewal.
+- **Expected** (chart dashed; calendar left on days without a sample): a continuous line from 0% at cycle start through each sample's timestamp, then remaining quota paced to 100% at the next renewal. Days before the first sample rise toward that sample. On the calendar, a day with a synced sample shows that day's last reading on the left instead of this interpolated value.
+- **Estimated** (calendar right, chart solid): Theil-Sen daily burn from samples. It can exceed 100% before renewal. On the chart it is a straight line from the last sample to next renewal. The calendar shows it only after the last-update date.
 
 Each quota is independent.
 
@@ -148,6 +148,7 @@ The window does not need to stay visible, but the process must be running for mi
 **App will not start**
 
 - In Task Manager, end any `CursorUsageProgress.exe` process, then launch again.
+- If the process appears and exits immediately, Event Viewer shows `Microsoft.UI.Xaml.dll` with exception `0xc000027b` when the install is missing `resources.pri`. Use an installer built after that packaging fix.
 - If it still fails, check Windows Event Viewer for the application error.
 
 **Sign in fails or "The specified module could not be found"**

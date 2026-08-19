@@ -123,6 +123,8 @@ Add cases next to the existing facts when you change those areas. `dev/api_usage
 3. Compiles `setup.iss` unless `-SkipInstaller`
 4. Writes `installer\CursorUsageProgress-<version>-win-x64-setup.exe` and a sibling `.sha256` file
 
+Unpackaged WinUI needs `EnableMsixTooling` so the build generates a PRI file. That tooling still checks MSIX architecture, so the app project sets `AllowNeutralPackageWithAppHost` for RID-less `dotnet test` / `dotnet build` (Platform defaults to AnyCPU). Publish must copy `resources.pri` and `CursorUsageProgress.pri` next to the exe; without them the process exits immediately (`Microsoft.UI.Xaml.dll` `0xc000027b`). `build.ps1` fails if those files are missing.
+
 The installer prompts to open the WebView2 Runtime download page when the runtime is missing. Uninstall deletes `%LocalAppData%\CursorUsageProgress`.
 
 `installer/` is gitignored. Attach the exe and checksum to a GitHub Release.
@@ -169,6 +171,7 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 
 - End `CursorUsageProgress.exe` so the single-instance mutex is released.
 - Confirm the published folder contains the Windows App SDK payload (self-contained publish).
+- Confirm `resources.pri` or `CursorUsageProgress.pri` is next to the exe. A missing PRI is the `0xc000027b` crash in `Microsoft.UI.Xaml.dll`.
 
 **Sign in fails in a local run**
 

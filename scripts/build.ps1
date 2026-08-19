@@ -83,6 +83,14 @@ if (-not (Test-Path -LiteralPath $publishedExe)) {
     throw "Publish succeeded but did not produce $publishedExe"
 }
 
+$publishedPri = @(
+    (Join-Path $publishDir 'resources.pri'),
+    (Join-Path $publishDir 'CursorUsageProgress.pri')
+) | Where-Object { Test-Path -LiteralPath $_ }
+if (-not $publishedPri) {
+    throw "Publish succeeded but did not produce resources.pri or CursorUsageProgress.pri. Unpackaged WinUI exits immediately without it."
+}
+
 Write-Host "Published: $publishDir"
 
 if ($SkipInstaller) {
