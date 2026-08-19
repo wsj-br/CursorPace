@@ -8,21 +8,26 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
-- **Changed**: settings - hide `Reset` and `Reset cycle` while the Cursor account is connected.
-- **Fixed**: chart - last cycle day uses a 24h slot ending at midnight `D+1` (grid only, no extra axis tick); the plot can still continue to `NextRenewal` after that.
-- **Fixed**: chart - estimated polyline vertices after the last sample use elapsed time (`ProjectedPercentAt` at each midnight) so the line does not jump at the day boundary on timed cycles.
+- **Added**: settings - `Start in notification tray` beside `Run at Windows sign-in`; when on, launch hides the window and the Run key uses `--background`.
+- **Changed**: settings - Startup toggles use a 48px gap and line up with automatic updates and the refresh interval.
+- **Changed**: calendar - the renewal date shows expected and estimated percents when `NextRenewal` is after midnight.
+- **Changed**: calendar - weekday labels are larger and closer to the grid, with the cycle-start month centered above them.
+- **Changed**: window - cycle start, next renewal, and run-out cards use `dd-MMM HH:mm`.
+- **Changed**: chart - the X axis is elapsed seconds from `CycleStart` to `NextRenewal`; midnight is a grid marker.
+- **Changed**: chart - X axis slots are labeled with the day of the month instead of a cycle day number, so the axis matches the calendar view and the date row; the truncated slot before the first midnight is left unlabeled and the renewal-date slot now gets a label.
+- **Changed**: cycle - `ExpectedPercentAt` interpolates `(0, 0%)`, every in-cycle sample timestamp, and `100%` at `NextRenewal`; days before the first sample rise toward that sample.
+- **Changed**: cycle - Theil-Sen burn uses second offsets; estimated chart lines are two points from the last sample to `NextRenewal`.
+- **Removed**: calendar - manual day edits, the edit panel, `Reset`, `Reset cycle`, `Change renewal day`, and the first-run renewal-day dialog.
+- **Changed**: settings - `settings.json` is `version` 2; `renewalDay` and cycle `edits` are no longer written.
+- **Added**: window - empty state with `Sign in` until a Cursor snapshot creates the cycle.
 - **Fixed**: window - persist the last position on close-to-tray or quit and restore it on the next show and launch.
-- **Changed**: cycle - `ExpectedPercent` pins a day at the last local-date sample (else a manual edit) and then paces remaining quota to 100% at `NextRenewal`; later pins do not pull the gap, and days before the first pin stay on `LinearPercent`.
-- **Changed**: chart - estimated (Theil-Sen) polylines start at the last sample or edit of that kind and end at `NextRenewal`; the calendar right column hides estimated percents on and before that last-update day.
-- **Changed**: chart - series and plot `xMax` run from `CycleStart` to `NextRenewal` rather than calendar midnight of day 1 and `D+1`.
 
 - **Changed**: sync - skip the launch usage refresh when `cursorAccountConnected` is set and `lastUsageSyncUtc` is under 20 minutes old, unless a clock-aligned interval slot was missed or the last update is already older than the interval (for example last update 19:55, start 20:05, interval 1h).
 - **Changed**: sync - automatic updates run on the clock hour aligned to the configured interval (`1h` at 00:00/01:00/02:00, `2h` at 00:00/02:00/04:00, `4h` at 00:00/04:00/08:00, and the same pattern for `6h`/`12h`).
 
 - **Added**: persistence - `cursorAccountConnected` in `settings.json` records whether the Cursor account is signed in so launch and other features can detect it.
 - **Changed**: settings - cycle export is labeled `Export Cycle CSV`; `Export Usage` appears on the same row when the Cursor account is connected and writes collected usage samples as CSV.
-- **Changed**: calendar - day edits are disabled while the Cursor account is connected.
-- **Added**: chart - Calendar/Chart switch on the main window plots expected (dashed) and estimated (solid) Cursor and Other Models series, a 100% limit line, and uncollapsed sample/edit markers plus the cycle-start origin.
+- **Added**: chart - Calendar/Chart switch on the main window plots expected (dashed) and estimated (solid) Cursor and Other Models series, a 100% limit line, and sample markers plus the cycle-start origin.
 - **Changed**: chart - calendar and chart icons sit on the info-card row; the selected icon uses the accent color.
 - **Fixed**: chart - day labels sit in the day slot between midnight ticks, the last day has a full 24h close tick, the plot is boxed, vertical gridlines are subtle, and the legend no longer overlaps.
 - **Changed**: settings - CSV headers use `expected` and `estimated`; expected columns write `ExpectedPercent` instead of the calendar-left sample overlay.

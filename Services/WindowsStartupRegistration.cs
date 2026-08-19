@@ -16,10 +16,12 @@ public sealed class WindowsStartupRegistration : IStartupRegistration
         }
     }
 
-    public void Register()
+    public void Register(bool startInTray)
     {
         var exePath = Environment.ProcessPath ?? throw new InvalidOperationException("Cannot determine executable path");
-        var value = $"\"{exePath}\" --background";
+        var value = startInTray
+            ? $"\"{exePath}\" --background"
+            : $"\"{exePath}\"";
 
         using var key = Registry.CurrentUser.OpenSubKey(RunKey, writable: true)
             ?? throw new InvalidOperationException("Cannot open Run registry key");

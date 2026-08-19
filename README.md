@@ -1,8 +1,12 @@
 # Cursor Usage Progress
 
-Windows desktop app that tracks Cursor model quota across a billing cycle. Sign in with your Cursor account to pull usage automatically, or pin values by hand. The calendar and chart show two independent percentages: **Cursor Models** and **Other Models**.
+<p align="center">
+  <img src="Assets/cursor_usage_progress.png" alt="Cursor Usage Progress" width="180">
+</p>
 
-Expected percents follow the last sample or manual edit, then pace remaining quota to 100% at the next renewal. A separate Theil-Sen estimate projects daily burn and run-out.
+Windows desktop app that tracks Cursor model quota across a billing cycle. Sign in with your Cursor account to pull usage automatically. The calendar and chart show two independent percentages: **Cursor Models** and **Other Models**.
+
+Expected percents follow each usage sample in time, then pace remaining quota to 100% at the next renewal. A separate Theil-Sen estimate projects daily burn and run-out.
 
 Sign in uses an embedded Microsoft Edge WebView2 window and your Cursor dashboard session. There is no official personal-plan API and no Team API key.
 
@@ -16,17 +20,17 @@ Sign in uses an embedded Microsoft Edge WebView2 window and your Cursor dashboar
 
 1. Download `CursorUsageProgress-*-win-x64-setup.exe` from this repository's Releases page.
 2. Run the installer. The build is unsigned, so SmartScreen may ask you to choose **More info**, then **Run anyway**.
-3. After setup, the app launches and asks for your renewal day (1-31). You can sign in to Cursor later from **Settings**.
+3. After setup, the app launches and asks you to sign in to Cursor.
 
 See [QUICKSTART.md](QUICKSTART.md) for first-run setup, sign-in, the calendar and chart, tray behavior, and troubleshooting.
 
 ## Features
 
-- Sign in to Cursor from Settings; optional automatic updates on clock-aligned 1, 2, 4, 6, or 12 hour intervals
-- While signed in, the billing cycle comes from Cursor; calendar edits, **Reset**, and **Change renewal day** are unavailable
+- Sign in to Cursor from the empty state or Settings; optional automatic updates on clock-aligned 1, 2, 4, 6, or 12 hour intervals
+- Billing cycle start and next renewal come from Cursor
 - Calendar or chart for the current cycle, with today, renewal, and projected run-out days highlighted
 - Separate **Cursor Models** and **Other Models** percentages
-- When signed out, manual day edits pin expected percents; Theil-Sen estimates daily usage and run-out
+- Chart axis runs from cycle start to next renewal in elapsed seconds; midnight ticks are day markers
 - System tray: closing the window hides it; **Quit** exits. The tooltip shows today's expected percent and end-of-period (`EOP`) projection
 - Optional start at Windows sign-in (user-level, no elevation)
 - Single-instance: a second launch brings the existing window forward

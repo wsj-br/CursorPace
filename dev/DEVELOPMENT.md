@@ -43,7 +43,7 @@ Launch flags after `--`:
 dotnet run --project .\CursorUsageProgress.csproj -- --background
 ```
 
-`--background` starts the tray icon without showing the main window (used by the Run-at-sign-in registry value).
+`--background` starts the tray icon without showing the main window. **Start in notification tray** does the same for a normal launch; the Run key also passes `--background` when that setting is on.
 
 ## Solution layout
 
@@ -93,27 +93,24 @@ Keep the usage HTTP call inside WebView2 (`fetch` with credentials). Do not copy
 
 | File | When to update |
 | --- | --- |
-| `CycleCalculatorTests.cs` | Cycle bounds, `ExpectedPercent`, manual edits, Theil-Sen, run-out |
+| `CycleCalculatorTests.cs` | Cycle bounds, `ExpectedPercentAt`, Theil-Sen, run-out |
 | `SampleEstimationTests.cs` | Sample-driven expected percents, burn, and run-out |
-| `UsageChartSeriesBuilderTests.cs` | Chart X/Y mapping, markers, axis ticks |
+| `UsageChartSeriesBuilderTests.cs` | Chart seconds mapping, markers, midnight slots |
 | `SyncScheduleTests.cs` | Launch skip window and clock-aligned intervals |
 | `UsageSummaryParserTests.cs` | `usage-summary` JSON shape |
 | `WebView2ScriptResultParserTests.cs` | Object vs JSON-string script results |
 | `UsageSampleStoreTests.cs` / `UsageSampleAppenderTests.cs` | Sample file and cycle rollover |
 | `CycleCsvBuilderTests.cs` / `UsageSamplesCsvBuilderTests.cs` | CSV columns |
-| `MainViewModelTests.cs` / `DayRowViewModelTests.cs` | Connected-account UI flags, exports |
+| `MainViewModelTests.cs` / `DayRowViewModelTests.cs` / `CalendarMonthViewModelTests.cs` | Initialization, connected-account persistence, exports, calendar heading |
 | `WindowPlacementTests.cs` | Restore clamped to the work area |
 
 `CycleCalculatorTests` still covers:
 
-- Cycle start and next renewal across year boundaries
-- Months that lack the renewal day (28, 29, 30, 31)
-- Leap-year 29 February
-- Default expected percents (`ExpectedPercent`)
-- Pins then pace remaining quota to `NextRenewal` (later pins do not pull the gap; days before the first pin stay on `LinearPercent`)
-- Theil-Sen daily usage, uncapped burn projections, run-out dates, and independent quota estimates
+- `GenerateCycleFromBounds` timed instants and calendar day rows
+- Seconds axis (`AxisSeconds` / `CycleSeconds`)
+- `ExpectedPercentAt` through samples then to `NextRenewal`
+- Theil-Sen daily usage, uncapped burn projections, run-out instants, and independent quota estimates
 - Independent Cursor Models vs Other Models
-- `ClearManual` restoring computed values
 
 Add cases next to the existing facts when you change those areas. `dev/api_usage-summary.json` is a captured dashboard payload; `dev/api_usage-summary.ps1` fetches a live copy when `CURSOR_SESSION_TOKEN` is set. Do not commit session tokens.
 
@@ -146,15 +143,15 @@ Keep these in sync:
 
 ## Settings format
 
-On-disk cycle data stores **edits only**. `JsonPlanStore` writes camelCase JSON to `%LocalAppData%\CursorUsageProgress\settings.json` (atomic: write `settings.json.tmp`, then move). Full day lists from older files are migrated on load, then dropped on save. The `Version` field on `AppSettings` / `StoredSettings` is currently `1`.
+`JsonPlanStore` writes camelCase JSON to `%LocalAppData%\CursorUsageProgress\settings.json` (atomic: write `settings.json.tmp`, then move). The `Version` field is `2`. Leftover `renewalDay`, cycle `edits`, and legacy `days[]` are ignored on load.
 
 Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so older files still deserialize):
 
 | Field | Role |
 | --- | --- |
-| `renewalDay` | 1-31; unset means first-run dialog |
-| `activeCycle` | `renewalDay`, `cycleStart`, `nextRenewal`, `edits` |
+| `activeCycle` | `renewalDay`, `cycleStart`, `nextRenewal` |
 | `runAtStartup` | Current-user Run key |
+| `startInNotificationTray` | Default `true`; hide the window on launch; Run key includes `--background` |
 | `autoSyncEnabled` | Default `true` |
 | `syncIntervalHours` | 1, 2, 4, 6, or 12; other values clamp to 1 |
 | `showChartView` | Last main-window body (calendar vs chart) |
@@ -191,7 +188,7 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 
 - `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`
 - Value name `CursorUsageProgress`
-- Command: quoted exe path plus `--background`
+- Command: quoted exe path; plus `--background` when **Start in notification tray** is on
 
 **Tests or publish path wrong**
 

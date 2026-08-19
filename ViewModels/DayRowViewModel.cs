@@ -36,32 +36,6 @@ public sealed class DayRowViewModel : ViewModelBase
     public DateTime Date => _model.Date;
     public string DateText => _model.Date.ToString("d", CultureInfo.CurrentCulture);
 
-    public string CursorModelsText
-    {
-        get => _model.CursorModelsPercent.ToString("F2", CultureInfo.CurrentCulture);
-        set
-        {
-            if (decimal.TryParse(value, NumberStyles.Number, CultureInfo.CurrentCulture, out var parsed)
-                && parsed >= 0 && parsed <= 100)
-            {
-                CursorModelsEdited?.Invoke(_model.DayNumber, parsed);
-            }
-        }
-    }
-
-    public string OtherModelsText
-    {
-        get => _model.OtherModelsPercent.ToString("F2", CultureInfo.CurrentCulture);
-        set
-        {
-            if (decimal.TryParse(value, NumberStyles.Number, CultureInfo.CurrentCulture, out var parsed)
-                && parsed >= 0 && parsed <= 100)
-            {
-                OtherModelsEdited?.Invoke(_model.DayNumber, parsed);
-            }
-        }
-    }
-
     public double CursorModelsValue => (double)_model.CursorModelsPercent;
     public double OtherModelsValue => (double)_model.OtherModelsPercent;
 
@@ -79,13 +53,12 @@ public sealed class DayRowViewModel : ViewModelBase
         value is double percent
             ? (int)Math.Round(percent, MidpointRounding.AwayFromZero)
             : null;
+
     public bool HasCursorProjection => _projectedQuotaCursor.HasValue;
     public bool HasOtherProjection => _projectedQuotaOther.HasValue;
     public bool CursorWillRunOut => _cursorWillRunOut;
     public bool OtherWillRunOut => _otherWillRunOut;
     public bool IsRunOutDay => _cursorWillRunOut || _otherWillRunOut;
-
-    public bool IsModified => _model.CursorModelsIsManual || _model.OtherModelsIsManual;
 
     public bool IsToday
     {
@@ -93,20 +66,5 @@ public sealed class DayRowViewModel : ViewModelBase
         set => SetProperty(ref _isToday, value);
     }
 
-    public bool IsManuallyEdited => _model.CursorModelsIsManual || _model.OtherModelsIsManual;
     public bool IsActual => _model.CursorModelsIsActual || _model.OtherModelsIsActual;
-
-    public event Action<int, decimal>? CursorModelsEdited;
-    public event Action<int, decimal>? OtherModelsEdited;
-
-    public void UpdateFromModel(QuotaDayEntry model)
-    {
-        OnPropertyChanged(nameof(CursorModelsText));
-        OnPropertyChanged(nameof(OtherModelsText));
-        OnPropertyChanged(nameof(CursorModelsValue));
-        OnPropertyChanged(nameof(OtherModelsValue));
-        OnPropertyChanged(nameof(IsModified));
-        OnPropertyChanged(nameof(IsManuallyEdited));
-        OnPropertyChanged(nameof(IsActual));
-    }
 }

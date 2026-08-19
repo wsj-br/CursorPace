@@ -62,23 +62,25 @@ public sealed class JsonPlanStore : IPlanStore
     private static AppSettings ToAppSettings(StoredSettings stored)
     {
         QuotaCycle? cycle = null;
-        if (stored.ActiveCycle != null)
+        if (stored.ActiveCycle != null
+            && stored.ActiveCycle.NextRenewal > stored.ActiveCycle.CycleStart)
         {
             cycle = new QuotaCycle
             {
-                RenewalDay = stored.ActiveCycle.RenewalDay,
+                RenewalDay = stored.ActiveCycle.RenewalDay != 0
+                    ? stored.ActiveCycle.RenewalDay
+                    : stored.ActiveCycle.CycleStart.Day,
                 CycleStart = stored.ActiveCycle.CycleStart,
-                NextRenewal = stored.ActiveCycle.NextRenewal,
-                Edits = MigrateEdits(stored.ActiveCycle)
+                NextRenewal = stored.ActiveCycle.NextRenewal
             };
         }
 
         return new AppSettings
         {
-            Version = stored.Version,
-            RenewalDay = stored.RenewalDay,
+            Version = 2,
             ActiveCycle = cycle,
             RunAtStartup = stored.RunAtStartup,
+            StartInNotificationTray = stored.StartInNotificationTray,
             AutoSyncEnabled = stored.AutoSyncEnabled,
             SyncIntervalHours = SyncInterval.Clamp(stored.SyncIntervalHours),
             ShowChartView = stored.ShowChartView,
@@ -87,31 +89,6 @@ public sealed class JsonPlanStore : IPlanStore
             WindowX = stored.WindowX,
             WindowY = stored.WindowY
         };
-    }
-
-    private static List<QuotaDayEdit> MigrateEdits(StoredCycle stored)
-    {
-        if (stored.Edits is { Count: > 0 })
-            return stored.Edits.Where(e => e.HasAnyValue).ToList();
-
-        if (stored.Days == null)
-            return new List<QuotaDayEdit>();
-
-        var edits = new List<QuotaDayEdit>();
-        foreach (var day in stored.Days)
-        {
-            if (!day.CursorModelsIsManual && !day.OtherModelsIsManual)
-                continue;
-
-            edits.Add(new QuotaDayEdit
-            {
-                DayNumber = day.DayNumber,
-                CursorModelsPercent = day.CursorModelsIsManual ? day.CursorModelsPercent : null,
-                OtherModelsPercent = day.OtherModelsIsManual ? day.OtherModelsPercent : null
-            });
-        }
-
-        return edits;
     }
 
     private static StoredSettings ToStoredSettings(AppSettings settings)
@@ -123,17 +100,16 @@ public sealed class JsonPlanStore : IPlanStore
             {
                 RenewalDay = settings.ActiveCycle.RenewalDay,
                 CycleStart = settings.ActiveCycle.CycleStart,
-                NextRenewal = settings.ActiveCycle.NextRenewal,
-                Edits = settings.ActiveCycle.Edits.Where(e => e.HasAnyValue).ToList()
+                NextRenewal = settings.ActiveCycle.NextRenewal
             };
         }
 
         return new StoredSettings
         {
-            Version = settings.Version,
-            RenewalDay = settings.RenewalDay,
+            Version = 2,
             ActiveCycle = cycle,
             RunAtStartup = settings.RunAtStartup,
+            StartInNotificationTray = settings.StartInNotificationTray,
             AutoSyncEnabled = settings.AutoSyncEnabled,
             SyncIntervalHours = SyncInterval.Clamp(settings.SyncIntervalHours),
             ShowChartView = settings.ShowChartView,
@@ -146,10 +122,10 @@ public sealed class JsonPlanStore : IPlanStore
 
     private sealed class StoredSettings
     {
-        public int Version { get; set; } = 1;
-        public int? RenewalDay { get; set; }
+        public int Version { get; set; } = 2;
         public StoredCycle? ActiveCycle { get; set; }
         public bool RunAtStartup { get; set; }
+        public bool StartInNotificationTray { get; set; } = true;
         public bool AutoSyncEnabled { get; set; } = true;
         public int SyncIntervalHours { get; set; } = 1;
         public bool ShowChartView { get; set; }
@@ -164,7 +140,5 @@ public sealed class JsonPlanStore : IPlanStore
         public int RenewalDay { get; set; }
         public DateTime CycleStart { get; set; }
         public DateTime NextRenewal { get; set; }
-        public List<QuotaDayEdit>? Edits { get; set; }
-        public List<QuotaDayEntry>? Days { get; set; }
     }
 }

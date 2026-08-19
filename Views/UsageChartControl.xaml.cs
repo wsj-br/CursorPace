@@ -65,10 +65,8 @@ public sealed partial class UsageChartControl : UserControl
             Math.Max(40, PlotCanvas.ActualWidth - PlotLeft - PlotRightPad),
             Math.Max(40, PlotCanvas.ActualHeight - PlotTop - PlotBottomPad));
 
-        var xMin = 1m;
-        var xMax = document.PlotEndX > xMin ? document.PlotEndX : xMin + 1m;
-        var clipMin = UsageChartSeriesBuilder.ToAxisX(document.CycleStart, document.CycleStart);
-        var clipMax = document.RenewalX > clipMin ? document.RenewalX : xMax;
+        var xMin = 0m;
+        var xMax = document.CycleSeconds > xMin ? document.CycleSeconds : 1m;
         var yMin = 0m;
         var yMax = document.YMax <= 0 ? UsageChartSeriesBuilder.DefaultYMax : document.YMax;
 
@@ -80,12 +78,12 @@ public sealed partial class UsageChartControl : UserControl
 
         DrawGrid(document, plot, xMin, xMax, yMin, yMax, gridBrush, verticalBrush, mutedBrush, limitBrush);
         DrawPlotBox(plot, boxBrush);
-        DrawPolyline(document.CursorExpected, plot, xMin, xMax, yMin, yMax, clipMin, clipMax, CursorExpectedColor, dashed: true);
-        DrawPolyline(document.OtherExpected, plot, xMin, xMax, yMin, yMax, clipMin, clipMax, OtherExpectedColor, dashed: true);
+        DrawPolyline(document.CursorExpected, plot, xMin, xMax, yMin, yMax, CursorExpectedColor, dashed: true);
+        DrawPolyline(document.OtherExpected, plot, xMin, xMax, yMin, yMax, OtherExpectedColor, dashed: true);
         if (document.HasCursorEstimated)
-            DrawPolyline(document.CursorEstimated, plot, xMin, xMax, yMin, yMax, clipMin, clipMax, CursorEstimatedColor, dashed: false);
+            DrawPolyline(document.CursorEstimated, plot, xMin, xMax, yMin, yMax, CursorEstimatedColor, dashed: false);
         if (document.HasOtherEstimated)
-            DrawPolyline(document.OtherEstimated, plot, xMin, xMax, yMin, yMax, clipMin, clipMax, OtherEstimatedColor, dashed: false);
+            DrawPolyline(document.OtherEstimated, plot, xMin, xMax, yMin, yMax, OtherEstimatedColor, dashed: false);
         DrawMarkers(document, plot, xMin, xMax, yMin, yMax);
         DrawAxes(document, plot, xMin, xMax, mutedBrush);
         DrawLegend(document, mutedBrush);
@@ -103,28 +101,17 @@ public sealed partial class UsageChartControl : UserControl
         Brush mutedBrush,
         Brush limitBrush)
     {
-        foreach (var tick in document.DayTicks)
+        foreach (var slot in document.Slots)
         {
-            var px = MapX(tick.X, plot, xMin, xMax);
+            if (slot.StartX <= xMin)
+                continue;
+
+            var px = MapX(slot.StartX, plot, xMin, xMax);
             PlotCanvas.Children.Add(new Line
             {
                 X1 = px,
                 Y1 = plot.Top,
                 X2 = px,
-                Y2 = plot.Bottom,
-                Stroke = verticalBrush,
-                StrokeThickness = 1
-            });
-        }
-
-        var slotEndPx = MapX(document.SlotEndX, plot, xMin, xMax);
-        if (document.SlotEndX > xMin && slotEndPx < plot.Right - 0.5)
-        {
-            PlotCanvas.Children.Add(new Line
-            {
-                X1 = slotEndPx,
-                Y1 = plot.Top,
-                X2 = slotEndPx,
                 Y2 = plot.Bottom,
                 Stroke = verticalBrush,
                 StrokeThickness = 1
@@ -168,18 +155,16 @@ public sealed partial class UsageChartControl : UserControl
         decimal xMax,
         Brush mutedBrush)
     {
-        var ticks = document.DayTicks;
-        if (ticks.Count == 0)
+        var slots = document.Slots;
+        if (slots.Count == 0)
             return;
 
-        var slotCount = ticks.Count;
-        var step = Math.Max(1, (int)Math.Ceiling(MinTickSpacing * Math.Max(slotCount, 1) / plot.Width));
-        var lastDateX = double.MinValue;
-        const double dateMinSpacing = 56;
-
-        foreach (var tick in ticks)
+        foreach (var slot in slots)
         {
-            var px = MapX(tick.X, plot, xMin, xMax);
+            if (slot.StartX <= xMin)
+                continue;
+
+            var px = MapX(slot.StartX, plot, xMin, xMax);
             PlotCanvas.Children.Add(new Line
             {
                 X1 = px,
@@ -189,22 +174,68 @@ public sealed partial class UsageChartControl : UserControl
                 Stroke = mutedBrush,
                 StrokeThickness = 1
             });
-
-            var isEdge = tick.DayNumber == 1 || tick.DayNumber == slotCount;
-            var showDay = isEdge || tick.DayNumber % step == 0;
-            if (!showDay)
-                continue;
-
-            var midX = MapX(tick.X + 0.5m, plot, xMin, xMax);
-            AddLabel(tick.DayNumber.ToString(CultureInfo.InvariantCulture), midX, plot.Bottom + 6, mutedBrush, 10);
-
-            var showDate = isEdge || (tick.DayNumber - 1) % 7 == 0;
-            if (!showDate || midX - lastDateX < dateMinSpacing)
-                continue;
-
-            lastDateX = midX;
-            AddLabel(tick.Date.ToString("d", CultureInfo.CurrentCulture), midX, plot.Top - 18, mutedBrush, 10);
         }
+
+        var labelled = slots.Where(s => !s.IsLeadingPartial).ToList();
+        if (labelled.Count == 0)
+            return;
+
+        DrawDayLabels(labelled, plot, xMin, xMax, mutedBrush);
+        DrawDateLabels(labelled, plot, xMin, xMax, mutedBrush);
+    }
+
+    private void DrawDayLabels(
+        List<UsageChartSlot> labelled,
+        Rect plot,
+        decimal xMin,
+        decimal xMax,
+        Brush mutedBrush)
+    {
+        // Thin by slot index, not by the day of the month, so the spacing stays even
+        // across a month boundary.
+        var step = Math.Max(1, (int)Math.Ceiling(MinTickSpacing * labelled.Count / plot.Width));
+        var lastIndex = labelled.Count - 1;
+        var lastX = MapX(labelled[lastIndex].MidX, plot, xMin, xMax);
+
+        for (var i = 0; i < labelled.Count; i++)
+        {
+            var x = MapX(labelled[i].MidX, plot, xMin, xMax);
+            if (i != lastIndex && (i % step != 0 || lastX - x < MinTickSpacing))
+                continue;
+
+            AddLabel(
+                labelled[i].Date.Day.ToString(CultureInfo.CurrentCulture),
+                x,
+                plot.Bottom + 6,
+                mutedBrush,
+                10);
+        }
+    }
+
+    private void DrawDateLabels(
+        List<UsageChartSlot> labelled,
+        Rect plot,
+        decimal xMin,
+        decimal xMax,
+        Brush mutedBrush)
+    {
+        const double dateMinSpacing = 56;
+
+        var lastIndex = labelled.Count - 1;
+        var lastX = MapX(labelled[lastIndex].MidX, plot, xMin, xMax);
+        var placedX = double.MinValue;
+
+        for (var i = 0; i < lastIndex; i += 7)
+        {
+            var x = MapX(labelled[i].MidX, plot, xMin, xMax);
+            if (x - placedX < dateMinSpacing || lastX - x < dateMinSpacing)
+                continue;
+
+            placedX = x;
+            AddLabel(labelled[i].Date.ToString("d", CultureInfo.CurrentCulture), x, plot.Top - 18, mutedBrush, 10);
+        }
+
+        AddLabel(labelled[lastIndex].Date.ToString("d", CultureInfo.CurrentCulture), lastX, plot.Top - 18, mutedBrush, 10);
     }
 
     private void DrawPolyline(
@@ -214,8 +245,6 @@ public sealed partial class UsageChartControl : UserControl
         decimal xMax,
         decimal yMin,
         decimal yMax,
-        decimal clipMin,
-        decimal clipMax,
         Color color,
         bool dashed)
     {
@@ -232,54 +261,14 @@ public sealed partial class UsageChartControl : UserControl
         if (dashed)
             polyline.StrokeDashArray = new DoubleCollection { 5, 3 };
 
-        foreach (var point in ClipToXRange(points, clipMin, clipMax))
+        foreach (var point in points)
         {
             polyline.Points.Add(new Point(
                 MapX(point.X, plot, xMin, xMax),
                 MapY(point.Y, plot, yMin, yMax)));
         }
 
-        if (polyline.Points.Count >= 2)
-            PlotCanvas.Children.Add(polyline);
-    }
-
-    private static List<UsageChartPoint> ClipToXRange(
-        IReadOnlyList<UsageChartPoint> points,
-        decimal xMin,
-        decimal xMax)
-    {
-        var clipped = new List<UsageChartPoint>(points.Count);
-        UsageChartPoint? previous = null;
-        foreach (var point in points)
-        {
-            if (point.X < xMin)
-            {
-                previous = point;
-                continue;
-            }
-
-            if (previous is { } before && clipped.Count == 0 && before.X < xMin)
-                clipped.Add(InterpolateX(before, point, xMin));
-
-            if (point.X > xMax)
-            {
-                if (previous is { } inside && inside.X <= xMax)
-                    clipped.Add(InterpolateX(inside, point, xMax));
-                break;
-            }
-
-            clipped.Add(point);
-            previous = point;
-        }
-
-        return clipped;
-    }
-
-    private static UsageChartPoint InterpolateX(UsageChartPoint left, UsageChartPoint right, decimal x)
-    {
-        var span = right.X - left.X;
-        var t = span == 0 ? 0m : (x - left.X) / span;
-        return new UsageChartPoint { X = x, Y = left.Y + t * (right.Y - left.Y) };
+        PlotCanvas.Children.Add(polyline);
     }
 
     private void DrawMarkers(

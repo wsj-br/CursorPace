@@ -4,24 +4,7 @@ namespace CursorUsageProgress.Services;
 
 public sealed class CycleCalculator : ICycleCalculator
 {
-    public QuotaCycle GenerateCycle(int renewalDay, DateTime referenceDate)
-    {
-        if (renewalDay < 1 || renewalDay > 31)
-            throw new ArgumentOutOfRangeException(nameof(renewalDay));
-
-        var cycleStart = FindCycleStart(renewalDay, referenceDate);
-        var nextRenewal = FindNextRenewal(renewalDay, cycleStart);
-
-        var cycle = new QuotaCycle
-        {
-            RenewalDay = renewalDay,
-            CycleStart = cycleStart,
-            NextRenewal = nextRenewal
-        };
-
-        RebuildDays(cycle);
-        return cycle;
-    }
+    private const decimal SecondsPerDay = 86400m;
 
     public QuotaCycle GenerateCycleFromBounds(DateTime startLocal, DateTime endLocal)
     {
@@ -39,55 +22,29 @@ public sealed class CycleCalculator : ICycleCalculator
         return cycle;
     }
 
-    public DateTime FindCycleStart(int renewalDay, DateTime referenceDate)
-    {
-        var candidate = new DateTime(referenceDate.Year, referenceDate.Month, 1);
-
-        if (DateTime.DaysInMonth(candidate.Year, candidate.Month) >= renewalDay)
-        {
-            candidate = new DateTime(candidate.Year, candidate.Month, renewalDay);
-            if (candidate <= referenceDate)
-                return candidate;
-        }
-
-        while (true)
-        {
-            candidate = candidate.AddMonths(-1);
-            if (DateTime.DaysInMonth(candidate.Year, candidate.Month) >= renewalDay)
-                return new DateTime(candidate.Year, candidate.Month, renewalDay);
-        }
-    }
-
-    public DateTime FindNextRenewal(int renewalDay, DateTime cycleStart)
-    {
-        var candidate = cycleStart.AddMonths(1);
-
-        while (true)
-        {
-            if (DateTime.DaysInMonth(candidate.Year, candidate.Month) >= renewalDay)
-                return new DateTime(candidate.Year, candidate.Month, renewalDay);
-
-            candidate = candidate.AddMonths(1);
-        }
-    }
-
     public int TotalDays(QuotaCycle cycle)
     {
-        var totalDays = (cycle.NextRenewal - cycle.CycleStart).Days;
+        var lastDate = LastInclusiveCalendarDate(cycle);
+        var totalDays = (lastDate - cycle.CycleStart.Date).Days + 1;
         if (totalDays <= 0)
             throw new InvalidOperationException("Cycle has no days.");
         return totalDays;
     }
 
-    public decimal LinearPercent(int dayNumber, int totalDays)
-    {
-        if (dayNumber < 1 || dayNumber > totalDays)
-            throw new ArgumentOutOfRangeException(nameof(dayNumber));
-        if (totalDays <= 0)
-            throw new ArgumentOutOfRangeException(nameof(totalDays));
+    /// <summary>
+    /// Last local date that still has time in <c>[CycleStart, NextRenewal)</c>.
+    /// When renewal is exactly midnight that date is excluded.
+    /// </summary>
+    public static DateTime LastInclusiveCalendarDate(QuotaCycle cycle) =>
+        cycle.NextRenewal > cycle.NextRenewal.Date
+            ? cycle.NextRenewal.Date
+            : cycle.NextRenewal.Date.AddDays(-1);
 
-        return 100m * (dayNumber - 1) / totalDays;
-    }
+    public static decimal CycleSeconds(QuotaCycle cycle) =>
+        TicksToSeconds((cycle.NextRenewal - cycle.CycleStart).Ticks);
+
+    public static decimal AxisSeconds(QuotaCycle cycle, DateTime local) =>
+        TicksToSeconds((local - cycle.CycleStart).Ticks);
 
     public decimal ExpectedPercent(QuotaCycle cycle, QuotaKind kind, int dayNumber) =>
         ExpectedPercent(cycle, kind, dayNumber, samples: null);
@@ -98,68 +55,44 @@ public sealed class CycleCalculator : ICycleCalculator
         int dayNumber,
         IReadOnlyList<UsageSample>? samples)
     {
-        var totalDays = TotalDays(cycle);
-        if (dayNumber < 1 || dayNumber > totalDays)
-            throw new ArgumentOutOfRangeException(nameof(dayNumber));
-
-        var anchors = CollectObservedAnchors(cycle, kind, samples);
-        (int Day, decimal Percent)? previous = null;
-        foreach (var anchor in anchors)
-        {
-            if (anchor.Day == dayNumber)
-                return anchor.Percent;
-            if (anchor.Day < dayNumber)
-                previous = anchor;
-        }
-
-        if (previous is { } pin)
-            return InterpolateToRenewal(cycle, pin.Day, pin.Percent, dayNumber);
-
-        return LinearPercent(dayNumber, totalDays);
+        return ExpectedPercentAt(cycle, kind, InstantForDay(cycle, dayNumber), samples);
     }
 
-    public static decimal AxisX(DateTime cycleStart, DateTime local) =>
-        1m + (decimal)(local - cycleStart.Date).TotalDays;
+    public decimal ExpectedPercentAt(
+        QuotaCycle cycle,
+        QuotaKind kind,
+        DateTime local,
+        IReadOnlyList<UsageSample>? samples)
+    {
+        var anchors = CollectExpectedAnchors(cycle, kind, samples);
+        if (local <= cycle.CycleStart)
+            return anchors[0].Percent;
+        if (local >= cycle.NextRenewal)
+            return 100m;
 
-    public static decimal AxisX(QuotaCycle cycle, DateTime local) =>
-        AxisX(cycle.CycleStart, local);
+        return Interpolate(anchors, AxisSeconds(cycle, local));
+    }
 
     public decimal? EstimateDailyUsage(QuotaCycle cycle, QuotaKind kind) =>
         EstimateDailyUsage(cycle, kind, samples: null);
 
     public decimal? EstimateDailyUsage(QuotaCycle cycle, QuotaKind kind, IReadOnlyList<UsageSample>? samples)
     {
-        if (TryEstimateFromSamples(cycle, kind, samples, out var rate, out _))
-            return rate;
+        if (!TryEstimateRate(cycle, kind, samples, out var ratePerSecond, out _))
+            return null;
 
-        var points = CollectUsagePoints(cycle, kind);
-        return MedianOfPairwiseSlopes(points.Select(p => ((decimal)p.Day, p.Percent)).ToList());
+        return ratePerSecond * SecondsPerDay;
     }
 
     public decimal? ProjectedPercent(QuotaCycle cycle, QuotaKind kind, int dayNumber) =>
         ProjectedPercent(cycle, kind, dayNumber, samples: null);
 
-    public decimal? ProjectedPercent(QuotaCycle cycle, QuotaKind kind, int dayNumber, IReadOnlyList<UsageSample>? samples)
-    {
-        var totalDays = TotalDays(cycle);
-        if (dayNumber < 1 || dayNumber > totalDays)
-            throw new ArgumentOutOfRangeException(nameof(dayNumber));
-
-        if (TryEstimateFromSamples(cycle, kind, samples, out var sampleRate, out var samplePoints)
-            && samplePoints.Count > 0)
-        {
-            var last = samplePoints[^1];
-            var targetX = dayNumber - 1m;
-            return last.Percent + sampleRate!.Value * (targetX - last.X);
-        }
-
-        var rate = EstimateDailyUsage(cycle, kind);
-        if (rate is null)
-            return null;
-
-        var lastEdit = CollectUsagePoints(cycle, kind)[^1];
-        return lastEdit.Percent + rate.Value * (dayNumber - lastEdit.Day);
-    }
+    public decimal? ProjectedPercent(
+        QuotaCycle cycle,
+        QuotaKind kind,
+        int dayNumber,
+        IReadOnlyList<UsageSample>? samples) =>
+        ProjectedPercentAt(cycle, kind, InstantForDay(cycle, dayNumber), samples);
 
     public decimal? ProjectedPercentAt(
         QuotaCycle cycle,
@@ -167,22 +100,15 @@ public sealed class CycleCalculator : ICycleCalculator
         DateTime local,
         IReadOnlyList<UsageSample>? samples)
     {
-        if (TryEstimateFromSamples(cycle, kind, samples, out var sampleRate, out var samplePoints)
-            && samplePoints.Count > 0)
+        if (!TryEstimateRate(cycle, kind, samples, out var ratePerSecond, out var points)
+            || points.Count == 0)
         {
-            var last = samplePoints[^1];
-            var targetX = (decimal)(local - cycle.CycleStart).TotalDays;
-            return last.Percent + sampleRate!.Value * (targetX - last.X);
+            return null;
         }
 
-        var rate = EstimateDailyUsage(cycle, kind);
-        if (rate is null)
-            return null;
-
-        var lastEdit = CollectUsagePoints(cycle, kind)[^1];
-        var lastInstant = cycle.CycleStart.Date.AddDays(lastEdit.Day - 1);
-        var elapsed = (decimal)(local - lastInstant).TotalDays;
-        return lastEdit.Percent + rate.Value * elapsed;
+        var last = points[^1];
+        var targetX = AxisSeconds(cycle, local);
+        return last.Percent + ratePerSecond * (targetX - last.X);
     }
 
     public bool TryGetLastUpdate(
@@ -197,32 +123,13 @@ public sealed class CycleCalculator : ICycleCalculator
         DateTime? best = null;
         var bestPercent = 0m;
 
-        if (samples != null)
+        foreach (var sample in EnumerateInCycle(cycle, samples))
         {
-            foreach (var sample in samples)
+            var local = sample.TimestampUtc.LocalDateTime;
+            if (best is null || local > best)
             {
-                var local = sample.TimestampUtc.LocalDateTime;
-                if (local < cycle.CycleStart || local >= cycle.NextRenewal)
-                    continue;
-                if (best is null || local > best)
-                {
-                    best = local;
-                    bestPercent = sample.GetPercent(kind);
-                }
-            }
-        }
-
-        foreach (var edit in cycle.Edits)
-        {
-            var value = GetEditValue(edit, kind);
-            if (!value.HasValue)
-                continue;
-
-            var editInstant = cycle.CycleStart.Date.AddDays(edit.DayNumber - 1);
-            if (best is null || editInstant > best)
-            {
-                best = editInstant;
-                bestPercent = value.Value;
+                best = local;
+                bestPercent = sample.GetPercent(kind);
             }
         }
 
@@ -234,51 +141,48 @@ public sealed class CycleCalculator : ICycleCalculator
         return true;
     }
 
+    public DateTime? EstimateRunOutInstant(
+        QuotaCycle cycle,
+        QuotaKind kind,
+        IReadOnlyList<UsageSample>? samples)
+    {
+        if (!TryEstimateRate(cycle, kind, samples, out var ratePerSecond, out var points)
+            || points.Count == 0)
+        {
+            return null;
+        }
+
+        var last = points[^1];
+        var lastInstant = cycle.CycleStart.AddTicks(SecondsToTicks(last.X));
+        if (last.Percent >= 100m)
+            return lastInstant;
+
+        if (ratePerSecond <= 0m)
+            return null;
+
+        var delta = (100m - last.Percent) / ratePerSecond;
+        var runOut = cycle.CycleStart.AddTicks(SecondsToTicks(last.X + delta));
+        if (runOut <= lastInstant || runOut >= cycle.NextRenewal)
+            return null;
+
+        return runOut;
+    }
+
     public int? EstimateRunOutDayNumber(QuotaCycle cycle, QuotaKind kind) =>
         EstimateRunOutDayNumber(cycle, kind, samples: null);
 
     public int? EstimateRunOutDayNumber(QuotaCycle cycle, QuotaKind kind, IReadOnlyList<UsageSample>? samples)
     {
-        if (TryEstimateFromSamples(cycle, kind, samples, out var sampleRate, out var samplePoints)
-            && samplePoints.Count > 0)
-        {
-            var last = samplePoints[^1];
-            var lastDay = DayNumberFromOffset(cycle, last.X);
-            if (last.Percent >= 100m)
-                return lastDay;
-
-            if (sampleRate is null || sampleRate.Value <= 0m)
-                return null;
-
-            var totalDays = TotalDays(cycle);
-            var delta = (100m - last.Percent) / sampleRate.Value;
-            var runOutLocal = cycle.CycleStart.AddDays((double)(last.X + delta));
-            var runOutDay = (runOutLocal.Date - cycle.CycleStart.Date).Days + 1;
-            if (runOutDay <= lastDay || runOutDay > totalDays)
-                return null;
-
-            return runOutDay;
-        }
-
-        var points = CollectUsagePoints(cycle, kind);
-        if (points.Count == 0)
+        var instant = EstimateRunOutInstant(cycle, kind, samples);
+        if (instant is null)
             return null;
 
-        var lastEdit = points[^1];
-        if (lastEdit.Percent >= 100m)
-            return lastEdit.Day;
-
-        var rate = EstimateDailyUsage(cycle, kind);
-        if (rate is null || rate.Value <= 0m)
+        var dayNumber = (instant.Value.Date - cycle.CycleStart.Date).Days + 1;
+        var totalDays = TotalDays(cycle);
+        if (dayNumber < 1 || dayNumber > totalDays)
             return null;
 
-        var total = TotalDays(cycle);
-        var editDelta = (100m - lastEdit.Percent) / rate.Value;
-        var editRunOutDay = lastEdit.Day + (int)decimal.Ceiling(editDelta);
-        if (editRunOutDay <= lastEdit.Day || editRunOutDay > total)
-            return null;
-
-        return editRunOutDay;
+        return dayNumber;
     }
 
     public void RebuildDays(QuotaCycle cycle) =>
@@ -289,7 +193,7 @@ public sealed class CycleCalculator : ICycleCalculator
         var totalDays = TotalDays(cycle);
         var days = new List<QuotaDayEntry>(totalDays);
 
-        for (int k = 0; k < totalDays; k++)
+        for (var k = 0; k < totalDays; k++)
         {
             var dayNumber = k + 1;
             var date = cycle.CycleStart.Date.AddDays(k);
@@ -297,7 +201,7 @@ public sealed class CycleCalculator : ICycleCalculator
             var otherExpected = ExpectedPercent(cycle, QuotaKind.OtherModels, dayNumber, samples);
             var sample = today.HasValue && date > today.Value.Date
                 ? null
-                : FindLastSampleForDate(samples, date);
+                : FindLastSampleForDate(cycle, samples, date);
 
             days.Add(new QuotaDayEntry
             {
@@ -305,8 +209,6 @@ public sealed class CycleCalculator : ICycleCalculator
                 Date = date,
                 CursorModelsPercent = sample?.CursorModelsPercent ?? cursorExpected,
                 OtherModelsPercent = sample?.OtherModelsPercent ?? otherExpected,
-                CursorModelsIsManual = GetEditValue(cycle, QuotaKind.CursorModels, dayNumber).HasValue,
-                OtherModelsIsManual = GetEditValue(cycle, QuotaKind.OtherModels, dayNumber).HasValue,
                 CursorModelsIsActual = sample != null,
                 OtherModelsIsActual = sample != null
             });
@@ -315,151 +217,66 @@ public sealed class CycleCalculator : ICycleCalculator
         cycle.Days = days;
     }
 
-    public void SetManual(QuotaCycle cycle, QuotaKind kind, int dayNumber, decimal percent)
+    private DateTime InstantForDay(QuotaCycle cycle, int dayNumber)
     {
         var totalDays = TotalDays(cycle);
         if (dayNumber < 1 || dayNumber > totalDays)
             throw new ArgumentOutOfRangeException(nameof(dayNumber));
 
-        var edit = cycle.Edits.FirstOrDefault(e => e.DayNumber == dayNumber);
-        if (edit == null)
-        {
-            edit = new QuotaDayEdit { DayNumber = dayNumber };
-            cycle.Edits.Add(edit);
-        }
-
-        SetEditValue(edit, kind, percent);
-        RebuildDays(cycle);
+        var midnight = cycle.CycleStart.Date.AddDays(dayNumber - 1);
+        return midnight < cycle.CycleStart ? cycle.CycleStart : midnight;
     }
 
-    public void ClearManual(QuotaCycle cycle, QuotaKind kind, int dayNumber)
-    {
-        var edit = cycle.Edits.FirstOrDefault(e => e.DayNumber == dayNumber);
-        if (edit == null)
-            return;
-
-        SetEditValue(edit, kind, null);
-        if (!edit.HasAnyValue)
-            cycle.Edits.Remove(edit);
-
-        RebuildDays(cycle);
-    }
-
-    private List<(int Day, decimal Percent)> CollectObservedAnchors(
+    private static List<(decimal X, decimal Percent)> CollectExpectedAnchors(
         QuotaCycle cycle,
         QuotaKind kind,
         IReadOnlyList<UsageSample>? samples)
     {
-        var totalDays = TotalDays(cycle);
-        var anchors = new List<(int Day, decimal Percent)>();
-        for (var day = 1; day <= totalDays; day++)
+        var anchors = new List<(decimal X, decimal Percent)> { (0m, 0m) };
+        foreach (var sample in EnumerateInCycle(cycle, samples).OrderBy(s => s.TimestampUtc))
         {
-            var date = cycle.CycleStart.Date.AddDays(day - 1);
-            var sample = FindLastSampleForDate(samples, date);
-            if (sample != null)
-            {
-                anchors.Add((day, sample.GetPercent(kind)));
+            var x = AxisSeconds(cycle, sample.TimestampUtc.LocalDateTime);
+            if (x <= 0m)
                 continue;
-            }
 
-            var edit = GetEditValue(cycle, kind, day);
-            if (edit.HasValue)
-                anchors.Add((day, edit.Value));
+            anchors.Add((x, sample.GetPercent(kind)));
         }
+
+        var endX = CycleSeconds(cycle);
+        if (anchors[^1].X < endX)
+            anchors.Add((endX, 100m));
 
         return anchors;
     }
 
-    private static decimal InterpolateToRenewal(
-        QuotaCycle cycle,
-        int startDay,
-        decimal startPercent,
-        int dayNumber)
-    {
-        var startX = (decimal)startDay;
-        var endX = AxisX(cycle, cycle.NextRenewal);
-        var span = endX - startX;
-        if (span <= 0)
-            return startPercent;
-
-        return startPercent + (dayNumber - startX) * (100m - startPercent) / span;
-    }
-
-    private static decimal? GetEditValue(QuotaCycle cycle, QuotaKind kind, int dayNumber)
-    {
-        var edit = cycle.Edits.FirstOrDefault(e => e.DayNumber == dayNumber);
-        return edit == null ? null : GetEditValue(edit, kind);
-    }
-
-    private static decimal? GetEditValue(QuotaDayEdit edit, QuotaKind kind) =>
-        kind switch
-        {
-            QuotaKind.CursorModels => edit.CursorModelsPercent,
-            QuotaKind.OtherModels => edit.OtherModelsPercent,
-            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
-        };
-
-    private static void SetEditValue(QuotaDayEdit edit, QuotaKind kind, decimal? percent)
-    {
-        switch (kind)
-        {
-            case QuotaKind.CursorModels:
-                edit.CursorModelsPercent = percent;
-                break;
-            case QuotaKind.OtherModels:
-                edit.OtherModelsPercent = percent;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(kind), kind, null);
-        }
-    }
-
-    private static List<(int Day, decimal Percent)> CollectUsagePoints(QuotaCycle cycle, QuotaKind kind)
-    {
-        var points = new List<(int Day, decimal Percent)>();
-        var day1Edit = GetEditValue(cycle, kind, 1);
-        points.Add((1, day1Edit ?? 0m));
-
-        foreach (var edit in cycle.Edits.OrderBy(e => e.DayNumber))
-        {
-            if (edit.DayNumber <= 1)
-                continue;
-
-            var value = GetEditValue(edit, kind);
-            if (value.HasValue)
-                points.Add((edit.DayNumber, value.Value));
-        }
-
-        return points;
-    }
-
-    private static bool TryEstimateFromSamples(
+    private static bool TryEstimateRate(
         QuotaCycle cycle,
         QuotaKind kind,
         IReadOnlyList<UsageSample>? samples,
-        out decimal? rate,
+        out decimal ratePerSecond,
         out List<(decimal X, decimal Percent)> points)
     {
-        rate = null;
-        points = CollectSamplePoints(cycle, kind, samples);
+        ratePerSecond = 0m;
+        points = CollectEstimatePoints(cycle, kind, samples);
         if (points.Count < 2)
             return false;
 
-        rate = MedianOfPairwiseSlopes(points);
-        return rate.HasValue;
+        var rate = MedianOfPairwiseSlopes(points);
+        if (rate is null)
+            return false;
+
+        ratePerSecond = rate.Value;
+        return true;
     }
 
-    private static List<(decimal X, decimal Percent)> CollectSamplePoints(
+    private static List<(decimal X, decimal Percent)> CollectEstimatePoints(
         QuotaCycle cycle,
         QuotaKind kind,
         IReadOnlyList<UsageSample>? samples)
     {
         var points = new List<(decimal X, decimal Percent)>();
-        if (samples == null || samples.Count == 0)
-            return points;
-
         var lastByDate = new Dictionary<DateTime, UsageSample>();
-        foreach (var sample in samples)
+        foreach (var sample in EnumerateInCycle(cycle, samples))
         {
             var date = sample.TimestampUtc.LocalDateTime.Date;
             if (!lastByDate.TryGetValue(date, out var existing)
@@ -473,32 +290,37 @@ public sealed class CycleCalculator : ICycleCalculator
             points.Add((0m, 0m));
 
         foreach (var sample in lastByDate.Values)
-            points.Add((SampleOffsetDays(cycle, sample), sample.GetPercent(kind)));
+            points.Add((AxisSeconds(cycle, sample.TimestampUtc.LocalDateTime), sample.GetPercent(kind)));
 
         points.Sort((left, right) => left.X.CompareTo(right.X));
         return points;
     }
 
-    private static decimal SampleOffsetDays(QuotaCycle cycle, UsageSample sample)
-    {
-        var local = sample.TimestampUtc.LocalDateTime;
-        return (decimal)(local - cycle.CycleStart).TotalDays;
-    }
-
-    private static int DayNumberFromOffset(QuotaCycle cycle, decimal offsetDays)
-    {
-        var local = cycle.CycleStart.AddDays((double)offsetDays);
-        return (local.Date - cycle.CycleStart.Date).Days + 1;
-    }
-
-    private static UsageSample? FindLastSampleForDate(IReadOnlyList<UsageSample>? samples, DateTime dayDate)
+    private static IEnumerable<UsageSample> EnumerateInCycle(
+        QuotaCycle cycle,
+        IReadOnlyList<UsageSample>? samples)
     {
         if (samples == null || samples.Count == 0)
-            return null;
+            yield break;
 
+        foreach (var sample in samples)
+        {
+            var local = sample.TimestampUtc.LocalDateTime;
+            if (local < cycle.CycleStart || local >= cycle.NextRenewal)
+                continue;
+
+            yield return sample;
+        }
+    }
+
+    private static UsageSample? FindLastSampleForDate(
+        QuotaCycle cycle,
+        IReadOnlyList<UsageSample>? samples,
+        DateTime dayDate)
+    {
         UsageSample? last = null;
         var date = dayDate.Date;
-        foreach (var sample in samples)
+        foreach (var sample in EnumerateInCycle(cycle, samples))
         {
             if (sample.TimestampUtc.LocalDateTime.Date != date)
                 continue;
@@ -507,6 +329,25 @@ public sealed class CycleCalculator : ICycleCalculator
         }
 
         return last;
+    }
+
+    private static decimal Interpolate(List<(decimal X, decimal Percent)> anchors, decimal x)
+    {
+        for (var i = 1; i < anchors.Count; i++)
+        {
+            var right = anchors[i];
+            if (x > right.X)
+                continue;
+
+            var left = anchors[i - 1];
+            var span = right.X - left.X;
+            if (span <= 0)
+                return right.Percent;
+
+            return left.Percent + (x - left.X) * (right.Percent - left.Percent) / span;
+        }
+
+        return anchors[^1].Percent;
     }
 
     private static decimal? MedianOfPairwiseSlopes(List<(decimal X, decimal Percent)> points)
@@ -541,4 +382,10 @@ public sealed class CycleCalculator : ICycleCalculator
 
         return (values[count / 2 - 1] + values[count / 2]) / 2m;
     }
+
+    private static decimal TicksToSeconds(long ticks) =>
+        (decimal)ticks / TimeSpan.TicksPerSecond;
+
+    private static long SecondsToTicks(decimal seconds) =>
+        (long)decimal.Round(seconds * TimeSpan.TicksPerSecond, MidpointRounding.AwayFromZero);
 }

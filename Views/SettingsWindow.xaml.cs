@@ -37,7 +37,7 @@ public sealed partial class SettingsWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
 
-        AppWindow.Resize(new Windows.Graphics.SizeInt32(600, 760));
+        AppWindow.Resize(new Windows.Graphics.SizeInt32(600, 620));
 
         // Mica backdrop (Windows 11), Acrylic fallback on Windows 10
         if (MicaController.IsSupported())
@@ -133,7 +133,7 @@ public sealed partial class SettingsWindow : Window
         {
             Title = "Sign out of Cursor",
             Content = TextBlockSelection.Message(
-                "This signs out of Cursor in this app, including any Google or GitHub session stored in the app's private browser profile. Your regular browser is not affected. Manual entries are kept."),
+                "This signs out of Cursor in this app, including any Google or GitHub session stored in the app's private browser profile. Your regular browser is not affected. Collected usage samples stay on disk."),
             PrimaryButtonText = "Sign out",
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Close,

@@ -1,8 +1,7 @@
-using System;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using CursorUsageProgress.ViewModels;
 
 namespace CursorUsageProgress.Views;
@@ -16,21 +15,17 @@ public sealed partial class CalendarControl : UserControl
             typeof(CalendarControl),
             new PropertyMetadata(null));
 
-    public static readonly DependencyProperty DaySelectionEnabledProperty =
+    public static readonly DependencyProperty MonthHeadingProperty =
         DependencyProperty.Register(
-            nameof(DaySelectionEnabled),
-            typeof(bool),
+            nameof(MonthHeading),
+            typeof(string),
             typeof(CalendarControl),
-            new PropertyMetadata(true));
-
-    public event EventHandler<CalendarCellViewModel>? CellSelected;
+            new PropertyMetadata(string.Empty, OnMonthHeadingChanged));
 
     public CalendarControl()
     {
         InitializeComponent();
-
-        // Set day names for header
-        DayNames = new List<string> { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+        DayNames = BuildDayNames();
     }
 
     public ObservableCollection<CalendarWeekViewModel> Weeks
@@ -39,25 +34,28 @@ public sealed partial class CalendarControl : UserControl
         set => SetValue(WeeksProperty, value);
     }
 
-    public bool DaySelectionEnabled
+    public string MonthHeading
     {
-        get => (bool)GetValue(DaySelectionEnabledProperty);
-        set => SetValue(DaySelectionEnabledProperty, value);
+        get => (string)GetValue(MonthHeadingProperty);
+        set => SetValue(MonthHeadingProperty, value);
     }
 
     public List<string> DayNames { get; }
 
-    private void OnCellPointerPressed(object sender, PointerRoutedEventArgs e)
+    private static List<string> BuildDayNames()
     {
-        if (!DaySelectionEnabled)
-            return;
+        var format = CultureInfo.CurrentCulture.DateTimeFormat;
+        var first = (int)format.FirstDayOfWeek;
+        var names = new List<string>(7);
+        for (var i = 0; i < 7; i++)
+            names.Add(format.AbbreviatedDayNames[(first + i) % 7]);
+        return names;
+    }
 
-        if (sender is Border border && border.Tag is CalendarCellViewModel cell)
-        {
-            if (cell.DayData != null) // Only select cells with data
-            {
-                CellSelected?.Invoke(this, cell);
-            }
-        }
+    private static void OnMonthHeadingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var control = (CalendarControl)d;
+        if (control.MonthHeadingText != null)
+            control.MonthHeadingText.Text = e.NewValue as string ?? string.Empty;
     }
 }

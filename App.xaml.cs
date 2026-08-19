@@ -55,19 +55,13 @@ public partial class App : Application
         _trayService.UpdateToolTip(_viewModel.TrayToolTipText);
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
 
-        _mainWindow = new MainWindow(_viewModel, calculator, clock);
+        var launchInBackground = Environment.GetCommandLineArgs().Contains("--background")
+            || _viewModel.StartInNotificationTray;
 
-        bool launchInBackground = Environment.GetCommandLineArgs().Contains("--background");
+        _mainWindow = new MainWindow(_viewModel, startInTray: launchInBackground);
 
-        if (!_viewModel.IsInitialized)
-        {
+        if (!launchInBackground)
             _mainWindow.Activate();
-            _mainWindow.ShowRenewalDaySetup();
-        }
-        else if (!launchInBackground)
-        {
-            _mainWindow.Activate();
-        }
 
         _ = _viewModel.StartSyncAsync();
     }

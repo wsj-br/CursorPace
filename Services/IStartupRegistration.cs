@@ -3,6 +3,6 @@ namespace CursorUsageProgress.Services;
 public interface IStartupRegistration
 {
     bool IsRegistered { get; }
-    void Register();
+    void Register(bool startInTray);
     void Unregister();
 }

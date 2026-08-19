@@ -37,57 +37,54 @@
                         <Button Content="Sign out"
                                 Click="OnDisconnectClick"/>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="24">
-                        <ToggleSwitch Header="Update usage automatically"
+                    <Grid ColumnSpacing="48">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <ToggleSwitch Grid.Column="0"
+                                      Header="Update usage automatically"
                                       IsOn="{Binding AutoSyncEnabled, Mode=TwoWay}"
+                                      HorizontalAlignment="Left"
                                       VerticalAlignment="Bottom"/>
                         <ComboBox x:Name="IntervalBox"
+                                  Grid.Column="1"
                                   Header="Refresh interval (hours)"
                                   MinWidth="160"
+                                  HorizontalAlignment="Left"
                                   VerticalAlignment="Bottom"
                                   SelectionChanged="OnIntervalChanged"/>
-                    </StackPanel>
-                    <TextBlock Text="While signed in, the billing cycle comes from Cursor. Changing the renewal day and editing calendar days are available after you sign out."
+                    </Grid>
+                    <TextBlock Text="The billing cycle and usage come from your Cursor account after you sign in."
                                TextWrapping="Wrap"
                                Opacity="0.7"
                                Style="{StaticResource CaptionTextBlockStyle}"/>
                 </StackPanel>
 
-                <!-- Startup section -->
                 <StackPanel Spacing="12">
                     <TextBlock Text="Startup"
                                Style="{StaticResource SubtitleTextBlockStyle}"/>
-                    <ToggleSwitch Header="Run at Windows sign-in"
-                                  IsOn="{Binding RunAtStartup, Mode=TwoWay}"/>
+                    <Grid ColumnSpacing="48">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <ToggleSwitch Grid.Column="0"
+                                      Header="Run at Windows sign-in"
+                                      IsOn="{Binding RunAtStartup, Mode=TwoWay}"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Bottom"/>
+                        <ToggleSwitch Grid.Column="1"
+                                      Header="Start in notification tray"
+                                      IsOn="{Binding StartInNotificationTray, Mode=TwoWay}"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Bottom"/>
+                    </Grid>
                 </StackPanel>
 
-                <!-- Renewal section -->
-                <StackPanel Spacing="12"
-                            Visibility="{Binding ShowRenewalDaySettings, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="Renewal Day"
-                               Style="{StaticResource SubtitleTextBlockStyle}"/>
-                    <TextBlock Text="Choose the day of the month when your Cursor quota renews."
-                               TextWrapping="Wrap"
-                               Opacity="0.7"
-                               Style="{StaticResource CaptionTextBlockStyle}"/>
-                    <Button Content="Change renewal day"
-                            Command="{Binding ChangeRenewalDayCommand}"
-                            HorizontalAlignment="Left"/>
-                </StackPanel>
-
-                <!-- Data section -->
                 <StackPanel Spacing="12">
                     <TextBlock Text="Data"
                                Style="{StaticResource SubtitleTextBlockStyle}"/>
-                    <TextBlock Text="Reset will clear all manual edits and regenerate the cycle from scratch."
-                               TextWrapping="Wrap"
-                               Opacity="0.7"
-                               Style="{StaticResource CaptionTextBlockStyle}"
-                               Visibility="{Binding IsCursorConnected, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-                    <Button Content="Reset cycle"
-                            Command="{Binding ResetCycleCommand}"
-                            HorizontalAlignment="Left"
-                            Visibility="{Binding IsCursorConnected, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                     <TextBlock Text="Export the current cycle, or collected usage samples, as CSV."
                                TextWrapping="Wrap"
                                Opacity="0.7"

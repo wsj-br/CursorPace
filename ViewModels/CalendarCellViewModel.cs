@@ -23,10 +23,8 @@ public sealed class CalendarCellViewModel : ViewModelBase
 
     private void OnDayDataPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(DayRowViewModel.IsModified)
-            || e.PropertyName == nameof(DayRowViewModel.IsActual))
+        if (e.PropertyName == nameof(DayRowViewModel.IsActual))
         {
-            OnPropertyChanged(nameof(IsModified));
             OnPropertyChanged(nameof(ShowAsActual));
             OnPropertyChanged(nameof(HasAccentDayNumber));
         }
@@ -61,7 +59,6 @@ public sealed class CalendarCellViewModel : ViewModelBase
         _dayData?.ProjectedQuotaOther is double otherValue && otherValue >= 100;
     public bool CursorWillRunOut => _dayData?.CursorWillRunOut == true;
     public bool OtherWillRunOut => _dayData?.OtherWillRunOut == true;
-    public bool IsModified => _dayData?.IsModified ?? false;
-    public bool ShowAsActual => (_dayData?.IsActual ?? false) && !IsModified;
-    public bool HasAccentDayNumber => IsModified || ShowAsActual;
+    public bool ShowAsActual => _dayData?.IsActual ?? false;
+    public bool HasAccentDayNumber => ShowAsActual;
 }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using CursorUsageProgress.Models;
 using CursorUsageProgress.Services;
 using CursorUsageProgress.ViewModels;
@@ -7,72 +8,21 @@ namespace CursorUsageProgress.Tests;
 public class MainViewModelTests
 {
     [Fact]
-    public void StartEditingDay_WhenDisconnected_OpensEditPanel()
+    public void Constructor_WithoutCycle_IsNotInitialized()
     {
         var vm = CreateViewModel(signedIn: false);
 
-        vm.StartEditingDay(SampleDay());
-
-        Assert.True(vm.CanEditDays);
-        Assert.True(vm.IsEditingDay);
-        Assert.True(vm.ApplyEditCommand.CanExecute(null));
+        Assert.False(vm.IsInitialized);
+        Assert.Empty(vm.Days);
     }
 
     [Fact]
-    public void StartEditingDay_WhenConnected_DoesNotOpenEditPanel()
-    {
-        var vm = CreateViewModel(signedIn: true);
-
-        vm.StartEditingDay(SampleDay());
-
-        Assert.False(vm.CanEditDays);
-        Assert.False(vm.IsEditingDay);
-        Assert.False(vm.ApplyEditCommand.CanExecute(null));
-        Assert.False(vm.ResetDayCommand.CanExecute(null));
-    }
-
-    [Fact]
-    public void ResetCycleCommand_WhenConnected_CannotExecute()
+    public void Constructor_WithCycle_IsInitialized()
     {
         var vm = CreateInitializedViewModel(signedIn: true);
 
-        Assert.False(vm.ResetCycleCommand.CanExecute(null));
-    }
-
-    [Fact]
-    public void ResetCycleCommand_WhenDisconnected_CanExecute()
-    {
-        var vm = CreateInitializedViewModel(signedIn: false);
-
-        Assert.True(vm.ResetCycleCommand.CanExecute(null));
-    }
-
-    [Fact]
-    public void SignIn_DisablesResetCycleCommand()
-    {
-        var sync = new FakeSync { IsSignedIn = false };
-        var vm = CreateInitializedViewModel(sync);
-
-        Assert.True(vm.ResetCycleCommand.CanExecute(null));
-
-        sync.SetSignedIn(true);
-
-        Assert.False(vm.ResetCycleCommand.CanExecute(null));
-    }
-
-    [Fact]
-    public void SignIn_ClosesOpenDayEditPanel()
-    {
-        var sync = new FakeSync { IsSignedIn = false };
-        var vm = CreateViewModel(sync);
-        vm.StartEditingDay(SampleDay());
-        Assert.True(vm.IsEditingDay);
-
-        sync.SetSignedIn(true);
-
-        Assert.False(vm.CanEditDays);
-        Assert.False(vm.IsEditingDay);
-        Assert.False(vm.ApplyEditCommand.CanExecute(null));
+        Assert.True(vm.IsInitialized);
+        Assert.NotEmpty(vm.Days);
     }
 
     [Fact]
@@ -212,6 +162,70 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void Constructor_WhenRunAtStartup_SyncsRegistrationFromSettings()
+    {
+        var startup = new FakeStartup();
+        var store = new FakePlanStore
+        {
+            Settings = new AppSettings { RunAtStartup = true, StartInNotificationTray = false }
+        };
+
+        CreateViewModel(new FakeSync(), store, startup);
+
+        Assert.True(startup.IsRegistered);
+        Assert.False(startup.LastStartInTray);
+    }
+
+    [Fact]
+    public void Constructor_WhenStartInNotificationTrayUnset_DefaultsToTrue()
+    {
+        var vm = CreateViewModel(signedIn: false);
+
+        Assert.True(vm.StartInNotificationTray);
+    }
+
+    [Fact]
+    public void RunAtStartup_RegistersWithStartInNotificationTray()
+    {
+        var startup = new FakeStartup();
+        var vm = CreateViewModel(new FakeSync(), new FakePlanStore(), startup);
+
+        vm.RunAtStartup = true;
+
+        Assert.True(startup.IsRegistered);
+        Assert.True(startup.LastStartInTray);
+    }
+
+    [Fact]
+    public void StartInNotificationTray_WhenRunAtStartup_ReRegistersCommand()
+    {
+        var startup = new FakeStartup();
+        var store = new FakePlanStore
+        {
+            Settings = new AppSettings { RunAtStartup = true, StartInNotificationTray = true }
+        };
+        var vm = CreateViewModel(new FakeSync(), store, startup);
+
+        vm.StartInNotificationTray = false;
+
+        Assert.True(startup.IsRegistered);
+        Assert.False(startup.LastStartInTray);
+        Assert.False(store.Settings.StartInNotificationTray);
+    }
+
+    [Fact]
+    public void StartInNotificationTray_WhenNotRunAtStartup_DoesNotRegister()
+    {
+        var startup = new FakeStartup();
+        var vm = CreateViewModel(new FakeSync(), new FakePlanStore(), startup);
+
+        vm.StartInNotificationTray = false;
+
+        Assert.False(startup.IsRegistered);
+        Assert.Null(startup.LastStartInTray);
+    }
+
+    [Fact]
     public void TryBuildUsageSamplesCsv_WhenEmpty_ReturnsFalse()
     {
         var vm = CreateViewModel(signedIn: true);
@@ -224,7 +238,7 @@ public class MainViewModelTests
     public void RefreshCycle_HidesEstimatedPercentOnAndBeforeLastUpdateDay()
     {
         var calculator = new CycleCalculator();
-        var cycle = calculator.GenerateCycle(1, new DateTime(2026, 8, 18));
+        var cycle = calculator.GenerateCycleFromBounds(new DateTime(2026, 8, 1), new DateTime(2026, 9, 1));
         var lastLocal = new DateTime(2026, 8, 18, 20, 0, 0);
         var samples = new List<UsageSample>
         {
@@ -233,7 +247,7 @@ public class MainViewModelTests
         };
         var store = new FakePlanStore
         {
-            Settings = new AppSettings { RenewalDay = 1, ActiveCycle = cycle }
+            Settings = new AppSettings { ActiveCycle = cycle }
         };
         var vm = CreateViewModel(
             new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok, Samples = samples },
@@ -250,6 +264,63 @@ public class MainViewModelTests
         Assert.True(next.HasOtherProjection);
     }
 
+    [Fact]
+    public void InfoCards_IncludeTimeOfDay()
+    {
+        var calculator = new CycleCalculator();
+        var start = new DateTime(2026, 8, 2, 22, 19, 47);
+        var end = new DateTime(2026, 9, 2, 22, 19, 47);
+        var cycle = calculator.GenerateCycleFromBounds(start, end);
+        var samples = new List<UsageSample>
+        {
+            SampleAt(start, 0m, 0m),
+            SampleAt(start.AddDays(30), 97m, 97m)
+        };
+        var store = new FakePlanStore
+        {
+            Settings = new AppSettings { ActiveCycle = cycle }
+        };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok, Samples = samples },
+            store);
+
+        Assert.Equal(start.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CycleStartText);
+        Assert.Equal(end.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.NextRenewalText);
+
+        var runOut = calculator.EstimateRunOutInstant(cycle, QuotaKind.CursorModels, samples);
+        Assert.NotNull(runOut);
+        Assert.Equal(runOut.Value.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CursorModelsRunOutText);
+    }
+
+    [Fact]
+    public void TimedCycle_RenewalDateHasPercentsAndMonthHeading()
+    {
+        var calculator = new CycleCalculator();
+        var start = new DateTime(2026, 8, 2, 22, 19, 47);
+        var end = new DateTime(2026, 9, 2, 22, 19, 47);
+        var cycle = calculator.GenerateCycleFromBounds(start, end);
+        var store = new FakePlanStore
+        {
+            Settings = new AppSettings { ActiveCycle = cycle }
+        };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok },
+            store);
+
+        Assert.Equal(32, vm.Days.Count);
+        var last = Assert.Single(vm.Days, d => d.Date == new DateTime(2026, 9, 2));
+        Assert.True(last.ShownExpectedCursor < 100);
+
+        var cell = vm.Calendar.GetCellForDate(new DateTime(2026, 9, 2));
+        Assert.NotNull(cell);
+        Assert.True(cell.HasData);
+        Assert.True(cell.IsRenewalDay);
+        Assert.False(string.IsNullOrEmpty(cell.ExpectedCursorText));
+        Assert.Equal(
+            CalendarMonthViewModel.FormatMonthHeading(start.Date),
+            vm.Calendar.MonthHeading);
+    }
+
     private static MainViewModel CreateViewModel(bool signedIn) =>
         CreateViewModel(new FakeSync { IsSignedIn = signedIn, Status = signedIn ? SyncStatus.Ok : SyncStatus.SignedOut });
 
@@ -257,40 +328,30 @@ public class MainViewModelTests
         CreateViewModel(sync, new FakePlanStore());
 
     private static MainViewModel CreateViewModel(FakeSync sync, FakePlanStore store) =>
+        CreateViewModel(sync, store, new FakeStartup());
+
+    private static MainViewModel CreateViewModel(FakeSync sync, FakePlanStore store, FakeStartup startup) =>
         new(
             new FakeClock(),
             new CycleCalculator(),
             store,
-            new FakeStartup(),
+            startup,
             sync);
 
-    private static MainViewModel CreateInitializedViewModel(bool signedIn) =>
-        CreateInitializedViewModel(new FakeSync
+    private static MainViewModel CreateInitializedViewModel(bool signedIn)
+    {
+        var calculator = new CycleCalculator();
+        var cycle = calculator.GenerateCycleFromBounds(new DateTime(2026, 8, 1), new DateTime(2026, 9, 1));
+        var store = new FakePlanStore
+        {
+            Settings = new AppSettings { ActiveCycle = cycle }
+        };
+        return CreateViewModel(new FakeSync
         {
             IsSignedIn = signedIn,
             Status = signedIn ? SyncStatus.Ok : SyncStatus.SignedOut
-        });
-
-    private static MainViewModel CreateInitializedViewModel(FakeSync sync)
-    {
-        var calculator = new CycleCalculator();
-        var cycle = calculator.GenerateCycle(1, new DateTime(2026, 8, 18));
-        var store = new FakePlanStore
-        {
-            Settings = new AppSettings { RenewalDay = 1, ActiveCycle = cycle }
-        };
-        return CreateViewModel(sync, store);
+        }, store);
     }
-
-    private static DayRowViewModel SampleDay() =>
-        new(
-            new QuotaDayEntry { DayNumber = 2, Date = new DateTime(2026, 8, 3) },
-            expectedQuotaCursor: 10,
-            expectedQuotaOther: 20,
-            projectedQuotaCursor: null,
-            projectedQuotaOther: null,
-            cursorWillRunOut: false,
-            otherWillRunOut: false);
 
     private static UsageSample SampleAt(DateTime local, decimal cursor, decimal other)
     {
@@ -324,8 +385,17 @@ public class MainViewModelTests
     private sealed class FakeStartup : IStartupRegistration
     {
         public bool IsRegistered { get; private set; }
-        public void Register() => IsRegistered = true;
-        public void Unregister() => IsRegistered = false;
+        public bool? LastStartInTray { get; private set; }
+        public void Register(bool startInTray)
+        {
+            IsRegistered = true;
+            LastStartInTray = startInTray;
+        }
+        public void Unregister()
+        {
+            IsRegistered = false;
+            LastStartInTray = null;
+        }
     }
 
     private sealed class FakeSync : IUsageSyncService
@@ -336,7 +406,7 @@ public class MainViewModelTests
         public DateTimeOffset? LastSuccessUtc { get; set; }
         public IReadOnlyList<UsageSample> Samples { get; set; } = [];
         public event EventHandler? StateChanged;
-#pragma warning disable CS0067 // Required by IUsageSyncService
+#pragma warning disable CS0067
         public event EventHandler<UsageSnapshot>? SnapshotReceived;
 #pragma warning restore CS0067
         public Task StartAsync(bool autoSyncEnabled, int intervalHours) => Task.CompletedTask;

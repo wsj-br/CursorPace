@@ -7,10 +7,8 @@ public sealed class UsageChartDocument
     public IReadOnlyList<UsageChartPoint> CursorEstimated { get; init; } = [];
     public IReadOnlyList<UsageChartPoint> OtherEstimated { get; init; } = [];
     public IReadOnlyList<UsageChartMarker> Markers { get; init; } = [];
-    public IReadOnlyList<UsageChartAxisTick> DayTicks { get; init; } = [];
-    public decimal PlotEndX { get; init; }
-    public decimal SlotEndX { get; init; }
-    public decimal RenewalX { get; init; }
+    public IReadOnlyList<UsageChartSlot> Slots { get; init; } = [];
+    public decimal CycleSeconds { get; init; }
     public DateTime CycleStart { get; init; }
     public DateTime NextRenewal { get; init; }
     public decimal YMax { get; init; }

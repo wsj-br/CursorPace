@@ -21,12 +21,7 @@ public static class CycleCsvBuilder
             var expectedOther = calculator.ExpectedPercent(cycle, QuotaKind.OtherModels, day.DayNumber, samples);
             var estimatedCursor = calculator.ProjectedPercent(cycle, QuotaKind.CursorModels, day.DayNumber, samples);
             var estimatedOther = calculator.ProjectedPercent(cycle, QuotaKind.OtherModels, day.DayNumber, samples);
-            var isDataPoint = day.CursorModelsIsManual
-                || day.OtherModelsIsManual
-                || day.CursorModelsIsActual
-                || day.OtherModelsIsActual
-                ? 1
-                : 0;
+            var isDataPoint = day.CursorModelsIsActual || day.OtherModelsIsActual ? 1 : 0;
 
             builder.Append(day.DayNumber);
             builder.Append(',');

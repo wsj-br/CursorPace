@@ -13,27 +13,11 @@ public sealed class UsageChartSeriesBuilder
         ICycleCalculator calculator,
         IReadOnlyList<UsageSample>? samples)
     {
-        var totalDays = calculator.TotalDays(cycle);
-        var renewalX = ToAxisX(cycle, cycle.NextRenewal);
-        var slotEndX = totalDays + 1m;
-        var plotEndX = renewalX;
-
-        var cursorExpected = BuildExpected(cycle, calculator, QuotaKind.CursorModels, totalDays, renewalX, samples);
-        var otherExpected = BuildExpected(cycle, calculator, QuotaKind.OtherModels, totalDays, renewalX, samples);
-        var cursorEstimated = BuildEstimated(cycle, calculator, QuotaKind.CursorModels, totalDays, samples);
-        var otherEstimated = BuildEstimated(cycle, calculator, QuotaKind.OtherModels, totalDays, samples);
-
-        var dayTicks = new List<UsageChartAxisTick>(totalDays);
-        for (var day = 1; day <= totalDays; day++)
-        {
-            dayTicks.Add(new UsageChartAxisTick
-            {
-                DayNumber = day,
-                Date = cycle.CycleStart.Date.AddDays(day - 1),
-                X = day
-            });
-        }
-
+        var cycleSeconds = CycleCalculator.CycleSeconds(cycle);
+        var cursorExpected = BuildExpected(cycle, QuotaKind.CursorModels, samples);
+        var otherExpected = BuildExpected(cycle, QuotaKind.OtherModels, samples);
+        var cursorEstimated = BuildEstimated(cycle, calculator, QuotaKind.CursorModels, samples);
+        var otherEstimated = BuildEstimated(cycle, calculator, QuotaKind.OtherModels, samples);
         var yMax = ComputeYMax(cursorExpected, otherExpected, cursorEstimated, otherEstimated);
 
         return new UsageChartDocument
@@ -43,10 +27,8 @@ public sealed class UsageChartSeriesBuilder
             CursorEstimated = cursorEstimated,
             OtherEstimated = otherEstimated,
             Markers = BuildMarkers(cycle, samples),
-            DayTicks = dayTicks,
-            PlotEndX = plotEndX,
-            SlotEndX = slotEndX,
-            RenewalX = renewalX,
+            Slots = BuildSlots(cycle),
+            CycleSeconds = cycleSeconds,
             CycleStart = cycle.CycleStart,
             NextRenewal = cycle.NextRenewal,
             YMax = yMax,
@@ -54,43 +36,40 @@ public sealed class UsageChartSeriesBuilder
         };
     }
 
-    public static decimal ToAxisX(DateTime cycleStart, DateTime local) =>
-        CycleCalculator.AxisX(cycleStart, local);
-
     public static decimal ToAxisX(QuotaCycle cycle, DateTime local) =>
-        CycleCalculator.AxisX(cycle, local);
+        CycleCalculator.AxisSeconds(cycle, local);
 
     private static List<UsageChartPoint> BuildExpected(
         QuotaCycle cycle,
-        ICycleCalculator calculator,
         QuotaKind kind,
-        int totalDays,
-        decimal renewalX,
         IReadOnlyList<UsageSample>? samples)
     {
-        var startX = ToAxisX(cycle, cycle.CycleStart);
-        var points = new List<UsageChartPoint>(totalDays + 2)
+        var points = new List<UsageChartPoint>
         {
-            new()
-            {
-                X = startX,
-                Y = calculator.ExpectedPercent(cycle, kind, 1, samples)
-            }
+            new() { X = 0m, Y = 0m }
         };
 
-        for (var day = 1; day <= totalDays; day++)
+        if (samples != null)
         {
-            if (day <= startX)
-                continue;
-
-            points.Add(new UsageChartPoint
+            foreach (var sample in samples.OrderBy(s => s.TimestampUtc))
             {
-                X = day,
-                Y = calculator.ExpectedPercent(cycle, kind, day, samples)
-            });
+                var local = sample.TimestampUtc.LocalDateTime;
+                if (local < cycle.CycleStart || local >= cycle.NextRenewal)
+                    continue;
+
+                var x = CycleCalculator.AxisSeconds(cycle, local);
+                if (x <= 0m)
+                    continue;
+
+                points.Add(new UsageChartPoint { X = x, Y = sample.GetPercent(kind) });
+            }
         }
 
-        points.Add(new UsageChartPoint { X = renewalX, Y = 100m });
+        points.Add(new UsageChartPoint
+        {
+            X = CycleCalculator.CycleSeconds(cycle),
+            Y = 100m
+        });
         return points;
     }
 
@@ -98,48 +77,20 @@ public sealed class UsageChartSeriesBuilder
         QuotaCycle cycle,
         ICycleCalculator calculator,
         QuotaKind kind,
-        int totalDays,
         IReadOnlyList<UsageSample>? samples)
     {
-        if (calculator.ProjectedPercent(cycle, kind, 1, samples) is null)
-            return [];
-
         if (!calculator.TryGetLastUpdate(cycle, kind, samples, out var instant, out var percent))
             return [];
-
-        var startX = ToAxisX(cycle, instant);
-        var points = new List<UsageChartPoint>
-        {
-            new() { X = startX, Y = percent }
-        };
-
-        for (var day = 1; day <= totalDays; day++)
-        {
-            var midnight = cycle.CycleStart.Date.AddDays(day - 1);
-            if (midnight <= instant)
-                continue;
-
-            var value = calculator.ProjectedPercentAt(cycle, kind, midnight, samples);
-            if (value is null)
-                return [];
-
-            points.Add(new UsageChartPoint
-            {
-                X = ToAxisX(cycle, midnight),
-                Y = value.Value
-            });
-        }
 
         var endY = calculator.ProjectedPercentAt(cycle, kind, cycle.NextRenewal, samples);
         if (endY is null)
             return [];
 
-        points.Add(new UsageChartPoint
-        {
-            X = ToAxisX(cycle, cycle.NextRenewal),
-            Y = endY.Value
-        });
-        return points;
+        return
+        [
+            new UsageChartPoint { X = CycleCalculator.AxisSeconds(cycle, instant), Y = percent },
+            new UsageChartPoint { X = CycleCalculator.CycleSeconds(cycle), Y = endY.Value }
+        ];
     }
 
     private static List<UsageChartMarker> BuildMarkers(QuotaCycle cycle, IReadOnlyList<UsageSample>? samples)
@@ -150,40 +101,67 @@ public sealed class UsageChartSeriesBuilder
             {
                 MarkerKind = ChartMarkerKind.Origin,
                 QuotaKind = null,
-                X = ToAxisX(cycle, cycle.CycleStart),
+                X = 0m,
                 Y = 0m,
                 Instant = cycle.CycleStart
             }
         };
 
-        if (samples != null)
-        {
-            foreach (var sample in samples)
-            {
-                var local = sample.TimestampUtc.LocalDateTime;
-                if (local < cycle.CycleStart || local >= cycle.NextRenewal)
-                    continue;
+        if (samples == null)
+            return markers;
 
-                var x = ToAxisX(cycle, local);
-                AddKindMarker(markers, ChartMarkerKind.Sample, QuotaKind.CursorModels, x, sample.CursorModelsPercent, local);
-                AddKindMarker(markers, ChartMarkerKind.Sample, QuotaKind.OtherModels, x, sample.OtherModelsPercent, local);
-            }
-        }
-
-        foreach (var edit in cycle.Edits)
+        foreach (var sample in samples)
         {
-            if (!edit.HasAnyValue)
+            var local = sample.TimestampUtc.LocalDateTime;
+            if (local < cycle.CycleStart || local >= cycle.NextRenewal)
                 continue;
 
-            var instant = cycle.CycleStart.Date.AddDays(edit.DayNumber - 1);
-            if (edit.CursorModelsPercent is decimal cursor)
-                AddKindMarker(markers, ChartMarkerKind.Edit, QuotaKind.CursorModels, edit.DayNumber, cursor, instant);
-            if (edit.OtherModelsPercent is decimal other)
-                AddKindMarker(markers, ChartMarkerKind.Edit, QuotaKind.OtherModels, edit.DayNumber, other, instant);
+            var x = CycleCalculator.AxisSeconds(cycle, local);
+            AddKindMarker(markers, ChartMarkerKind.Sample, QuotaKind.CursorModels, x, sample.CursorModelsPercent, local);
+            AddKindMarker(markers, ChartMarkerKind.Sample, QuotaKind.OtherModels, x, sample.OtherModelsPercent, local);
         }
 
         return markers;
     }
+
+    private static List<UsageChartSlot> BuildSlots(QuotaCycle cycle)
+    {
+        var cycleSeconds = CycleCalculator.CycleSeconds(cycle);
+        var midnights = new List<DateTime>();
+        var cursor = cycle.CycleStart.Date.AddDays(1);
+        if (cursor <= cycle.CycleStart)
+            cursor = cursor.AddDays(1);
+
+        while (cursor < cycle.NextRenewal)
+        {
+            midnights.Add(cursor);
+            cursor = cursor.AddDays(1);
+        }
+
+        var slots = new List<UsageChartSlot>(midnights.Count + 1);
+        var previous = cycle.CycleStart;
+        var previousX = 0m;
+
+        foreach (var midnight in midnights)
+        {
+            var x = CycleCalculator.AxisSeconds(cycle, midnight);
+            slots.Add(SlotFor(previous, previousX, x));
+            previous = midnight;
+            previousX = x;
+        }
+
+        slots.Add(SlotFor(previous, previousX, cycleSeconds));
+        return slots;
+    }
+
+    private static UsageChartSlot SlotFor(DateTime start, decimal startX, decimal endX) =>
+        new()
+        {
+            Date = start.Date,
+            StartX = startX,
+            EndX = endX,
+            IsLeadingPartial = start != start.Date
+        };
 
     private static void AddKindMarker(
         List<UsageChartMarker> markers,

@@ -12,6 +12,7 @@ namespace CursorUsageProgress.ViewModels;
 public sealed class CalendarMonthViewModel : ViewModelBase
 {
     private readonly Dictionary<DateTime, CalendarCellViewModel> _cellLookup;
+    private string _monthHeading = string.Empty;
 
     public CalendarMonthViewModel()
     {
@@ -24,49 +25,54 @@ public sealed class CalendarMonthViewModel : ViewModelBase
     /// </summary>
     public ObservableCollection<CalendarWeekViewModel> Weeks { get; }
 
+    public string MonthHeading
+    {
+        get => _monthHeading;
+        private set => SetProperty(ref _monthHeading, value);
+    }
+
     /// <summary>
     /// Builds the calendar grid from a flat list of day view models.
     /// </summary>
     /// <param name="days">Days from the current quota cycle.</param>
-    /// <param name="cycleStart">The cycle start date.</param>
-    /// <param name="cycleEnd">The cycle end date (next renewal - 1 day).</param>
-    public void BuildCalendar(List<DayRowViewModel> days, DateTime cycleStart, DateTime cycleEnd)
+    /// <param name="cycleStart">The cycle start instant.</param>
+    /// <param name="nextRenewal">The next renewal instant.</param>
+    public void BuildCalendar(List<DayRowViewModel> days, DateTime cycleStart, DateTime nextRenewal)
     {
         Weeks.Clear();
         _cellLookup.Clear();
+        MonthHeading = string.Empty;
 
         if (days == null || days.Count == 0)
             return;
 
+        MonthHeading = FormatMonthHeading(cycleStart.Date);
+
         // Find the first day of the calendar grid (start of week containing cycle start)
         var firstDayOfWeek = CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
-        var calendarStart = cycleStart;
+        var calendarStart = cycleStart.Date;
         while (calendarStart.DayOfWeek != firstDayOfWeek)
         {
             calendarStart = calendarStart.AddDays(-1);
         }
 
-        // Find the last day of the calendar grid (end of week containing cycle end)
-        var calendarEndDate = cycleEnd;
+        // Pad through the end of the week that contains the renewal date
+        var calendarEndDate = nextRenewal.Date;
         var lastDayOfWeek = (DayOfWeek)(((int)firstDayOfWeek + 6) % 7);
         while (calendarEndDate.DayOfWeek != lastDayOfWeek)
         {
             calendarEndDate = calendarEndDate.AddDays(1);
         }
 
-        // Create lookup for quick access to day data by date
         var dayLookup = days.ToDictionary(d => d.Date.Date);
 
-        // Build calendar grid
         var currentDate = calendarStart;
         var currentWeek = new List<CalendarCellViewModel>();
 
         while (currentDate <= calendarEndDate)
         {
-            // Create cell for this date
             var hasData = dayLookup.TryGetValue(currentDate.Date, out var dayData);
-            // Mark both cycle start and the NextRenewal date (not NextRenewal - 1)
-            var isRenewalDay = currentDate.Date == cycleStart.Date || currentDate.Date == cycleEnd.AddDays(1).Date;
+            var isRenewalDay = currentDate.Date == cycleStart.Date || currentDate.Date == nextRenewal.Date;
 
             var cell = new CalendarCellViewModel(
                 currentDate,
@@ -77,7 +83,6 @@ public sealed class CalendarMonthViewModel : ViewModelBase
             _cellLookup[currentDate.Date] = cell;
             currentWeek.Add(cell);
 
-            // If week is complete (7 days), add to collection
             if (currentWeek.Count == 7)
             {
                 Weeks.Add(new CalendarWeekViewModel(currentWeek));
@@ -87,6 +92,9 @@ public sealed class CalendarMonthViewModel : ViewModelBase
             currentDate = currentDate.AddDays(1);
         }
     }
+
+    public static string FormatMonthHeading(DateTime startDate) =>
+        startDate.ToString("MMMM yyyy", CultureInfo.CurrentCulture);
 
     /// <summary>
     /// Gets the cell for a specific date (for updating IsToday, etc.).

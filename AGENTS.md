@@ -7,7 +7,7 @@
 - Do not guess APIs, versions, flags, commit SHAs, or package names. Verify by reading code or docs before asserting.
 
 ## Project
-Windows 11 desktop app that tracks Cursor quota allowances across a billing cycle. Users pick a renewal day (1-31), see two independent percentages (Cursor models vs other models), and can pin manual values on specific days. They can also sign in with a Cursor account; an embedded WebView2 session fetches `https://cursor.com/api/usage-summary` (dashboard endpoint, not a documented public personal-plan API). While signed in, the billing cycle comes from Cursor and calendar edits are disabled.
+Windows 11 desktop app that tracks Cursor quota allowances across a billing cycle. Users sign in with a Cursor account; an embedded WebView2 session fetches `https://cursor.com/api/usage-summary` (dashboard endpoint, not a documented public personal-plan API). The billing cycle and usage samples come from Cursor. The calendar and chart show two independent percentages: Cursor models vs other models.
 
 Stack: C# / .NET 10 / WinUI 3 (Windows App SDK). Unpackaged (`WindowsPackageType` None). Namespace `CursorUsageProgress`. Target `net10.0-windows10.0.19041.0`.
 
@@ -42,40 +42,46 @@ Construct services in `App.OnLaunched` and pass them in. Do not add a DI contain
 - Sync: `IUsageSyncService` / `UsageSyncService`. Clock-aligned auto refresh; `SyncSchedule` decides launch skip.
 - Startup: `IStartupRegistration` / `WindowsStartupRegistration` (current-user Run key).
 - Tray: `ITrayService` / `TrayService` (`H.NotifyIcon.WinUI`). Lives for the whole process.
-- UI state: `MainViewModel` plus calendar/day row VMs and a read-only `UsageChartViewModel`. Views subscribe to VM events; they do not own cycle math. The main window can show the calendar or the usage chart; editing stays on the calendar.
+- UI state: `MainViewModel` plus calendar/day row VMs and a read-only `UsageChartViewModel`. Views subscribe to VM events; they do not own cycle math. The main window can show the calendar or the usage chart.
 
-Percentages use `decimal` in models and calculator. UI may round to integers for NumberBox/display. Do not switch storage or interpolation to `double`.
+Percentages use `decimal` in models and calculator. UI may round to integers for display. Do not switch storage or interpolation to `double`.
 
 `QuotaKind` is a two-value enum. When switching on it, handle both cases and keep a `never` default so a new kind fails at compile time.
 
 ## Cycle contract
-Renewal day is 1-31. Months that lack that day are skipped (Jan 31 -> Mar 31). Signed-in snapshots call `GenerateCycleFromBounds` with Cursor `billingCycleStart` / `billingCycleEnd` (timed instants, not necessarily midnight).
+A cycle exists only from a signed-in snapshot via `GenerateCycleFromBounds` with Cursor `billingCycleStart` / `billingCycleEnd` (timed instants, not necessarily midnight). There is no manual renewal-day path and no day pinning.
 
-`D = (NextRenewal - CycleStart).Days`. Day numbers are 1..D. Day 1 is 0% unless pinned by a last-of-day sample or a manual edit. Renewal itself is not a row; it is the 100% anchor at the `NextRenewal` instant.
+Calendar rows are every local date that intersects `[CycleStart, NextRenewal)`. `D` is that count. Day 1 midnight is clamped to `CycleStart` when the cycle starts later that day. When `NextRenewal` is after midnight, the renewal calendar date is a normal data row; `ExpectedPercent` still evaluates at that day's midnight, not at the renewal instant. Renewal remains the 100% anchor at the `NextRenewal` instant.
 
-Observed anchors (per `QuotaKind`, independently) are the last sync sample on that local date, else a manual edit on that day; a sample wins on the same day. `ExpectedPercent` is that pin on an observed day. After a pin it interpolates remaining quota to 100% at `NextRenewal` (later pins do not pull the gap). Days before the first pin stay on `LinearPercent`. Editing one kind never changes the other. Daily burn, projected percents, and run-out dates are a separate derived Theil-Sen series and must not replace `ExpectedPercent`. The chart dashed lines are `ExpectedPercent` from `CycleStart` to `NextRenewal`; solid estimated lines start at the last sample or edit of that kind and continue to `NextRenewal` along elapsed time (`ProjectedPercentAt`), not day-index Y values. Day slots are 24h (midnight `n` to midnight `n+1`); the last slot ends at `D+1` with no extra axis tick. The plot can continue to `NextRenewal` after that midnight. The calendar right-hand estimated percent is shown only after that last-update date. Sample markers use the stored timestamp (not last-of-day).
+Chart and interpolation use elapsed seconds from `CycleStart` (`CycleCalculator.AxisSeconds` / `CycleSeconds`, ticks over `TicksPerSecond`). The plot domain is exactly `[CycleStart, NextRenewal]` (`X = 0` .. `CycleSeconds`). Midnight is a grid marker, not a unit.
 
-`QuotaCycle.Edits` is the source of truth for overrides. `QuotaCycle.Days` is a derived in-memory calendar. `RebuildDays` after any edit/clear. `JsonPlanStore` persists edits only (legacy `days[]` is migrated on load, then dropped on save). Atomic save: write `.tmp`, then move.
+`ExpectedPercentAt` is linear interpolation along `(0, 0%)`, every in-cycle sample at its timestamp, and `(CycleSeconds, 100%)`. Days before the first sample interpolate toward that sample. After the last sample the line paces remaining quota to 100% at `NextRenewal`. `ExpectedPercent(dayNumber)` evaluates that curve at the day's midnight (clamped to `CycleStart`). Editing one kind never existed independently of the other; kinds stay independent because samples carry both percents.
 
-Changing renewal day starts a new cycle and drops previous edits. That is intentional. A signed-in snapshot with a new cycle start replaces the cycle and `UsageSampleAppender` clears previous samples.
+Daily burn, projected percents, and run-out are a separate Theil-Sen series on last-of-day sample second-offsets (plus a 0% origin when the cycle-start date has no in-cycle sample) and must not replace `ExpectedPercent`. `EstimateDailyUsage` is `ratePerSecond * 86400`. Solid estimated lines are two points: last sample to `NextRenewal` via `ProjectedPercentAt`. `EstimateRunOutInstant` is the source; `EstimateRunOutDayNumber` maps it onto a calendar row or returns null if the instant is outside 1..D. The calendar right-hand estimated percent is shown only after the last-update date.
 
-If you change `CycleCalculator`, `QuotaCycle`, `QuotaDayEdit`, or `JsonPlanStore` serialization, update and run `Tests/CycleCalculatorTests.cs`. Sample-driven expected/estimate cases live in `Tests/SampleEstimationTests.cs`. If you change chart X/Y mapping, update `Tests/UsageChartSeriesBuilderTests.cs`. If you change launch/interval skip rules, update `Tests/SyncScheduleTests.cs`.
+Chart slots: local midnights strictly inside `(CycleStart, NextRenewal)` split the domain. On a timed cycle slot 0 is the truncated `[CycleStart, first midnight)` and carries `IsLeadingPartial`; it gets no label because it is too narrow and its date repeats on the next cycle. Every other slot, including the trailing `[last midnight, NextRenewal]`, is labelled with `Date.Day`. The axis shows the day of the month, not a cycle day number, so it matches the calendar view and the date row above the plot. Thin day labels by slot index, never by the day value, or spacing breaks at a month boundary. Gridlines sit at slot starts except the plot's left edge.
+
+`QuotaCycle.Days` is a derived in-memory calendar. `JsonPlanStore` persists cycle bounds only (`version: 2`; ignore leftover `renewalDay` / `edits` / `days[]` on load). Atomic save: write `.tmp`, then move.
+
+A signed-in snapshot with a new cycle start replaces the cycle and `UsageSampleAppender` clears previous samples.
+
+If you change `CycleCalculator`, `QuotaCycle`, or `JsonPlanStore` serialization, update and run `Tests/CycleCalculatorTests.cs`. Sample-driven expected/estimate cases live in `Tests/SampleEstimationTests.cs`. If you change chart X/Y mapping, update `Tests/UsageChartSeriesBuilderTests.cs`. If you change launch/interval skip rules, update `Tests/SyncScheduleTests.cs`.
 
 ## Sync contract
 Allowed intervals: 1, 2, 4, 6, 12 hours (`SyncInterval.Clamp`). Auto refresh fires at `SyncSchedule.NextAlignedLocal`. On launch, skip the usage refresh when `cursorAccountConnected` is set and `lastUsageSyncUtc` is under 20 minutes old, unless a clock-aligned slot was missed or the last update is already older than the interval. Duplicate snapshots within 30 seconds are not appended (`UsageSampleAppender`).
 
 `cursorAccountConnected` in `settings.json` records whether the Cursor account is signed in. `HasPersistedProfile` on the WebView2 folder can also mark the session connected. Sign out deletes the WebView2 profile; it does not delete `usage-samples.json`.
 
-While `IsCursorConnected`: hide title-bar **Reset** and Settings **Reset cycle** / **Change renewal day**; `CanEditDays` is false. `Export Usage` is visible when connected.
+`Export Usage` is visible when connected. There is no calendar editing, **Reset**, or **Change renewal day**.
 
 Do not add a documented-public-API client. Keep the usage fetch inside WebView2 (`fetch` with credentials) so session cookies never copy into `HttpClient`.
 
 ## Process and window
 Single instance via named mutex `CursorUsageProgress_SingleInstance`. A second launch signals an EventWaitHandle and exits; the first instance shows its window.
 
-Close hides the window. Process stays in the tray. Only Quit (button or tray menu) calls `App.Quit()`. `--background` skips showing the main window when already initialized.
+Close hides the window. Process stays in the tray. Only Quit (button or tray menu) calls `App.Quit()`. `--background` or **Start in notification tray** skips showing the main window. The Run key includes `--background` when **Start in notification tray** is on.
 
-First run (`RenewalDay` unset): show `RenewalDayDialog` before the main UI is usable. After a successful signed-in snapshot, `GenerateCycleFromBounds` can set `RenewalDay` from Cursor.
+First run (`ActiveCycle` unset): the main window shows an empty state with **Sign in**. After a successful snapshot, `GenerateCycleFromBounds` creates the cycle.
 
 Main window is fixed size, custom title bar, Mica/theme from system. Do not make it resizable unless asked. Persist `WindowX` / `WindowY` on close-to-tray or quit; restore with `WindowPlacement.ClampToWorkArea`. Midnight/timezone: `MainWindow` polls `CheckForNewDay` on a 5-minute timer and on activate.
 
