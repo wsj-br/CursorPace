@@ -8,6 +8,10 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Fixed**: window - custom title text no longer overlaps the Avalonia 12 overlay caption on Main and Settings.
+- **Fixed**: chart - plot rebuilds from the host size so the canvas is not left empty after switching from the calendar.
+
+- **Fixed**: build - `MainWindow` and `SettingsWindow` have public parameterless constructors so Avalonia no longer warns `AVLN3001`.
 - **Changed**: ui - replaced WinUI 3 with Avalonia 12 so the same desktop app runs on Windows, Linux, and macOS.
 - **Changed**: install - Windows publish output is now `bin\Release\net10.0\win-x64\publish`; `scripts/build.ps1` no longer sets `WindowsAppSDKSelfContained`.
 - **Removed**: settings - Windows-only Mica title bar; Fluent theme follows the system light/dark variant instead.

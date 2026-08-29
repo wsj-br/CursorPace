@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:CursorUsageProgress.ViewModels"
+        xmlns:chrome="using:Avalonia.Controls.Chrome"
         x:Class="CursorUsageProgress.Views.SettingsWindow"
         x:DataType="vm:MainViewModel"
         Title="Settings"
@@ -16,11 +17,8 @@
 
     <Grid x:Name="RootGrid" RowDefinitions="Auto,*">
 
-        <Border x:Name="AppTitleBar" Grid.Row="0" Height="48" Padding="12,0">
-            <TextBlock Text="Settings"
-                       VerticalAlignment="Center"
-                       Opacity="0.8"/>
-        </Border>
+        <Border x:Name="AppTitleBar" Grid.Row="0" Height="48" Padding="12,0"
+                chrome:WindowDecorationProperties.ElementRole="TitleBar"/>
 
         <ScrollViewer Grid.Row="1" Padding="24,16,24,24">
             <StackPanel Spacing="24" MaxWidth="500">

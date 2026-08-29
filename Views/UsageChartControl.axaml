@@ -3,12 +3,19 @@
              x:Class="CursorUsageProgress.Views.UsageChartControl">
 
     <Grid RowDefinitions="*,Auto">
-        <Canvas x:Name="PlotCanvas"
+        <Border x:Name="PlotHost"
                 Grid.Row="0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
+                MinHeight="200"
+                ClipToBounds="True"
                 SizeChanged="OnPlotSizeChanged"
-                Background="Transparent"/>
+                Background="Transparent">
+            <Canvas x:Name="PlotCanvas"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Background="Transparent"/>
+        </Border>
         <StackPanel x:Name="LegendPanel"
                     Grid.Row="1"
                     Orientation="Vertical"

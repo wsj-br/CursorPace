@@ -7,7 +7,12 @@ namespace CursorUsageProgress.Views;
 
 public partial class SettingsWindow : Window
 {
-    private readonly MainViewModel _viewModel;
+    private readonly MainViewModel _viewModel = null!;
+
+    public SettingsWindow()
+    {
+        InitializeComponent();
+    }
 
     public SettingsWindow(MainViewModel viewModel)
     {

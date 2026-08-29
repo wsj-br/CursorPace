@@ -14,14 +14,19 @@ public partial class MainWindow : Window
     private const int DefaultWindowWidth = 760;
     private const int DefaultWindowHeight = 787;
 
-    private readonly MainViewModel _viewModel;
-    private readonly DispatcherTimer _dayCheckTimer;
+    private readonly MainViewModel _viewModel = null!;
+    private readonly DispatcherTimer _dayCheckTimer = null!;
     private SettingsWindow? _settingsWindow;
     private PixelPoint? _lastNormalPosition;
     private bool _restorePlacementPending;
     private bool _reallyClosing;
 
     public MainViewModel ViewModel => _viewModel;
+
+    public MainWindow()
+    {
+        InitializeComponent();
+    }
 
     public MainWindow(MainViewModel viewModel, bool startInTray = false)
     {

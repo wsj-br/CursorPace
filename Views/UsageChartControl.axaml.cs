@@ -18,6 +18,7 @@ public partial class UsageChartControl : UserControl
     private const double PlotBottomPad = 28;
     private const double MinTickSpacing = 16;
     private const double MarkerSize = 7;
+    private bool _rebuilding;
 
     private static readonly Color CursorExpectedColor = Color.FromArgb(255, 37, 99, 235);
     private static readonly Color OtherExpectedColor = Color.FromArgb(255, 234, 88, 12);
@@ -33,6 +34,8 @@ public partial class UsageChartControl : UserControl
         DocumentProperty.Changed.AddClassHandler<UsageChartControl>((control, _) => control.RebuildPlot());
         ActualThemeVariantChanged += (_, _) => RebuildPlot();
         Loaded += (_, _) => RebuildPlot();
+        SizeChanged += (_, _) => RebuildPlot();
+        IsVisibleProperty.Changed.AddClassHandler<UsageChartControl>((control, _) => control.RebuildPlot());
     }
 
     public UsageChartDocument? Document
@@ -41,21 +44,45 @@ public partial class UsageChartControl : UserControl
         set => SetValue(DocumentProperty, value);
     }
 
+    private Size PlotSize
+    {
+        get
+        {
+            var host = PlotHost?.Bounds.Size ?? default;
+            if (host.Width >= 80 && host.Height >= 60)
+                return host;
+            var self = Bounds.Size;
+            if (self.Width >= 80 && self.Height >= 60)
+                return new Size(self.Width, Math.Max(60, self.Height - 40));
+            return host;
+        }
+    }
+
     private void OnPlotSizeChanged(object? sender, SizeChangedEventArgs e) => RebuildPlot();
 
     private void RebuildPlot()
     {
+        if (_rebuilding)
+            return;
+        _rebuilding = true;
+        try
+        {
         PlotCanvas.Children.Clear();
         LegendPanel.Children.Clear();
         var document = Document;
-        if (document == null || Bounds.Width < 80 || PlotCanvas.Bounds.Height < 60)
+        var hostWidth = PlotSize.Width;
+        var hostHeight = PlotSize.Height;
+        if (document == null || !IsEffectivelyVisible || hostWidth < 80 || hostHeight < 60)
             return;
+
+        PlotCanvas.Width = hostWidth;
+        PlotCanvas.Height = hostHeight;
 
         var plot = new Rect(
             PlotLeft,
             PlotTop,
-            Math.Max(40, PlotCanvas.Bounds.Width - PlotLeft - PlotRightPad),
-            Math.Max(40, PlotCanvas.Bounds.Height - PlotTop - PlotBottomPad));
+            Math.Max(40, hostWidth - PlotLeft - PlotRightPad),
+            Math.Max(40, hostHeight - PlotTop - PlotBottomPad));
 
         var xMin = 0m;
         var xMax = document.CycleSeconds > xMin ? document.CycleSeconds : 1m;
@@ -79,6 +106,11 @@ public partial class UsageChartControl : UserControl
         DrawMarkers(document, plot, xMin, xMax, yMin, yMax);
         DrawAxes(document, plot, xMin, xMax, mutedBrush);
         DrawLegend(document, mutedBrush);
+        }
+        finally
+        {
+            _rebuilding = false;
+        }
     }
 
     private void DrawGrid(
