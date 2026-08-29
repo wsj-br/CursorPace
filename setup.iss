@@ -8,7 +8,7 @@
 #define MyAppPublisher "Cursor Usage Progress"
 #define MyAppExeName "CursorUsageProgress.exe"
 #ifndef PublishDir
-#define PublishDir "bin\Release\net10.0-windows10.0.19041.0\win-x64\publish"
+#define PublishDir "bin\Release\net10.0\win-x64\publish"
 #endif
 
 [Setup]

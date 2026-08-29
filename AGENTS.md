@@ -7,9 +7,9 @@
 - Do not guess APIs, versions, flags, commit SHAs, or package names. Verify by reading code or docs before asserting.
 
 ## Project
-Windows 11 desktop app that tracks Cursor quota allowances across a billing cycle. Users sign in with a Cursor account; an embedded WebView2 session fetches `https://cursor.com/api/usage-summary` (dashboard endpoint, not a documented public personal-plan API). The billing cycle and usage samples come from Cursor. The calendar and chart show two independent percentages: Cursor models vs other models.
+Desktop app that tracks Cursor quota allowances across a billing cycle. Users sign in with a Cursor account; an embedded native WebView session fetches `https://cursor.com/api/usage-summary` (dashboard endpoint, not a documented public personal-plan API). The billing cycle and usage samples come from Cursor. The calendar and chart show two independent percentages: Cursor models vs other models.
 
-Stack: C# / .NET 10 / WinUI 3 (Windows App SDK). Unpackaged (`WindowsPackageType` None). Namespace `CursorUsageProgress`. Target `net10.0-windows10.0.19041.0`.
+Stack: C# / .NET 10 / Avalonia 12. Namespace `CursorUsageProgress`. Target `net10.0`.
 
 Treat source and `.csproj` as truth. When you change user-visible behavior, update `README.md` and `QUICKSTART.md` in the same session unless the user says docs are out of scope. Do not invent features in docs.
 
@@ -21,27 +21,28 @@ Flat repo. App project: `CursorUsageProgress.csproj`. Tests: `Tests/CursorUsageP
 | `Models/` | Data types only. No I/O, no UI. |
 | `Services/` | Interfaces plus implementations. Business logic and OS integration. |
 | `ViewModels/` | MVVM binding, commands, `INotifyPropertyChanged`. |
-| `Views/` | WinUI XAML/code-behind. Lifecycle, dialogs, window chrome. |
-| `Converters/` | XAML value converters registered in `App.xaml`. |
+| `Views/` | Avalonia AXAML/code-behind. Lifecycle, dialogs, window chrome. |
+| `Converters/` | AXAML value converters. |
 | `Assets/` | Icon and tray image. |
 | `Tests/` | Unit tests. App csproj excludes this folder. |
 | `dev/` | Maintainer files: `CHANGELOG.md`, `DEVELOPMENT.md`, release-notes prompt. |
 | `scripts/` | Maintainer PowerShell: `dev.ps1`, `build.ps1`, `clean.ps1`, `release.ps1`. |
-| `App.xaml.cs` | Process entry: mutex, DI wiring, tray, `--background`. |
+| `Program.cs` | Avalonia entry: `BuildAvaloniaApp()`. |
+| `App.axaml.cs` | Process entry: single-instance, DI wiring, tray, `--background`. |
 
 Root `UnitTest1.cs` is excluded from the app project. Do not revive it. Put new tests under `Tests/`.
 
 ## Architecture
-Construct services in `App.OnLaunched` and pass them in. Do not add a DI container unless asked.
+Construct services in `App.OnFrameworkInitializationCompleted` and pass them in. Do not add a DI container unless asked.
 
 - Time: `IClock` / `SystemClock`. Never call `DateTime.Now`/`Today` from calculator or view models.
 - Cycle math: `ICycleCalculator` / `CycleCalculator`. Keep it pure (no file I/O, no UI).
-- Persistence: `IPlanStore` / `JsonPlanStore`. Path `%LocalAppData%\CursorUsageProgress\settings.json`.
+- Persistence: `IPlanStore` / `JsonPlanStore`. Path `%LocalAppData%\CursorUsageProgress\settings.json` (or the OS LocalApplicationData equivalent).
 - Usage samples: `IUsageSampleStore` / `JsonUsageSampleStore`. Path `%LocalAppData%\CursorUsageProgress\usage-samples.json`.
-- Cursor usage: `ICursorUsageClient` / `WebView2CursorUsageClient`. Profile folder `%LocalAppData%\CursorUsageProgress\WebView2`.
-- Sync: `IUsageSyncService` / `UsageSyncService`. Clock-aligned auto refresh; `SyncSchedule` decides launch skip.
-- Startup: `IStartupRegistration` / `WindowsStartupRegistration` (current-user Run key).
-- Tray: `ITrayService` / `TrayService` (`H.NotifyIcon.WinUI`). Lives for the whole process.
+- Cursor usage: `ICursorUsageClient` / `NativeWebViewCursorUsageClient`. Windows profile folder `%LocalAppData%\CursorUsageProgress\WebView2`; other OS use `WebView` under LocalApplicationData.
+- Sync: `IUsageSyncService` / `UsageSyncService`. Clock-aligned auto refresh; `SyncSchedule` decides launch skip. Takes `IUiDispatcher`, not a platform dispatcher.
+- Startup: `IStartupRegistration` via `StartupRegistration.Create()` (Windows Run key, macOS Launch Agent, Linux XDG autostart).
+- Tray: `ITrayService` / `TrayService` (Avalonia `TrayIcon`). Lives for the whole process.
 - UI state: `MainViewModel` plus calendar/day row VMs and a read-only `UsageChartViewModel`. Views subscribe to VM events; they do not own cycle math. The main window can show the calendar or the usage chart.
 
 Percentages use `decimal` in models and calculator. UI may round to integers for display. Do not switch storage or interpolation to `double`.
@@ -70,20 +71,20 @@ If you change `CycleCalculator`, `QuotaCycle`, or `JsonPlanStore` serialization,
 ## Sync contract
 Allowed intervals: 1, 2, 4, 6, 12 hours (`SyncInterval.Clamp`). Auto refresh fires at `SyncSchedule.NextAlignedLocal`. On launch, skip the usage refresh when `cursorAccountConnected` is set and `lastUsageSyncUtc` is under 20 minutes old, unless a clock-aligned slot was missed or the last update is already older than the interval. Duplicate snapshots within 30 seconds are not appended (`UsageSampleAppender`).
 
-`cursorAccountConnected` in `settings.json` records whether the Cursor account is signed in. `HasPersistedProfile` on the WebView2 folder can also mark the session connected. Sign out deletes the WebView2 profile; it does not delete `usage-samples.json`.
+`cursorAccountConnected` in `settings.json` records whether the Cursor account is signed in. `HasPersistedProfile` on the WebView profile folder can also mark the session connected. Sign out deletes that profile directory; it does not delete `usage-samples.json`.
 
 `Export Usage` is visible when connected. There is no calendar editing, **Reset**, or **Change renewal day**.
 
-Do not add a documented-public-API client. Keep the usage fetch inside WebView2 (`fetch` with credentials) so session cookies never copy into `HttpClient`.
+Do not add a documented-public-API client. Keep the usage fetch inside `NativeWebView` (`fetch` with credentials) so session cookies never copy into `HttpClient`. Do not use `TryGetCookieManager` / `GetCookiesAsync` or `WebAuthenticationBroker`.
 
 ## Process and window
-Single instance via named mutex `CursorUsageProgress_SingleInstance`. A second launch signals an EventWaitHandle and exits; the first instance shows its window.
+Single instance via named mutex `CursorUsageProgress_SingleInstance` on Windows (Inno `CheckForMutexes` still uses this name). A second launch signals an EventWaitHandle and exits; the first instance shows its window. Unix uses a lock file plus a Unix domain socket under LocalApplicationData.
 
-Close hides the window. Process stays in the tray. Only Quit (button or tray menu) calls `App.Quit()`. `--background` or **Start in notification tray** skips showing the main window. The Run key includes `--background` when **Start in notification tray** is on.
+Close hides the window. Process stays in the tray. Only Quit (button or tray menu) calls `App.Quit()`. `--background` or **Start in notification tray** skips showing the main window. Startup registration includes `--background` when **Start in notification tray** is on.
 
 First run (`ActiveCycle` unset): the main window shows an empty state with **Sign in**. After a successful snapshot, `GenerateCycleFromBounds` creates the cycle.
 
-Main window is fixed size, custom title bar, Mica/theme from system. Do not make it resizable unless asked. Persist `WindowX` / `WindowY` on close-to-tray or quit; restore with `WindowPlacement.ClampToWorkArea`. Midnight/timezone: `MainWindow` polls `CheckForNewDay` on a 5-minute timer and on activate.
+Main window is fixed size, custom title bar, Fluent theme from system. Do not make it resizable unless asked. Persist `WindowX` / `WindowY` on close-to-tray or quit; restore with `WindowPlacement.ClampToWorkArea`. Midnight/timezone: `MainWindow` polls `CheckForNewDay` on a 5-minute timer and on activate.
 
 ## Commands
 ```
@@ -95,7 +96,7 @@ dotnet run --project .\CursorUsageProgress.csproj
 .\scripts\build.ps1 -SkipInstaller # self-contained win-x64 publish
 ```
 
-Do not add trim, ReadyToRun, or PublishSingleFile. `scripts/build.ps1` already sets `PublishSingleFile=false` and `WindowsAppSDKSelfContained=true`.
+Do not add trim, ReadyToRun, or PublishSingleFile. `scripts/build.ps1` already sets `PublishSingleFile=false`.
 
 ## Changelog
 After any behavioral change, bug fix, settings/schema change, or dependency update, add a bullet under `## [Unreleased]` in `dev/CHANGELOG.md` in the same edit session as the code.
@@ -107,7 +108,7 @@ Skip only for documentation-only or comment-only edits with no user-visible effe
 Do not move `[Unreleased]` into a versioned section, and do not write `release-notes/RELEASE_NOTES_*.md`, unless you are following `dev/release-new-version-prompt.md`.
 
 ## When changing code
-- Match existing naming, file placement, and WinUI namespaces (`Microsoft.UI.Xaml`, not WPF `System.Windows` except `ICommand`).
+- Match existing naming, file placement, and Avalonia namespaces (`Avalonia.Controls`, not WinUI `Microsoft.UI.Xaml`). `System.Windows.Input.ICommand` is still used.
 - Prefer editing an existing service/VM over new layers.
 - Keep view code-behind thin: window lifetime, dialogs, scrolling, theme. Put state and commands on the view model.
 - After calculator or persistence changes: `dotnet test .\Tests\CursorUsageProgress.Tests.csproj`.

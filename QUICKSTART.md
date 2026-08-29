@@ -6,8 +6,10 @@ End-user guide for Cursor Usage Progress. For building from source, see [dev/DEV
 
 1. Download `CursorUsageProgress-*-win-x64-setup.exe` from this repository's Releases page.
 2. Run the installer. If SmartScreen warns that the app is unsigned, choose **More info**, then **Run anyway**.
-3. If the installer reports that Microsoft Edge WebView2 Runtime is missing, open the download page it offers. **Sign in** needs the runtime.
+3. If the installer reports that Microsoft Edge WebView2 Runtime is missing, open the download page it offers. **Sign in** on Windows needs the runtime.
 4. Finish the wizard. The app launches when setup completes.
+
+Linux and macOS builds are not packaged as installers yet. Run a self-contained publish for your RID. On Linux install WebKitGTK 4.1 (`libwebkit2gtk-4.1-0`). Google sign-in may be blocked in WebKit; use GitHub, email, or a Windows Chromium session instead.
 
 ## First run
 
@@ -90,7 +92,7 @@ Open **Settings** from the title bar.
 | **Sign out** | Clear the saved Cursor session |
 | **Update usage automatically** | Clock-aligned refreshes at the interval below |
 | **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
-| **Run at Windows sign-in** | Starts the app at sign-in |
+| **Launch at login** | Starts the app at sign-in (Windows Run key, macOS Launch Agent, or Linux XDG autostart) |
 | **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same |
 | **Export Cycle CSV** | Writes each day: expected and estimated percents, and whether the day is a data point |
 | **Export Usage** | Writes collected sample timestamps and percents (shown while signed in) |
@@ -104,27 +106,30 @@ While the process is running, an icon stays in the notification area.
 
 Hover over the tray icon to see today's expected percentage and the end-of-period (`EOP`) projection for Cursor and Other Models. `EOP` is the estimate at the next renewal instant. It is omitted until enough data exists.
 
-If the icon is missing, expand the overflow chevron (`^`). After Explorer or a session switch (lock/unlock), the icon should return within a few seconds.
+If the icon is missing, expand the overflow chevron (`^`). On Linux, GNOME may need the AppIndicator extension. On macOS, left-click opens the tray menu; choose **Open** from that menu.
 
 ## Startup and single instance
 
-- With **Run at Windows sign-in** on, a new sign-in starts the app. **Start in notification tray** (on by default) keeps the window hidden; turn that off to open the window. Click the tray icon to open the window.
-- From the Start menu, the window opens unless **Start in notification tray** is on.
+- With **Launch at login** on, a new sign-in starts the app. **Start in notification tray** (on by default) keeps the window hidden; turn that off to open the window. Click the tray icon to open the window.
+- From the Start menu or app launcher, the window opens unless **Start in notification tray** is on.
 - Only one process runs. Launching again activates the existing window.
 
 ## Data
 
-Files live under:
+Files live under the OS local app-data folder:
 
 ```text
-%LocalAppData%\CursorUsageProgress\
+Windows: %LocalAppData%\CursorUsageProgress\
+Linux:   ~/.local/share/CursorUsageProgress/
+macOS:   ~/Library/Application Support/CursorUsageProgress/
 ```
 
 | Path | Contents |
 | --- | --- |
 | `settings.json` | Startup, sync interval, last window position, connection flag, last successful sync time, and the current cycle bounds |
 | `usage-samples.json` | Collected usage samples for the current Cursor billing cycle |
-| `WebView2\` | Embedded browser profile (Cursor session cookies) |
+| `WebView2\` | Windows embedded browser profile (Cursor session cookies) |
+| `WebView\` | Linux and macOS embedded browser profile |
 
 Copy the folder to back up. Delete it to start over (the next launch asks you to sign in).
 
@@ -147,13 +152,13 @@ The window does not need to stay visible, but the process must be running for mi
 
 **App will not start**
 
-- In Task Manager, end any `CursorUsageProgress.exe` process, then launch again.
-- If the process appears and exits immediately, Event Viewer shows `Microsoft.UI.Xaml.dll` with exception `0xc000027b` when the install is missing `resources.pri`. Use an installer built after that packaging fix.
-- If it still fails, check Windows Event Viewer for the application error.
+- End any `CursorUsageProgress` process, then launch again.
+- If it still fails on Windows, check Event Viewer for the application error.
 
 **Sign in fails or "The specified module could not be found"**
 
-- Install the [Microsoft Edge WebView2 Runtime](https://go.microsoft.com/fwlink/p/?LinkId=2124703) (Evergreen x64).
+- Windows: install the [Microsoft Edge WebView2 Runtime](https://go.microsoft.com/fwlink/p/?LinkId=2124703) (Evergreen x64).
+- Linux: install WebKitGTK 4.1 (`libwebkit2gtk-4.1-0`). Google may block embedded WebKit login; use GitHub or email, or sign in on Windows.
 - Retry **Sign in**. The window should close when Cursor accepts the session; use **Continue** if you already see your account.
 
 **Usage does not update**
@@ -179,11 +184,12 @@ The window does not need to stay visible, but the process must be running for mi
 
 **Auto-start not working**
 
-- Confirm **Run at Windows sign-in** is on in Settings.
-- Registry (current user): `Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorUsageProgress`. With **Start in notification tray** the command includes `--background`.
+- Confirm **Launch at login** is on in Settings.
+- Windows registry (current user): `Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorUsageProgress`. With **Start in notification tray** the command includes `--background`.
+- macOS: `~/Library/LaunchAgents/com.cursorusageprogress.app.plist`
+- Linux: `~/.config/autostart/cursor-usage-progress.desktop`
 
 ## Tips
 
 - Info-card dates use dd-MMM HH:mm; calendar dates use the system format.
-- The UI follows Windows light, dark, and high-contrast themes.
-- High-DPI scaling is handled by WinUI.
+- The UI follows the system light or dark theme.

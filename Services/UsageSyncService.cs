@@ -1,6 +1,5 @@
 using System.Globalization;
 using CursorUsageProgress.Models;
-using Microsoft.UI.Dispatching;
 
 namespace CursorUsageProgress.Services;
 
@@ -8,11 +7,10 @@ public sealed class UsageSyncService : IUsageSyncService
 {
     private static readonly TimeSpan SampleMinGap = TimeSpan.FromSeconds(30);
 
-    private readonly DispatcherQueue _dispatcher;
     private readonly ICursorUsageClient _client;
     private readonly IUsageSampleStore _sampleStore;
     private readonly IClock _clock;
-    private readonly DispatcherQueueTimer _timer;
+    private readonly IUiTimer _timer;
 
     private UsageSampleDocument _document;
     private DateTimeOffset? _lastSuccessUtc;
@@ -22,13 +20,12 @@ public sealed class UsageSyncService : IUsageSyncService
     private bool _started;
 
     public UsageSyncService(
-        DispatcherQueue dispatcher,
+        IUiDispatcher dispatcher,
         ICursorUsageClient client,
         IUsageSampleStore sampleStore,
         IClock clock,
         IPlanStore planStore)
     {
-        _dispatcher = dispatcher;
         _client = client;
         _sampleStore = sampleStore;
         _clock = clock;
@@ -38,7 +35,7 @@ public sealed class UsageSyncService : IUsageSyncService
         _lastSuccessUtc = settings.LastUsageSyncUtc
             ?? (_document.Samples.Count == 0 ? null : _document.Samples[^1].TimestampUtc);
 
-        _timer = _dispatcher.CreateTimer();
+        _timer = dispatcher.CreateTimer();
         _timer.IsRepeating = false;
         _timer.Tick += OnTimerTick;
 
@@ -119,7 +116,7 @@ public sealed class UsageSyncService : IUsageSyncService
         _timer.Tick -= OnTimerTick;
     }
 
-    private async void OnTimerTick(DispatcherQueueTimer sender, object args)
+    private async void OnTimerTick(object? sender, EventArgs args)
     {
         if (!_autoSyncEnabled
             || Status is SyncStatus.AuthRequired or SyncStatus.SignedOut or SyncStatus.Syncing)

@@ -8,6 +8,13 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Changed**: ui - replaced WinUI 3 with Avalonia 12 so the same desktop app runs on Windows, Linux, and macOS.
+- **Changed**: install - Windows publish output is now `bin\Release\net10.0\win-x64\publish`; `scripts/build.ps1` no longer sets `WindowsAppSDKSelfContained`.
+- **Removed**: settings - Windows-only Mica title bar; Fluent theme follows the system light/dark variant instead.
+- **Added**: settings - launch-at-login on macOS (Launch Agent) and Linux (XDG autostart); the setting is labeled `Launch at login`.
+- **Changed**: tray - notification icon uses Avalonia `TrayIcon` instead of `H.NotifyIcon.WinUI`.
+- **Changed**: sync - usage fetch runs in Avalonia `NativeWebView` with a persistent per-OS profile; Windows still uses `%LocalAppData%\CursorUsageProgress\WebView2`.
+
 - **Fixed**: build - `dotnet test` and `scripts/build.ps1` succeed with `EnableMsixTooling` on RID-less AnyCPU builds (`AllowNeutralPackageWithAppHost`).
 - **Fixed**: install - unpackaged publish now includes `resources.pri`, so the Inno-installed exe no longer starts and exits immediately (`Microsoft.UI.Xaml.dll` `0xc000027b`).
 - **Added**: settings - `Start in notification tray` beside `Run at Windows sign-in`; when on, launch hides the window and the Run key uses `--background`.

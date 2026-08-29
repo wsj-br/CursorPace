@@ -4,14 +4,14 @@ Contributor guide: environment, build, test, layout, and release. End-user steps
 
 ## Prerequisites
 
-- Windows 10 or 11, x64
+- Windows 10 or 11 x64, Linux x64, or macOS
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- Windows 10 SDK 10.0.19041 or later (comes with Visual Studio 2022/2026 with the WinUI workload, or the standalone SDK)
-- [Microsoft Edge WebView2 Runtime](https://go.microsoft.com/fwlink/p/?LinkId=2124703) (Evergreen x64) to exercise **Sign in**
-- Optional: [Inno Setup 6](https://jrsoftware.org/isdl.php) for `.\scripts\build.ps1`
+- Windows: [Microsoft Edge WebView2 Runtime](https://go.microsoft.com/fwlink/p/?LinkId=2124703) (Evergreen x64) to exercise **Sign in**
+- Linux: WebKitGTK 4.1 (`libwebkit2gtk-4.1-0`) or WPE
+- Optional: [Inno Setup 6](https://jrsoftware.org/isdl.php) for `.\scripts\build.ps1` (Windows installer)
 - Optional: Visual Studio or VS Code / Cursor
 
-The app is WinUI 3 (Windows App SDK), not WPF. WebView2 types come from Windows App SDK; do not add a separate `Microsoft.Web.WebView2` package unless the SDK stops shipping them.
+The app is Avalonia 12 on `net10.0`. Usage fetch stays inside `NativeWebView` (`fetch` with credentials). Do not add `HttpClient` cookie export, CEF, or `WebAuthenticationBroker`.
 
 ## Clone and restore
 
@@ -49,18 +49,19 @@ dotnet run --project .\CursorUsageProgress.csproj -- --background
 
 ```text
 CursorUsageProgress/
-├── App.xaml, App.xaml.cs
+├── Program.cs
+├── App.axaml, App.axaml.cs
 ├── CursorUsageProgress.csproj
 ├── CursorUsageProgress.slnx
 ├── Models/
-├── Services/                    # cycle math, JSON stores, WebView2 client, sync
+├── Services/                    # cycle math, JSON stores, NativeWebView client, sync
 ├── ViewModels/                  # MainViewModel, calendar, UsageChartViewModel
-├── Views/                       # MainWindow, Settings, chart, WebView2 host
+├── Views/                       # MainWindow, Settings, chart, WebView host
 ├── Converters/
 ├── Assets/                      # cursor_usage_progress.ico / .png
 ├── Tests/
 │   └── CursorUsageProgress.Tests.csproj
-├── setup.iss                    # Inno Setup (checks WebView2 Runtime)
+├── setup.iss                    # Inno Setup (checks WebView2 Runtime on Windows)
 ├── scripts/
 │   ├── build.ps1
 │   ├── clean.ps1
@@ -78,16 +79,16 @@ Open `CursorUsageProgress.slnx` in Visual Studio, or build the `.csproj` files d
 
 | Area | Choice |
 | --- | --- |
-| UI | WinUI 3, Windows App SDK (`net10.0-windows10.0.19041.0`) |
-| Tray | `H.NotifyIcon.WinUI` |
-| Cursor session | WebView2 host window + persistent profile under LocalAppData |
+| UI | Avalonia 12 (`net10.0`) |
+| Tray | Avalonia `TrayIcon` |
+| Cursor session | `NativeWebView` host window + persistent profile under LocalApplicationData |
 | Tests | xUnit, project under `Tests/` |
-| Settings | JSON under `%LocalAppData%\CursorUsageProgress\` |
-| Installer | Inno Setup 6, per-user (`PrivilegesRequired=lowest`) |
+| Settings | JSON under LocalApplicationData `CursorUsageProgress` |
+| Installer | Inno Setup 6, per-user (`PrivilegesRequired=lowest`), Windows only |
 
-Manual construction in `App.OnLaunched` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IUsageSampleStore`, `ICursorUsageClient`, `IUsageSyncService`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. There is no DI container.
+Manual construction in `App.OnFrameworkInitializationCompleted` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IUsageSampleStore`, `ICursorUsageClient`, `IUsageSyncService`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. There is no DI container.
 
-Keep the usage HTTP call inside WebView2 (`fetch` with credentials). Do not copy Cursor cookies into `HttpClient`.
+Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do not copy Cursor cookies into `HttpClient`.
 
 ## Tests
 
@@ -123,9 +124,9 @@ Add cases next to the existing facts when you change those areas. `dev/api_usage
 3. Compiles `setup.iss` unless `-SkipInstaller`
 4. Writes `installer\CursorUsageProgress-<version>-win-x64-setup.exe` and a sibling `.sha256` file
 
-Unpackaged WinUI needs `EnableMsixTooling` so the build generates a PRI file. That tooling still checks MSIX architecture, so the app project sets `AllowNeutralPackageWithAppHost` for RID-less `dotnet test` / `dotnet build` (Platform defaults to AnyCPU). Publish must copy `resources.pri` and `CursorUsageProgress.pri` next to the exe; without them the process exits immediately (`Microsoft.UI.Xaml.dll` `0xc000027b`). `build.ps1` fails if those files are missing.
+Publish output is `bin\Release\net10.0\win-x64\publish\`. Trimming, ReadyToRun, and PublishSingleFile stay off.
 
-The installer prompts to open the WebView2 Runtime download page when the runtime is missing. Uninstall deletes `%LocalAppData%\CursorUsageProgress`.
+The Windows installer prompts to open the WebView2 Runtime download page when the runtime is missing. Uninstall deletes `%LocalAppData%\CursorUsageProgress`.
 
 `installer/` is gitignored. Attach the exe and checksum to a GitHub Release.
 
@@ -169,18 +170,18 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 
 **App will not start after an update**
 
-- End `CursorUsageProgress.exe` so the single-instance mutex is released.
-- Confirm the published folder contains the Windows App SDK payload (self-contained publish).
-- Confirm `resources.pri` or `CursorUsageProgress.pri` is next to the exe. A missing PRI is the `0xc000027b` crash in `Microsoft.UI.Xaml.dll`.
+- End `CursorUsageProgress` so the single-instance mutex or lock file is released.
+- Confirm the published folder contains the self-contained Avalonia payload.
 
 **Sign in fails in a local run**
 
-- Confirm x64 (`PlatformTarget`) and the WebView2 Runtime.
-- Profile folder: `%LocalAppData%\CursorUsageProgress\WebView2`. Delete it to force a fresh login. Do not delete `settings.json` unless you also want to reset the cycle.
+- Windows: confirm the WebView2 Runtime. Profile folder: `%LocalAppData%\CursorUsageProgress\WebView2`.
+- Linux/macOS: profile folder is `WebView` under LocalApplicationData. Google may block WebKit login.
+- Delete the profile folder to force a fresh login. Do not delete `settings.json` unless you also want to reset the cycle.
 
-**Tray icon missing after Explorer restart**
+**Tray icon missing**
 
-- `TrayService` listens for `SessionSwitch` and recreates the icon. If it does not return, restart the app.
+- Restart the app. On GNOME, install the AppIndicator extension.
 
 **Settings lost**
 
@@ -189,14 +190,15 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 
 **Startup registration**
 
-- `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`
-- Value name `CursorUsageProgress`
-- Command: quoted exe path; plus `--background` when **Start in notification tray** is on
+- Windows: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorUsageProgress`
+- macOS: `~/Library/LaunchAgents/com.cursorusageprogress.app.plist`
+- Linux: `~/.config/autostart/cursor-usage-progress.desktop`
+- Command includes `--background` when **Start in notification tray** is on
 
 **Tests or publish path wrong**
 
 - Tests live under `Tests/`, not the repo root.
-- Publish output is `bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\`.
+- Windows publish output is `bin\Release\net10.0\win-x64\publish\`.
 
 ## Contributing
 

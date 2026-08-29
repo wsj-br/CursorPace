@@ -1,16 +1,12 @@
-using H.NotifyIcon;
-using Microsoft.UI.Text;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.Win32;
-using System.Windows.Input;
-using Windows.UI;
+using Avalonia;
+using Avalonia.Controls;
+using CursorUsageProgress.ViewModels;
 
 namespace CursorUsageProgress.Services;
 
 public sealed class TrayService : ITrayService
 {
-    private TaskbarIcon? _taskbarIcon;
+    private TrayIcon? _icon;
     private Action? _onOpenRequested;
     private Action? _onQuitRequested;
 
@@ -19,96 +15,45 @@ public sealed class TrayService : ITrayService
         _onOpenRequested = onOpenRequested;
         _onQuitRequested = onQuitRequested;
 
-        var openCommand = new ActionCommand(() => _onOpenRequested?.Invoke());
-        var quitCommand = new ActionCommand(() => _onQuitRequested?.Invoke());
+        var icons = TrayIcon.GetIcons(Application.Current!);
+        if (icons == null || icons.Count == 0)
+            return;
 
-        var openItem = new MenuFlyoutItem { Text = "Open", Command = openCommand };
-        var quitItem = new MenuFlyoutItem { Text = "Quit", Command = quitCommand };
-        var menu = new MenuFlyout();
-        menu.Items.Add(openItem);
-        menu.Items.Add(quitItem);
+        _icon = icons[0];
+        var openCommand = new RelayCommand(() => _onOpenRequested?.Invoke());
+        var quitCommand = new RelayCommand(() => _onQuitRequested?.Invoke());
+        _icon.Command = openCommand;
 
-        _taskbarIcon = new TaskbarIcon
+        if (_icon.Menu is { } menu)
         {
-            ToolTipText = "Cursor Usage Progress",
-            LeftClickCommand = openCommand,
-            DoubleClickCommand = openCommand,
-            NoLeftClickDelay = true,
-            ContextMenuMode = ContextMenuMode.SecondWindow,
-            ContextFlyout = menu,
-            Icon = LoadTrayIcon(),
-        };
-
-        if (_taskbarIcon.Icon == null)
-            _taskbarIcon.IconSource = CreateFallbackIconSource();
-
-        // Created in code, so Loaded never fires — register the shell icon now.
-        _taskbarIcon.ForceCreate(enablesEfficiencyMode: false);
-
-        SystemEvents.SessionSwitch += OnSessionSwitch;
+            foreach (var item in menu.Items)
+            {
+                if (item is not NativeMenuItem native)
+                    continue;
+                if (native.Header == "Open")
+                    native.Command = openCommand;
+                else if (native.Header == "Quit")
+                    native.Command = quitCommand;
+            }
+        }
     }
 
     public void ShowWindow() => _onOpenRequested?.Invoke();
 
     public void UpdateToolTip(string text)
     {
-        if (_taskbarIcon == null) return;
-        _taskbarIcon.ToolTipText = string.IsNullOrWhiteSpace(text)
+        if (_icon == null)
+            return;
+        _icon.ToolTipText = string.IsNullOrWhiteSpace(text)
             ? "Cursor Usage Progress"
             : text;
     }
 
     public void Dispose()
     {
-        if (_taskbarIcon != null)
-        {
-            SystemEvents.SessionSwitch -= OnSessionSwitch;
-            _taskbarIcon.Dispose();
-            _taskbarIcon = null;
-        }
-    }
-
-    private static System.Drawing.Icon? LoadTrayIcon()
-    {
-        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "cursor_usage_progress.ico");
-        if (!File.Exists(iconPath))
-            return null;
-
-        return new System.Drawing.Icon(iconPath, 32, 32);
-    }
-
-    private static ImageSource CreateFallbackIconSource()
-    {
-        return new GeneratedIconSource
-        {
-            Text = "%",
-            FontSize = 16,
-            FontWeight = FontWeights.SemiBold,
-            Foreground = new SolidColorBrush(Color.FromArgb(255, 125, 211, 252)),
-            Background = new SolidColorBrush(Color.FromArgb(255, 30, 41, 59)),
-        };
-    }
-
-    private void OnSessionSwitch(object sender, SessionSwitchEventArgs e)
-    {
-        if (e.Reason == SessionSwitchReason.SessionUnlock && _taskbarIcon != null)
-            _taskbarIcon.ForceCreate(enablesEfficiencyMode: false);
-    }
-
-    private sealed class ActionCommand : ICommand
-    {
-        private readonly Action _action;
-
-        public ActionCommand(Action action) => _action = action;
-
-        public event EventHandler? CanExecuteChanged
-        {
-            add { }
-            remove { }
-        }
-
-        public bool CanExecute(object? parameter) => true;
-
-        public void Execute(object? parameter) => _action();
+        if (_icon == null)
+            return;
+        _icon.IsVisible = false;
+        _icon = null;
     }
 }

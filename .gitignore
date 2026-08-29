@@ -88,3 +88,8 @@ Desktop.ini
 
 # Debug screenshots dumped at repo root
 /screenshot.png
+
+
+# AI agents temp files
+.kilo/
+

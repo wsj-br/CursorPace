@@ -4,17 +4,19 @@
   <img src="Assets/cursor_usage_progress.png" alt="Cursor Usage Progress" width="180">
 </p>
 
-Windows desktop app that tracks Cursor model quota across a billing cycle. Sign in with your Cursor account to pull usage automatically. The calendar and chart show two independent percentages: **Cursor Models** and **Other Models**.
+Desktop app for Windows, Linux, and macOS that tracks Cursor model quota across a billing cycle. Sign in with your Cursor account to pull usage automatically. The calendar and chart show two independent percentages: **Cursor Models** and **Other Models**.
 
 Expected percents follow each usage sample in time, then pace remaining quota to 100% at the next renewal. A separate Theil-Sen estimate projects daily burn and run-out.
 
-Sign in uses an embedded Microsoft Edge WebView2 window and your Cursor dashboard session. There is no official personal-plan API and no Team API key.
+Sign in uses an embedded native WebView (WebView2 on Windows, WKWebView on macOS, WebKitGTK or WPE on Linux) and your Cursor dashboard session. There is no official personal-plan API and no Team API key.
 
 ## Requirements
 
-- Windows 10 or 11, x64
-- For a release install: the app payload is self-contained. **Sign in** also needs the [Microsoft Edge WebView2 Runtime](https://go.microsoft.com/fwlink/p/?LinkId=2124703) (already on most Windows 11 PCs; the installer offers the download page if it is missing)
-- For building from source: [.NET 10 SDK](https://dotnet.microsoft.com/download) and Windows 10 SDK 10.0.19041 or later
+- Windows 10 or 11 x64, Linux x64, or macOS (Intel or Apple Silicon)
+- For a Windows release install: the app payload is self-contained. **Sign in** also needs the [Microsoft Edge WebView2 Runtime](https://go.microsoft.com/fwlink/p/?LinkId=2124703) (already on most Windows 11 PCs; the installer offers the download page if it is missing)
+- Linux: WebKitGTK 4.1 (`libwebkit2gtk-4.1-0`) or WPE. GNOME tray icons may need the AppIndicator extension
+- macOS: WKWebView (built in). Unsigned builds may need **Open** from Finder after Gatekeeper
+- For building from source: [.NET 10 SDK](https://dotnet.microsoft.com/download)
 
 ## Install
 
@@ -32,11 +34,11 @@ See [QUICKSTART.md](QUICKSTART.md) for first-run setup, sign-in, the calendar an
 - Separate **Cursor Models** and **Other Models** percentages
 - Chart axis runs from cycle start to next renewal in elapsed seconds; midnight ticks are day markers, and labels use the day of the month (the truncated first slot is unlabeled)
 - System tray: closing the window hides it; **Quit** exits. The tooltip shows today's expected percent and end-of-period (`EOP`) projection
-- Optional start at Windows sign-in (user-level, no elevation)
+- Optional launch at login (Windows Run key, macOS Launch Agent, Linux XDG autostart)
 - Single-instance: a second launch brings the existing window forward
 - Settings: Cursor account, startup, CSV export of the cycle and (when connected) collected samples
 - Remembers window position; informational labels can be selected and copied
-- Follows Windows light, dark, and high-contrast themes
+- Follows the system light or dark theme
 
 ## Build from source
 

@@ -1,7 +1,9 @@
+using System.Runtime.Versioning;
 using Microsoft.Win32;
 
 namespace CursorUsageProgress.Services;
 
+[SupportedOSPlatform("windows")]
 public sealed class WindowsStartupRegistration : IStartupRegistration
 {
     private const string AppName = "CursorUsageProgress";

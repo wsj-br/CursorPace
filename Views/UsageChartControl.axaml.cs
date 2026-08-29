@@ -1,16 +1,16 @@
 using System.Globalization;
+using Avalonia;
+using Avalonia.Collections;
+using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
+using Avalonia.Styling;
 using CursorUsageProgress.Models;
 using CursorUsageProgress.Services;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
-using Windows.Foundation;
-using Windows.UI;
 
 namespace CursorUsageProgress.Views;
 
-public sealed partial class UsageChartControl : UserControl
+public partial class UsageChartControl : UserControl
 {
     private const double PlotLeft = 38;
     private const double PlotRightPad = 8;
@@ -24,56 +24,48 @@ public sealed partial class UsageChartControl : UserControl
     private static readonly Color CursorEstimatedColor = Color.FromArgb(255, 21, 128, 61);
     private static readonly Color OtherEstimatedColor = Color.FromArgb(255, 2, 132, 199);
 
-    public static readonly DependencyProperty DocumentProperty =
-        DependencyProperty.Register(
-            nameof(Document),
-            typeof(UsageChartDocument),
-            typeof(UsageChartControl),
-            new PropertyMetadata(null, OnDocumentChanged));
+    public static readonly StyledProperty<UsageChartDocument?> DocumentProperty =
+        AvaloniaProperty.Register<UsageChartControl, UsageChartDocument?>(nameof(Document));
 
     public UsageChartControl()
     {
         InitializeComponent();
-        ActualThemeChanged += (_, _) => RebuildPlot();
+        DocumentProperty.Changed.AddClassHandler<UsageChartControl>((control, _) => control.RebuildPlot());
+        ActualThemeVariantChanged += (_, _) => RebuildPlot();
         Loaded += (_, _) => RebuildPlot();
     }
 
     public UsageChartDocument? Document
     {
-        get => (UsageChartDocument?)GetValue(DocumentProperty);
+        get => GetValue(DocumentProperty);
         set => SetValue(DocumentProperty, value);
     }
 
-    private static void OnDocumentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        ((UsageChartControl)d).RebuildPlot();
-    }
-
-    private void OnPlotSizeChanged(object sender, SizeChangedEventArgs e) => RebuildPlot();
+    private void OnPlotSizeChanged(object? sender, SizeChangedEventArgs e) => RebuildPlot();
 
     private void RebuildPlot()
     {
         PlotCanvas.Children.Clear();
         LegendPanel.Children.Clear();
         var document = Document;
-        if (document == null || ActualWidth < 80 || PlotCanvas.ActualHeight < 60)
+        if (document == null || Bounds.Width < 80 || PlotCanvas.Bounds.Height < 60)
             return;
 
         var plot = new Rect(
             PlotLeft,
             PlotTop,
-            Math.Max(40, PlotCanvas.ActualWidth - PlotLeft - PlotRightPad),
-            Math.Max(40, PlotCanvas.ActualHeight - PlotTop - PlotBottomPad));
+            Math.Max(40, PlotCanvas.Bounds.Width - PlotLeft - PlotRightPad),
+            Math.Max(40, PlotCanvas.Bounds.Height - PlotTop - PlotBottomPad));
 
         var xMin = 0m;
         var xMax = document.CycleSeconds > xMin ? document.CycleSeconds : 1m;
         var yMin = 0m;
         var yMax = document.YMax <= 0 ? UsageChartSeriesBuilder.DefaultYMax : document.YMax;
 
-        var mutedBrush = ThemeBrush("TextFillColorSecondaryBrush", Color.FromArgb(255, 120, 120, 120));
-        var gridBrush = ThemeBrush("DividerStrokeColorDefaultBrush", Color.FromArgb(60, 128, 128, 128));
+        var mutedBrush = ThemeBrush("SystemControlForegroundBaseMediumBrush", Color.FromArgb(255, 120, 120, 120));
+        var gridBrush = ThemeBrush("SystemControlForegroundBaseLowBrush", Color.FromArgb(60, 128, 128, 128));
         var verticalBrush = new SolidColorBrush(Color.FromArgb(40, 160, 160, 160));
-        var boxBrush = ThemeBrush("ControlStrokeColorDefaultBrush", Color.FromArgb(140, 140, 140, 140));
+        var boxBrush = ThemeBrush("SystemControlForegroundBaseMediumLowBrush", Color.FromArgb(140, 140, 140, 140));
         var limitBrush = new SolidColorBrush(Color.FromArgb(180, 128, 128, 128));
 
         DrawGrid(document, plot, xMin, xMax, yMin, yMax, gridBrush, verticalBrush, mutedBrush, limitBrush);
@@ -96,10 +88,10 @@ public sealed partial class UsageChartControl : UserControl
         decimal xMax,
         decimal yMin,
         decimal yMax,
-        Brush gridBrush,
-        Brush verticalBrush,
-        Brush mutedBrush,
-        Brush limitBrush)
+        IBrush gridBrush,
+        IBrush verticalBrush,
+        IBrush mutedBrush,
+        IBrush limitBrush)
     {
         foreach (var slot in document.Slots)
         {
@@ -109,10 +101,8 @@ public sealed partial class UsageChartControl : UserControl
             var px = MapX(slot.StartX, plot, xMin, xMax);
             PlotCanvas.Children.Add(new Line
             {
-                X1 = px,
-                Y1 = plot.Top,
-                X2 = px,
-                Y2 = plot.Bottom,
+                StartPoint = new Point(px, plot.Top),
+                EndPoint = new Point(px, plot.Bottom),
                 Stroke = verticalBrush,
                 StrokeThickness = 1
             });
@@ -123,10 +113,8 @@ public sealed partial class UsageChartControl : UserControl
             var py = MapY(y, plot, yMin, yMax);
             PlotCanvas.Children.Add(new Line
             {
-                X1 = plot.Left,
-                Y1 = py,
-                X2 = plot.Right,
-                Y2 = py,
+                StartPoint = new Point(plot.Left, py),
+                EndPoint = new Point(plot.Right, py),
                 Stroke = y == document.UsageLimitPercent ? limitBrush : gridBrush,
                 StrokeThickness = y == document.UsageLimitPercent ? 1.6 : 1
             });
@@ -134,18 +122,19 @@ public sealed partial class UsageChartControl : UserControl
         }
     }
 
-    private void DrawPlotBox(Rect plot, Brush boxBrush)
+    private void DrawPlotBox(Rect plot, IBrush boxBrush)
     {
-        PlotCanvas.Children.Add(new Rectangle
+        var box = new Rectangle
         {
             Width = plot.Width,
             Height = plot.Height,
             Stroke = boxBrush,
             StrokeThickness = 1,
             Fill = null
-        });
-        Canvas.SetLeft(PlotCanvas.Children[^1], plot.Left);
-        Canvas.SetTop(PlotCanvas.Children[^1], plot.Top);
+        };
+        PlotCanvas.Children.Add(box);
+        Canvas.SetLeft(box, plot.Left);
+        Canvas.SetTop(box, plot.Top);
     }
 
     private void DrawAxes(
@@ -153,7 +142,7 @@ public sealed partial class UsageChartControl : UserControl
         Rect plot,
         decimal xMin,
         decimal xMax,
-        Brush mutedBrush)
+        IBrush mutedBrush)
     {
         var slots = document.Slots;
         if (slots.Count == 0)
@@ -167,10 +156,8 @@ public sealed partial class UsageChartControl : UserControl
             var px = MapX(slot.StartX, plot, xMin, xMax);
             PlotCanvas.Children.Add(new Line
             {
-                X1 = px,
-                Y1 = plot.Bottom,
-                X2 = px,
-                Y2 = plot.Bottom + 4,
+                StartPoint = new Point(px, plot.Bottom),
+                EndPoint = new Point(px, plot.Bottom + 4),
                 Stroke = mutedBrush,
                 StrokeThickness = 1
             });
@@ -189,10 +176,8 @@ public sealed partial class UsageChartControl : UserControl
         Rect plot,
         decimal xMin,
         decimal xMax,
-        Brush mutedBrush)
+        IBrush mutedBrush)
     {
-        // Thin by slot index, not by the day of the month, so the spacing stays even
-        // across a month boundary.
         var step = Math.Max(1, (int)Math.Ceiling(MinTickSpacing * labelled.Count / plot.Width));
         var lastIndex = labelled.Count - 1;
         var lastX = MapX(labelled[lastIndex].MidX, plot, xMin, xMax);
@@ -217,7 +202,7 @@ public sealed partial class UsageChartControl : UserControl
         Rect plot,
         decimal xMin,
         decimal xMax,
-        Brush mutedBrush)
+        IBrush mutedBrush)
     {
         const double dateMinSpacing = 56;
 
@@ -255,11 +240,11 @@ public sealed partial class UsageChartControl : UserControl
         {
             Stroke = new SolidColorBrush(color),
             StrokeThickness = 2,
-            StrokeLineJoin = PenLineJoin.Round,
+            StrokeJoin = PenLineJoin.Round,
             Fill = null
         };
         if (dashed)
-            polyline.StrokeDashArray = new DoubleCollection { 5, 3 };
+            polyline.StrokeDashArray = new AvaloniaList<double> { 5, 3 };
 
         foreach (var point in points)
         {
@@ -290,17 +275,17 @@ public sealed partial class UsageChartControl : UserControl
                 Width = MarkerSize,
                 Height = MarkerSize,
                 Fill = new SolidColorBrush(color),
-                Stroke = ThemeBrush("CardBackgroundFillColorDefaultBrush", Color.FromArgb(255, 255, 255, 255)),
+                Stroke = ThemeBrush("SystemControlBackgroundChromeMediumLowBrush", Color.FromArgb(255, 255, 255, 255)),
                 StrokeThickness = 1
             };
             Canvas.SetLeft(ellipse, MapX(marker.X, plot, xMin, xMax) - MarkerSize / 2);
             Canvas.SetTop(ellipse, MapY(marker.Y, plot, yMin, yMax) - MarkerSize / 2);
-            ToolTipService.SetToolTip(ellipse, MarkerTooltip(marker));
+            ToolTip.SetTip(ellipse, MarkerTooltip(marker));
             PlotCanvas.Children.Add(ellipse);
         }
     }
 
-    private void DrawLegend(UsageChartDocument document, Brush mutedBrush)
+    private void DrawLegend(UsageChartDocument document, IBrush mutedBrush)
     {
         var expectedRow = CreateLegendRow(mutedBrush,
             ("Cursor (expected)", CursorExpectedColor, true),
@@ -318,12 +303,12 @@ public sealed partial class UsageChartControl : UserControl
         LegendPanel.Children.Add(CreateLegendRow(mutedBrush, estimated.ToArray()));
     }
 
-    private static StackPanel CreateLegendRow(Brush mutedBrush, params (string Label, Color Color, bool Dashed)[] items)
+    private static StackPanel CreateLegendRow(IBrush mutedBrush, params (string Label, Color Color, bool Dashed)[] items)
     {
-        var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 16 };
+        var row = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 16 };
         foreach (var item in items)
         {
-            var entry = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6 };
+            var entry = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 6 };
             var line = new Rectangle
             {
                 Width = 18,
@@ -331,10 +316,10 @@ public sealed partial class UsageChartControl : UserControl
                 Fill = item.Dashed ? null : new SolidColorBrush(item.Color),
                 Stroke = new SolidColorBrush(item.Color),
                 StrokeThickness = item.Dashed ? 1.5 : 0,
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
             };
             if (item.Dashed)
-                line.StrokeDashArray = new DoubleCollection { 3, 2 };
+                line.StrokeDashArray = new AvaloniaList<double> { 3, 2 };
 
             entry.Children.Add(line);
             entry.Children.Add(new TextBlock
@@ -342,7 +327,7 @@ public sealed partial class UsageChartControl : UserControl
                 Text = item.Label,
                 FontSize = 11,
                 Foreground = mutedBrush,
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
             });
             row.Children.Add(entry);
         }
@@ -350,7 +335,7 @@ public sealed partial class UsageChartControl : UserControl
         return row;
     }
 
-    private void AddLabel(string text, double x, double y, Brush brush, double fontSize, bool alignRight = false)
+    private void AddLabel(string text, double x, double y, IBrush brush, double fontSize, bool alignRight = false)
     {
         var block = new TextBlock
         {
@@ -423,13 +408,17 @@ public sealed partial class UsageChartControl : UserControl
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
         };
 
-    private Brush ThemeBrush(string key, Color fallback)
+    private IBrush ThemeBrush(string key, Color fallback)
     {
-        if (ActualTheme == ElementTheme.Dark && key == "CardBackgroundFillColorDefaultBrush")
+        if (ActualThemeVariant == ThemeVariant.Dark && key == "SystemControlBackgroundChromeMediumLowBrush")
             fallback = Color.FromArgb(255, 32, 32, 32);
 
-        if (Application.Current.Resources.TryGetValue(key, out var value) && value is Brush brush)
+        if (Application.Current?.TryGetResource(key, ActualThemeVariant, out var value) == true
+            && value is IBrush brush)
+        {
             return brush;
+        }
+
         return new SolidColorBrush(fallback);
     }
 }
