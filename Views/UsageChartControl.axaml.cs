@@ -72,6 +72,11 @@ public partial class UsageChartControl : UserControl
         var document = Document;
         var hostWidth = PlotSize.Width;
         var hostHeight = PlotSize.Height;
+        var hasSeries = document != null
+            && (document.CursorExpected.Count >= 2
+                || document.OtherExpected.Count >= 2
+                || document.Markers.Count > 0);
+        EmptyPlotText.IsVisible = document == null || !hasSeries;
         if (document == null || !IsEffectivelyVisible || hostWidth < 80 || hostHeight < 60)
             return;
 
@@ -89,20 +94,24 @@ public partial class UsageChartControl : UserControl
         var yMin = 0m;
         var yMax = document.YMax <= 0 ? UsageChartSeriesBuilder.DefaultYMax : document.YMax;
 
-        var mutedBrush = ThemeBrush("SystemControlForegroundBaseMediumBrush", Color.FromArgb(255, 120, 120, 120));
-        var gridBrush = ThemeBrush("SystemControlForegroundBaseLowBrush", Color.FromArgb(60, 128, 128, 128));
-        var verticalBrush = new SolidColorBrush(Color.FromArgb(40, 160, 160, 160));
-        var boxBrush = ThemeBrush("SystemControlForegroundBaseMediumLowBrush", Color.FromArgb(140, 140, 140, 140));
-        var limitBrush = new SolidColorBrush(Color.FromArgb(180, 128, 128, 128));
+        var mutedBrush = ThemeBrush("ThemeForegroundLowBrush", Color.FromArgb(255, 120, 120, 120));
+        var gridBrush = ThemeBrush("CardStrokeBrush", Color.FromArgb(60, 128, 128, 128));
+        var verticalBrush = new SolidColorBrush(ThemeColor("ChartGridLineColor", Color.FromArgb(40, 160, 160, 160)));
+        var boxBrush = ThemeBrush("CardStrokeBrush", Color.FromArgb(140, 140, 140, 140));
+        var limitBrush = ThemeBrush("CalendarMutedForegroundBrush", Color.FromArgb(180, 128, 128, 128));
+        var cursorExpected = ThemeColor("ChartCursorExpectedColor", CursorExpectedColor);
+        var otherExpected = ThemeColor("ChartOtherExpectedColor", OtherExpectedColor);
+        var cursorEstimated = ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor);
+        var otherEstimated = ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor);
 
         DrawGrid(document, plot, xMin, xMax, yMin, yMax, gridBrush, verticalBrush, mutedBrush, limitBrush);
         DrawPlotBox(plot, boxBrush);
-        DrawPolyline(document.CursorExpected, plot, xMin, xMax, yMin, yMax, CursorExpectedColor, dashed: true);
-        DrawPolyline(document.OtherExpected, plot, xMin, xMax, yMin, yMax, OtherExpectedColor, dashed: true);
+        DrawPolyline(document.CursorExpected, plot, xMin, xMax, yMin, yMax, cursorExpected, dashed: true);
+        DrawPolyline(document.OtherExpected, plot, xMin, xMax, yMin, yMax, otherExpected, dashed: true);
         if (document.HasCursorEstimated)
-            DrawPolyline(document.CursorEstimated, plot, xMin, xMax, yMin, yMax, CursorEstimatedColor, dashed: false);
+            DrawPolyline(document.CursorEstimated, plot, xMin, xMax, yMin, yMax, cursorEstimated, dashed: false);
         if (document.HasOtherEstimated)
-            DrawPolyline(document.OtherEstimated, plot, xMin, xMax, yMin, yMax, OtherEstimatedColor, dashed: false);
+            DrawPolyline(document.OtherEstimated, plot, xMin, xMax, yMin, yMax, otherEstimated, dashed: false);
         DrawMarkers(document, plot, xMin, xMax, yMin, yMax);
         DrawAxes(document, plot, xMin, xMax, mutedBrush);
         DrawLegend(document, mutedBrush);
@@ -320,8 +329,8 @@ public partial class UsageChartControl : UserControl
     private void DrawLegend(UsageChartDocument document, IBrush mutedBrush)
     {
         var expectedRow = CreateLegendRow(mutedBrush,
-            ("Cursor (expected)", CursorExpectedColor, true),
-            ("Other Models (expected)", OtherExpectedColor, true));
+            ("Cursor (expected)", ThemeColor("ChartCursorExpectedColor", CursorExpectedColor), true),
+            ("Other Models (expected)", ThemeColor("ChartOtherExpectedColor", OtherExpectedColor), true));
         LegendPanel.Children.Add(expectedRow);
 
         if (!document.HasCursorEstimated && !document.HasOtherEstimated)
@@ -329,9 +338,9 @@ public partial class UsageChartControl : UserControl
 
         var estimated = new List<(string Label, Color Color, bool Dashed)>();
         if (document.HasCursorEstimated)
-            estimated.Add(("Cursor (estimated)", CursorEstimatedColor, false));
+            estimated.Add(("Cursor (estimated)", ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor), false));
         if (document.HasOtherEstimated)
-            estimated.Add(("Other Models (estimated)", OtherEstimatedColor, false));
+            estimated.Add(("Other Models (estimated)", ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor), false));
         LegendPanel.Children.Add(CreateLegendRow(mutedBrush, estimated.ToArray()));
     }
 
@@ -400,19 +409,19 @@ public partial class UsageChartControl : UserControl
         return plot.Bottom - t * plot.Height;
     }
 
-    private static Color MarkerColor(UsageChartMarker marker)
+    private Color MarkerColor(UsageChartMarker marker)
     {
         if (marker.MarkerKind == ChartMarkerKind.Origin)
-            return Color.FromArgb(255, 80, 80, 80);
+            return ThemeColor("CalendarMutedForegroundBrush", Color.FromArgb(255, 80, 80, 80));
 
         return marker.QuotaKind switch
         {
             QuotaKind.CursorModels => marker.MarkerKind == ChartMarkerKind.Edit
-                ? CursorExpectedColor
-                : CursorEstimatedColor,
+                ? ThemeColor("ChartCursorExpectedColor", CursorExpectedColor)
+                : ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor),
             QuotaKind.OtherModels => marker.MarkerKind == ChartMarkerKind.Edit
-                ? OtherExpectedColor
-                : OtherEstimatedColor,
+                ? ThemeColor("ChartOtherExpectedColor", OtherExpectedColor)
+                : ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor),
             null => Color.FromArgb(255, 80, 80, 80),
             _ => throw new ArgumentOutOfRangeException(nameof(marker.QuotaKind), marker.QuotaKind, null)
         };
@@ -442,9 +451,6 @@ public partial class UsageChartControl : UserControl
 
     private IBrush ThemeBrush(string key, Color fallback)
     {
-        if (ActualThemeVariant == ThemeVariant.Dark && key == "SystemControlBackgroundChromeMediumLowBrush")
-            fallback = Color.FromArgb(255, 32, 32, 32);
-
         if (Application.Current?.TryGetResource(key, ActualThemeVariant, out var value) == true
             && value is IBrush brush)
         {
@@ -452,5 +458,18 @@ public partial class UsageChartControl : UserControl
         }
 
         return new SolidColorBrush(fallback);
+    }
+
+    private Color ThemeColor(string key, Color fallback)
+    {
+        if (Application.Current?.TryGetResource(key, ActualThemeVariant, out var value) != true)
+            return fallback;
+
+        return value switch
+        {
+            Color color => color,
+            ISolidColorBrush brush => brush.Color,
+            _ => fallback
+        };
     }
 }

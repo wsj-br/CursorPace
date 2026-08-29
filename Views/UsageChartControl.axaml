@@ -11,10 +11,18 @@
                 ClipToBounds="True"
                 SizeChanged="OnPlotSizeChanged"
                 Background="Transparent">
+            <Grid>
             <Canvas x:Name="PlotCanvas"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     Background="Transparent"/>
+            <TextBlock x:Name="EmptyPlotText"
+                       Text="Not enough data yet"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Opacity="0.65"
+                       IsVisible="False"/>
+            </Grid>
         </Border>
         <StackPanel x:Name="LegendPanel"
                     Grid.Row="1"

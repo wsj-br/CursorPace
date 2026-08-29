@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Remove generated build, test, and XAML compiler artifacts from the repository.
+  Remove generated build, test, and leftover WinUI artifacts from the repository.
 
 .DESCRIPTION
   Runs dotnet clean, then removes generated directories and files that can survive
@@ -102,6 +102,7 @@ $excludedDirectories = @(
     'installer'
 )
 
+# .xbf / .pri are leftover WinUI artifacts that can linger beside custom -o folders.
 $generatedExtensions = @(
     '.xbf',
     '.pri',
@@ -138,7 +139,7 @@ if ($PurgeNuGetCache) {
 if ($PurgeUserTemp) {
     $tempRoot = [System.IO.Path]::GetTempPath()
     Get-ChildItem -LiteralPath $tempRoot -Force -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -like '*CursorUsageProgress*' -or $_.Name -like '*XamlCompiler*' } |
+        Where-Object { $_.Name -like '*CursorUsageProgress*' -or $_.Name -like '*XamlCompiler*' } | # *XamlCompiler* is a leftover WinUI temp-name pattern
         ForEach-Object {
             Remove-GeneratedPath -Path $_.FullName -Description 'project temporary data'
         }

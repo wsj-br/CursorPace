@@ -30,9 +30,10 @@ public class SyncScheduleTests
 
     [Theory]
     [InlineData(19, false)]
-    [InlineData(20, true)]
-    [InlineData(21, true)]
-    public void ShouldRefreshOnStart_UsesTwentyMinuteWindow(int minutesAgo, bool expected)
+    [InlineData(20, false)]
+    [InlineData(21, false)]
+    [InlineData(30, false)]
+    public void ShouldRefreshOnStart_SkipsWithinCurrentSlotUntilInterval(int minutesAgo, bool expected)
     {
         var now = new DateTimeOffset(2026, 8, 18, 12, 30, 0, TimeSpan.Zero);
         var last = now.AddMinutes(-minutesAgo);
@@ -41,9 +42,18 @@ public class SyncScheduleTests
     }
 
     [Fact]
-    public void ShouldRefreshOnStart_WhenAlignedHourWasMissed_ReturnsTrue()
+    public void ShouldRefreshOnStart_WhenUnderTwentyMinutes_SkipsEvenIfAlignedHourWasMissed()
     {
         var now = new DateTimeOffset(2026, 8, 18, 20, 5, 0, TimeSpan.Zero);
+        var last = new DateTimeOffset(2026, 8, 18, 19, 55, 0, TimeSpan.Zero);
+
+        Assert.False(SyncSchedule.ShouldRefreshOnStart(true, true, now, last, 1));
+    }
+
+    [Fact]
+    public void ShouldRefreshOnStart_WhenAlignedHourWasMissedAfterSkipWindow_ReturnsTrue()
+    {
+        var now = new DateTimeOffset(2026, 8, 18, 20, 20, 0, TimeSpan.Zero);
         var last = new DateTimeOffset(2026, 8, 18, 19, 55, 0, TimeSpan.Zero);
 
         Assert.True(SyncSchedule.ShouldRefreshOnStart(true, true, now, last, 1));
@@ -59,9 +69,9 @@ public class SyncScheduleTests
     }
 
     [Fact]
-    public void ShouldRefreshOnStart_WhenTwoHourSlotWasMissed_ReturnsTrue()
+    public void ShouldRefreshOnStart_WhenTwoHourSlotWasMissedAfterSkipWindow_ReturnsTrue()
     {
-        var now = new DateTimeOffset(2026, 8, 18, 20, 5, 0, TimeSpan.Zero);
+        var now = new DateTimeOffset(2026, 8, 18, 20, 20, 0, TimeSpan.Zero);
         var last = new DateTimeOffset(2026, 8, 18, 19, 55, 0, TimeSpan.Zero);
 
         Assert.True(SyncSchedule.ShouldRefreshOnStart(true, true, now, last, 2));

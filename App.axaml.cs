@@ -47,11 +47,12 @@ public partial class App : Application
         var store = new JsonPlanStore();
         var startupReg = StartupRegistration.Create();
         var sampleStore = new JsonUsageSampleStore();
-        var usageClient = new NativeWebViewCursorUsageClient();
+        var usageClient = new NativeWebViewCursorUsageClient(_dispatcher);
         var sync = new UsageSyncService(_dispatcher, usageClient, sampleStore, clock, store);
+        var backup = new DataBackupService(store, sampleStore);
         _syncService = sync;
 
-        _viewModel = new MainViewModel(clock, calculator, store, startupReg, sync);
+        _viewModel = new MainViewModel(clock, calculator, store, startupReg, sync, backup);
 
         _trayService = new TrayService();
         _trayService.Initialize(
@@ -63,7 +64,7 @@ public partial class App : Application
         var launchInBackground = Environment.GetCommandLineArgs().Contains("--background")
             || _viewModel.StartInNotificationTray;
 
-        _mainWindow = new MainWindow(_viewModel, startInTray: launchInBackground);
+        _mainWindow = new MainWindow(_viewModel, _dispatcher, startInTray: launchInBackground);
         desktop.MainWindow = _mainWindow;
 
         if (!launchInBackground)

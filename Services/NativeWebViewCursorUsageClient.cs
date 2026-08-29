@@ -49,7 +49,13 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
         })();
         """;
 
+    private readonly IUiDispatcher _dispatcher;
     private readonly SemaphoreSlim _gate = new(1, 1);
+
+    public NativeWebViewCursorUsageClient(IUiDispatcher dispatcher)
+    {
+        _dispatcher = dispatcher;
+    }
 
     public bool HasPersistedProfile =>
         Directory.Exists(WebViewProfilePaths.ProfileDirectory)
@@ -66,7 +72,18 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
             host = new WebViewHostWindow();
             host.PlaceOffscreen();
             host.Show();
-            await host.EnsureReadyAsync();
+            try
+            {
+                await host.EnsureReadyAsync();
+            }
+            catch (TimeoutException)
+            {
+                return new UsageFetchResult(
+                    UsageFetchStatus.Error,
+                    null,
+                    WebViewUnavailableMessage(),
+                    0);
+            }
 
             var webView = host.WebView;
             webView.NewWindowRequested += OnNewWindowRequested;
@@ -213,16 +230,22 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
         EventHandler? continued = null;
         EventHandler? closed = null;
 
-        navigated = async (_, args) =>
+        navigated = (_, args) =>
         {
             if (!args.IsSuccess || finished.Task.IsCompleted)
                 return;
-            await TryCompleteAsync(fromUser: false);
+            _dispatcher.Post(() => _ = TryCompleteAsync(fromUser: false));
         };
-        continued = async (_, _) => await TryCompleteAsync(fromUser: true);
-        closed = async (_, _) =>
+        continued = (_, _) =>
+            _dispatcher.Post(() => _ = TryCompleteAsync(fromUser: true));
+        closed = (_, _) =>
         {
             pollCts.Cancel();
+            _dispatcher.Post(() => _ = CompleteClosedAsync());
+        };
+
+        async Task CompleteClosedAsync()
+        {
             try
             {
                 if (!finished.Task.IsCompleted && IsCursorAppHost(webView.Source))
@@ -241,7 +264,7 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
 
             finished.TrySetResult(
                 new UsageFetchResult(UsageFetchStatus.AuthRequired, null, "Sign in was cancelled.", 401));
-        };
+        }
 
         webView.NavigationCompleted += navigated;
         host.ContinueRequested += continued;
@@ -381,11 +404,22 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
         }
     }
 
-    private static void OnNewWindowRequested(object? sender, WebViewNewWindowRequestedEventArgs e)
+    private void OnNewWindowRequested(object? sender, WebViewNewWindowRequestedEventArgs e)
     {
         e.Handled = true;
         if (sender is NativeWebView webView && e.Request != null)
-            webView.Navigate(e.Request);
+            _dispatcher.Post(() => webView.Navigate(e.Request));
+    }
+
+    private static string WebViewUnavailableMessage()
+    {
+        if (OperatingSystem.IsLinux())
+        {
+            return "Could not start the embedded browser. Install WebKitGTK 4.1 "
+                + "(and WPE WebKit if your distribution requires it).";
+        }
+
+        return "Could not start the embedded browser used to sign in to Cursor.";
     }
 
     private static bool IsCursorAppHost(Uri? url)

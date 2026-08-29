@@ -14,6 +14,15 @@ public partial class CalendarControl : UserControl
     public static readonly StyledProperty<string> MonthHeadingProperty =
         AvaloniaProperty.Register<CalendarControl, string>(nameof(MonthHeading), string.Empty);
 
+    public static readonly StyledProperty<string> LastSyncTextProperty =
+        AvaloniaProperty.Register<CalendarControl, string>(nameof(LastSyncText), string.Empty);
+
+    public static readonly StyledProperty<bool> IsSyncingProperty =
+        AvaloniaProperty.Register<CalendarControl, bool>(nameof(IsSyncing));
+
+    public static readonly StyledProperty<bool> ShowLastSyncProperty =
+        AvaloniaProperty.Register<CalendarControl, bool>(nameof(ShowLastSync), true);
+
     public CalendarControl()
     {
         InitializeComponent();
@@ -32,6 +41,24 @@ public partial class CalendarControl : UserControl
     {
         get => GetValue(MonthHeadingProperty);
         set => SetValue(MonthHeadingProperty, value);
+    }
+
+    public string LastSyncText
+    {
+        get => GetValue(LastSyncTextProperty);
+        set => SetValue(LastSyncTextProperty, value);
+    }
+
+    public bool IsSyncing
+    {
+        get => GetValue(IsSyncingProperty);
+        set => SetValue(IsSyncingProperty, value);
+    }
+
+    public bool ShowLastSync
+    {
+        get => GetValue(ShowLastSyncProperty);
+        set => SetValue(ShowLastSyncProperty, value);
     }
 
     public List<string> DayNames { get; }

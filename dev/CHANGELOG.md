@@ -8,10 +8,34 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
-- **Fixed**: window - custom title text no longer overlaps the Avalonia 12 overlay caption on Main and Settings.
+- **Changed**: window - move `Updated dd/MM HH:mm` under the calendar month heading / chart title (hidden while a sync alert banner is shown).
+- **Fixed**: sync - launch refresh no longer runs mid-slot once the last update is 20+ minutes old; the 20-minute window is a hard floor, and after that only a missed aligned slot or a full interval triggers a start refresh.
+- **Changed**: settings - completion dialogs place `Open Folder` on the left and `OK` on the right.
+- **Changed**: settings - export and backup completion dialogs offer `Open Folder` for local destinations.
+- **Changed**: settings - CSV and backup suggested filenames now include `yyyy-MM-dd-HH_mm_ss` timestamps to avoid filename clashes.
+- **Changed**: install - version is `0.2.0`.
+- **Fixed**: persistence - `Load()` treats only JSON parse failures as corruption; a locked or unreadable file no longer overwrites `settings.json` or `usage-samples.json`.
+- **Fixed**: sync - auto-refresh timer ticks and Sign in / Refresh / Sign out commands catch exceptions instead of crashing the process.
+- **Fixed**: settings - Backup/Restore file and store failures surface an error dialog instead of an unhandled exception; a failed sample write rolls back settings.
+- **Fixed**: settings - a locked-down startup registry or Launch Agent failure no longer prevents the app from starting.
+- **Changed**: calendar - theme-aware colors; projected percents show the number only (green for ≤100%, red for >100%); remove the cryptic legend under the month heading.
+- **Changed**: window - first-run hides empty metric cards; syncing shows a progress bar; failed or auth-required updates use a banner.
+- **Changed**: tray - tooltip spells out projected percent at renewal instead of `EOP`.
+- **Changed**: chart - empty plot shows `Not enough data yet` and series colors follow the system theme.
+- **Fixed**: window - title-bar Close tooltip is `Hide to tray`.
+- **Changed**: settings - `Sign in` is hidden while connected; Export Cycle CSV explains why it is disabled.
+- **Fixed**: dialogs - Escape cancels, focus starts on the safe button, and Windows uses primary-then-cancel order.
+- **Changed**: install - keep `Avalonia.Controls.WebView` on the latest published version that matches Avalonia 12 (currently 12.1.0).
+- **Fixed**: window - restore the `Cursor Usage Progress` label to the left side of the custom title bar.
+- **Changed**: window - add a small gap between `Quit` and the window controls.
+- **Fixed**: window - use a fully custom fixed-size title bar so Minimize and Close are right-aligned without competing with Avalonia's overlay caption controls.
+- **Changed**: settings - opens in the main window with a `Back` control and clickable `Settings` heading below the title bar.
+- **Added**: settings - `Backup` and `Restore` write or read a zip of `settings.json` and `usage-samples.json` (the Cursor session is not included).
+
+- **Fixed**: window - custom title text no longer overlaps the Avalonia 12 overlay caption on the main window (including the in-window Settings view).
 - **Fixed**: chart - plot rebuilds from the host size so the canvas is not left empty after switching from the calendar.
 
-- **Fixed**: build - `MainWindow` and `SettingsWindow` have public parameterless constructors so Avalonia no longer warns `AVLN3001`.
+- **Fixed**: build - `MainWindow` has a public parameterless constructor so Avalonia no longer warns `AVLN3001`.
 - **Changed**: ui - replaced WinUI 3 with Avalonia 12 so the same desktop app runs on Windows, Linux, and macOS.
 - **Changed**: install - Windows publish output is now `bin\Release\net10.0\win-x64\publish`; `scripts/build.ps1` no longer sets `WindowsAppSDKSelfContained`.
 - **Removed**: settings - Windows-only Mica title bar; Fluent theme follows the system light/dark variant instead.
@@ -19,8 +43,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 - **Changed**: tray - notification icon uses Avalonia `TrayIcon` instead of `H.NotifyIcon.WinUI`.
 - **Changed**: sync - usage fetch runs in Avalonia `NativeWebView` with a persistent per-OS profile; Windows still uses `%LocalAppData%\CursorUsageProgress\WebView2`.
 
-- **Fixed**: build - `dotnet test` and `scripts/build.ps1` succeed with `EnableMsixTooling` on RID-less AnyCPU builds (`AllowNeutralPackageWithAppHost`).
-- **Fixed**: install - unpackaged publish now includes `resources.pri`, so the Inno-installed exe no longer starts and exits immediately (`Microsoft.UI.Xaml.dll` `0xc000027b`).
+- **Fixed**: build - (WinUI era) `dotnet test` and `scripts/build.ps1` succeed with `EnableMsixTooling` on RID-less AnyCPU builds (`AllowNeutralPackageWithAppHost`).
+- **Fixed**: install - (WinUI era) unpackaged publish now includes `resources.pri`, so the Inno-installed exe no longer starts and exits immediately (`Microsoft.UI.Xaml.dll` `0xc000027b`).
 - **Added**: settings - `Start in notification tray` beside `Run at Windows sign-in`; when on, launch hides the window and the Run key uses `--background`.
 - **Changed**: settings - Startup toggles use a 48px gap and line up with automatic updates and the refresh interval.
 - **Changed**: calendar - the renewal date shows expected and estimated percents when `NextRenewal` is after midnight.
@@ -35,7 +59,7 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 - **Added**: window - empty state with `Sign in` until a Cursor snapshot creates the cycle.
 - **Fixed**: window - persist the last position on close-to-tray or quit and restore it on the next show and launch.
 
-- **Changed**: sync - skip the launch usage refresh when `cursorAccountConnected` is set and `lastUsageSyncUtc` is under 20 minutes old, unless a clock-aligned interval slot was missed or the last update is already older than the interval (for example last update 19:55, start 20:05, interval 1h).
+- **Changed**: sync - on launch, never refresh when `lastUsageSyncUtc` is under 20 minutes old; after that, refresh only when a clock-aligned slot was missed or the last update is older than the interval.
 - **Changed**: sync - automatic updates run on the clock hour aligned to the configured interval (`1h` at 00:00/01:00/02:00, `2h` at 00:00/02:00/04:00, `4h` at 00:00/04:00/08:00, and the same pattern for `6h`/`12h`).
 
 - **Added**: persistence - `cursorAccountConnected` in `settings.json` records whether the Cursor account is signed in so launch and other features can detect it.
@@ -55,11 +79,11 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 - **Fixed**: sync - WebView2 native binaries now match the x64 process, so Sign in no longer fails with "The specified module could not be found".
 - **Added**: settings - Cursor account sign-in, disconnect, refresh, and 1/2/4/6/12 hour sync interval.
 - **Changed**: calendar - days with API samples show the last reading of that day (teal day number); days without samples still show the plan.
-- **Changed**: tray - hover tooltip shows today's percent and end-of-period (`EOP`) projection for Cursor and Other models; `EOP` is the estimate on the last cycle day (the day before next renewal).
+- **Changed**: tray - hover tooltip shows today's percent and the projected percent at the next renewal instant for Cursor and Other models.
 - **Changed**: app — renamed product to Cursor Usage Progress (`CursorUsageProgress`); settings, mutex, startup registry, installer, and GitHub repo use the new name.
 - **Fixed**: install - if the app is running, Retry waits until it is closed and Cancel aborts; previously both buttons aborted.
 - **Changed**: scripts - moved `dev.ps1`, `build.ps1`, `clean.ps1`, and `release.ps1` to `scripts/`.
-- **Fixed**: calendar - restore `CursorProjectedAtOrAbove100` and `OtherProjectedAtOrAbove100` on `CalendarCellViewModel` so `x:Bind` can compile projected quota colors.
+- **Fixed**: calendar - restore `CursorProjectedAtOrAbove100` and `OtherProjectedAtOrAbove100` on `CalendarCellViewModel` so compiled bindings can apply projected quota colors.
 
 ## [1.0.0] - 2026-08-17
 

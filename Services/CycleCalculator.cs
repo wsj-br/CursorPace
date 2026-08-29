@@ -40,6 +40,7 @@ public sealed class CycleCalculator : ICycleCalculator
             ? cycle.NextRenewal.Date
             : cycle.NextRenewal.Date.AddDays(-1);
 
+    // Wall-clock elapsed time: DST can shift a cycle by one hour, which is intentional.
     public static decimal CycleSeconds(QuotaCycle cycle) =>
         TicksToSeconds((cycle.NextRenewal - cycle.CycleStart).Ticks);
 

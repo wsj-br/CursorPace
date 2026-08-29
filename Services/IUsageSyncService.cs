@@ -17,4 +17,5 @@ public interface IUsageSyncService : IDisposable
     Task DisconnectAsync();
     void SetIntervalHours(int hours);
     void SetAutoSyncEnabled(bool enabled);
+    void ReloadPersistedUsage(DateTimeOffset? lastSuccessUtc);
 }

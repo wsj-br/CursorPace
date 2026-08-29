@@ -1,6 +1,8 @@
 using System.Globalization;
+using Avalonia;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
+using Avalonia.Styling;
 
 namespace CursorUsageProgress.Converters;
 
@@ -8,9 +10,19 @@ public sealed class BoolToColorConverter : IValueConverter
 {
     public string TrueColor { get; set; } = "#FF0000";
     public string FalseColor { get; set; } = "#00FF00";
+    public string? TrueResource { get; set; }
+    public string? FalseResource { get; set; }
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
+        var resource = value is true ? TrueResource : FalseResource;
+        if (!string.IsNullOrWhiteSpace(resource)
+            && Application.Current?.TryGetResource(resource, Application.Current.ActualThemeVariant, out var found) == true
+            && found is IBrush brush)
+        {
+            return brush;
+        }
+
         var colorString = value is true ? TrueColor : FalseColor;
         return new SolidColorBrush(ParseColor(colorString));
     }

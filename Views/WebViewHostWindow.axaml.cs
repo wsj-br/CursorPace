@@ -13,7 +13,6 @@ public partial class WebViewHostWindow : Window
         InitializeComponent();
         Title = "Sign in to Cursor";
         Browser.EnvironmentRequested += OnEnvironmentRequested;
-        RootGrid.Loaded += (_, _) => TextBlockSelection.EnableOnLabels(RootGrid);
     }
 
     public NativeWebView WebView => Browser;
@@ -51,17 +50,18 @@ public partial class WebViewHostWindow : Window
     public void PlaceOffscreen()
     {
         SignInBanner.IsVisible = false;
-        Width = 800;
-        Height = 600;
+        Width = 1;
+        Height = 1;
+        Opacity = 0;
         CanResize = false;
         CanMaximize = false;
         CanMinimize = false;
-        Position = new PixelPoint(-32000, -32000);
         ShowInTaskbar = false;
     }
 
     public void ShowForLogin()
     {
+        Opacity = 1;
         SignInBanner.IsVisible = true;
         Width = 900;
         Height = 700;

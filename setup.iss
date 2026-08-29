@@ -3,7 +3,7 @@
 
 #define MyAppName "Cursor Usage Progress"
 #ifndef MyAppVersion
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "0.2.0"
 #endif
 #define MyAppPublisher "Cursor Usage Progress"
 #define MyAppExeName "CursorUsageProgress.exe"

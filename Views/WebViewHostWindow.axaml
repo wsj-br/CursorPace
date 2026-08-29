@@ -11,8 +11,8 @@
                 Grid.Row="0"
                 Padding="16,12"
                 IsVisible="False"
-                Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                Background="{DynamicResource CardBackgroundBrush}"
+                BorderBrush="{DynamicResource CardStrokeBrush}"
                 BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                 <SelectableTextBlock x:Name="SignInBannerText"

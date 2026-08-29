@@ -15,8 +15,8 @@ public partial class MainWindow : Window
     private const int DefaultWindowHeight = 787;
 
     private readonly MainViewModel _viewModel = null!;
+    private readonly IUiDispatcher _dispatcher = null!;
     private readonly DispatcherTimer _dayCheckTimer = null!;
-    private SettingsWindow? _settingsWindow;
     private PixelPoint? _lastNormalPosition;
     private bool _restorePlacementPending;
     private bool _reallyClosing;
@@ -29,19 +29,24 @@ public partial class MainWindow : Window
     }
 
     public MainWindow(MainViewModel viewModel, bool startInTray = false)
+        : this(viewModel, new AvaloniaUiDispatcher(), startInTray)
+    {
+    }
+
+    public MainWindow(MainViewModel viewModel, IUiDispatcher dispatcher, bool startInTray = false)
     {
         _viewModel = viewModel;
+        _dispatcher = dispatcher;
         DataContext = _viewModel;
         InitializeComponent();
         UpdateViewModeIcons();
 
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
-        _viewModel.QuitRequested += () => Dispatcher.UIThread.Post(CloseForReal);
+        _viewModel.QuitRequested += () => _dispatcher.Post(CloseForReal);
 
         SetupWindow();
         if (startInTray)
             HideToTray();
-        RootGrid.Loaded += (_, _) => TextBlockSelection.EnableOnLabels(RootGrid, AppTitleBar);
 
         _dayCheckTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(5) };
         _dayCheckTimer.Tick += (_, _) => _viewModel.CheckForNewDay();
@@ -59,8 +64,6 @@ public partial class MainWindow : Window
         Width = DefaultWindowWidth;
         Height = DefaultWindowHeight;
         CanResize = false;
-        if (OperatingSystem.IsMacOS())
-            TitleBarContent.Padding = new Thickness(78, 0, 16, 0);
     }
 
     public void HideToTray() => Hide();
@@ -121,7 +124,6 @@ public partial class MainWindow : Window
         _reallyClosing = true;
         PersistWindowPosition();
         _dayCheckTimer.Stop();
-        _settingsWindow?.Close();
         (Application.Current as App)?.Quit();
     }
 
@@ -133,7 +135,7 @@ public partial class MainWindow : Window
 
         _restorePlacementPending = false;
         RestoreWindowPosition();
-        Dispatcher.UIThread.Post(RestoreWindowPosition, DispatcherPriority.Loaded);
+        _dispatcher.Post(RestoreWindowPosition);
     }
 
     private void OnPositionChanged(object? sender, PixelPointEventArgs e)
@@ -189,18 +191,11 @@ public partial class MainWindow : Window
     private static bool IsPlausiblePosition(PixelPoint position) =>
         position.X > -10_000 && position.Y > -10_000;
 
-    private void OnSettingsClick(object? sender, RoutedEventArgs e)
-    {
-        if (_settingsWindow != null)
-        {
-            _settingsWindow.Activate();
-            return;
-        }
+    private void OnMinimizeClick(object? sender, RoutedEventArgs e) =>
+        WindowState = WindowState.Minimized;
 
-        _settingsWindow = new SettingsWindow(_viewModel);
-        _settingsWindow.Closed += (_, _) => _settingsWindow = null;
-        _settingsWindow.Show(this);
-    }
+    private void OnWindowCloseClick(object? sender, RoutedEventArgs e) =>
+        Close();
 
     private void OnQuitClick(object? sender, RoutedEventArgs e) => CloseForReal();
 }

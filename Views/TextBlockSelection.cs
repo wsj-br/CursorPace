@@ -5,10 +5,6 @@ namespace CursorUsageProgress.Views;
 
 internal static class TextBlockSelection
 {
-    public static void EnableOnLabels(Avalonia.Visual root, Avalonia.Visual? exclude = null)
-    {
-    }
-
     public static SelectableTextBlock Message(string text) =>
         new()
         {

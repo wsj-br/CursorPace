@@ -19,7 +19,7 @@ artifacts/
 *.deps.json
 *.runtimeconfig.json
 
-# WinUI / XAML compiled output (also leaks next to custom -o folders)
+# Legacy WinUI build artifacts (harmless defensive ignores)
 *.xbf
 *.pri
 

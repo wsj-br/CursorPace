@@ -7,12 +7,9 @@ namespace CursorUsageProgress.Services;
 
 public sealed class JsonPlanStore : IPlanStore
 {
-    private static readonly string AppDataPath = Path.Combine(
+    private static readonly string DefaultAppDataPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "CursorUsageProgress");
-
-    private static readonly string SettingsPath = Path.Combine(AppDataPath, "settings.json");
-    private static readonly string CorruptBackupPath = Path.Combine(AppDataPath, "settings.corrupt.json");
 
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -22,41 +19,100 @@ public sealed class JsonPlanStore : IPlanStore
         Converters = { new JsonStringEnumConverter() }
     };
 
+    private readonly string _appDataPath;
+    private readonly string _settingsPath;
+    private readonly string _corruptBackupPath;
+
+    public JsonPlanStore()
+        : this(DefaultAppDataPath)
+    {
+    }
+
+    public JsonPlanStore(string appDataPath)
+    {
+        _appDataPath = appDataPath;
+        _settingsPath = Path.Combine(appDataPath, "settings.json");
+        _corruptBackupPath = Path.Combine(appDataPath, "settings.corrupt.json");
+    }
+
     public AppSettings Load()
     {
         try
         {
-            if (!File.Exists(SettingsPath))
+            if (!File.Exists(_settingsPath))
             {
                 var blank = new AppSettings();
                 Save(blank);
                 return blank;
             }
 
-            var json = File.ReadAllText(SettingsPath);
+            var json = File.ReadAllText(_settingsPath);
             var stored = JsonSerializer.Deserialize<StoredSettings>(json, Options);
             return stored == null ? new AppSettings() : ToAppSettings(stored);
         }
-        catch (Exception)
+        catch (JsonException)
         {
-            if (File.Exists(SettingsPath))
-                File.Copy(SettingsPath, CorruptBackupPath, overwrite: true);
-
-            var blank = new AppSettings();
-            try { Save(blank); } catch { }
-            return blank;
+            return ResetCorruptFile();
         }
+        catch (IOException)
+        {
+            return new AppSettings();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return new AppSettings();
+        }
+    }
+
+    private AppSettings ResetCorruptFile()
+    {
+        try
+        {
+            if (File.Exists(_settingsPath))
+                File.Copy(_settingsPath, _corruptBackupPath, overwrite: true);
+        }
+        catch
+        {
+        }
+
+        var blank = new AppSettings();
+        try { Save(blank); } catch { }
+        return blank;
     }
 
     public void Save(AppSettings settings)
     {
-        Directory.CreateDirectory(AppDataPath);
+        Directory.CreateDirectory(_appDataPath);
 
-        var json = JsonSerializer.Serialize(ToStoredSettings(settings), Options);
-        var tempPath = SettingsPath + ".tmp";
+        var json = Serialize(settings);
+        var tempPath = _settingsPath + ".tmp";
 
         File.WriteAllText(tempPath, json);
-        File.Move(tempPath, SettingsPath, overwrite: true);
+        File.Move(tempPath, _settingsPath, overwrite: true);
+    }
+
+    public static string Serialize(AppSettings settings) =>
+        JsonSerializer.Serialize(ToStoredSettings(settings), Options);
+
+    public static bool TryDeserialize(string json, out AppSettings settings)
+    {
+        try
+        {
+            var stored = JsonSerializer.Deserialize<StoredSettings>(json, Options);
+            if (stored == null)
+            {
+                settings = new AppSettings();
+                return false;
+            }
+
+            settings = ToAppSettings(stored);
+            return true;
+        }
+        catch (Exception)
+        {
+            settings = new AppSettings();
+            return false;
+        }
     }
 
     private static AppSettings ToAppSettings(StoredSettings stored)
@@ -67,9 +123,7 @@ public sealed class JsonPlanStore : IPlanStore
         {
             cycle = new QuotaCycle
             {
-                RenewalDay = stored.ActiveCycle.RenewalDay != 0
-                    ? stored.ActiveCycle.RenewalDay
-                    : stored.ActiveCycle.CycleStart.Day,
+                RenewalDay = stored.ActiveCycle.CycleStart.Day,
                 CycleStart = stored.ActiveCycle.CycleStart,
                 NextRenewal = stored.ActiveCycle.NextRenewal
             };

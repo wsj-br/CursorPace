@@ -9,7 +9,15 @@ End-user guide for Cursor Usage Progress. For building from source, see [dev/DEV
 3. If the installer reports that Microsoft Edge WebView2 Runtime is missing, open the download page it offers. **Sign in** on Windows needs the runtime.
 4. Finish the wizard. The app launches when setup completes.
 
-Linux and macOS builds are not packaged as installers yet. Run a self-contained publish for your RID. On Linux install WebKitGTK 4.1 (`libwebkit2gtk-4.1-0`). Google sign-in may be blocked in WebKit; use GitHub, email, or a Windows Chromium session instead.
+Linux and macOS builds are not packaged as installers yet. Publish a self-contained binary for your RID (`PublishSingleFile` stays off):
+
+```text
+dotnet publish -c Release -r linux-x64 --self-contained -p:PublishSingleFile=false
+dotnet publish -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=false
+dotnet publish -c Release -r osx-x64 --self-contained -p:PublishSingleFile=false
+```
+
+Then run the published `CursorUsageProgress` binary. On Linux install WebKitGTK 4.1 (`libwebkit2gtk-4.1-0`). Google sign-in may be blocked in WebKit; use GitHub, email, or a Windows Chromium session instead.
 
 ## First run
 
@@ -17,7 +25,7 @@ The main window opens with an empty state until you sign in:
 
 1. Choose **Sign in**.
 2. Complete Google, GitHub, or two-factor sign-in in the embedded window. The window closes when Cursor accepts the session. If you already see your account, choose **Continue**.
-3. After a successful update, the billing cycle and usage appear on the calendar and chart. A last-updated time appears under the info cards.
+3. After a successful update, the billing cycle and usage appear on the calendar and chart. A last-updated time appears under the month heading (or above the chart).
 
 You can also sign in later from **Settings**.
 
@@ -48,19 +56,13 @@ With **Update usage automatically** on, refreshes run on the clock hour aligned 
 | 4h | 00:00, 04:00, 08:00, … |
 | 6h / 12h | same pattern from midnight |
 
-Launch skips a refresh when the last successful update is under 20 minutes old, unless that last update is already older than the interval or a clock-aligned slot was missed (for example last update 19:55, start 20:05, interval 1h).
+Launch never refreshes when the last successful update is under 20 minutes old. After that, a launch refresh runs only if a clock-aligned slot was missed or the last update is already older than the interval; otherwise the next refresh waits for the aligned timer.
 
 ## Main window
 
-The header shows:
-
-- **Cycle start** and **Next renewal** (dd-MMM HH:mm)
-- **Cursor Models run out** and **Other Models run out** (dd-MMM HH:mm, or — when the quota is not projected to run out before renewal)
-- A last-updated caption when a Cursor session exists (`Updated HH:mm`, or a short status if a fetch failed)
-
 The body is a month calendar or a usage chart for the current cycle. Switch with the calendar and chart icons on the right of the info cards (selected is accent color, the other is dimmed). The calendar shows the month name above the weekday row, highlights today and the renewal day, and includes the renewal date when the cycle still has time left that day. A projected run-out day has a subtle yellow background.
 
-Each calendar day shows two percents. On the left, a day with a synced sample shows that day's last reading (teal day number); a day without a sample shows the expected (renewal-paced) value at that day's midnight. The estimated burn value on the right appears only on days after the last sample for that quota.
+Each calendar day shows two percents. On the left, a day with a synced sample shows that day's last reading (teal day number); a day without a sample shows the expected (renewal-paced) value at that day's midnight. The estimated burn value on the right appears only on days after the last sample for that quota (green when ≤100%, red when >100%).
 
 The chart is read-only: expected percents are dashed lines from 0% at cycle start through each sample to 100% at next renewal, estimated percents are solid from the last sample to next renewal, and a gray line marks 100%. The left and right edges are the cycle start and next renewal instants. Vertical gridlines sit at midnight. Axis labels are the day of the month: the truncated slot before the first midnight is unlabeled, and every other slot (including the renewal-date slot) is labelled. Markers are the cycle-start origin and every sync sample (placed by timestamp).
 
@@ -68,9 +70,13 @@ Title bar actions:
 
 | Control | Action |
 | --- | --- |
-| **Settings** | Cursor account, startup, CSV export |
+| **Settings** | Open Settings in this window (account, startup, CSV, backup) |
+| **Back** | On the Settings page, the chevron or the **Settings** heading returns to the calendar or chart |
 | **Quit** | Exit the process (does not keep the tray icon) |
+| **Minimize** | Minimize the window; the app stays in the tray |
 | Window close (X) | Hide the window; the app stays in the tray |
+
+Quit is separated from the Minimize and Close controls by a small gap.
 
 The window is a fixed size. It restores its last position on show and launch. Informational labels can be selected and copied.
 
@@ -83,7 +89,7 @@ Each quota is independent.
 
 ## Settings
 
-Open **Settings** from the title bar.
+Open **Settings** from the title bar. Settings replace the calendar or chart in the main window. A **Back** control and a **Settings** heading sit below the title bar; either one returns to the calendar or chart.
 
 | Setting | Effect |
 | --- | --- |
@@ -92,10 +98,14 @@ Open **Settings** from the title bar.
 | **Sign out** | Clear the saved Cursor session |
 | **Update usage automatically** | Clock-aligned refreshes at the interval below |
 | **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
-| **Launch at login** | Starts the app at sign-in (Windows Run key, macOS Launch Agent, or Linux XDG autostart) |
+| **Launch at login** | Starts the app at OS login (Windows Run key, macOS Launch Agent, or Linux XDG autostart) |
 | **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same |
-| **Export Cycle CSV** | Writes each day: expected and estimated percents, and whether the day is a data point |
-| **Export Usage** | Writes collected sample timestamps and percents (shown while signed in) |
+| **Export Cycle CSV** | Writes each day: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
+| **Export Usage** | Writes collected sample timestamps and percents (shown while signed in). The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
+| **Backup** | Writes `manifest.json`, `settings.json`, and `usage-samples.json` as one `.zip` file (suggested name `cursor-usage-progress-backup-yyyy-MM-dd-HH_mm_ss`) |
+| **Restore** | Replaces local settings and samples from a backup zip. The Cursor sign-in session is not changed |
+
+After a local export or backup completes, choose **Open Folder** on the left side of the completion dialog to open its destination folder, or choose **OK** on the right to close it.
 
 ## System tray
 
@@ -104,13 +114,13 @@ While the process is running, an icon stays in the notification area.
 - **Left-click** or **Open**: show the window
 - **Quit** (tray menu or title bar): exit
 
-Hover over the tray icon to see today's expected percentage and the end-of-period (`EOP`) projection for Cursor and Other Models. `EOP` is the estimate at the next renewal instant. It is omitted until enough data exists.
+Hover over the tray icon to see today's expected percentage and the projected percent at the next renewal for Cursor and Other Models. The renewal projection is omitted until enough data exists.
 
 If the icon is missing, expand the overflow chevron (`^`). On Linux, GNOME may need the AppIndicator extension. On macOS, left-click opens the tray menu; choose **Open** from that menu.
 
 ## Startup and single instance
 
-- With **Launch at login** on, a new sign-in starts the app. **Start in notification tray** (on by default) keeps the window hidden; turn that off to open the window. Click the tray icon to open the window.
+- With **Launch at login** on, a new OS login session starts the app. **Start in notification tray** (on by default) keeps the window hidden; turn that off to open the window. Click the tray icon to open the window.
 - From the Start menu or app launcher, the window opens unless **Start in notification tray** is on.
 - Only one process runs. Launching again activates the existing window.
 
@@ -131,11 +141,11 @@ macOS:   ~/Library/Application Support/CursorUsageProgress/
 | `WebView2\` | Windows embedded browser profile (Cursor session cookies) |
 | `WebView\` | Linux and macOS embedded browser profile |
 
-Copy the folder to back up. Delete it to start over (the next launch asks you to sign in).
+**Backup** in Settings writes `settings.json` and `usage-samples.json` as one zip. It does not include the WebView profile, so Restore does not sign you in on another machine. Copy the whole folder to back up the Cursor session as well. Delete the folder to start over (the next launch asks you to sign in).
 
-If `settings.json` cannot be read, the app copies it to `settings.corrupt.json` and writes a blank settings file. The same backup naming is used for `usage-samples.json`.
+If `settings.json` cannot be parsed, the app copies it to `settings.corrupt.json` and writes a blank settings file. A locked or unreadable file is left in place so a transient I/O error cannot wipe settings. The same backup naming is used for `usage-samples.json`.
 
-Uninstalling removes this folder. Back it up first if you want to keep samples.
+On Windows, uninstalling via the Inno installer removes this folder. On Linux and macOS, delete the folder yourself if you want a clean start. Back it up first if you want to keep samples.
 
 ## Renewal
 
@@ -146,14 +156,15 @@ The window does not need to stay visible, but the process must be running for mi
 ## Uninstall
 
 1. Quit from the title bar or the tray menu.
-2. Windows Settings, **Apps**, **Installed apps**, **Cursor Usage Progress**, **Uninstall**.
+2. Windows: Settings, **Apps**, **Installed apps**, **Cursor Usage Progress**, **Uninstall**. That removes the app and the data folder.
+3. Linux/macOS: delete the published folder (or app bundle) and, if you want a clean start, the data folder listed above.
 
 ## Troubleshooting
 
 **App will not start**
 
 - End any `CursorUsageProgress` process, then launch again.
-- If it still fails on Windows, check Event Viewer for the application error.
+- If it still fails on Windows, check Event Viewer for the application error. On Linux try `journalctl --user -xe`; on macOS check Console.app.
 
 **Sign in fails or "The specified module could not be found"**
 
@@ -170,11 +181,11 @@ The window does not need to stay visible, but the process must be running for mi
 **Tray icon disappeared**
 
 - Expand the notification overflow (`^`).
-- Lock and unlock Windows, or restart the app.
+- On Windows, lock and unlock the session, or restart the app. On Linux/macOS, restart the app or the desktop session.
 
 **Settings not saving**
 
-- Confirm write access to `%LocalAppData%\CursorUsageProgress`.
+- Confirm write access to the data folder for your OS (`%LocalAppData%\CursorUsageProgress`, `~/.local/share/CursorUsageProgress`, or `~/Library/Application Support/CursorUsageProgress`).
 - If `settings.corrupt.json` exists, the previous file was unreadable. Delete both files to reset.
 
 **Wrong percentage for today**

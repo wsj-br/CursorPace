@@ -137,6 +137,35 @@ public class UsageSampleStoreTests : IDisposable
 
         Assert.Empty(loaded.Samples);
         Assert.True(File.Exists(Path.Combine(_directory, "usage-samples.corrupt.json")));
+        Assert.Equal("{ not json", File.ReadAllText(_filePath));
+    }
+
+    [Fact]
+    public void Load_LockedFile_DoesNotOverwriteExistingSamples()
+    {
+        _store.Save(new UsageSampleDocument
+        {
+            CycleStartUtc = DateTimeOffset.Parse("2026-08-02T21:19:47Z"),
+            Samples =
+            [
+                new UsageSample
+                {
+                    TimestampUtc = DateTimeOffset.Parse("2026-08-03T12:00:00Z"),
+                    CursorModelsPercent = 4.5m,
+                    OtherModelsPercent = 6m
+                }
+            ]
+        });
+        var original = File.ReadAllText(_filePath);
+
+        using (new FileStream(_filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        {
+            var loaded = _store.Load();
+            Assert.Empty(loaded.Samples);
+        }
+
+        Assert.Equal(original, File.ReadAllText(_filePath));
+        Assert.False(File.Exists(Path.Combine(_directory, "usage-samples.corrupt.json")));
     }
 
     public void Dispose()

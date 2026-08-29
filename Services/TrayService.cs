@@ -23,19 +23,14 @@ public sealed class TrayService : ITrayService
         var openCommand = new RelayCommand(() => _onOpenRequested?.Invoke());
         var quitCommand = new RelayCommand(() => _onQuitRequested?.Invoke());
         _icon.Command = openCommand;
-
-        if (_icon.Menu is { } menu)
+        _icon.Menu = new NativeMenu
         {
-            foreach (var item in menu.Items)
+            Items =
             {
-                if (item is not NativeMenuItem native)
-                    continue;
-                if (native.Header == "Open")
-                    native.Command = openCommand;
-                else if (native.Header == "Quit")
-                    native.Command = quitCommand;
+                new NativeMenuItem { Header = "Open", Command = openCommand },
+                new NativeMenuItem { Header = "Quit", Command = quitCommand }
             }
-        }
+        };
     }
 
     public void ShowWindow() => _onOpenRequested?.Invoke();

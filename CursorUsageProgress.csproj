@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Assets\cursor_usage_progress.ico</ApplicationIcon>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Company>https://github.com/wsj-br/CursorUsageProgress</Company>
     <Product>Cursor Usage Progress</Product>
     <Copyright>Copyright © 2026 Waldemar Scudeller Jr.</Copyright>

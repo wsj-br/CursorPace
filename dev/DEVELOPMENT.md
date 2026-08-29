@@ -29,13 +29,17 @@ dotnet restore
 | Tests | `dotnet test .\Tests\CursorUsageProgress.Tests.csproj` |
 | Run (window) | `.\scripts\dev.ps1` or `dotnet run --project .\CursorUsageProgress.csproj` |
 | Run (tray only) | `.\scripts\dev.ps1 -Background` |
+| Run (Release) | `.\scripts\dev.ps1 -Configuration Release` |
 | Tests via script | `.\scripts\dev.ps1 -Test` |
 | Publish + installer | `.\scripts\build.ps1` |
 | Publish only | `.\scripts\build.ps1 -SkipInstaller` |
 | Publish, skip tests | `.\scripts\build.ps1 -SkipTests` |
 | Clean artifacts | `.\scripts\clean.ps1` |
+| Clean (list only) | `.\scripts\clean.ps1 -DryRun` |
+| Clean, keep NuGet cache | `.\scripts\clean.ps1 -PurgeNuGetCache:$false` |
 | GitHub release from HEAD | `.\scripts\release.ps1` |
 | Dry-run release | `.\scripts\release.ps1 -DryRun` |
+| Release without clean-tree check | `.\scripts\release.ps1 -VerifyClean:$false` |
 
 Launch flags after `--`:
 
@@ -43,7 +47,9 @@ Launch flags after `--`:
 dotnet run --project .\CursorUsageProgress.csproj -- --background
 ```
 
-`--background` starts the tray icon without showing the main window. **Start in notification tray** does the same for a normal launch; the Run key also passes `--background` when that setting is on.
+`--background` starts the tray icon without showing the main window. **Start in notification tray** does the same for a normal launch; Windows Run, macOS Launch Agent, and Linux XDG autostart also pass `--background` when that setting is on.
+
+Scripts are PowerShell. On Linux/macOS use the same `dotnet` commands in your shell, or run the `.ps1` files if PowerShell is installed.
 
 ## Solution layout
 
@@ -56,7 +62,7 @@ CursorUsageProgress/
 ├── Models/
 ├── Services/                    # cycle math, JSON stores, NativeWebView client, sync
 ├── ViewModels/                  # MainViewModel, calendar, UsageChartViewModel
-├── Views/                       # MainWindow, Settings, chart, WebView host
+├── Views/                       # MainWindow, SettingsView, chart, WebView host
 ├── Converters/
 ├── Assets/                      # cursor_usage_progress.ico / .png
 ├── Tests/
@@ -86,7 +92,7 @@ Open `CursorUsageProgress.slnx` in Visual Studio, or build the `.csproj` files d
 | Settings | JSON under LocalApplicationData `CursorUsageProgress` |
 | Installer | Inno Setup 6, per-user (`PrivilegesRequired=lowest`), Windows only |
 
-Manual construction in `App.OnFrameworkInitializationCompleted` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IUsageSampleStore`, `ICursorUsageClient`, `IUsageSyncService`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. There is no DI container.
+Manual construction in `App.OnFrameworkInitializationCompleted` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IUsageSampleStore`, `ICursorUsageClient`, `IUsageSyncService`, `IDataBackupService`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. There is no DI container.
 
 Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do not copy Cursor cookies into `HttpClient`.
 
@@ -100,9 +106,10 @@ Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do n
 | `SyncScheduleTests.cs` | Launch skip window and clock-aligned intervals |
 | `UsageSummaryParserTests.cs` | `usage-summary` JSON shape |
 | `WebView2ScriptResultParserTests.cs` | Object vs JSON-string script results |
-| `UsageSampleStoreTests.cs` / `UsageSampleAppenderTests.cs` | Sample file and cycle rollover |
+| `JsonPlanStoreTests.cs` / `UsageSampleStoreTests.cs` / `UsageSampleAppenderTests.cs` | Settings/sample file load, corruption vs I/O errors, cycle rollover |
 | `CycleCsvBuilderTests.cs` / `UsageSamplesCsvBuilderTests.cs` | CSV columns |
-| `MainViewModelTests.cs` / `DayRowViewModelTests.cs` / `CalendarMonthViewModelTests.cs` | Initialization, connected-account persistence, exports, calendar heading |
+| `MainViewModelTests.cs` / `DayRowViewModelTests.cs` / `CalendarMonthViewModelTests.cs` | Initialization, connected-account persistence, exports, calendar heading, settings page, backup restore |
+| `DataBackupArchiveTests.cs` | Zip backup format, missing entries, restore into stores |
 | `WindowPlacementTests.cs` | Restore clamped to the work area |
 
 `CycleCalculatorTests` still covers:
@@ -113,7 +120,7 @@ Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do n
 - Theil-Sen daily usage, uncapped burn projections, run-out instants, and independent quota estimates
 - Independent Cursor Models vs Other Models
 
-Add cases next to the existing facts when you change those areas. `dev/api_usage-summary.json` is a captured dashboard payload; `dev/api_usage-summary.ps1` fetches a live copy when `CURSOR_SESSION_TOKEN` is set. Do not commit session tokens.
+Add cases next to the existing facts when you change those areas. Do not commit session tokens.
 
 ## Packaging
 
@@ -125,6 +132,14 @@ Add cases next to the existing facts when you change those areas. `dev/api_usage
 4. Writes `installer\CursorUsageProgress-<version>-win-x64-setup.exe` and a sibling `.sha256` file
 
 Publish output is `bin\Release\net10.0\win-x64\publish\`. Trimming, ReadyToRun, and PublishSingleFile stay off.
+
+Cross-platform publish (no installer):
+
+```text
+dotnet publish -c Release -r linux-x64 --self-contained -p:PublishSingleFile=false
+dotnet publish -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=false
+dotnet publish -c Release -r osx-x64 --self-contained -p:PublishSingleFile=false
+```
 
 The Windows installer prompts to open the WebView2 Runtime download page when the runtime is missing. Uninstall deletes `%LocalAppData%\CursorUsageProgress`.
 
@@ -153,8 +168,8 @@ Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so 
 | Field | Role |
 | --- | --- |
 | `activeCycle` | `renewalDay`, `cycleStart`, `nextRenewal` |
-| `runAtStartup` | Current-user Run key |
-| `startInNotificationTray` | Default `true`; hide the window on launch; Run key includes `--background` |
+| `runAtStartup` | Launch at login (Windows Run key, macOS Launch Agent, Linux XDG autostart) |
+| `startInNotificationTray` | Default `true`; hide the window on launch; startup registration includes `--background` |
 | `autoSyncEnabled` | Default `true` |
 | `syncIntervalHours` | 1, 2, 4, 6, or 12; other values clamp to 1 |
 | `showChartView` | Last main-window body (calendar vs chart) |
@@ -163,6 +178,8 @@ Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so 
 | `windowX` / `windowY` | Last window position |
 
 `usage-samples.json` is a separate document: `version`, `cycleStartUtc`, and `samples` (`ts`, `cursor`, `other`). A new Cursor billing-cycle start clears that sample list.
+
+Settings **Backup** writes a zip (`manifest.json`, `settings.json`, `usage-samples.json`). It does not include the WebView profile. **Restore** replaces those two JSON files and reloads the cycle in the running app.
 
 When you add settings fields, give them defaults on `AppSettings` / `StoredSettings` so older files still deserialize. Bump `Version` when the contract is incompatible, then migrate or regenerate the active cycle on load.
 

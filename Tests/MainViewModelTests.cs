@@ -321,6 +321,95 @@ public class MainViewModelTests
             vm.Calendar.MonthHeading);
     }
 
+    [Fact]
+    public void ShowSettings_SwitchesMainWindowToSettingsView()
+    {
+        var vm = CreateViewModel(signedIn: false);
+
+        Assert.True(vm.IsMainView);
+        Assert.False(vm.IsSettingsView);
+
+        vm.ShowSettingsCommand.Execute(null);
+
+        Assert.True(vm.IsSettingsView);
+        Assert.False(vm.IsMainView);
+
+        vm.HideSettingsCommand.Execute(null);
+
+        Assert.True(vm.IsMainView);
+        Assert.False(vm.IsSettingsView);
+    }
+
+    [Fact]
+    public void SuggestedExportFileNames_UseClockTimestamp()
+    {
+        var vm = CreateViewModel(signedIn: false);
+
+        Assert.Equal("cursor-usage-progress-2026-08-18-12_00_00", vm.SuggestedCycleFileName);
+        Assert.Equal("usage-samples-2026-08-18-12_00_00", vm.SuggestedUsageSamplesFileName);
+        Assert.Equal("cursor-usage-progress-backup-2026-08-18-12_00_00", vm.SuggestedBackupFileName);
+    }
+
+    [Fact]
+    public void RestoreBackup_ReloadsCycleAndSamples()
+    {
+        var calculator = new CycleCalculator();
+        var cycle = calculator.GenerateCycleFromBounds(new DateTime(2026, 8, 1), new DateTime(2026, 9, 1));
+        var last = DateTimeOffset.Parse("2026-08-18T10:40:00Z");
+        var samples = new List<UsageSample>
+        {
+            new()
+            {
+                TimestampUtc = last,
+                CursorModelsPercent = 40m,
+                OtherModelsPercent = 30m
+            }
+        };
+
+        var sourceStore = new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } };
+        var sourceSamples = new FakeSampleStore
+        {
+            Document = new UsageSampleDocument { CycleStartUtc = last, Samples = samples }
+        };
+        var archive = new MemoryStream();
+        new DataBackupService(sourceStore, sourceSamples)
+            .WriteBackup(archive, last);
+
+        var destSync = new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok };
+        var destStore = new FakePlanStore();
+        var vm = CreateViewModel(destSync, destStore);
+        Assert.False(vm.IsInitialized);
+
+        archive.Position = 0;
+        Assert.True(vm.TryRestoreBackup(archive, out var error));
+        Assert.Null(error);
+        Assert.True(vm.IsInitialized);
+        Assert.Equal(cycle.CycleStart, destStore.Settings.ActiveCycle!.CycleStart);
+        Assert.Equal(cycle.NextRenewal, destStore.Settings.ActiveCycle.NextRenewal);
+        Assert.Equal(40m, destSync.Samples[0].CursorModelsPercent);
+        Assert.Equal(last, destSync.LastSuccessUtc);
+    }
+
+    [Fact]
+    public void TryWriteBackup_WritesRestorableArchive()
+    {
+        var calculator = new CycleCalculator();
+        var cycle = calculator.GenerateCycleFromBounds(new DateTime(2026, 8, 1), new DateTime(2026, 9, 1));
+        var store = new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle, SyncIntervalHours = 4 } };
+        var vm = CreateInitializedViewModel(signedIn: true, store);
+
+        using var archive = new MemoryStream();
+        Assert.True(vm.TryWriteBackup(archive, out var error));
+        Assert.Null(error);
+
+        archive.Position = 0;
+        var read = DataBackupArchive.Read(archive);
+        Assert.True(read.Success);
+        Assert.True(JsonPlanStore.TryDeserialize(read.SettingsJson, out var settings));
+        Assert.Equal(4, settings.SyncIntervalHours);
+        Assert.Equal(cycle.CycleStart, settings.ActiveCycle!.CycleStart);
+    }
+
     private static MainViewModel CreateViewModel(bool signedIn) =>
         CreateViewModel(new FakeSync { IsSignedIn = signedIn, Status = signedIn ? SyncStatus.Ok : SyncStatus.SignedOut });
 
@@ -336,16 +425,15 @@ public class MainViewModelTests
             new CycleCalculator(),
             store,
             startup,
-            sync);
+            sync,
+            new DataBackupService(store, sync.SampleStore));
 
-    private static MainViewModel CreateInitializedViewModel(bool signedIn)
+    private static MainViewModel CreateInitializedViewModel(bool signedIn, FakePlanStore? store = null)
     {
         var calculator = new CycleCalculator();
         var cycle = calculator.GenerateCycleFromBounds(new DateTime(2026, 8, 1), new DateTime(2026, 9, 1));
-        var store = new FakePlanStore
-        {
-            Settings = new AppSettings { ActiveCycle = cycle }
-        };
+        store ??= new FakePlanStore();
+        store.Settings.ActiveCycle ??= cycle;
         return CreateViewModel(new FakeSync
         {
             IsSignedIn = signedIn,
@@ -398,13 +486,30 @@ public class MainViewModelTests
         }
     }
 
+    private sealed class FakeSampleStore : IUsageSampleStore
+    {
+        public UsageSampleDocument Document { get; set; } = new();
+        public UsageSampleDocument Load() => Document;
+        public void Save(UsageSampleDocument document) => Document = document;
+    }
+
     private sealed class FakeSync : IUsageSyncService
     {
+        public FakeSampleStore SampleStore { get; } = new();
         public SyncStatus Status { get; set; } = SyncStatus.SignedOut;
         public bool IsSignedIn { get; set; }
         public string StatusText { get; set; } = "Not signed in";
         public DateTimeOffset? LastSuccessUtc { get; set; }
-        public IReadOnlyList<UsageSample> Samples { get; set; } = [];
+        public IReadOnlyList<UsageSample> Samples
+        {
+            get => SampleStore.Document.Samples;
+            set => SampleStore.Document = new UsageSampleDocument
+            {
+                Version = SampleStore.Document.Version,
+                CycleStartUtc = SampleStore.Document.CycleStartUtc,
+                Samples = value.ToList()
+            };
+        }
         public event EventHandler? StateChanged;
 #pragma warning disable CS0067
         public event EventHandler<UsageSnapshot>? SnapshotReceived;
@@ -415,6 +520,12 @@ public class MainViewModelTests
         public Task DisconnectAsync() => Task.CompletedTask;
         public void SetIntervalHours(int hours) { }
         public void SetAutoSyncEnabled(bool enabled) { }
+        public void ReloadPersistedUsage(DateTimeOffset? lastSuccessUtc)
+        {
+            LastSuccessUtc = lastSuccessUtc
+                ?? (Samples.Count == 0 ? null : Samples[^1].TimestampUtc);
+            StateChanged?.Invoke(this, EventArgs.Empty);
+        }
         public void Dispose() { }
 
         public void SetSignedIn(bool signedIn)

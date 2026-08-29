@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 
 namespace CursorUsageProgress.Services;
@@ -46,12 +47,77 @@ public sealed class MacStartupRegistration : IStartupRegistration
             Directory.CreateDirectory(directory);
 
         File.WriteAllText(PlistPath, plist);
+        ReloadLaunchAgent();
     }
 
     public void Unregister()
     {
+        BootoutLaunchAgent();
         if (File.Exists(PlistPath))
             File.Delete(PlistPath);
+    }
+
+    private static void ReloadLaunchAgent()
+    {
+        BootoutLaunchAgent();
+        TryLaunchCtl("bootstrap", GuiDomain(), PlistPath);
+    }
+
+    private static void BootoutLaunchAgent() =>
+        TryLaunchCtl("bootout", GuiDomain(), PlistPath);
+
+    private static string GuiDomain()
+    {
+        var uid = TryReadUserId();
+        return string.IsNullOrWhiteSpace(uid) ? "gui/501" : "gui/" + uid;
+    }
+
+    private static string? TryReadUserId()
+    {
+        try
+        {
+            using var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = "id",
+                ArgumentList = { "-u" },
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            });
+            if (process == null)
+                return Environment.GetEnvironmentVariable("UID");
+
+            process.WaitForExit(3000);
+            return process.StandardOutput.ReadToEnd().Trim();
+        }
+        catch
+        {
+            return Environment.GetEnvironmentVariable("UID");
+        }
+    }
+
+    private static void TryLaunchCtl(params string[] arguments)
+    {
+        try
+        {
+            var start = new ProcessStartInfo
+            {
+                FileName = "launchctl",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            foreach (var argument in arguments)
+                start.ArgumentList.Add(argument);
+
+            using var process = Process.Start(start);
+            process?.WaitForExit(5000);
+        }
+        catch
+        {
+        }
     }
 
     private static string EscapeXml(string value) =>

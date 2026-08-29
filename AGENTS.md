@@ -37,13 +37,14 @@ Construct services in `App.OnFrameworkInitializationCompleted` and pass them in.
 
 - Time: `IClock` / `SystemClock`. Never call `DateTime.Now`/`Today` from calculator or view models.
 - Cycle math: `ICycleCalculator` / `CycleCalculator`. Keep it pure (no file I/O, no UI).
-- Persistence: `IPlanStore` / `JsonPlanStore`. Path `%LocalAppData%\CursorUsageProgress\settings.json` (or the OS LocalApplicationData equivalent).
-- Usage samples: `IUsageSampleStore` / `JsonUsageSampleStore`. Path `%LocalAppData%\CursorUsageProgress\usage-samples.json`.
-- Cursor usage: `ICursorUsageClient` / `NativeWebViewCursorUsageClient`. Windows profile folder `%LocalAppData%\CursorUsageProgress\WebView2`; other OS use `WebView` under LocalApplicationData.
-- Sync: `IUsageSyncService` / `UsageSyncService`. Clock-aligned auto refresh; `SyncSchedule` decides launch skip. Takes `IUiDispatcher`, not a platform dispatcher.
+- Persistence: `IPlanStore` / `JsonPlanStore`. Path `%LocalAppData%\CursorUsageProgress\settings.json` (or the OS LocalApplicationData equivalent). `Load()` must never let a transient I/O read failure (locked file, permission error) overwrite the on-disk file. Only a JSON parse failure counts as corruption; back up and reset in that case only.
+- Usage samples: `IUsageSampleStore` / `JsonUsageSampleStore`. Path `%LocalAppData%\CursorUsageProgress\usage-samples.json`. Same load exception contract as `IPlanStore`.
+- Backup: `IDataBackupService` / `DataBackupService`. One zip of `settings.json` and `usage-samples.json`. Does not include the WebView profile.
+- Cursor usage: `ICursorUsageClient` / `NativeWebViewCursorUsageClient`. Windows profile folder `%LocalAppData%\CursorUsageProgress\WebView2`; other OS use `WebView` under LocalApplicationData. Keep the `Avalonia.Controls.WebView` package version aligned with `Avalonia` / `Avalonia.Desktop` when a matching WebView package exists.
+- Sync: `IUsageSyncService` / `UsageSyncService`. Clock-aligned auto refresh; `SyncSchedule` decides launch skip. Takes `IUiDispatcher`, not a platform dispatcher. Services that raise events consumed by view models (`StateChanged` / `SnapshotReceived`, WebView navigation callbacks) must marshal through `IUiDispatcher` before invoking; never assume a continuation after `await` resumes on the UI thread.
 - Startup: `IStartupRegistration` via `StartupRegistration.Create()` (Windows Run key, macOS Launch Agent, Linux XDG autostart).
 - Tray: `ITrayService` / `TrayService` (Avalonia `TrayIcon`). Lives for the whole process.
-- UI state: `MainViewModel` plus calendar/day row VMs and a read-only `UsageChartViewModel`. Views subscribe to VM events; they do not own cycle math. The main window can show the calendar or the usage chart.
+- UI state: `MainViewModel` plus calendar/day row VMs and a read-only `UsageChartViewModel`. Views subscribe to VM events; they do not own cycle math. The main window can show the calendar, the usage chart, or Settings. Settings is a page in the main window (`Back` and a `Settings` heading below the title bar), not a second window.
 
 Percentages use `decimal` in models and calculator. UI may round to integers for display. Do not switch storage or interpolation to `double`.
 
@@ -69,7 +70,7 @@ A signed-in snapshot with a new cycle start replaces the cycle and `UsageSampleA
 If you change `CycleCalculator`, `QuotaCycle`, or `JsonPlanStore` serialization, update and run `Tests/CycleCalculatorTests.cs`. Sample-driven expected/estimate cases live in `Tests/SampleEstimationTests.cs`. If you change chart X/Y mapping, update `Tests/UsageChartSeriesBuilderTests.cs`. If you change launch/interval skip rules, update `Tests/SyncScheduleTests.cs`.
 
 ## Sync contract
-Allowed intervals: 1, 2, 4, 6, 12 hours (`SyncInterval.Clamp`). Auto refresh fires at `SyncSchedule.NextAlignedLocal`. On launch, skip the usage refresh when `cursorAccountConnected` is set and `lastUsageSyncUtc` is under 20 minutes old, unless a clock-aligned slot was missed or the last update is already older than the interval. Duplicate snapshots within 30 seconds are not appended (`UsageSampleAppender`).
+Allowed intervals: 1, 2, 4, 6, 12 hours (`SyncInterval.Clamp`). Auto refresh fires at `SyncSchedule.NextAlignedLocal`. On launch, never refresh when `lastUsageSyncUtc` is under 20 minutes old. After that window, refresh only when a clock-aligned slot was missed or the last update is already older than the interval; otherwise wait for the next aligned timer. Duplicate snapshots within 30 seconds are not appended (`UsageSampleAppender`).
 
 `cursorAccountConnected` in `settings.json` records whether the Cursor account is signed in. `HasPersistedProfile` on the WebView profile folder can also mark the session connected. Sign out deletes that profile directory; it does not delete `usage-samples.json`.
 
@@ -84,7 +85,7 @@ Close hides the window. Process stays in the tray. Only Quit (button or tray men
 
 First run (`ActiveCycle` unset): the main window shows an empty state with **Sign in**. After a successful snapshot, `GenerateCycleFromBounds` creates the cycle.
 
-Main window is fixed size, custom title bar, Fluent theme from system. Do not make it resizable unless asked. Persist `WindowX` / `WindowY` on close-to-tray or quit; restore with `WindowPlacement.ClampToWorkArea`. Midnight/timezone: `MainWindow` polls `CheckForNewDay` on a 5-minute timer and on activate.
+Main window is fixed size, fully custom title bar (`WindowDecorations="None"`) with app-owned Settings, Quit, Minimize, and Close controls; Fluent theme follows the system. Do not make it resizable unless asked. Persist `WindowX` / `WindowY` on close-to-tray or quit; restore with `WindowPlacement.ClampToWorkArea`. Midnight/timezone: `MainWindow` polls `CheckForNewDay` on a 5-minute timer and on activate.
 
 ## Commands
 ```
@@ -108,7 +109,7 @@ Skip only for documentation-only or comment-only edits with no user-visible effe
 Do not move `[Unreleased]` into a versioned section, and do not write `release-notes/RELEASE_NOTES_*.md`, unless you are following `dev/release-new-version-prompt.md`.
 
 ## When changing code
-- Match existing naming, file placement, and Avalonia namespaces (`Avalonia.Controls`, not WinUI `Microsoft.UI.Xaml`). `System.Windows.Input.ICommand` is still used.
+- Match existing naming, file placement, and Avalonia namespaces (`Avalonia.Controls`, not WinUI `Microsoft.UI.Xaml`). `System.Windows.Input.ICommand` is still used. Command bodies bound through `RelayCommand` must not be bare `async () => await ...` lambdas assigned to the `Action` overload; that compiles to async-void and can crash the process. Use `AsyncRelayCommand`.
 - Prefer editing an existing service/VM over new layers.
 - Keep view code-behind thin: window lifetime, dialogs, scrolling, theme. Put state and commands on the view model.
 - After calculator or persistence changes: `dotnet test .\Tests\CursorUsageProgress.Tests.csproj`.
