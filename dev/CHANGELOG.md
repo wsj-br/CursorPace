@@ -8,6 +8,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Fixed**: install - `packaging/cursor-usage-progress.appdata.xml` is renamed to `packaging/io.github.wsj_br.CursorUsageProgress.appdata.xml` (matching the component `<id>`), and `build-appimage.sh` copies it into `usr/share/metainfo/` under that same name; `appstreamcli`'s tree validation flagged the previous mismatched filename as a `metainfo-filename-cid-mismatch` warning, which made `appimagetool` fail AppStream validation and abort the `linux-arm64` AppImage build in CI.
+
 ## [0.2.0] - 2026-08-30
 
 - **Fixed**: window - on first launch, `MainWindow` restores the saved position from the `Opened` event (in addition to `Activated`), since Linux window managers do not reliably raise `Activated` when the window is first shown; previously the window sat at the WM's default position (left edge of the monitor) until the user's first click gave it focus.

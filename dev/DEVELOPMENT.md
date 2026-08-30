@@ -131,7 +131,7 @@ CursorUsageProgress/
 ├── setup.iss                    # Inno Setup (Windows only; checks WebView2 Runtime)
 ├── packaging/
 │   ├── cursor-usage-progress.desktop
-│   └── cursor-usage-progress.appdata.xml
+│   └── io.github.wsj_br.CursorUsageProgress.appdata.xml
 ├── scripts/
 │   ├── build.ps1 / build.sh
 │   ├── build-appimage.sh
