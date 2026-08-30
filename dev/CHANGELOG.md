@@ -8,6 +8,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-08-30
+
 - **Changed**: install - version is `0.2.1`.
 - **Changed**: rebrand - renamed the app from `CursorUsageProgress` / Cursor Usage Progress to `CursorPace` / Cursor Pace across namespaces, project files, packaging, installer identity (`AppId`, mutex, AppData folder, desktop id, macOS bundle id), and documentation. No settings or WebView profile migration; a new `%LocalAppData%\CursorPace` folder starts empty.
 - **Fixed**: install - `packaging/cursor-usage-progress.appdata.xml` is renamed to `packaging/io.github.wsj_br.CursorUsageProgress.appdata.xml` (matching the component `<id>`), and `build-appimage.sh` copies it into `usr/share/metainfo/` under that same name; `appstreamcli`'s tree validation flagged the previous mismatched filename as a `metainfo-filename-cid-mismatch` warning, which made `appimagetool` fail AppStream validation and abort the `linux-arm64` AppImage build in CI.
