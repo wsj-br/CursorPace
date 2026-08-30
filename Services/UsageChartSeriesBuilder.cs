@@ -128,9 +128,8 @@ public sealed class UsageChartSeriesBuilder
     {
         var cycleSeconds = CycleCalculator.CycleSeconds(cycle);
         var midnights = new List<DateTime>();
+        // Midnight after CycleStart.Date is always later than CycleStart.
         var cursor = cycle.CycleStart.Date.AddDays(1);
-        if (cursor <= cycle.CycleStart)
-            cursor = cursor.AddDays(1);
 
         while (cursor < cycle.NextRenewal)
         {

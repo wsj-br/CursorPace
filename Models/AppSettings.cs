@@ -6,6 +6,7 @@ public sealed class AppSettings
     public QuotaCycle? ActiveCycle { get; set; }
     public bool RunAtStartup { get; set; }
     public bool StartInNotificationTray { get; set; } = true;
+    public UiThemeMode ThemeMode { get; set; } = UiThemeMode.System;
     public bool AutoSyncEnabled { get; set; } = true;
     public int SyncIntervalHours { get; set; } = 1;
     public bool ShowChartView { get; set; }

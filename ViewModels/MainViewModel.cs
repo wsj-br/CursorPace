@@ -13,25 +13,30 @@ public sealed class MainViewModel : ViewModelBase
     private readonly IPlanStore _store;
     private readonly IStartupRegistration _startupReg;
     private readonly IUsageSyncService _sync;
+    private readonly IDataBackupService _backup;
 
     private const string InfoCardDateTimeFormat = "dd-MMM HH:mm";
+    private const string ExportFileTimestampFormat = "yyyy-MM-dd-HH_mm_ss";
 
     private AppSettings _settings;
     private QuotaCycle? _cycle;
     private int _currentDayNumber;
+    private bool _isSettingsView;
 
     public MainViewModel(
         IClock clock,
         ICycleCalculator calculator,
         IPlanStore store,
         IStartupRegistration startupReg,
-        IUsageSyncService sync)
+        IUsageSyncService sync,
+        IDataBackupService backup)
     {
         _clock = clock;
         _calculator = calculator;
         _store = store;
         _startupReg = startupReg;
         _sync = sync;
+        _backup = backup;
 
         _settings = _store.Load();
         _cycle = _settings.ActiveCycle;
@@ -43,9 +48,13 @@ public sealed class MainViewModel : ViewModelBase
         Chart = new UsageChartViewModel();
 
         QuitCommand = new RelayCommand(OnQuit);
-        RefreshNowCommand = new RelayCommand(async () => await _sync.RefreshNowAsync(false), () => !IsSyncing);
-        SignInCommand = new RelayCommand(async () => await _sync.SignInAsync(), () => !IsSyncing && !IsCursorConnected);
-        DisconnectCommand = new RelayCommand(async () => await _sync.DisconnectAsync(), () => !IsSyncing && _sync.Status != SyncStatus.SignedOut);
+        ShowSettingsCommand = new RelayCommand(() => IsSettingsView = true);
+        HideSettingsCommand = new RelayCommand(() => IsSettingsView = false);
+        RefreshNowCommand = new AsyncRelayCommand(() => _sync.RefreshNowAsync(false), () => !IsSyncing);
+        SignInCommand = new AsyncRelayCommand(
+            () => _sync.SignInAsync(),
+            () => !IsSyncing && (!IsCursorConnected || _sync.Status == SyncStatus.AuthRequired));
+        DisconnectCommand = new AsyncRelayCommand(() => _sync.DisconnectAsync(), () => !IsSyncing && _sync.Status != SyncStatus.SignedOut);
 
         _sync.StateChanged += OnSyncStateChanged;
         _sync.SnapshotReceived += OnSnapshotReceived;
@@ -55,11 +64,23 @@ public sealed class MainViewModel : ViewModelBase
         if (_cycle != null)
             RefreshCycle();
 
-        if (_settings.RunAtStartup)
-            _startupReg.Register(_settings.StartInNotificationTray);
+        ApplyStartupRegistration(_settings.RunAtStartup);
     }
 
     public bool IsInitialized => _cycle != null;
+
+    public bool IsSettingsView
+    {
+        get => _isSettingsView;
+        private set
+        {
+            if (!SetProperty(ref _isSettingsView, value))
+                return;
+            OnPropertyChanged(nameof(IsMainView));
+        }
+    }
+
+    public bool IsMainView => !_isSettingsView;
 
     public ObservableCollection<DayRowViewModel> Days { get; }
 
@@ -109,7 +130,7 @@ public sealed class MainViewModel : ViewModelBase
     }
 
     private static string FormatEop(decimal? value) =>
-        value.HasValue ? $" - EOP {FormatPercent(value.Value)}" : string.Empty;
+        value.HasValue ? $" - projected at renewal {FormatPercent(value.Value)}" : string.Empty;
 
     public bool RunAtStartup
     {
@@ -122,10 +143,7 @@ public sealed class MainViewModel : ViewModelBase
             _settings.RunAtStartup = value;
             OnPropertyChanged();
 
-            if (value)
-                _startupReg.Register(_settings.StartInNotificationTray);
-            else
-                _startupReg.Unregister();
+            ApplyStartupRegistration(value);
 
             _store.Save(_settings);
         }
@@ -142,11 +160,26 @@ public sealed class MainViewModel : ViewModelBase
             OnPropertyChanged();
 
             if (_settings.RunAtStartup)
-                _startupReg.Register(value);
+                ApplyStartupRegistration(true);
 
             _store.Save(_settings);
         }
     }
+
+    public UiThemeMode ThemeMode
+    {
+        get => UiTheme.Clamp(_settings.ThemeMode);
+        set
+        {
+            var mode = UiTheme.Clamp(value);
+            if (_settings.ThemeMode == mode) return;
+            _settings.ThemeMode = mode;
+            OnPropertyChanged();
+            _store.Save(_settings);
+        }
+    }
+
+    public IReadOnlyList<UiThemeMode> ThemeModeOptions => UiTheme.AllowedModes;
 
     public bool AutoSyncEnabled
     {
@@ -183,15 +216,44 @@ public sealed class MainViewModel : ViewModelBase
 
     public bool IsSyncing => _sync.Status == SyncStatus.Syncing;
 
+    public bool HasSyncAlert =>
+        _sync.Status is SyncStatus.Error or SyncStatus.AuthRequired or SyncStatus.RateLimited;
+
+    public bool ShowSyncAlertSignInActions =>
+        _sync.Status == SyncStatus.AuthRequired && !IsSyncing;
+
+    public bool ShowSignInButton =>
+        !IsSyncing && (!IsCursorConnected || _sync.Status == SyncStatus.AuthRequired);
+
+    public string EmptyStateText =>
+        IsSyncing && IsCursorConnected
+            ? "Connected — loading usage…"
+            : IsSyncing
+                ? "Signing in…"
+                : "Sign in to Cursor to load your billing cycle and usage.";
+
+    public bool ShowEmptySignIn => !IsInitialized && !IsSyncing && !IsCursorConnected;
+
     public bool IsCursorConnected => _sync.IsSignedIn;
 
     public string CursorAccountTitle =>
         IsCursorConnected ? "Cursor account (connected)" : "Cursor account (disconnected)";
 
     public ICommand QuitCommand { get; }
+    public ICommand ShowSettingsCommand { get; }
+    public ICommand HideSettingsCommand { get; }
     public ICommand RefreshNowCommand { get; }
     public ICommand SignInCommand { get; }
     public ICommand DisconnectCommand { get; }
+
+    public string SuggestedCycleFileName =>
+        $"cursor-usage-progress-{_clock.Now.ToString(ExportFileTimestampFormat, CultureInfo.InvariantCulture)}";
+
+    public string SuggestedUsageSamplesFileName =>
+        $"usage-samples-{_clock.Now.ToString(ExportFileTimestampFormat, CultureInfo.InvariantCulture)}";
+
+    public string SuggestedBackupFileName =>
+        $"cursor-usage-progress-backup-{_clock.Now.ToString(ExportFileTimestampFormat, CultureInfo.InvariantCulture)}";
 
     public event Action? QuitRequested;
 
@@ -320,12 +382,17 @@ public sealed class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(SyncStatusText));
         OnPropertyChanged(nameof(LastSyncText));
         OnPropertyChanged(nameof(IsSyncing));
+        OnPropertyChanged(nameof(HasSyncAlert));
+        OnPropertyChanged(nameof(ShowSyncAlertSignInActions));
+        OnPropertyChanged(nameof(ShowSignInButton));
+        OnPropertyChanged(nameof(EmptyStateText));
+        OnPropertyChanged(nameof(ShowEmptySignIn));
         OnPropertyChanged(nameof(IsCursorConnected));
         OnPropertyChanged(nameof(CursorAccountTitle));
         OnPropertyChanged(nameof(TrayToolTipText));
-        ((RelayCommand)RefreshNowCommand).RaiseCanExecuteChanged();
-        ((RelayCommand)SignInCommand).RaiseCanExecuteChanged();
-        ((RelayCommand)DisconnectCommand).RaiseCanExecuteChanged();
+        ((AsyncRelayCommand)RefreshNowCommand).RaiseCanExecuteChanged();
+        ((AsyncRelayCommand)SignInCommand).RaiseCanExecuteChanged();
+        ((AsyncRelayCommand)DisconnectCommand).RaiseCanExecuteChanged();
         PersistCursorAccountConnected();
         PersistLastUsageSync();
     }
@@ -418,5 +485,96 @@ public sealed class MainViewModel : ViewModelBase
 
         csv = UsageSamplesCsvBuilder.Build(_sync.Samples);
         return true;
+    }
+
+    public bool TryWriteBackup(Stream destination, out string? error)
+    {
+        try
+        {
+            _backup.WriteBackup(destination, new DateTimeOffset(_clock.Now));
+            error = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            error = string.IsNullOrWhiteSpace(ex.Message)
+                ? "Could not write the backup file."
+                : ex.Message;
+            return false;
+        }
+    }
+
+    public bool TryRestoreBackup(Stream source, out string? error)
+    {
+        try
+        {
+            var result = _backup.RestoreBackup(source);
+            if (!result.Success)
+            {
+                error = result.ErrorMessage ?? "Could not restore the backup file.";
+                return false;
+            }
+
+            ReloadAfterRestore();
+            error = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            error = string.IsNullOrWhiteSpace(ex.Message)
+                ? "Could not restore the backup file."
+                : ex.Message;
+            return false;
+        }
+    }
+
+    private void ApplyStartupRegistration(bool enabled)
+    {
+        try
+        {
+            if (enabled)
+                _startupReg.Register(_settings.StartInNotificationTray);
+            else
+                _startupReg.Unregister();
+        }
+        catch
+        {
+        }
+    }
+
+    private void ReloadAfterRestore()
+    {
+        _settings = _store.Load();
+        _sync.ReloadPersistedUsage(_settings.LastUsageSyncUtc);
+        _sync.SetAutoSyncEnabled(_settings.AutoSyncEnabled);
+        _sync.SetIntervalHours(_settings.SyncIntervalHours);
+
+        ApplyStartupRegistration(_settings.RunAtStartup);
+
+        _cycle = _settings.ActiveCycle;
+        if (_cycle != null)
+        {
+            RefreshCycle();
+        }
+        else
+        {
+            Days.Clear();
+            Calendar.BuildCalendar([], default, default);
+            Chart.Replace(null);
+            OnPropertyChanged(nameof(IsInitialized));
+            OnPropertyChanged(nameof(CycleStartText));
+            OnPropertyChanged(nameof(NextRenewalText));
+            NotifyTodayQuotaTexts();
+        }
+
+        OnPropertyChanged(nameof(IsChartView));
+        OnPropertyChanged(nameof(IsCalendarView));
+        OnPropertyChanged(nameof(RunAtStartup));
+        OnPropertyChanged(nameof(StartInNotificationTray));
+        OnPropertyChanged(nameof(ThemeMode));
+        OnPropertyChanged(nameof(AutoSyncEnabled));
+        OnPropertyChanged(nameof(SyncIntervalHours));
+        PersistCursorAccountConnected();
+        PersistLastUsageSync();
     }
 }

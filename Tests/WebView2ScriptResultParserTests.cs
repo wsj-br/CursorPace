@@ -40,6 +40,19 @@ public class WebView2ScriptResultParserTests
         Assert.False(WebView2ScriptResultParser.TryParse("null", out _, out _));
     }
 
+    [Fact]
+    public void TryParse_WebKitStyleStringifiedPayload_ReadsStatusAndBody()
+    {
+        // Linux/macOS InvokeScript receives the JS string from JSON.stringify(payload).
+        Assert.True(WebView2ScriptResultParser.TryParse(
+            """{"status":200,"body":"{\"billingCycleStart\":\"2026-01-01T00:00:00.000Z\"}"}""",
+            out var status,
+            out var body));
+
+        Assert.Equal(200, status);
+        Assert.Equal("""{"billingCycleStart":"2026-01-01T00:00:00.000Z"}""", body);
+    }
+
     private static string JsonQuote(string value) =>
         System.Text.Json.JsonSerializer.Serialize(value);
 }

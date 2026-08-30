@@ -1,0 +1,176 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CursorUsageProgress.ViewModels"
+             x:Class="CursorUsageProgress.Views.SettingsView"
+             x:DataType="vm:MainViewModel">
+
+    <DockPanel>
+        <Button DockPanel.Dock="Top"
+                Command="{Binding HideSettingsCommand}"
+                Background="Transparent"
+                BorderThickness="0"
+                Padding="0,0,12,0"
+                Margin="0,0,0,20"
+                CornerRadius="8"
+                HorizontalAlignment="Left"
+                ToolTip.Tip="Back">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <PathIcon Data="{StaticResource BackIcon}"
+                          Width="22"
+                          Height="22"
+                          VerticalAlignment="Center"/>
+                <TextBlock Text="Settings"
+                           FontSize="26"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Button>
+
+        <ScrollViewer x:Name="RootScroller">
+            <StackPanel Spacing="12">
+
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardStrokeBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="4">
+                            <SelectableTextBlock Text="{Binding CursorAccountTitle}" FontSize="16" FontWeight="SemiBold"/>
+                            <SelectableTextBlock Text="{Binding SyncStatusText}"
+                                                 TextWrapping="Wrap"
+                                                 Opacity="0.7"
+                                                 FontSize="12"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Sign in"
+                                    Command="{Binding SignInCommand}"
+                                    IsVisible="{Binding ShowSignInButton}"/>
+                            <Button Content="Refresh now" Command="{Binding RefreshNowCommand}"/>
+                            <Button Content="Sign out" Click="OnDisconnectClick"/>
+                        </StackPanel>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="48">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="Update usage automatically" Opacity="0.8" FontSize="12"/>
+                                <ToggleSwitch IsChecked="{Binding AutoSyncEnabled, Mode=TwoWay}"
+                                              HorizontalAlignment="Left"
+                                              AutomationProperties.Name="Update usage automatically"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="4">
+                                <TextBlock Text="Refresh interval (hours)" Opacity="0.8" FontSize="12"/>
+                                <ComboBox x:Name="IntervalBox"
+                                          MinWidth="160"
+                                          HorizontalAlignment="Left"
+                                          SelectionChanged="OnIntervalChanged"/>
+                            </StackPanel>
+                        </Grid>
+                        <SelectableTextBlock Text="The billing cycle and usage come from your Cursor account after you sign in."
+                                             TextWrapping="Wrap"
+                                             Opacity="0.7"
+                                             FontSize="12"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardStrokeBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Startup" FontSize="16" FontWeight="SemiBold"/>
+                            <SelectableTextBlock Text="Launch at login and start in the notification tray."
+                                                 TextWrapping="Wrap"
+                                                 Opacity="0.7"
+                                                 FontSize="12"/>
+                        </StackPanel>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="48">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="Launch at login" Opacity="0.8" FontSize="12"/>
+                                <ToggleSwitch IsChecked="{Binding RunAtStartup, Mode=TwoWay}"
+                                              HorizontalAlignment="Left"
+                                              AutomationProperties.Name="Launch at login"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="4">
+                                <TextBlock Text="Start in notification tray" Opacity="0.8" FontSize="12"/>
+                                <ToggleSwitch IsChecked="{Binding StartInNotificationTray, Mode=TwoWay}"
+                                              HorizontalAlignment="Left"
+                                              AutomationProperties.Name="Start in notification tray"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardStrokeBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Appearance" FontSize="16" FontWeight="SemiBold"/>
+                            <SelectableTextBlock Text="Override the interface theme, or follow the system light or dark setting."
+                                                 TextWrapping="Wrap"
+                                                 Opacity="0.7"
+                                                 FontSize="12"/>
+                        </StackPanel>
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Theme" Opacity="0.8" FontSize="12"/>
+                            <ComboBox x:Name="ThemeBox"
+                                      MinWidth="160"
+                                      HorizontalAlignment="Left"
+                                      SelectionChanged="OnThemeChanged"
+                                      AutomationProperties.Name="Theme"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardStrokeBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Data" FontSize="16" FontWeight="SemiBold"/>
+                            <SelectableTextBlock Text="Export the current cycle, or collected usage samples, as CSV."
+                                                 TextWrapping="Wrap"
+                                                 Opacity="0.7"
+                                                 FontSize="12"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Export Cycle CSV"
+                                    Click="OnExportCsvClick"
+                                    IsEnabled="{Binding IsInitialized}"
+                                    ToolTip.Tip="Sign in and load a billing cycle first"/>
+                            <Button Content="Export Usage"
+                                    Click="OnExportUsageClick"
+                                    IsVisible="{Binding IsCursorConnected}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardStrokeBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Backup" FontSize="16" FontWeight="SemiBold"/>
+                            <SelectableTextBlock Text="Save settings and usage samples as a single zip file. The Cursor sign-in session is not included."
+                                                 TextWrapping="Wrap"
+                                                 Opacity="0.7"
+                                                 FontSize="12"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Backup" Click="OnBackupClick"/>
+                            <Button Content="Restore" Click="OnRestoreClick"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

@@ -48,15 +48,17 @@ public sealed class CalendarCellViewModel : ViewModelBase
 
     public string ExpectedCursorText => _dayData != null ? $"{_dayData.ShownExpectedCursor}%" : string.Empty;
     public string ExpectedOtherText => _dayData != null ? $"{_dayData.ShownExpectedOther}%" : string.Empty;
-    public string ProjectedCursorText => _dayData?.ShownProjectedCursor is int cursor ? $"{cursor}%" : string.Empty;
-    public string ProjectedOtherText => _dayData?.ShownProjectedOther is int other ? $"{other}%" : string.Empty;
+    public string ProjectedCursorText =>
+        _dayData?.ShownProjectedCursor is int cursorPercent ? $"{cursorPercent}%" : string.Empty;
+    public string ProjectedOtherText =>
+        _dayData?.ShownProjectedOther is int otherPercent ? $"{otherPercent}%" : string.Empty;
 
     public bool HasCursorProjection => _dayData?.HasCursorProjection == true;
     public bool HasOtherProjection => _dayData?.HasOtherProjection == true;
-    public bool CursorProjectedAtOrAbove100 =>
-        _dayData?.ProjectedQuotaCursor is double cursorValue && cursorValue >= 100;
-    public bool OtherProjectedAtOrAbove100 =>
-        _dayData?.ProjectedQuotaOther is double otherValue && otherValue >= 100;
+    public bool CursorProjectedAbove100 =>
+        _dayData?.ProjectedQuotaCursor is double cursorValue && cursorValue > 100;
+    public bool OtherProjectedAbove100 =>
+        _dayData?.ProjectedQuotaOther is double otherValue && otherValue > 100;
     public bool CursorWillRunOut => _dayData?.CursorWillRunOut == true;
     public bool OtherWillRunOut => _dayData?.OtherWillRunOut == true;
     public bool ShowAsActual => _dayData?.IsActual ?? false;

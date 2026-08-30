@@ -1,6 +1,5 @@
 using System.Globalization;
 using CursorUsageProgress.Models;
-using Microsoft.UI.Dispatching;
 
 namespace CursorUsageProgress.Services;
 
@@ -8,11 +7,11 @@ public sealed class UsageSyncService : IUsageSyncService
 {
     private static readonly TimeSpan SampleMinGap = TimeSpan.FromSeconds(30);
 
-    private readonly DispatcherQueue _dispatcher;
+    private readonly IUiDispatcher _dispatcher;
     private readonly ICursorUsageClient _client;
     private readonly IUsageSampleStore _sampleStore;
     private readonly IClock _clock;
-    private readonly DispatcherQueueTimer _timer;
+    private readonly IUiTimer _timer;
 
     private UsageSampleDocument _document;
     private DateTimeOffset? _lastSuccessUtc;
@@ -22,7 +21,7 @@ public sealed class UsageSyncService : IUsageSyncService
     private bool _started;
 
     public UsageSyncService(
-        DispatcherQueue dispatcher,
+        IUiDispatcher dispatcher,
         ICursorUsageClient client,
         IUsageSampleStore sampleStore,
         IClock clock,
@@ -38,11 +37,12 @@ public sealed class UsageSyncService : IUsageSyncService
         _lastSuccessUtc = settings.LastUsageSyncUtc
             ?? (_document.Samples.Count == 0 ? null : _document.Samples[^1].TimestampUtc);
 
-        _timer = _dispatcher.CreateTimer();
+        _timer = dispatcher.CreateTimer();
         _timer.IsRepeating = false;
         _timer.Tick += OnTimerTick;
 
-        var connected = settings.CursorAccountConnected || _client.HasPersistedProfile;
+        var connected = settings.CursorAccountConnected
+            || (settings.ActiveCycle != null && settings.LastUsageSyncUtc != null);
         if (connected)
         {
             Status = _lastSuccessUtc != null || _document.Samples.Count > 0
@@ -113,28 +113,50 @@ public sealed class UsageSyncService : IUsageSyncService
         ResetTimer();
     }
 
+    public void ReloadPersistedUsage(DateTimeOffset? lastSuccessUtc)
+    {
+        _document = _sampleStore.Load();
+        _lastSuccessUtc = lastSuccessUtc
+            ?? (_document.Samples.Count == 0 ? null : _document.Samples[^1].TimestampUtc);
+        if (Status == SyncStatus.Ok)
+            StatusText = FormatUpdatedText();
+        RaiseStateChanged();
+    }
+
     public void Dispose()
     {
         _timer.Stop();
         _timer.Tick -= OnTimerTick;
     }
 
-    private async void OnTimerTick(DispatcherQueueTimer sender, object args)
+    private async void OnTimerTick(object? sender, EventArgs args)
     {
-        if (!_autoSyncEnabled
-            || Status is SyncStatus.AuthRequired or SyncStatus.SignedOut or SyncStatus.Syncing)
+        try
         {
-            ResetTimer();
-            return;
-        }
+            if (!_autoSyncEnabled
+                || Status is SyncStatus.AuthRequired or SyncStatus.SignedOut or SyncStatus.Syncing)
+            {
+                ResetTimer();
+                return;
+            }
 
-        if (_backoffUntilUtc is { } until && new DateTimeOffset(_clock.Now) < until)
+            if (_backoffUntilUtc is { } until && new DateTimeOffset(_clock.Now) < until)
+            {
+                ResetTimer();
+                return;
+            }
+
+            await RunFetchAsync(allowInteractiveLogin: false);
+        }
+        catch (Exception ex)
         {
+            SetStatus(
+                SyncStatus.Error,
+                string.IsNullOrWhiteSpace(ex.Message)
+                    ? "Could not update usage."
+                    : ex.Message);
             ResetTimer();
-            return;
         }
-
-        await RunFetchAsync(allowInteractiveLogin: false);
     }
 
     private async Task RunFetchAsync(bool allowInteractiveLogin)
@@ -163,7 +185,7 @@ public sealed class UsageSyncService : IUsageSyncService
                 if (changed)
                     _sampleStore.Save(_document);
                 SetStatus(SyncStatus.Ok, FormatUpdatedText());
-                SnapshotReceived?.Invoke(this, result.Snapshot);
+                RaiseSnapshotReceived(result.Snapshot);
                 break;
 
             case UsageFetchStatus.AuthRequired:
@@ -217,12 +239,18 @@ public sealed class UsageSyncService : IUsageSyncService
         IsSignedIn = status switch
         {
             SyncStatus.Ok or SyncStatus.Idle => true,
-            SyncStatus.SignedOut or SyncStatus.AuthRequired => false,
-            SyncStatus.Syncing or SyncStatus.RateLimited or SyncStatus.Error => IsSignedIn,
+            SyncStatus.SignedOut => false,
+            SyncStatus.AuthRequired or SyncStatus.Syncing or SyncStatus.RateLimited or SyncStatus.Error => IsSignedIn,
             _ => IsSignedIn,
         };
-        StateChanged?.Invoke(this, EventArgs.Empty);
+        RaiseStateChanged();
     }
+
+    private void RaiseStateChanged() =>
+        _dispatcher.Post(() => StateChanged?.Invoke(this, EventArgs.Empty));
+
+    private void RaiseSnapshotReceived(UsageSnapshot snapshot) =>
+        _dispatcher.Post(() => SnapshotReceived?.Invoke(this, snapshot));
 
     private string FormatUpdatedText()
     {
@@ -230,6 +258,6 @@ public sealed class UsageSyncService : IUsageSyncService
             return "Connected";
 
         var local = last.ToLocalTime().DateTime;
-        return "Updated " + local.ToString("HH:mm", CultureInfo.CurrentCulture);
+        return "Updated " + local.ToString("dd/MM HH:mm", CultureInfo.CurrentCulture);
     }
 }

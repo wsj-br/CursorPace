@@ -1,24 +1,18 @@
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Media;
-using Windows.UI;
+using System.Globalization;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
 
 namespace CursorUsageProgress.Converters;
 
 public sealed class RenewalDayToBackgroundConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, string language)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is bool isRenewalDay && isRenewalDay)
-        {
-            // Subtle violet tint for cycle start and renewal days
+        if (value is true)
             return new SolidColorBrush(Color.FromArgb(28, 139, 92, 246));
-        }
-
-        return new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+        return Brushes.Transparent;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, string language)
-    {
-        throw new NotImplementedException();
-    }
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
 }

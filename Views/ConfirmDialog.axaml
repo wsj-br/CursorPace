@@ -1,0 +1,35 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="CursorUsageProgress.Views.ConfirmDialog"
+        Width="420"
+        SizeToContent="Height"
+        CanResize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="24">
+        <SelectableTextBlock x:Name="TitleText"
+                   FontSize="18"
+                   FontWeight="SemiBold"
+                   TextWrapping="Wrap"/>
+        <SelectableTextBlock x:Name="BodyText"
+                             Grid.Row="1"
+                             Margin="0,12,0,20"
+                             TextWrapping="Wrap"
+                             Opacity="0.85"/>
+        <Grid Grid.Row="2"
+              x:Name="ButtonPanel"
+              ColumnDefinitions="*,Auto">
+            <Button x:Name="SecondaryButton"
+                    Grid.Column="1"
+                    Click="OnSecondaryClick"
+                    MinWidth="80"
+                    HorizontalAlignment="Right"/>
+            <Button x:Name="PrimaryButton"
+                    Grid.Column="0"
+                    Click="OnPrimaryClick"
+                    MinWidth="80"
+                    HorizontalAlignment="Left"/>
+        </Grid>
+    </Grid>
+</Window>

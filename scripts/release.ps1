@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Create a GitHub release from HEAD using the csproj version.
+  Start a GitHub release build from HEAD using the csproj version.
 
 .DESCRIPTION
   Reads <Version> from CursorUsageProgress.csproj and requires
@@ -8,7 +8,7 @@
 
   - Deletes an existing GitHub release and/or tag for v<version> if present
   - Creates an annotated tag at HEAD and pushes it to origin
-  - Creates the GitHub release (the Release workflow builds and attaches the installer)
+  - Lets the Release workflow build every platform and publish the release
 
   If the tag or a GitHub release for it already exists, they are removed and the
   tag is recreated at the current HEAD so you can fix a mistaken tag or re-run
@@ -142,14 +142,6 @@ function ConvertTo-RepoWebUrl {
     return $url
 }
 
-function Format-ArgForDisplay {
-    param([Parameter(Mandatory = $true)][string]$Value)
-    if ($Value -match '\s') {
-        return ('"{0}"' -f $Value)
-    }
-    return $Value
-}
-
 Test-RequiredCommand -Name git
 Test-RequiredCommand -Name gh
 
@@ -241,23 +233,18 @@ function Set-ReleaseTagAtHead {
 
 Set-ReleaseTagAtHead
 
-$createArgs = @('release', 'create', $tag, '--title', $tag, '--notes-file', $notesFile)
-
 Write-Host 'Release inputs:'
 Write-Host "  Tag:        $tag"
 Write-Host "  Title:      $tag"
 Write-Host "  Notes file: $notesFile"
 
 if ($DryRun) {
-    $display = ($createArgs | ForEach-Object { Format-ArgForDisplay -Value $_ }) -join ' '
-    Write-Host '[dry-run] Would run:'
-    Write-Host "  gh $display"
+    Write-Host "[dry-run] Pushing $tag would trigger the Release workflow."
     exit 0
 }
 
-Invoke-Native -FilePath gh -ArgumentList $createArgs -Inherit
-Write-Host "Release created successfully: $tag"
+Write-Host "Release tag pushed successfully: $tag"
 Write-Host ''
-Write-Host "The Release workflow will build the installer and attach it to $tag."
+Write-Host "The Release workflow will build all unsigned packages, verify them, and create $tag."
 Write-Host "See progress at $repoUrl"
 Write-Host ''

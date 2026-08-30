@@ -17,17 +17,17 @@ public static class SyncSchedule
         if (lastUpdateUtc is null)
             return true;
 
-        intervalHours = SyncInterval.Clamp(intervalHours);
         var age = now - lastUpdateUtc.Value;
+        if (age < StartupSkipWindow)
+            return false;
+
+        intervalHours = SyncInterval.Clamp(intervalHours);
         if (age >= TimeSpan.FromHours(intervalHours))
             return true;
 
         var nowLocal = now.DateTime;
         var lastLocal = lastUpdateUtc.Value.ToOffset(now.Offset).DateTime;
-        if (lastLocal < CurrentAlignedLocal(nowLocal, intervalHours))
-            return true;
-
-        return age >= StartupSkipWindow;
+        return lastLocal < CurrentAlignedLocal(nowLocal, intervalHours);
     }
 
     public static DateTime CurrentAlignedLocal(DateTime now, int intervalHours)

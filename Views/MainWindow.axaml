@@ -1,0 +1,269 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:CursorUsageProgress.ViewModels"
+        xmlns:local="using:CursorUsageProgress.Views"
+        xmlns:chrome="using:Avalonia.Controls.Chrome"
+        x:Class="CursorUsageProgress.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Cursor Usage Progress"
+        Width="760"
+        Height="787"
+        CanResize="False"
+        CanMinimize="True"
+        CanMaximize="False"
+        ExtendClientAreaToDecorationsHint="True"
+        WindowDecorations="None"
+        ExtendClientAreaTitleBarHeightHint="48"
+        Icon="avares://CursorUsageProgress/Assets/cursor_usage_progress.ico"
+        WindowStartupLocation="Manual">
+
+    <Grid x:Name="RootGrid" RowDefinitions="Auto,*">
+
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Height="48">
+            <Border x:Name="TitleBarContent" Padding="16,0"
+                    Background="Transparent"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    PointerPressed="OnTitleBarPointerPressed"
+                    PointerMoved="OnTitleBarPointerMoved"
+                    PointerReleased="OnTitleBarPointerReleased"
+                    PointerCaptureLost="OnTitleBarPointerCaptureLost"
+                    chrome:WindowDecorationProperties.ElementRole="TitleBar">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0"
+                           Text="Cursor Usage Progress"
+                           VerticalAlignment="Center"
+                           FontSize="12"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4"
+                            chrome:WindowDecorationProperties.ElementRole="User">
+                    <Button Command="{Binding ShowSettingsCommand}"
+                            IsVisible="{Binding !IsSettingsView}"
+                            chrome:WindowDecorationProperties.ElementRole="User"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Height="32"
+                            Padding="12,0"
+                            CornerRadius="4">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource SettingsIcon}" Width="14" Height="14"/>
+                            <TextBlock Text="Settings" VerticalAlignment="Center" FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Click="OnQuitClick"
+                            chrome:WindowDecorationProperties.ElementRole="User"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Height="32"
+                            Padding="12,0"
+                            CornerRadius="4">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource CloseIcon}" Width="14" Height="14"/>
+                            <TextBlock Text="Quit" VerticalAlignment="Center" FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Click="OnMinimizeClick"
+                            chrome:WindowDecorationProperties.ElementRole="User"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Width="40"
+                            Height="32"
+                            Padding="0"
+                            Margin="16,0,0,0"
+                            CornerRadius="4"
+                            ToolTip.Tip="Minimize"
+                            AutomationProperties.Name="Minimize">
+                        <PathIcon Data="{StaticResource MinimizeIcon}"
+                                  Width="14"
+                                  Height="14"/>
+                    </Button>
+
+                    <Button Click="OnWindowCloseClick"
+                            chrome:WindowDecorationProperties.ElementRole="User"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Width="40"
+                            Height="32"
+                            Padding="0"
+                            CornerRadius="4"
+                            ToolTip.Tip="Hide to tray"
+                            AutomationProperties.Name="Hide to tray">
+                        <PathIcon Data="{StaticResource CloseIcon}"
+                                  Width="14"
+                                  Height="14"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="1" Padding="16">
+        <Grid>
+        <local:SettingsView IsVisible="{Binding IsSettingsView}"/>
+        <Grid RowDefinitions="Auto,*" IsVisible="{Binding IsMainView}">
+
+            <Grid Margin="0,0,0,20" ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="8">
+                    <Border IsVisible="{Binding HasSyncAlert}"
+                            Background="{DynamicResource SyncAlertBrush}"
+                            BorderBrush="{DynamicResource SyncAlertBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="10,8">
+                        <StackPanel Spacing="8">
+                            <SelectableTextBlock Text="{Binding LastSyncText}"
+                                                 TextWrapping="Wrap"
+                                                 FontSize="12"
+                                                 Foreground="{DynamicResource SyncAlertForegroundBrush}"/>
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="8"
+                                        IsVisible="{Binding ShowSyncAlertSignInActions}">
+                                <Button Content="Sign in"
+                                        Command="{Binding SignInCommand}"
+                                        Classes="accent"
+                                        Padding="12,4"/>
+                                <Button Content="Settings"
+                                        Command="{Binding ShowSettingsCommand}"
+                                        Padding="12,4"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <StackPanel Orientation="Horizontal" Spacing="12" IsVisible="{Binding IsInitialized}">
+
+                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                                BorderBrush="{DynamicResource CardStrokeBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="14,10">
+                            <StackPanel>
+                                <TextBlock Text="Cycle start" Opacity="0.6" FontSize="11"/>
+                                <SelectableTextBlock Text="{Binding CycleStartText}"
+                                                     FontWeight="SemiBold"
+                                                     FontSize="14" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                                BorderBrush="{DynamicResource CardStrokeBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="14,10">
+                            <StackPanel>
+                                <TextBlock Text="Next renewal" Opacity="0.6" FontSize="11"/>
+                                <SelectableTextBlock Text="{Binding NextRenewalText}"
+                                                     FontWeight="SemiBold"
+                                                     FontSize="14" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                                BorderBrush="{DynamicResource CardStrokeBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="14,10">
+                            <StackPanel>
+                                <TextBlock Text="Cursor Models run out" Opacity="0.6" FontSize="11"/>
+                                <SelectableTextBlock Text="{Binding CursorModelsRunOutText}"
+                                                     FontWeight="SemiBold"
+                                                     Foreground="{DynamicResource ThemeAccentBrush}"
+                                                     FontSize="14" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                                BorderBrush="{DynamicResource CardStrokeBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="14,10">
+                            <StackPanel>
+                                <TextBlock Text="Other Models run out" Opacity="0.6" FontSize="11"/>
+                                <SelectableTextBlock Text="{Binding OtherModelsRunOutText}"
+                                                     FontWeight="SemiBold"
+                                                     Foreground="{DynamicResource ThemeAccentBrush}"
+                                                     FontSize="14" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Top"
+                            Margin="12,8,0,0"
+                            Spacing="2"
+                            IsVisible="{Binding IsInitialized}">
+                    <Button x:Name="CalendarViewButton"
+                            Click="OnCalendarViewClick"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="8"
+                            ToolTip.Tip="Calendar"
+                            AutomationProperties.Name="Calendar view">
+                        <PathIcon x:Name="CalendarViewIcon"
+                                  Data="{StaticResource CalendarIcon}"
+                                  Width="18" Height="18"/>
+                    </Button>
+                    <Button x:Name="ChartViewButton"
+                            Click="OnChartViewClick"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="8"
+                            ToolTip.Tip="Chart"
+                            AutomationProperties.Name="Chart view">
+                        <PathIcon x:Name="ChartViewIcon"
+                                  Data="{StaticResource ChartIcon}"
+                                  Width="18" Height="18"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1">
+                <StackPanel VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Spacing="16"
+                            MaxWidth="420"
+                            IsVisible="{Binding !IsInitialized}">
+                    <SelectableTextBlock Text="{Binding EmptyStateText}"
+                                         TextWrapping="Wrap"
+                                         TextAlignment="Center"
+                                         Opacity="0.8"/>
+                    <ProgressBar IsIndeterminate="True"
+                                 Width="160"
+                                 Height="4"
+                                 HorizontalAlignment="Center"
+                                 IsVisible="{Binding IsSyncing}"/>
+                    <Button Content="Sign in"
+                            Command="{Binding SignInCommand}"
+                            HorizontalAlignment="Center"
+                            Classes="accent"
+                            IsVisible="{Binding ShowEmptySignIn}"/>
+                </StackPanel>
+
+                <Grid IsVisible="{Binding IsInitialized}">
+                    <local:CalendarControl x:Name="CalendarView"
+                                           Weeks="{Binding Calendar.Weeks}"
+                                           MonthHeading="{Binding Calendar.MonthHeading}"
+                                           LastSyncText="{Binding LastSyncText}"
+                                           IsSyncing="{Binding IsSyncing}"
+                                           ShowLastSync="{Binding !HasSyncAlert}"
+                                           IsVisible="{Binding IsCalendarView}"/>
+                    <Grid IsVisible="{Binding IsChartView}" RowDefinitions="Auto,*">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Spacing="8"
+                                    Margin="0,0,0,10"
+                                    IsVisible="{Binding !HasSyncAlert}">
+                            <ProgressBar IsIndeterminate="True"
+                                         Width="80"
+                                         Height="4"
+                                         VerticalAlignment="Center"
+                                         IsVisible="{Binding IsSyncing}"/>
+                            <SelectableTextBlock Text="{Binding LastSyncText}"
+                                                 Opacity="0.55"
+                                                 FontSize="11"
+                                                 VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <local:UsageChartControl x:Name="UsageChartView"
+                                                 Grid.Row="1"
+                                                 Document="{Binding Chart.Document}"/>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+        </Grid>
+        </Border>
+    </Grid>
+</Window>

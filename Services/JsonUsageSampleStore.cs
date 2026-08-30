@@ -53,7 +53,7 @@ public sealed class JsonUsageSampleStore : IUsageSampleStore
                 .ToList();
             return stored;
         }
-        catch (Exception)
+        catch (JsonException)
         {
             try
             {
@@ -62,9 +62,16 @@ public sealed class JsonUsageSampleStore : IUsageSampleStore
             }
             catch
             {
-                // Ignore backup failures and return an empty document.
             }
 
+            return new UsageSampleDocument();
+        }
+        catch (IOException)
+        {
+            return new UsageSampleDocument();
+        }
+        catch (UnauthorizedAccessException)
+        {
             return new UsageSampleDocument();
         }
     }
@@ -93,5 +100,32 @@ public sealed class JsonUsageSampleStore : IUsageSampleStore
         };
 
         return JsonSerializer.Serialize(payload, Options);
+    }
+
+    public static bool TryDeserialize(string json, out UsageSampleDocument document)
+    {
+        try
+        {
+            var stored = JsonSerializer.Deserialize<UsageSampleDocument>(json, Options);
+            if (stored == null)
+            {
+                document = new UsageSampleDocument();
+                return false;
+            }
+
+            stored.Samples ??= new List<UsageSample>();
+            stored.Samples = stored.Samples
+                .OrderBy(s => s.TimestampUtc)
+                .ToList();
+            if (stored.Version <= 0)
+                stored.Version = 1;
+            document = stored;
+            return true;
+        }
+        catch (Exception)
+        {
+            document = new UsageSampleDocument();
+            return false;
+        }
     }
 }

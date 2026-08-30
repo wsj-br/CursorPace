@@ -19,7 +19,7 @@ artifacts/
 *.deps.json
 *.runtimeconfig.json
 
-# WinUI / XAML compiled output (also leaks next to custom -o folders)
+# Legacy WinUI build artifacts (harmless defensive ignores)
 *.xbf
 *.pri
 
@@ -30,6 +30,9 @@ _build-check*
 # Publish / installer / packaging
 publish/
 installer/
+.appimage-build/
+.appbundle-build/
+*.AppImage
 AppPackages/
 BundleArtifacts/
 *.appx
@@ -88,3 +91,8 @@ Desktop.ini
 
 # Debug screenshots dumped at repo root
 /screenshot.png
+
+
+# AI agents temp files
+.kilo/
+

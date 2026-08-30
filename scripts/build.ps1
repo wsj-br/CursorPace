@@ -72,7 +72,6 @@ if (-not $SkipTests) {
 }
 
 dotnet publish $appCsproj -c Release -r $rid --self-contained `
-    -p:WindowsAppSDKSelfContained=true `
     -p:PublishSingleFile=false
 if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed with exit code $LASTEXITCODE"
@@ -81,14 +80,6 @@ if ($LASTEXITCODE -ne 0) {
 $publishedExe = Join-Path $publishDir 'CursorUsageProgress.exe'
 if (-not (Test-Path -LiteralPath $publishedExe)) {
     throw "Publish succeeded but did not produce $publishedExe"
-}
-
-$publishedPri = @(
-    (Join-Path $publishDir 'resources.pri'),
-    (Join-Path $publishDir 'CursorUsageProgress.pri')
-) | Where-Object { Test-Path -LiteralPath $_ }
-if (-not $publishedPri) {
-    throw "Publish succeeded but did not produce resources.pri or CursorUsageProgress.pri. Unpackaged WinUI exits immediately without it."
 }
 
 Write-Host "Published: $publishDir"

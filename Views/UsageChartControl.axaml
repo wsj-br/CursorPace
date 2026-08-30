@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CursorUsageProgress.Views.UsageChartControl">
+
+    <Grid RowDefinitions="*,Auto">
+        <Border x:Name="PlotHost"
+                Grid.Row="0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                MinHeight="200"
+                ClipToBounds="True"
+                SizeChanged="OnPlotSizeChanged"
+                Background="Transparent">
+            <Grid>
+            <Canvas x:Name="PlotCanvas"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Background="Transparent"/>
+            <SelectableTextBlock x:Name="EmptyPlotText"
+                       Text="Not enough data yet"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Opacity="0.65"
+                       IsVisible="False"/>
+            </Grid>
+        </Border>
+        <StackPanel x:Name="LegendPanel"
+                    Grid.Row="1"
+                    Orientation="Vertical"
+                    Spacing="4"
+                    Margin="36,8,8,0"/>
+    </Grid>
+</UserControl>

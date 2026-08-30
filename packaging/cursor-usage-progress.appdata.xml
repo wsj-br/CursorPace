@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.wsj_br.CursorUsageProgress</id>
+  <name>Cursor Usage Progress</name>
+  <summary>Track Cursor quota across a billing cycle</summary>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <developer id="io.github.wsj_br">
+    <name>Waldemar Scudeller Jr.</name>
+  </developer>
+  <url type="homepage">https://github.com/wsj-br/CursorUsageProgress</url>
+  <description>
+    <p>
+      Desktop app for Windows, Linux, and macOS that tracks Cursor model quota
+      across a billing cycle. Sign in with your Cursor account to pull usage
+      automatically. The calendar and chart show two independent percentages:
+      Cursor Models and Other Models.
+    </p>
+  </description>
+  <launchable type="desktop-id">cursor-usage-progress.desktop</launchable>
+  <provides>
+    <binary>CursorUsageProgress</binary>
+  </provides>
+  <content_rating type="oars-1.1" />
+</component>
