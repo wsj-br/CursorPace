@@ -1,14 +1,21 @@
-# Changelog
+# Cursor Usage Progress 0.2.0 Release Notes
 
-All notable changes to this project will be documented in this file.
+## Highlights
 
-Use conventional types (**Added**, **Changed**, **Fixed**, **Removed**), a short **scope** (UI area or subsystem), and a clear description.
+- Cross-platform: the WinUI 3 UI is replaced with Avalonia 12, so the same app now builds and runs on Windows, Linux, and macOS.
+- New packaging: Linux AppImage (x64 and ARM64) and a macOS `.app` bundle, alongside the existing Windows installer.
+- New `Backup` / `Restore` in Settings, writing a zip of `settings.json` and `usage-samples.json` (the Cursor session itself is never included).
+- New `Launch at login` support on macOS (Launch Agent) and Linux (XDG autostart), in addition to Windows.
+- More reliable sign-in/sync: `Sign out` now deletes only `cursor.com` cookies where the platform supports it (keeping any Google/GitHub session in the same profile), a dedicated WebView profile for AppImage runs avoids WebKitGTK cookie-database contention, and the app no longer mistakes a merely non-empty WebView profile folder for a signed-in session.
+- Sturdier persistence and sync: transient file-read errors no longer overwrite `settings.json` or `usage-samples.json`, and timer/command exceptions no longer crash the process.
+- Calendar, chart, and dialog polish: selectable/copyable text, theme-aware colors, clearer sync alert banner, and chart axis labels that match the calendar's day-of-month view.
+- CI/release overhaul: matrix Linux builds (x64/arm64), locked NuGet restores with Dependabot, and a release workflow that builds and verifies every platform before publishing.
 
-Add new entries in the `## [Unreleased]` section. When releasing, move those entries to `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`.
+## Why this release matters
 
-## [Unreleased]
+This is the first release that runs on Linux and macOS in addition to Windows, backed by a safer sign-in/sync model and a more resilient release pipeline.
 
-## [0.2.0] - 2026-08-30
+## Detailed Changes
 
 - **Fixed**: window - on first launch, `MainWindow` restores the saved position from the `Opened` event (in addition to `Activated`), since Linux window managers do not reliably raise `Activated` when the window is first shown; previously the window sat at the WM's default position (left edge of the monitor) until the user's first click gave it focus.
 - **Fixed**: build - `global.json` uses `rollForward: latestFeature` so local Windows/macOS installs with a newer 10.0 SDK (for example `10.0.400`) work while CI still pins `10.0.111`.
@@ -107,12 +114,26 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 - **Changed**: scripts - moved `dev.ps1`, `build.ps1`, `clean.ps1`, and `release.ps1` to `scripts/`.
 - **Fixed**: calendar - restore `CursorProjectedAtOrAbove100` and `OtherProjectedAtOrAbove100` on `CalendarCellViewModel` so compiled bindings can apply projected quota colors.
 
-## [1.0.0] - 2026-08-17
+---
 
-- **Added**: app — Windows desktop planner for Cursor model quota across a monthly renewal cycle (no Cursor API).
-- **Added**: calendar — current-cycle month view with today, renewal, and projected run-out days highlighted.
-- **Added**: quotas — independent Cursor Models and Other Models percentages, with manual day edits as interpolation anchors.
-- **Added**: estimates — Theil-Sen daily usage and run-out day projection.
-- **Added**: tray — close hides the window; Quit exits; optional Run at Windows sign-in (per-user, no elevation).
-- **Added**: process — single-instance mutex; a second launch shows the existing window.
-- **Added**: install — per-user Inno Setup build (`CursorUsageProgress-<version>-win-x64-setup.exe`).
+## Install
+
+Download the package for your platform from this release:
+
+- Windows: `CursorUsageProgress-0.2.0-win-x64-setup.exe`. The build is unsigned, so SmartScreen may ask you to choose **More info**, then **Run anyway**. **Sign in** needs the Microsoft Edge WebView2 Runtime; the installer offers the download page if it is missing.
+- Linux: `CursorUsageProgress-0.2.0-linux-x64.AppImage` or `CursorUsageProgress-0.2.0-linux-arm64.AppImage`. Make the file executable (`chmod +x`) before running it.
+- macOS: `CursorUsageProgress-0.2.0-osx-arm64.zip` or `CursorUsageProgress-0.2.0-osx-x64.zip`. Unzip, then right-click the app and choose **Open** the first time to bypass Gatekeeper (the build is unsigned).
+
+---
+
+## Documentation
+
+- [Quick start](https://github.com/wsj-br/CursorUsageProgress/blob/master/QUICKSTART.md) — install, sign-in, daily use, tray, troubleshooting.
+- [Development](https://github.com/wsj-br/CursorUsageProgress/blob/master/dev/DEVELOPMENT.md) — build, test, package, contribute.
+- [README](https://github.com/wsj-br/CursorUsageProgress/blob/master/README.md) — product overview and source build.
+
+---
+
+## License
+
+MIT © [Waldemar Scudeller Jr.](https://github.com/wsj-br/CursorUsageProgress)
