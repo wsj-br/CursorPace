@@ -90,6 +90,7 @@ dotnet restore
 | Tests | `dotnet test .\Tests\CursorPace.Tests.csproj` | `dotnet test ./Tests/CursorPace.Tests.csproj` |
 | Run (window) | `.\scripts\dev.ps1` | `./scripts/dev.sh` |
 | Run (tray only) | `.\scripts\dev.ps1 -Background` | `./scripts/dev.sh --background` |
+| Run (force window) | `.\scripts\dev.ps1 -Show` | `./scripts/dev.sh --show` |
 | Run (Release) | `.\scripts\dev.ps1 -Configuration Release` | `./scripts/dev.sh --configuration Release` |
 | Tests via script | `.\scripts\dev.ps1 -Test` | `./scripts/dev.sh --test` |
 | Publish + installer | `.\scripts\build.ps1` | `./scripts/build.sh` (Linux AppImage or macOS app bundle) |
@@ -106,9 +107,10 @@ Launch flags after `--`:
 
 ```bash
 dotnet run --project ./CursorPace.csproj -- --background
+dotnet run --project ./CursorPace.csproj -- --show
 ```
 
-`--background` starts the tray icon without showing the main window. **Start in notification tray** does the same for a normal launch; Windows Run, macOS Launch Agent, and Linux XDG autostart also pass `--background` when that setting is on.
+`--background` starts the tray icon without showing the main window. **Start in notification tray** does the same for a normal launch; Windows Run, macOS Launch Agent, and Linux XDG autostart also pass `--background` when that setting is on. `--show` forces the window open and wins over both.
 
 Maintainer scripts ship as PowerShell (`.ps1`) and bash (`.sh`) with the same behavior. Use `.ps1` on Windows PowerShell and `.sh` on Linux/macOS (no PowerShell install required).
 
@@ -178,7 +180,7 @@ Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do n
 | `MainViewModelTests.cs` / `DayRowViewModelTests.cs` / `CalendarMonthViewModelTests.cs` | Initialization, connected-account persistence, exports, calendar heading, settings page, backup restore |
 | `DataBackupArchiveTests.cs` | Zip backup format, missing entries, restore into stores |
 | `WindowPlacementTests.cs` | Restore clamped to the work area |
-| `LaunchModeTests.cs` | `--background` and **Start in notification tray** hide the window on launch |
+| `LaunchModeTests.cs` | `--background` and **Start in notification tray** hide the window on launch; `--show` forces it open |
 | `AsyncRelayCommandTests.cs` | Async command reentrancy guard and exception handling |
 
 `CycleCalculatorTests` still covers:
@@ -234,6 +236,8 @@ Keep these in sync:
 3. `dev/CHANGELOG.md`: when releasing, move `[Unreleased]` bullets into `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`
 4. `release-notes/RELEASE_NOTES_<version>.md` (required by `scripts/release.*`)
 5. Git tag `v<version>`
+
+Settings **About** reads `<Version>` and `<Copyright>` from the assembly, and `BuildDateUtc` metadata stamped at compile time (`yyyy-MM-dd` UTC). License text and the repository URL live in `AppInfo`.
 
 `.\scripts\release.ps1` / `./scripts/release.sh` recreates and pushes the annotated tag from HEAD. The tag starts `.github/workflows/dotnet-desktop.yml`, which validates the version, tests once, builds unsigned Windows x64, Linux x64, Linux ARM64, macOS ARM64, and macOS x64 packages, verifies all checksums, and creates the GitHub Release only after every build succeeds. The Linux ARM64 job runs on the `ubuntu-24.04-arm` hosted runner. A manual workflow dispatch builds the same artifacts without creating a release.
 

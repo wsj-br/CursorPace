@@ -18,6 +18,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AssemblyMetadata Include="BuildDateUtc" Value="$([System.DateTime]::UtcNow.ToString('yyyy-MM-dd'))" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="*Tests.cs" />
     <Compile Remove="UnitTest1.cs" />
     <None Remove="*.Tests.csproj" />

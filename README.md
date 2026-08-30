@@ -27,7 +27,7 @@ Sign in uses an embedded native WebView (WebView2 on Windows, WKWebView on macOS
 2. **Windows**: run the installer. If SmartScreen warns that the app is unsigned, choose **More info**, then **Run anyway**. If WebView2 Runtime is missing, open the download page the installer offers.
 3. **Linux**: make the AppImage executable (`chmod +x`), then run it. First launch may take a moment while the bundle extracts.
 4. **macOS**: unzip the archive, move `Cursor Pace.app` to Applications, then open it. If Gatekeeper blocks the unsigned app, attempt to open it once and then choose **Open Anyway** in **System Settings → Privacy & Security**.
-5. Sign in to Cursor. If **Start in notification tray** is on (the default), open the window from the tray icon first.
+5. Sign in to Cursor. If **Start in notification tray** is on (the default), open the window from the tray icon first, or launch with `--show`.
 
 See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, the calendar and chart, tray behavior, and troubleshooting.
 
@@ -42,7 +42,7 @@ See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, 
 - System tray: closing the window hides it; **Quit** exits. The tooltip shows today's expected percent and the projected percent at renewal
 - Optional launch at login (Windows Run key, macOS Launch Agent, Linux XDG autostart)
 - Single-instance: a second launch brings the existing window forward
-- Settings: Cursor account, appearance (theme), startup, timestamped CSV exports, backup or restore of settings plus usage samples as a zip file, and an **Open Folder** action on the left after local saves
+- Settings: Cursor account, appearance (theme), startup, timestamped CSV exports, backup or restore of settings plus usage samples as a zip file, an **Open Folder** action on the left after local saves, and an About card with version, build date, copyright, MIT license, and a link to the GitHub repository
 - Remembers window position; informational labels can be selected and copied
 - Theme: follow the system, or force light or dark
 

@@ -5,6 +5,9 @@
 .PARAMETER Background
   Launch in tray-only mode (--background).
 
+.PARAMETER Show
+  Force the main window open (--show). Wins over -Background.
+
 .PARAMETER Configuration
   Build configuration. Debug (default) or Release.
 
@@ -14,6 +17,8 @@
 [CmdletBinding()]
 param(
     [switch]$Background,
+
+    [switch]$Show,
 
     [ValidateSet('Debug', 'Release')]
     [string]$Configuration = 'Debug',
@@ -37,7 +42,10 @@ $runArgs = @(
     '--project', '.\CursorPace.csproj',
     '-c', $Configuration
 )
-if ($Background) {
+if ($Show) {
+    $runArgs += '--', '--show'
+}
+elseif ($Background) {
     $runArgs += '--', '--background'
 }
 

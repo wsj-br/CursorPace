@@ -29,7 +29,7 @@ Flat repo. App project: `CursorPace.csproj`. Tests: `Tests/CursorPace.Tests.cspr
 | `packaging/` | Linux packaging inputs: `.desktop` file, AppStream `.appdata.xml`. Consumed by `scripts/build-appimage.sh`. |
 | `scripts/` | Maintainer scripts: PowerShell (`.ps1`) and bash (`.sh`) for `dev`, `build`, `clean`, `release`. |
 | `Program.cs` | Avalonia entry: `BuildAvaloniaApp()`. |
-| `App.axaml.cs` | Process entry: single-instance, DI wiring, tray, `--background`. |
+| `App.axaml.cs` | Process entry: single-instance, DI wiring, tray, `--background`, `--show`. |
 
 Root `UnitTest1.cs` is excluded from the app project. Do not revive it. Put new tests under `Tests/`.
 
@@ -45,7 +45,7 @@ Construct services in `App.OnFrameworkInitializationCompleted` and pass them in.
 - Sync: `IUsageSyncService` / `UsageSyncService`. Clock-aligned auto refresh; `SyncSchedule` decides launch skip. Takes `IUiDispatcher`, not a platform dispatcher. Services that raise events consumed by view models (`StateChanged` / `SnapshotReceived`, WebView navigation callbacks) must marshal through `IUiDispatcher` before invoking; never assume a continuation after `await` resumes on the UI thread.
 - Startup: `IStartupRegistration` via `StartupRegistration.Create()` (Windows Run key, macOS Launch Agent, Linux XDG autostart).
 - Tray: `ITrayService` / `TrayService` (Avalonia `TrayIcon`). Lives for the whole process.
-- UI state: `MainViewModel` plus calendar/day row VMs and a read-only `UsageChartViewModel`. Views subscribe to VM events; they do not own cycle math. The main window can show the calendar, the usage chart, or Settings. Settings is a page in the main window (`Back` and a `Settings` heading below the title bar), not a second window.
+- UI state: `MainViewModel` plus calendar/day row VMs and a read-only `UsageChartViewModel`. Views subscribe to VM events; they do not own cycle math. The main window can show the calendar, the usage chart, or Settings. Settings is a page in the main window (`Back` and a `Settings` heading below the title bar), not a second window. The last Settings card is About: version, UTC build date, copyright, MIT license, and the GitHub repository link from `AppInfo`.
 
 Percentages use `decimal` in models and calculator. UI may round to integers for display. Do not switch storage or interpolation to `double`.
 
@@ -68,7 +68,7 @@ Chart slots: local midnights strictly inside `(CycleStart, NextRenewal)` split t
 
 A signed-in snapshot with a new cycle start replaces the cycle and `UsageSampleAppender` clears previous samples.
 
-If you change `CycleCalculator`, `QuotaCycle`, or `JsonPlanStore` serialization, update and run `Tests/CycleCalculatorTests.cs`. Sample-driven expected/estimate cases live in `Tests/SampleEstimationTests.cs`. If you change chart X/Y mapping, update `Tests/UsageChartSeriesBuilderTests.cs`. If you change launch/interval skip rules, update `Tests/SyncScheduleTests.cs`. If you change `--background` / **Start in notification tray** launch hiding, update `Tests/LaunchModeTests.cs`.
+If you change `CycleCalculator`, `QuotaCycle`, or `JsonPlanStore` serialization, update and run `Tests/CycleCalculatorTests.cs`. Sample-driven expected/estimate cases live in `Tests/SampleEstimationTests.cs`. If you change chart X/Y mapping, update `Tests/UsageChartSeriesBuilderTests.cs`. If you change launch/interval skip rules, update `Tests/SyncScheduleTests.cs`. If you change `--background` / `--show` / **Start in notification tray** launch hiding, update `Tests/LaunchModeTests.cs`. If you change Settings About / `AppInfo`, update `Tests/AppInfoTests.cs`.
 
 ## Sync contract
 Allowed intervals: 1, 2, 4, 6, 12 hours (`SyncInterval.Clamp`). Auto refresh fires at `SyncSchedule.NextAlignedLocal`. On launch, never refresh when `lastUsageSyncUtc` is under 20 minutes old. After that window, refresh only when a clock-aligned slot was missed or the last update is already older than the interval; otherwise wait for the next aligned timer. Duplicate snapshots within 30 seconds are not appended (`UsageSampleAppender`).
@@ -82,7 +82,7 @@ Do not add a documented-public-API client. Keep the usage fetch inside `NativeWe
 ## Process and window
 Single instance via named mutex `CursorPace_SingleInstance` on Windows (Inno `CheckForMutexes` still uses this name). A second launch signals an EventWaitHandle and exits; the first instance shows its window. Unix uses a lock file plus a Unix domain socket under LocalApplicationData.
 
-Close hides the window. Process stays in the tray. Only Quit (button or tray menu) calls `App.Quit()`. `--background` or **Start in notification tray** skips showing the main window (`LaunchMode.HideMainWindow`). Do not assign `desktop.MainWindow` in that case: `ClassicDesktopStyleApplicationLifetime` always calls `MainWindow.Show()` after `OnFrameworkInitializationCompleted`. Startup registration includes `--background` when **Start in notification tray** is on.
+Close hides the window. Process stays in the tray. Only Quit (button or tray menu) calls `App.Quit()`. `--background` or **Start in notification tray** skips showing the main window (`LaunchMode.HideMainWindow`). `--show` forces the window open and wins over both. Do not assign `desktop.MainWindow` when hiding on launch: `ClassicDesktopStyleApplicationLifetime` always calls `MainWindow.Show()` after `OnFrameworkInitializationCompleted`. Startup registration includes `--background` when **Start in notification tray** is on.
 
 First run (`ActiveCycle` unset): the main window shows an empty state with **Sign in**. After a successful snapshot, `GenerateCycleFromBounds` creates the cycle.
 
@@ -98,6 +98,8 @@ dotnet run --project .\CursorPace.csproj
 ./scripts/dev.sh --test
 .\scripts\dev.ps1 -Background
 ./scripts/dev.sh --background
+.\scripts\dev.ps1 -Show
+./scripts/dev.sh --show
 .\scripts\build.ps1                # Windows: publish + Inno Setup installer
 .\scripts\build.ps1 -SkipInstaller # Windows: publish only
 ./scripts/build.sh                 # Linux/macOS: publish + AppImage or app bundle

@@ -170,6 +170,56 @@
                     </StackPanel>
                 </Border>
 
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardStrokeBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="About" FontSize="16" FontWeight="SemiBold"/>
+                            <SelectableTextBlock Text="Version, license, and source."
+                                                 TextWrapping="Wrap"
+                                                 Opacity="0.7"
+                                                 FontSize="12"/>
+                        </StackPanel>
+                        <Grid ColumnDefinitions="Auto,*"
+                              ColumnSpacing="16"
+                              RowDefinitions="Auto,Auto,Auto,Auto"
+                              RowSpacing="8">
+                            <TextBlock Text="Version" Opacity="0.8" FontSize="12" VerticalAlignment="Center"/>
+                            <SelectableTextBlock Grid.Column="1"
+                                                 Text="{Binding AboutVersion}"
+                                                 FontSize="12"
+                                                 VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="1" Text="Build date" Opacity="0.8" FontSize="12" VerticalAlignment="Center"/>
+                            <SelectableTextBlock Grid.Row="1"
+                                                 Grid.Column="1"
+                                                 Text="{Binding AboutBuildDate}"
+                                                 FontSize="12"
+                                                 VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="2" Text="License" Opacity="0.8" FontSize="12" VerticalAlignment="Center"/>
+                            <SelectableTextBlock Grid.Row="2"
+                                                 Grid.Column="1"
+                                                 Text="{Binding AboutLicense}"
+                                                 FontSize="12"
+                                                 VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="3" Text="Repository" Opacity="0.8" FontSize="12" VerticalAlignment="Center"/>
+                            <HyperlinkButton Grid.Row="3"
+                                             Grid.Column="1"
+                                             NavigateUri="{Binding AboutRepositoryUri}"
+                                             Content="{Binding AboutRepositoryUrl}"
+                                             Padding="0"
+                                             HorizontalAlignment="Left"
+                                             FontSize="12"
+                                             AutomationProperties.Name="GitHub repository"/>
+                        </Grid>
+                        <SelectableTextBlock Text="{Binding AboutCopyright}"
+                                             TextWrapping="Wrap"
+                                             FontSize="12"/>
+                    </StackPanel>
+                </Border>
+
             </StackPanel>
         </ScrollViewer>
     </DockPanel>

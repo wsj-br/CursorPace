@@ -356,6 +356,19 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void AboutProperties_MatchAppInfo()
+    {
+        var vm = CreateViewModel(signedIn: false);
+
+        Assert.Equal(AppInfo.Current.Version, vm.AboutVersion);
+        Assert.Equal(AppInfo.Current.FormatBuildDate(CultureInfo.CurrentCulture), vm.AboutBuildDate);
+        Assert.Equal(AppInfo.Current.Copyright, vm.AboutCopyright);
+        Assert.Equal(AppInfo.LicenseName, vm.AboutLicense);
+        Assert.Equal(AppInfo.RepositoryUrl, vm.AboutRepositoryUrl);
+        Assert.Equal(AppInfo.RepositoryUri, vm.AboutRepositoryUri);
+    }
+
+    [Fact]
     public void ShowSettings_SwitchesMainWindowToSettingsView()
     {
         var vm = CreateViewModel(signedIn: false);

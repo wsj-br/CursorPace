@@ -239,6 +239,18 @@ public sealed class MainViewModel : ViewModelBase
     public string CursorAccountTitle =>
         IsCursorConnected ? "Cursor account (connected)" : "Cursor account (disconnected)";
 
+    public string AboutVersion => AppInfo.Current.Version;
+
+    public string AboutBuildDate => AppInfo.Current.FormatBuildDate(CultureInfo.CurrentCulture);
+
+    public string AboutCopyright => AppInfo.Current.Copyright;
+
+    public string AboutLicense => AppInfo.LicenseName;
+
+    public string AboutRepositoryUrl => AppInfo.RepositoryUrl;
+
+    public Uri AboutRepositoryUri => AppInfo.RepositoryUri;
+
     public ICommand QuitCommand { get; }
     public ICommand ShowSettingsCommand { get; }
     public ICommand HideSettingsCommand { get; }

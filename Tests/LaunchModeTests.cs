@@ -33,4 +33,24 @@ public class LaunchModeTests
     {
         Assert.False(LaunchMode.HideMainWindow(false, ["CursorPace", "--test", "-d"]));
     }
+
+    [Fact]
+    public void HideMainWindow_WhenShowArgument_ReturnsFalse()
+    {
+        Assert.False(LaunchMode.HideMainWindow(false, ["CursorPace", LaunchMode.ShowArgument]));
+    }
+
+    [Fact]
+    public void HideMainWindow_WhenShowArgument_OverridesStartInNotificationTray()
+    {
+        Assert.False(LaunchMode.HideMainWindow(true, ["CursorPace", LaunchMode.ShowArgument]));
+    }
+
+    [Fact]
+    public void HideMainWindow_WhenShowArgument_OverridesBackgroundArgument()
+    {
+        Assert.False(LaunchMode.HideMainWindow(
+            true,
+            ["CursorPace", LaunchMode.BackgroundArgument, LaunchMode.ShowArgument]));
+    }
 }

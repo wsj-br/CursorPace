@@ -27,7 +27,7 @@ End-user guide for Cursor Pace. For building from source, see [dev/DEVELOPMENT.m
 
 ## First run
 
-**Start in notification tray** is on by default, so the first launch may show only the tray icon. Open the window from that icon (or turn the setting off). The window starts with an empty state until you sign in:
+**Start in notification tray** is on by default, so the first launch may show only the tray icon. Open the window from that icon, turn the setting off, or launch with `--show`. The window starts with an empty state until you sign in:
 
 1. Choose **Sign in**.
 2. Complete Google, GitHub, or two-factor sign-in in the embedded window. The window closes when Cursor accepts the session. If you already see your account, choose **Continue**.
@@ -76,7 +76,7 @@ Title bar actions:
 
 | Control | Action |
 | --- | --- |
-| **Settings** | Open Settings in this window (account, appearance, startup, CSV, backup) |
+| **Settings** | Open Settings in this window (account, appearance, startup, CSV, backup, About) |
 | **Back** | On the Settings page, the chevron or the **Settings** heading returns to the calendar or chart |
 | **Quit** | Exit the process (does not keep the tray icon) |
 | **Minimize** | Minimize the window; the app stays in the tray |
@@ -105,12 +105,13 @@ Open **Settings** from the title bar. Settings replace the calendar or chart in 
 | **Update usage automatically** | Clock-aligned refreshes at the interval below |
 | **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
 | **Launch at login** | Starts the app at OS login (Windows Run key, macOS Launch Agent, or Linux XDG autostart) |
-| **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same |
+| **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same. `--show` forces the window open |
 | **Theme** | System (default), Light, or Dark. Overrides the Fluent theme variant for the app |
 | **Export Cycle CSV** | Writes each day: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
 | **Export Usage** | Writes collected sample timestamps and percents (shown while signed in). The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
 | **Backup** | Writes `manifest.json`, `settings.json`, and `usage-samples.json` as one `.zip` file (suggested name `cursor-pace-backup-yyyy-MM-dd-HH_mm_ss`) |
 | **Restore** | Replaces local settings and samples from a backup zip. The Cursor sign-in session is not changed |
+| **About** | Version from the build, UTC compile date, copyright, MIT license, and a link to the GitHub repository |
 
 After a local export or backup completes, choose **Open Folder** on the left side of the completion dialog to open its destination folder, or choose **OK** on the right to close it.
 
@@ -128,7 +129,7 @@ If the icon is missing, expand the overflow chevron (`^`). On Linux, GNOME may n
 ## Startup and single instance
 
 - With **Launch at login** on, a new OS login session starts the app. **Start in notification tray** (on by default) keeps the window hidden; turn that off to open the window. Click the tray icon to open the window.
-- From the Start menu or app launcher, the window opens unless **Start in notification tray** is on.
+- From the Start menu or app launcher, the window opens unless **Start in notification tray** is on. Pass `--show` to force the window open regardless of that setting or `--background`.
 - Only one process runs. Launching again activates the existing window.
 
 ## Data
