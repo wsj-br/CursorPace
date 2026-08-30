@@ -2,7 +2,7 @@
 # Build an AppImage from a linux-x64 or linux-arm64 self-contained publish folder.
 #
 # Usage:
-#   ./scripts/build-appimage.sh --version 0.2.0 --rid linux-x64 --publish-dir bin/Release/net10.0/linux-x64/publish
+#   ./scripts/build-appimage.sh --version 0.x.y --rid linux-x64 --publish-dir bin/Release/net10.0/linux-x64/publish
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

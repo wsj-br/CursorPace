@@ -178,6 +178,7 @@ Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do n
 | `MainViewModelTests.cs` / `DayRowViewModelTests.cs` / `CalendarMonthViewModelTests.cs` | Initialization, connected-account persistence, exports, calendar heading, settings page, backup restore |
 | `DataBackupArchiveTests.cs` | Zip backup format, missing entries, restore into stores |
 | `WindowPlacementTests.cs` | Restore clamped to the work area |
+| `LaunchModeTests.cs` | `--background` and **Start in notification tray** hide the window on launch |
 | `AsyncRelayCommandTests.cs` | Async command reentrancy guard and exception handling |
 
 `CycleCalculatorTests` still covers:

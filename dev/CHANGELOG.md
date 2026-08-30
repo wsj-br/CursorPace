@@ -8,6 +8,9 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Fixed**: tray - launch honors **Start in notification tray** and `--background`. Avalonia's desktop lifetime always calls `MainWindow.Show()` after startup, so the window is no longer assigned as `desktop.MainWindow` until it should be visible.
+- **Fixed**: window - apply the saved position before the window is mapped; on Linux keep opacity at 0 until that placement is applied so the compositor does not flash the default top-left position and then jump.
+
 ## [0.2.1] - 2026-08-30
 
 - **Changed**: install - version is `0.2.1`.

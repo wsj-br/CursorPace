@@ -64,14 +64,17 @@ public partial class App : Application
         _trayService.UpdateToolTip(_viewModel.TrayToolTipText);
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
 
-        var launchInBackground = Environment.GetCommandLineArgs().Contains("--background")
-            || _viewModel.StartInNotificationTray;
+        var launchInBackground = LaunchMode.HideMainWindow(
+            _viewModel.StartInNotificationTray,
+            Environment.GetCommandLineArgs());
 
-        _mainWindow = new MainWindow(_viewModel, _dispatcher, startInTray: launchInBackground);
-        desktop.MainWindow = _mainWindow;
+        _mainWindow = new MainWindow(_viewModel, _dispatcher);
 
+        // ClassicDesktopStyleApplicationLifetime.StartCore always calls
+        // MainWindow.Show() after this method returns. Leave it unset when
+        // starting in the tray so that Show is skipped.
         if (!launchInBackground)
-            _mainWindow.Show();
+            desktop.MainWindow = _mainWindow;
 
         _ = _viewModel.StartSyncAsync();
 
@@ -119,6 +122,13 @@ public partial class App : Application
 
     private void ShowMainWindow()
     {
-        _dispatcher?.Post(() => _mainWindow?.BringToFront());
+        _dispatcher?.Post(() =>
+        {
+            if (_mainWindow == null)
+                return;
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                desktop.MainWindow ??= _mainWindow;
+            _mainWindow.BringToFront();
+        });
     }
 }

@@ -21,6 +21,7 @@ public partial class MainWindow : Window
     private readonly TitleBarDrag _titleBarDrag = null!;
     private PixelPoint? _lastNormalPosition;
     private bool _restorePlacementPending;
+    private bool _concealUntilPlaced;
     private bool _reallyClosing;
 
     public MainViewModel ViewModel => _viewModel;
@@ -30,12 +31,12 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
-    public MainWindow(MainViewModel viewModel, bool startInTray = false)
-        : this(viewModel, new AvaloniaUiDispatcher(), startInTray)
+    public MainWindow(MainViewModel viewModel)
+        : this(viewModel, new AvaloniaUiDispatcher())
     {
     }
 
-    public MainWindow(MainViewModel viewModel, IUiDispatcher dispatcher, bool startInTray = false)
+    public MainWindow(MainViewModel viewModel, IUiDispatcher dispatcher)
     {
         _viewModel = viewModel;
         _dispatcher = dispatcher;
@@ -48,8 +49,8 @@ public partial class MainWindow : Window
         _viewModel.QuitRequested += () => _dispatcher.Post(CloseForReal);
 
         SetupWindow();
-        if (startInTray)
-            HideToTray();
+        ApplySavedWindowPosition();
+        ConcealUntilPlaced();
 
         _dayCheckTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(5) };
         _dayCheckTimer.Tick += (_, _) => _viewModel.CheckForNewDay();
@@ -77,15 +78,18 @@ public partial class MainWindow : Window
         CanResize = false;
     }
 
-    public void HideToTray() => Hide();
-
     public void BringToFront()
     {
-        _restorePlacementPending = true;
+        if (!IsVisible)
+        {
+            ApplySavedWindowPosition();
+            ConcealUntilPlaced();
+            _restorePlacementPending = _viewModel.TryGetSavedWindowPosition(out _, out _);
+        }
+
         Show();
         WindowState = WindowState.Normal;
         Activate();
-        RestoreWindowPosition();
         _viewModel.CheckForNewDay();
     }
 
@@ -140,29 +144,28 @@ public partial class MainWindow : Window
 
     private void OnWindowOpened(object? sender, EventArgs e)
     {
-        // On Linux, window managers do not reliably raise Activated when the
-        // window is first shown (it fires only once the user interacts with
-        // the window), so the initial placement would otherwise fall back to
-        // the WM's default position. Opened always fires when the window is
-        // shown, on every platform, so restore eagerly here too.
-        if (!_restorePlacementPending)
+        if (!_restorePlacementPending && !_concealUntilPlaced)
             return;
 
+        // Linux WMs (especially Mutter) often ignore PPosition and map at the
+        // default top-left, then honor a later move. Keep the window invisible
+        // until that second apply so the jump is not visible.
+        if (OperatingSystem.IsLinux() && _concealUntilPlaced)
+        {
+            ApplySavedWindowPosition();
+            _dispatcher.Post(() =>
+            {
+                ApplySavedWindowPosition();
+                _dispatcher.Post(RevealPlacedWindow);
+            });
+            return;
+        }
+
         _restorePlacementPending = false;
-        RestoreWindowPosition();
-        _dispatcher.Post(RestoreWindowPosition);
     }
 
-    private void OnWindowActivated(object? sender, EventArgs e)
-    {
+    private void OnWindowActivated(object? sender, EventArgs e) =>
         _viewModel.CheckForNewDay();
-        if (!_restorePlacementPending)
-            return;
-
-        _restorePlacementPending = false;
-        RestoreWindowPosition();
-        _dispatcher.Post(RestoreWindowPosition);
-    }
 
     private void OnPositionChanged(object? sender, PixelPointEventArgs e)
     {
@@ -192,7 +195,7 @@ public partial class MainWindow : Window
         return WindowState != WindowState.Minimized && IsPlausiblePosition(position);
     }
 
-    private void RestoreWindowPosition()
+    private void ApplySavedWindowPosition()
     {
         if (!_viewModel.TryGetSavedWindowPosition(out var x, out var y))
             return;
@@ -203,7 +206,11 @@ public partial class MainWindow : Window
             var height = (int)Math.Round(FrameSize?.Height ?? Height);
             var screen = Screens.ScreenFromPoint(new PixelPoint(x, y)) ?? Screens.Primary;
             if (screen == null)
+            {
+                Position = new PixelPoint(x, y);
                 return;
+            }
+
             var work = screen.WorkingArea;
             var (clampedX, clampedY) = WindowPlacement.ClampToWorkArea(
                 x, y, width, height, work.X, work.Y, work.Width, work.Height);
@@ -212,6 +219,31 @@ public partial class MainWindow : Window
         catch
         {
         }
+    }
+
+    private void ConcealUntilPlaced()
+    {
+        if (!OperatingSystem.IsLinux())
+            return;
+        if (!_viewModel.TryGetSavedWindowPosition(out _, out _))
+            return;
+
+        Opacity = 0;
+        ShowInTaskbar = false;
+        _concealUntilPlaced = true;
+    }
+
+    private void RevealPlacedWindow()
+    {
+        ApplySavedWindowPosition();
+        if (_concealUntilPlaced)
+        {
+            Opacity = 1;
+            ShowInTaskbar = true;
+            _concealUntilPlaced = false;
+        }
+
+        _restorePlacementPending = false;
     }
 
     private static bool IsPlausiblePosition(PixelPoint position) =>

@@ -27,7 +27,7 @@ Sign in uses an embedded native WebView (WebView2 on Windows, WKWebView on macOS
 2. **Windows**: run the installer. If SmartScreen warns that the app is unsigned, choose **More info**, then **Run anyway**. If WebView2 Runtime is missing, open the download page the installer offers.
 3. **Linux**: make the AppImage executable (`chmod +x`), then run it. First launch may take a moment while the bundle extracts.
 4. **macOS**: unzip the archive, move `Cursor Pace.app` to Applications, then open it. If Gatekeeper blocks the unsigned app, attempt to open it once and then choose **Open Anyway** in **System Settings → Privacy & Security**.
-5. Sign in to Cursor when the app opens.
+5. Sign in to Cursor. If **Start in notification tray** is on (the default), open the window from the tray icon first.
 
 See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, the calendar and chart, tray behavior, and troubleshooting.
 

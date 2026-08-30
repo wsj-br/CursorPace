@@ -68,7 +68,7 @@ Chart slots: local midnights strictly inside `(CycleStart, NextRenewal)` split t
 
 A signed-in snapshot with a new cycle start replaces the cycle and `UsageSampleAppender` clears previous samples.
 
-If you change `CycleCalculator`, `QuotaCycle`, or `JsonPlanStore` serialization, update and run `Tests/CycleCalculatorTests.cs`. Sample-driven expected/estimate cases live in `Tests/SampleEstimationTests.cs`. If you change chart X/Y mapping, update `Tests/UsageChartSeriesBuilderTests.cs`. If you change launch/interval skip rules, update `Tests/SyncScheduleTests.cs`.
+If you change `CycleCalculator`, `QuotaCycle`, or `JsonPlanStore` serialization, update and run `Tests/CycleCalculatorTests.cs`. Sample-driven expected/estimate cases live in `Tests/SampleEstimationTests.cs`. If you change chart X/Y mapping, update `Tests/UsageChartSeriesBuilderTests.cs`. If you change launch/interval skip rules, update `Tests/SyncScheduleTests.cs`. If you change `--background` / **Start in notification tray** launch hiding, update `Tests/LaunchModeTests.cs`.
 
 ## Sync contract
 Allowed intervals: 1, 2, 4, 6, 12 hours (`SyncInterval.Clamp`). Auto refresh fires at `SyncSchedule.NextAlignedLocal`. On launch, never refresh when `lastUsageSyncUtc` is under 20 minutes old. After that window, refresh only when a clock-aligned slot was missed or the last update is already older than the interval; otherwise wait for the next aligned timer. Duplicate snapshots within 30 seconds are not appended (`UsageSampleAppender`).
@@ -82,11 +82,11 @@ Do not add a documented-public-API client. Keep the usage fetch inside `NativeWe
 ## Process and window
 Single instance via named mutex `CursorPace_SingleInstance` on Windows (Inno `CheckForMutexes` still uses this name). A second launch signals an EventWaitHandle and exits; the first instance shows its window. Unix uses a lock file plus a Unix domain socket under LocalApplicationData.
 
-Close hides the window. Process stays in the tray. Only Quit (button or tray menu) calls `App.Quit()`. `--background` or **Start in notification tray** skips showing the main window. Startup registration includes `--background` when **Start in notification tray** is on.
+Close hides the window. Process stays in the tray. Only Quit (button or tray menu) calls `App.Quit()`. `--background` or **Start in notification tray** skips showing the main window (`LaunchMode.HideMainWindow`). Do not assign `desktop.MainWindow` in that case: `ClassicDesktopStyleApplicationLifetime` always calls `MainWindow.Show()` after `OnFrameworkInitializationCompleted`. Startup registration includes `--background` when **Start in notification tray** is on.
 
 First run (`ActiveCycle` unset): the main window shows an empty state with **Sign in**. After a successful snapshot, `GenerateCycleFromBounds` creates the cycle.
 
-Main window is fixed size, fully custom title bar (`WindowDecorations="None"`) with app-owned Settings, Quit, Minimize, and Close controls; Fluent theme follows `themeMode` in settings (`System` / `Light` / `Dark`, default System). Do not make it resizable unless asked. Persist `WindowX` / `WindowY` on close-to-tray or quit; restore with `WindowPlacement.ClampToWorkArea`. Midnight/timezone: `MainWindow` polls `CheckForNewDay` on a 5-minute timer and on activate. Title bar drag: Windows uses `BeginMoveDrag`; Linux/macOS track pointer movement and set `Window.Position` directly, because `BeginMoveDrag` is unreliable under WSLg and many Linux compositors. Keep both paths if you touch title-bar drag.
+Main window is fixed size, fully custom title bar (`WindowDecorations="None"`) with app-owned Settings, Quit, Minimize, and Close controls; Fluent theme follows `themeMode` in settings (`System` / `Light` / `Dark`, default System). Do not make it resizable unless asked. Persist `WindowX` / `WindowY` on close-to-tray or quit. Apply the saved position (clamped with `WindowPlacement.ClampToWorkArea`) on the window before it is mapped. On Linux, keep opacity at 0 until that placement is applied so the window manager does not flash the default top-left position. Midnight/timezone: `MainWindow` polls `CheckForNewDay` on a 5-minute timer and on activate. Title bar drag: Windows uses `BeginMoveDrag`; Linux/macOS track pointer movement and set `Window.Position` directly, because `BeginMoveDrag` is unreliable under WSLg and many Linux compositors. Keep both paths if you touch title-bar drag.
 
 ## Commands
 ```

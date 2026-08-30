@@ -2,7 +2,7 @@
 # Build a macOS .app bundle (zipped) from a self-contained publish folder.
 #
 # Usage:
-#   ./scripts/build-appbundle.sh --version 0.2.0 --rid osx-arm64 --publish-dir bin/Release/net10.0/osx-arm64/publish
+#   ./scripts/build-appbundle.sh --version 0.x.y --rid osx-arm64 --publish-dir bin/Release/net10.0/osx-arm64/publish
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

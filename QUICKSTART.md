@@ -27,7 +27,7 @@ End-user guide for Cursor Pace. For building from source, see [dev/DEVELOPMENT.m
 
 ## First run
 
-The main window opens with an empty state until you sign in:
+**Start in notification tray** is on by default, so the first launch may show only the tray icon. Open the window from that icon (or turn the setting off). The window starts with an empty state until you sign in:
 
 1. Choose **Sign in**.
 2. Complete Google, GitHub, or two-factor sign-in in the embedded window. The window closes when Cursor accepts the session. If you already see your account, choose **Continue**.
