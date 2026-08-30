@@ -51,7 +51,9 @@ public sealed class MainViewModel : ViewModelBase
         ShowSettingsCommand = new RelayCommand(() => IsSettingsView = true);
         HideSettingsCommand = new RelayCommand(() => IsSettingsView = false);
         RefreshNowCommand = new AsyncRelayCommand(() => _sync.RefreshNowAsync(false), () => !IsSyncing);
-        SignInCommand = new AsyncRelayCommand(() => _sync.SignInAsync(), () => !IsSyncing && !IsCursorConnected);
+        SignInCommand = new AsyncRelayCommand(
+            () => _sync.SignInAsync(),
+            () => !IsSyncing && (!IsCursorConnected || _sync.Status == SyncStatus.AuthRequired));
         DisconnectCommand = new AsyncRelayCommand(() => _sync.DisconnectAsync(), () => !IsSyncing && _sync.Status != SyncStatus.SignedOut);
 
         _sync.StateChanged += OnSyncStateChanged;
@@ -164,6 +166,21 @@ public sealed class MainViewModel : ViewModelBase
         }
     }
 
+    public UiThemeMode ThemeMode
+    {
+        get => UiTheme.Clamp(_settings.ThemeMode);
+        set
+        {
+            var mode = UiTheme.Clamp(value);
+            if (_settings.ThemeMode == mode) return;
+            _settings.ThemeMode = mode;
+            OnPropertyChanged();
+            _store.Save(_settings);
+        }
+    }
+
+    public IReadOnlyList<UiThemeMode> ThemeModeOptions => UiTheme.AllowedModes;
+
     public bool AutoSyncEnabled
     {
         get => _settings.AutoSyncEnabled;
@@ -201,6 +218,12 @@ public sealed class MainViewModel : ViewModelBase
 
     public bool HasSyncAlert =>
         _sync.Status is SyncStatus.Error or SyncStatus.AuthRequired or SyncStatus.RateLimited;
+
+    public bool ShowSyncAlertSignInActions =>
+        _sync.Status == SyncStatus.AuthRequired && !IsSyncing;
+
+    public bool ShowSignInButton =>
+        !IsSyncing && (!IsCursorConnected || _sync.Status == SyncStatus.AuthRequired);
 
     public string EmptyStateText =>
         IsSyncing && IsCursorConnected
@@ -360,6 +383,8 @@ public sealed class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(LastSyncText));
         OnPropertyChanged(nameof(IsSyncing));
         OnPropertyChanged(nameof(HasSyncAlert));
+        OnPropertyChanged(nameof(ShowSyncAlertSignInActions));
+        OnPropertyChanged(nameof(ShowSignInButton));
         OnPropertyChanged(nameof(EmptyStateText));
         OnPropertyChanged(nameof(ShowEmptySignIn));
         OnPropertyChanged(nameof(IsCursorConnected));
@@ -546,6 +571,7 @@ public sealed class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsCalendarView));
         OnPropertyChanged(nameof(RunAtStartup));
         OnPropertyChanged(nameof(StartInNotificationTray));
+        OnPropertyChanged(nameof(ThemeMode));
         OnPropertyChanged(nameof(AutoSyncEnabled));
         OnPropertyChanged(nameof(SyncIntervalHours));
         PersistCursorAccountConnected();

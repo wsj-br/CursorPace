@@ -26,7 +26,7 @@ Flat repo. App project: `CursorUsageProgress.csproj`. Tests: `Tests/CursorUsageP
 | `Assets/` | Icon and tray image. |
 | `Tests/` | Unit tests. App csproj excludes this folder. |
 | `dev/` | Maintainer files: `CHANGELOG.md`, `DEVELOPMENT.md`, release-notes prompt. |
-| `scripts/` | Maintainer PowerShell: `dev.ps1`, `build.ps1`, `clean.ps1`, `release.ps1`. |
+| `scripts/` | Maintainer scripts: PowerShell (`.ps1`) and bash (`.sh`) for `dev`, `build`, `clean`, `release`. |
 | `Program.cs` | Avalonia entry: `BuildAvaloniaApp()`. |
 | `App.axaml.cs` | Process entry: single-instance, DI wiring, tray, `--background`. |
 
@@ -72,11 +72,11 @@ If you change `CycleCalculator`, `QuotaCycle`, or `JsonPlanStore` serialization,
 ## Sync contract
 Allowed intervals: 1, 2, 4, 6, 12 hours (`SyncInterval.Clamp`). Auto refresh fires at `SyncSchedule.NextAlignedLocal`. On launch, never refresh when `lastUsageSyncUtc` is under 20 minutes old. After that window, refresh only when a clock-aligned slot was missed or the last update is already older than the interval; otherwise wait for the next aligned timer. Duplicate snapshots within 30 seconds are not appended (`UsageSampleAppender`).
 
-`cursorAccountConnected` in `settings.json` records whether the Cursor account is signed in. `HasPersistedProfile` on the WebView profile folder can also mark the session connected. Sign out deletes that profile directory; it does not delete `usage-samples.json`.
+`cursorAccountConnected` in `settings.json` records whether the Cursor account is signed in. `HasPersistedProfile` on the WebView profile folder can also mark the session connected; it is false when the folder is empty/missing or a sign-out marker file is present. Sign out deletes only `cursor.com` cookies via the cookie manager when available (falls back to deleting the whole profile directory otherwise); it does not delete `usage-samples.json`.
 
 `Export Usage` is visible when connected. There is no calendar editing, **Reset**, or **Change renewal day**.
 
-Do not add a documented-public-API client. Keep the usage fetch inside `NativeWebView` (`fetch` with credentials) so session cookies never copy into `HttpClient`. Do not use `TryGetCookieManager` / `GetCookiesAsync` or `WebAuthenticationBroker`.
+Do not add a documented-public-API client. Keep the usage fetch inside `NativeWebView` (`fetch` with credentials) so session cookies never copy into `HttpClient`. Do not use `WebAuthenticationBroker`, and do not use `TryGetCookieManager` / `GetCookiesAsync` to read or export cookies for use outside the WebView. The one exception: `NativeWebViewCursorUsageClient.DisconnectAsync` uses `TryGetCookieManager` to delete only `cursor.com` cookies on Sign out, so a Google/GitHub session kept in the same profile survives; it falls back to deleting the whole profile folder if no cookie manager is available on that backend.
 
 ## Process and window
 Single instance via named mutex `CursorUsageProgress_SingleInstance` on Windows (Inno `CheckForMutexes` still uses this name). A second launch signals an EventWaitHandle and exits; the first instance shows its window. Unix uses a lock file plus a Unix domain socket under LocalApplicationData.
@@ -85,19 +85,25 @@ Close hides the window. Process stays in the tray. Only Quit (button or tray men
 
 First run (`ActiveCycle` unset): the main window shows an empty state with **Sign in**. After a successful snapshot, `GenerateCycleFromBounds` creates the cycle.
 
-Main window is fixed size, fully custom title bar (`WindowDecorations="None"`) with app-owned Settings, Quit, Minimize, and Close controls; Fluent theme follows the system. Do not make it resizable unless asked. Persist `WindowX` / `WindowY` on close-to-tray or quit; restore with `WindowPlacement.ClampToWorkArea`. Midnight/timezone: `MainWindow` polls `CheckForNewDay` on a 5-minute timer and on activate.
+Main window is fixed size, fully custom title bar (`WindowDecorations="None"`) with app-owned Settings, Quit, Minimize, and Close controls; Fluent theme follows `themeMode` in settings (`System` / `Light` / `Dark`, default System). Do not make it resizable unless asked. Persist `WindowX` / `WindowY` on close-to-tray or quit; restore with `WindowPlacement.ClampToWorkArea`. Midnight/timezone: `MainWindow` polls `CheckForNewDay` on a 5-minute timer and on activate.
 
 ## Commands
 ```
 dotnet test .\Tests\CursorUsageProgress.Tests.csproj
 dotnet run --project .\CursorUsageProgress.csproj
-.\scripts\dev.ps1                  # Debug run
+.\scripts\dev.ps1                  # Debug run (Windows / PowerShell)
+./scripts/dev.sh                   # Debug run (Linux / macOS)
 .\scripts\dev.ps1 -Test
+./scripts/dev.sh --test
 .\scripts\dev.ps1 -Background
-.\scripts\build.ps1 -SkipInstaller # self-contained win-x64 publish
+./scripts/dev.sh --background
+.\scripts\build.ps1                # Windows: publish + Inno Setup installer
+.\scripts\build.ps1 -SkipInstaller # Windows: publish only
+./scripts/build.sh                 # Linux/macOS: publish + AppImage or app bundle
+./scripts/build.sh --skip-installer
 ```
 
-Do not add trim, ReadyToRun, or PublishSingleFile. `scripts/build.ps1` already sets `PublishSingleFile=false`.
+Do not add trim, ReadyToRun, or PublishSingleFile. `scripts/build.ps1` / `scripts/build.sh` already set `PublishSingleFile=false`.
 
 ## Changelog
 After any behavioral change, bug fix, settings/schema change, or dependency update, add a bullet under `## [Unreleased]` in `dev/CHANGELOG.md` in the same edit session as the code.
@@ -113,7 +119,7 @@ Do not move `[Unreleased]` into a versioned section, and do not write `release-n
 - Prefer editing an existing service/VM over new layers.
 - Keep view code-behind thin: window lifetime, dialogs, scrolling, theme. Put state and commands on the view model.
 - After calculator or persistence changes: `dotnet test .\Tests\CursorUsageProgress.Tests.csproj`.
-- After UI changes: run the app (`.\scripts\dev.ps1`) and check first-run, close-to-tray, quit, and second-instance activation if those paths were touched.
+- After UI changes: run the app (`.\scripts\dev.ps1` or `./scripts/dev.sh`) and check first-run, close-to-tray, quit, and second-instance activation if those paths were touched.
 - Log user-visible work in `dev/CHANGELOG.md` (see Changelog above).
 - Do not commit installer output, `bin/`, `obj/`, or files under `installer/` (gitignored).
 - Do not commit unless asked.

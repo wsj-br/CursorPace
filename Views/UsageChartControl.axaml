@@ -16,7 +16,7 @@
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     Background="Transparent"/>
-            <TextBlock x:Name="EmptyPlotText"
+            <SelectableTextBlock x:Name="EmptyPlotText"
                        Text="Not enough data yet"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"

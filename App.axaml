@@ -16,7 +16,9 @@
                     <SolidColorBrush x:Key="CalendarMutedForegroundBrush">#6B6B6B</SolidColorBrush>
                     <SolidColorBrush x:Key="QuotaOverPaceBrush">#C47A7A</SolidColorBrush>
                     <SolidColorBrush x:Key="QuotaUnderPaceBrush">#6A9E7C</SolidColorBrush>
-                    <SolidColorBrush x:Key="SyncAlertBrush">#C47A7A</SolidColorBrush>
+                    <SolidColorBrush x:Key="SyncAlertBrush">#33EF4444</SolidColorBrush>
+                    <SolidColorBrush x:Key="SyncAlertBorderBrush">#F87171</SolidColorBrush>
+                    <SolidColorBrush x:Key="SyncAlertForegroundBrush">#7F1D1D</SolidColorBrush>
                     <Color x:Key="ChartCursorExpectedColor">#2563EB</Color>
                     <Color x:Key="ChartOtherExpectedColor">#EA580C</Color>
                     <Color x:Key="ChartCursorEstimatedColor">#15803D</Color>
@@ -30,7 +32,9 @@
                     <SolidColorBrush x:Key="CalendarMutedForegroundBrush">#A3A3A3</SolidColorBrush>
                     <SolidColorBrush x:Key="QuotaOverPaceBrush">#E8A0A0</SolidColorBrush>
                     <SolidColorBrush x:Key="QuotaUnderPaceBrush">#86C29A</SolidColorBrush>
-                    <SolidColorBrush x:Key="SyncAlertBrush">#E8A0A0</SolidColorBrush>
+                    <SolidColorBrush x:Key="SyncAlertBrush">#40F87171</SolidColorBrush>
+                    <SolidColorBrush x:Key="SyncAlertBorderBrush">#FCA5A5</SolidColorBrush>
+                    <SolidColorBrush x:Key="SyncAlertForegroundBrush">#FEE2E2</SolidColorBrush>
                     <Color x:Key="ChartCursorExpectedColor">#60A5FA</Color>
                     <Color x:Key="ChartOtherExpectedColor">#FB923C</Color>
                     <Color x:Key="ChartCursorEstimatedColor">#4ADE80</Color>

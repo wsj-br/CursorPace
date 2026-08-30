@@ -2,6 +2,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
+using CursorUsageProgress.Models;
 using CursorUsageProgress.Services;
 using CursorUsageProgress.ViewModels;
 using CursorUsageProgress.Views;
@@ -53,6 +55,7 @@ public partial class App : Application
         _syncService = sync;
 
         _viewModel = new MainViewModel(clock, calculator, store, startupReg, sync, backup);
+        ApplyTheme(_viewModel.ThemeMode);
 
         _trayService = new TrayService();
         _trayService.Initialize(
@@ -79,6 +82,19 @@ public partial class App : Application
     {
         if (e.PropertyName == nameof(MainViewModel.TrayToolTipText))
             _trayService?.UpdateToolTip(_viewModel!.TrayToolTipText);
+        else if (e.PropertyName == nameof(MainViewModel.ThemeMode))
+            ApplyTheme(_viewModel!.ThemeMode);
+    }
+
+    private void ApplyTheme(UiThemeMode mode)
+    {
+        RequestedThemeVariant = mode switch
+        {
+            UiThemeMode.Light => ThemeVariant.Light,
+            UiThemeMode.Dark => ThemeVariant.Dark,
+            UiThemeMode.System => ThemeVariant.Default,
+            _ => ThemeVariant.Default
+        };
     }
 
     public void Quit()

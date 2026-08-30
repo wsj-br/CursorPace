@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -17,6 +18,7 @@ public partial class MainWindow : Window
     private readonly MainViewModel _viewModel = null!;
     private readonly IUiDispatcher _dispatcher = null!;
     private readonly DispatcherTimer _dayCheckTimer = null!;
+    private readonly TitleBarDrag _titleBarDrag = null!;
     private PixelPoint? _lastNormalPosition;
     private bool _restorePlacementPending;
     private bool _reallyClosing;
@@ -39,6 +41,7 @@ public partial class MainWindow : Window
         _dispatcher = dispatcher;
         DataContext = _viewModel;
         InitializeComponent();
+        _titleBarDrag = new TitleBarDrag(this, TitleBarContent);
         UpdateViewModeIcons();
 
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
@@ -56,6 +59,13 @@ public partial class MainWindow : Window
         Activated += OnWindowActivated;
         PositionChanged += OnPositionChanged;
         Closing += OnWindowClosing;
+        KeyDown += OnWindowKeyDown;
+    }
+
+    private void OnWindowKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (SelectableTextCopy.TryHandleCopyKey(this, e))
+            e.Handled = true;
     }
 
     private void SetupWindow()
@@ -190,6 +200,18 @@ public partial class MainWindow : Window
 
     private static bool IsPlausiblePosition(PixelPoint position) =>
         position.X > -10_000 && position.Y > -10_000;
+
+    private void OnTitleBarPointerPressed(object? sender, PointerPressedEventArgs e) =>
+        _titleBarDrag.OnPointerPressed(e);
+
+    private void OnTitleBarPointerMoved(object? sender, PointerEventArgs e) =>
+        _titleBarDrag.OnPointerMoved(e);
+
+    private void OnTitleBarPointerReleased(object? sender, PointerReleasedEventArgs e) =>
+        _titleBarDrag.OnPointerReleased(e);
+
+    private void OnTitleBarPointerCaptureLost(object? sender, PointerCaptureLostEventArgs e) =>
+        _titleBarDrag.OnPointerCaptureLost(e);
 
     private void OnMinimizeClick(object? sender, RoutedEventArgs e) =>
         WindowState = WindowState.Minimized;

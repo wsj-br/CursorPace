@@ -35,17 +35,21 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
                 }
             })();
 
+            const encoded = JSON.stringify(payload);
+
             try {
                 chrome.webview.postMessage(payload);
             } catch {
             }
 
             try {
-                invokeCSharpAction(JSON.stringify(payload));
+                invokeCSharpAction(encoded);
             } catch {
             }
 
-            return payload;
+            // WebKit (Linux/macOS) only marshals primitive/string script results;
+            // returning a raw object surfaces as "Unsupported result type".
+            return encoded;
         })();
         """;
 
@@ -59,7 +63,8 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
 
     public bool HasPersistedProfile =>
         Directory.Exists(WebViewProfilePaths.ProfileDirectory)
-        && Directory.EnumerateFileSystemEntries(WebViewProfilePaths.ProfileDirectory).Any();
+        && Directory.EnumerateFileSystemEntries(WebViewProfilePaths.ProfileDirectory).Any()
+        && !File.Exists(WebViewProfilePaths.SignedOutMarkerPath);
 
     public async Task<UsageFetchResult> FetchAsync(
         bool allowInteractiveLogin,
@@ -141,12 +146,53 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
     public async Task DisconnectAsync()
     {
         await _gate.WaitAsync();
+        WebViewHostWindow? host = null;
         try
         {
             var folder = WebViewProfilePaths.ProfileDirectory;
             if (!Directory.Exists(folder))
                 return;
 
+            var clearedCursorCookiesOnly = false;
+            try
+            {
+                host = new WebViewHostWindow();
+                host.PlaceOffscreen();
+                host.Show();
+                await host.EnsureReadyAsync();
+                host.HideHost();
+
+                var cookieManager = host.WebView.TryGetCookieManager();
+                if (cookieManager != null)
+                {
+                    var cookies = await cookieManager.GetCookiesAsync();
+                    foreach (var cookie in cookies)
+                    {
+                        if (IsCursorCookieDomain(cookie.Domain))
+                            cookieManager.DeleteCookie(cookie);
+                    }
+
+                    clearedCursorCookiesOnly = true;
+                }
+            }
+            catch
+            {
+                // Cookie manager unavailable or failed; fall back to a full profile wipe below.
+            }
+            finally
+            {
+                if (host != null)
+                    await CloseHostAsync(host);
+            }
+
+            if (clearedCursorCookiesOnly)
+            {
+                File.WriteAllText(WebViewProfilePaths.SignedOutMarkerPath, string.Empty);
+                return;
+            }
+
+            // Fallback for backends without a cookie manager: this also clears
+            // any Google/GitHub session stored in the profile.
             try
             {
                 Directory.Delete(folder, recursive: true);
@@ -162,6 +208,16 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
         {
             _gate.Release();
         }
+    }
+
+    private static bool IsCursorCookieDomain(string? domain)
+    {
+        if (string.IsNullOrEmpty(domain))
+            return false;
+
+        var host = domain.TrimStart('.');
+        return host.Equals("cursor.com", StringComparison.OrdinalIgnoreCase)
+            || host.EndsWith(".cursor.com", StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task<UsageFetchResult> WaitForLoginAsync(
@@ -344,12 +400,26 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
         webView.WebMessageReceived += OnMessage;
         try
         {
-            var encoded = await webView.InvokeScript(FetchScript);
+            Exception? invokeError = null;
+            string? encoded = null;
+            try
+            {
+                encoded = await webView.InvokeScript(FetchScript);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                // Script may still have delivered the payload via invokeCSharpAction.
+                invokeError = ex;
+            }
+
             if (finished.Task.IsCompletedSuccessfully)
                 return ParseFetchResult(await finished.Task);
 
-            if (WebView2ScriptResultParser.TryParse(encoded, out var status, out var body))
+            if (encoded != null
+                && WebView2ScriptResultParser.TryParse(encoded, out var status, out var body))
+            {
                 return new ScriptFetchResult { Status = status, Body = body };
+            }
 
             using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             timeoutCts.CancelAfter(TimeSpan.FromSeconds(30));
@@ -359,6 +429,9 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
+                if (invokeError != null)
+                    throw new InvalidOperationException(invokeError.Message, invokeError);
+
                 throw new InvalidOperationException("The usage request timed out.");
             }
         }
@@ -385,6 +458,17 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
                 null,
                 "The Cursor usage response could not be parsed.",
                 fetch.Status);
+        }
+
+        // A 200 response proves a live Cursor session exists, so any earlier
+        // Sign out marker (cursor.com cookies cleared, other cookies kept) no
+        // longer applies.
+        try
+        {
+            File.Delete(WebViewProfilePaths.SignedOutMarkerPath);
+        }
+        catch (IOException)
+        {
         }
 
         return new UsageFetchResult(UsageFetchStatus.Ok, snapshot, null, fetch.Status);

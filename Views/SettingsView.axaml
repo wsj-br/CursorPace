@@ -36,7 +36,7 @@
                         Padding="16">
                     <StackPanel Spacing="12">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="{Binding CursorAccountTitle}" FontSize="16" FontWeight="SemiBold"/>
+                            <SelectableTextBlock Text="{Binding CursorAccountTitle}" FontSize="16" FontWeight="SemiBold"/>
                             <SelectableTextBlock Text="{Binding SyncStatusText}"
                                                  TextWrapping="Wrap"
                                                  Opacity="0.7"
@@ -45,7 +45,7 @@
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button Content="Sign in"
                                     Command="{Binding SignInCommand}"
-                                    IsVisible="{Binding !IsCursorConnected}"/>
+                                    IsVisible="{Binding ShowSignInButton}"/>
                             <Button Content="Refresh now" Command="{Binding RefreshNowCommand}"/>
                             <Button Content="Sign out" Click="OnDisconnectClick"/>
                         </StackPanel>
@@ -98,6 +98,30 @@
                                               AutomationProperties.Name="Start in notification tray"/>
                             </StackPanel>
                         </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardStrokeBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Appearance" FontSize="16" FontWeight="SemiBold"/>
+                            <SelectableTextBlock Text="Override the interface theme, or follow the system light or dark setting."
+                                                 TextWrapping="Wrap"
+                                                 Opacity="0.7"
+                                                 FontSize="12"/>
+                        </StackPanel>
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Theme" Opacity="0.8" FontSize="12"/>
+                            <ComboBox x:Name="ThemeBox"
+                                      MinWidth="160"
+                                      HorizontalAlignment="Left"
+                                      SelectionChanged="OnThemeChanged"
+                                      AutomationProperties.Name="Theme"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 

@@ -135,6 +135,7 @@ public sealed class JsonPlanStore : IPlanStore
             ActiveCycle = cycle,
             RunAtStartup = stored.RunAtStartup,
             StartInNotificationTray = stored.StartInNotificationTray,
+            ThemeMode = UiTheme.Clamp(stored.ThemeMode),
             AutoSyncEnabled = stored.AutoSyncEnabled,
             SyncIntervalHours = SyncInterval.Clamp(stored.SyncIntervalHours),
             ShowChartView = stored.ShowChartView,
@@ -164,6 +165,7 @@ public sealed class JsonPlanStore : IPlanStore
             ActiveCycle = cycle,
             RunAtStartup = settings.RunAtStartup,
             StartInNotificationTray = settings.StartInNotificationTray,
+            ThemeMode = UiTheme.Clamp(settings.ThemeMode),
             AutoSyncEnabled = settings.AutoSyncEnabled,
             SyncIntervalHours = SyncInterval.Clamp(settings.SyncIntervalHours),
             ShowChartView = settings.ShowChartView,
@@ -180,6 +182,7 @@ public sealed class JsonPlanStore : IPlanStore
         public StoredCycle? ActiveCycle { get; set; }
         public bool RunAtStartup { get; set; }
         public bool StartInNotificationTray { get; set; } = true;
+        public UiThemeMode ThemeMode { get; set; } = UiThemeMode.System;
         public bool AutoSyncEnabled { get; set; } = true;
         public int SyncIntervalHours { get; set; } = 1;
         public bool ShowChartView { get; set; }

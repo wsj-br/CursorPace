@@ -66,6 +66,32 @@ public class JsonPlanStoreTests : IDisposable
         Assert.Equal(2, loaded.ActiveCycle.RenewalDay);
     }
 
+    [Fact]
+    public void SaveAndLoad_RoundTripsThemeMode()
+    {
+        _store.Save(new AppSettings { ThemeMode = UiThemeMode.Dark });
+
+        var loaded = _store.Load();
+
+        Assert.Equal(UiThemeMode.Dark, loaded.ThemeMode);
+        Assert.Contains("\"themeMode\": \"Dark\"", File.ReadAllText(_settingsPath), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Load_MissingThemeMode_DefaultsToSystem()
+    {
+        File.WriteAllText(_settingsPath, """
+            {
+              "version": 2,
+              "autoSyncEnabled": true
+            }
+            """);
+
+        var loaded = _store.Load();
+
+        Assert.Equal(UiThemeMode.System, loaded.ThemeMode);
+    }
+
     public void Dispose()
     {
         try

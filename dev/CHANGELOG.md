@@ -8,6 +8,22 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Changed**: ui - sync alert banner now uses a light-red border with a brighter, semi-transparent red fill instead of a flat, dull rose; the alert text color is themed (`SyncAlertForegroundBrush`) instead of hardcoded white so it stays readable against the lighter fill.
+- **Added**: install - Linux ARM64 AppImage release build; `build-linux` in `.github/workflows/dotnet-desktop.yml` is now a matrix over `linux-x64` (`ubuntu-24.04`) and `linux-arm64` (`ubuntu-24.04-arm`), and `scripts/build.sh` / `scripts/build-appimage.sh` accept `--rid linux-arm64` and select the matching `linuxdeploy-aarch64` tool.
+
+- **Fixed**: sync - a Linux AppImage run now uses a separate `WebView-AppImage` profile folder instead of sharing `WebView` with a `dotnet run`/`dev.sh` build; the AppImage bundles its own WebKitGTK, and the two WebKit builds reading/writing the same cookie database was causing recurring, false `AuthRequired` sign-outs.
+- **Changed**: sync - `Sign out` deletes only `cursor.com` cookies via the WebView's cookie manager when the current platform backend supports one, keeping any Google or GitHub session stored in the same browser profile; it falls back to deleting the whole profile folder when no cookie manager is available. `HasPersistedProfile` also checks a new sign-out marker file so a kept profile is not mistaken for an active Cursor session after signing out.
+- **Fixed**: install - `build-appimage.sh` pins `linuxdeploy-plugin-gtk` to a commit SHA instead of tracking `master`, and caches `linuxdeploy`/the GTK plugin under version-qualified filenames so bumping either pinned ref actually re-downloads instead of silently reusing a stale `.appimage-build/` copy.
+- **Changed**: install - tag-triggered release builds now validate version and notes once, build unsigned Windows/Linux plus both macOS architectures with read-only jobs, verify every checksum, and publish only after all packages succeed.
+- **Changed**: install - use maintained GitHub Actions major versions and locked NuGet restores with Dependabot updates.
+- **Fixed**: window - custom title bar drag on Linux/macOS tracks pointer movement and updates `Window.Position` (`BeginMoveDrag` is unreliable under WSLg and many Linux compositors); Windows still uses `BeginMoveDrag`.
+- **Fixed**: ui - calendar, chart, and dialog text use `SelectableTextBlock`; Ctrl+C copies the current selection from the main window and dialogs.
+- **Added**: window - sync alert for sign-in required shows **Sign in** and **Settings** actions; **Sign in** stays available in Settings when a session exists but sync needs re-authentication.
+- **Added**: install - Linux AppImage packaging via `./scripts/build.sh` and `scripts/build-appimage.sh` (linuxdeploy + GTK plugin).
+- **Added**: install - macOS `.app` bundle packaging via `./scripts/build.sh` and `scripts/build-appbundle.sh` (zipped for release).
+- **Changed**: scripts - `build.sh` detects Linux/macOS and packages accordingly; Windows/Inno remains in `build.ps1` only.
+- **Added**: scripts - bash equivalents of `dev`, `build`, `clean`, and `release` (`scripts/*.sh`) for Linux/macOS without PowerShell.
+- **Fixed**: sync - Linux/macOS WebKit sign-in no longer fails with `Unsupported result type` after Google login; usage fetch returns a JSON string from `InvokeScript` and still accepts the `invokeCSharpAction` message path when the script result cannot be marshaled.
 - **Changed**: window - move `Updated dd/MM HH:mm` under the calendar month heading / chart title (hidden while a sync alert banner is shown).
 - **Fixed**: sync - launch refresh no longer runs mid-slot once the last update is 20+ minutes old; the 20-minute window is a hard floor, and after that only a missed aligned slot or a full interval triggers a start refresh.
 - **Changed**: settings - completion dialogs place `Open Folder` on the left and `OK` on the right.

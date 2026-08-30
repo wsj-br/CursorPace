@@ -30,6 +30,9 @@ _build-check*
 # Publish / installer / packaging
 publish/
 installer/
+.appimage-build/
+.appbundle-build/
+*.AppImage
 AppPackages/
 BundleArtifacts/
 *.appx

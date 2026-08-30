@@ -44,6 +44,27 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void AuthRequired_WhenConnected_ShowsSignInActions()
+    {
+        var sync = new FakeSync
+        {
+            IsSignedIn = true,
+            Status = SyncStatus.AuthRequired,
+            StatusText = "Sign in to Cursor to sync usage."
+        };
+        var store = new FakePlanStore();
+        store.Settings.ActiveCycle = new CycleCalculator().GenerateCycleFromBounds(
+            new DateTime(2026, 8, 1),
+            new DateTime(2026, 9, 1));
+        var vm = CreateViewModel(sync, store);
+
+        Assert.True(vm.IsCursorConnected);
+        Assert.True(vm.ShowSyncAlertSignInActions);
+        Assert.True(vm.ShowSignInButton);
+        Assert.True(((AsyncRelayCommand)vm.SignInCommand).CanExecute(null));
+    }
+
+    [Fact]
     public void SignIn_PersistsCursorAccountConnected()
     {
         var store = new FakePlanStore();
@@ -223,6 +244,19 @@ public class MainViewModelTests
 
         Assert.False(startup.IsRegistered);
         Assert.Null(startup.LastStartInTray);
+    }
+
+    [Fact]
+    public void ThemeMode_PersistsToStore()
+    {
+        var store = new FakePlanStore();
+        var vm = CreateViewModel(new FakeSync(), store);
+
+        Assert.Equal(UiThemeMode.System, vm.ThemeMode);
+
+        vm.ThemeMode = UiThemeMode.Light;
+
+        Assert.Equal(UiThemeMode.Light, store.Settings.ThemeMode);
     }
 
     [Fact]

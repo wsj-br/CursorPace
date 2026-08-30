@@ -363,7 +363,7 @@ public partial class UsageChartControl : UserControl
                 line.StrokeDashArray = new AvaloniaList<double> { 3, 2 };
 
             entry.Children.Add(line);
-            entry.Children.Add(new TextBlock
+            entry.Children.Add(new SelectableTextBlock
             {
                 Text = item.Label,
                 FontSize = 11,
@@ -378,7 +378,7 @@ public partial class UsageChartControl : UserControl
 
     private void AddLabel(string text, double x, double y, IBrush brush, double fontSize, bool alignRight = false)
     {
-        var block = new TextBlock
+        var block = new SelectableTextBlock
         {
             Text = text,
             FontSize = fontSize,

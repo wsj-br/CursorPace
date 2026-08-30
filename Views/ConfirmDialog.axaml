@@ -8,7 +8,7 @@
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False">
     <Grid RowDefinitions="Auto,*,Auto" Margin="24">
-        <TextBlock x:Name="TitleText"
+        <SelectableTextBlock x:Name="TitleText"
                    FontSize="18"
                    FontWeight="SemiBold"
                    TextWrapping="Wrap"/>

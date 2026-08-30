@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using CursorUsageProgress.Models;
 using CursorUsageProgress.Services;
 using CursorUsageProgress.ViewModels;
 
@@ -42,12 +43,15 @@ public partial class SettingsView : UserControl
 
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
         SyncIntervalBox();
+        SyncThemeBox();
     }
 
     private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(MainViewModel.SyncIntervalHours))
             SyncIntervalBox();
+        else if (e.PropertyName == nameof(MainViewModel.ThemeMode))
+            SyncThemeBox();
     }
 
     private void SyncIntervalBox()
@@ -57,6 +61,15 @@ public partial class SettingsView : UserControl
 
         IntervalBox.ItemsSource = _viewModel.SyncIntervalOptions;
         IntervalBox.SelectedItem = _viewModel.SyncIntervalHours;
+    }
+
+    private void SyncThemeBox()
+    {
+        if (_viewModel == null)
+            return;
+
+        ThemeBox.ItemsSource = _viewModel.ThemeModeOptions;
+        ThemeBox.SelectedItem = _viewModel.ThemeMode;
     }
 
     private async void OnExportCsvClick(object? sender, RoutedEventArgs e)
@@ -304,6 +317,12 @@ public partial class SettingsView : UserControl
             _viewModel.SyncIntervalHours = hours;
     }
 
+    private void OnThemeChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (_viewModel != null && ThemeBox.SelectedItem is UiThemeMode mode)
+            _viewModel.ThemeMode = mode;
+    }
+
     private async void OnDisconnectClick(object? sender, RoutedEventArgs e)
     {
         var window = HostWindow;
@@ -313,7 +332,7 @@ public partial class SettingsView : UserControl
         var confirmed = await ConfirmDialog.ConfirmAsync(
             window,
             "Sign out of Cursor",
-            "This signs out of Cursor in this app, including any Google or GitHub session stored in the app's private browser profile. Your regular browser is not affected. Collected usage samples stay on disk.",
+            "This signs out of Cursor in this app. Any Google or GitHub session stored in the app's private browser profile is kept when possible, so signing in again may not ask for that password. Your regular browser is not affected. Collected usage samples stay on disk.",
             "Sign out",
             "Cancel");
         if (confirmed && _viewModel.DisconnectCommand.CanExecute(null))

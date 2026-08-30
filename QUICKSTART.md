@@ -4,20 +4,26 @@ End-user guide for Cursor Usage Progress. For building from source, see [dev/DEV
 
 ## Install
 
+### Windows
+
 1. Download `CursorUsageProgress-*-win-x64-setup.exe` from this repository's Releases page.
 2. Run the installer. If SmartScreen warns that the app is unsigned, choose **More info**, then **Run anyway**.
 3. If the installer reports that Microsoft Edge WebView2 Runtime is missing, open the download page it offers. **Sign in** on Windows needs the runtime.
 4. Finish the wizard. The app launches when setup completes.
 
-Linux and macOS builds are not packaged as installers yet. Publish a self-contained binary for your RID (`PublishSingleFile` stays off):
+### Linux
 
-```text
-dotnet publish -c Release -r linux-x64 --self-contained -p:PublishSingleFile=false
-dotnet publish -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=false
-dotnet publish -c Release -r osx-x64 --self-contained -p:PublishSingleFile=false
-```
+1. Download `CursorUsageProgress-*-linux-x64.AppImage` (x86_64) or `*-linux-arm64.AppImage` (ARM64) from Releases.
+2. Make it executable: `chmod +x CursorUsageProgress-*.AppImage`
+3. Run the AppImage (double-click or from a terminal). The bundle includes GTK/WebKit dependencies from the build host; most recent distros work without extra packages.
+4. Google sign-in may be blocked in WebKit; use GitHub, email, or sign in on Windows if needed.
 
-Then run the published `CursorUsageProgress` binary. On Linux install WebKitGTK 4.1 (`libwebkit2gtk-4.1-0`). Google sign-in may be blocked in WebKit; use GitHub, email, or a Windows Chromium session instead.
+### macOS
+
+1. Download `CursorUsageProgress-*-osx-arm64.zip` (Apple Silicon) or `*-osx-x64.zip` (Intel) from Releases.
+2. Unzip and move `Cursor Usage Progress.app` to Applications (or run from the download folder).
+3. If Gatekeeper blocks the unsigned build, attempt to open it once, then open **System Settings → Privacy & Security** and choose **Open Anyway**.
+4. Launch the app and sign in to Cursor.
 
 ## First run
 
@@ -43,7 +49,7 @@ While signed in:
 - The billing cycle start and next renewal come from Cursor.
 - **Export Usage** appears next to **Export Cycle CSV**.
 
-Choose **Refresh now** to fetch immediately. **Sign out** clears the saved Cursor session. Samples stay on disk until you delete `usage-samples.json` or uninstall.
+Choose **Refresh now** to fetch immediately. **Sign out** clears the saved Cursor session; a Google or GitHub session stored in the app's private browser profile is kept when possible, so signing in again may not ask for that password. Samples stay on disk until you delete `usage-samples.json` or uninstall.
 
 ### Automatic updates
 
@@ -70,7 +76,7 @@ Title bar actions:
 
 | Control | Action |
 | --- | --- |
-| **Settings** | Open Settings in this window (account, startup, CSV, backup) |
+| **Settings** | Open Settings in this window (account, appearance, startup, CSV, backup) |
 | **Back** | On the Settings page, the chevron or the **Settings** heading returns to the calendar or chart |
 | **Quit** | Exit the process (does not keep the tray icon) |
 | **Minimize** | Minimize the window; the app stays in the tray |
@@ -95,11 +101,12 @@ Open **Settings** from the title bar. Settings replace the calendar or chart in 
 | --- | --- |
 | **Sign in** | Open the Cursor session window (disabled while already signed in) |
 | **Refresh now** | Fetch usage immediately |
-| **Sign out** | Clear the saved Cursor session |
+| **Sign out** | Clear the saved Cursor session (keeps a Google/GitHub session in the browser profile when possible) |
 | **Update usage automatically** | Clock-aligned refreshes at the interval below |
 | **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
 | **Launch at login** | Starts the app at OS login (Windows Run key, macOS Launch Agent, or Linux XDG autostart) |
 | **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same |
+| **Theme** | System (default), Light, or Dark. Overrides the Fluent theme variant for the app |
 | **Export Cycle CSV** | Writes each day: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
 | **Export Usage** | Writes collected sample timestamps and percents (shown while signed in). The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
 | **Backup** | Writes `manifest.json`, `settings.json`, and `usage-samples.json` as one `.zip` file (suggested name `cursor-usage-progress-backup-yyyy-MM-dd-HH_mm_ss`) |
@@ -136,10 +143,11 @@ macOS:   ~/Library/Application Support/CursorUsageProgress/
 
 | Path | Contents |
 | --- | --- |
-| `settings.json` | Startup, sync interval, last window position, connection flag, last successful sync time, and the current cycle bounds |
+| `settings.json` | Startup, theme, sync interval, last window position, connection flag, last successful sync time, and the current cycle bounds |
 | `usage-samples.json` | Collected usage samples for the current Cursor billing cycle |
 | `WebView2\` | Windows embedded browser profile (Cursor session cookies) |
 | `WebView\` | Linux and macOS embedded browser profile |
+| `WebView-AppImage\` | Linux only: used instead of `WebView\` when running from an AppImage, so its bundled WebKit never shares a cookie store with a non-AppImage run |
 
 **Backup** in Settings writes `settings.json` and `usage-samples.json` as one zip. It does not include the WebView profile, so Restore does not sign you in on another machine. Copy the whole folder to back up the Cursor session as well. Delete the folder to start over (the next launch asks you to sign in).
 
@@ -203,4 +211,4 @@ The window does not need to stay visible, but the process must be running for mi
 ## Tips
 
 - Info-card dates use dd-MMM HH:mm; calendar dates use the system format.
-- The UI follows the system light or dark theme.
+- The UI theme defaults to the system light or dark setting. Override it under **Settings** → **Theme** (System, Light, or Dark).

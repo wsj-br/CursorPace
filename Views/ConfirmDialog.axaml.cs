@@ -96,6 +96,12 @@ public partial class ConfirmDialog : Window
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        if (SelectableTextCopy.TryHandleCopyKey(this, e))
+        {
+            e.Handled = true;
+            return;
+        }
+
         if (e.Key != Key.Escape)
             return;
         Close(SecondaryButton.IsVisible ? false : true);

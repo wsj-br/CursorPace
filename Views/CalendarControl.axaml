@@ -20,7 +20,7 @@
 
     <Grid RowDefinitions="Auto,Auto,Auto,*">
 
-        <TextBlock x:Name="MonthHeadingText"
+        <SelectableTextBlock x:Name="MonthHeadingText"
                    Grid.Row="0"
                    Text="{Binding MonthHeading, ElementName=Root}"
                    HorizontalAlignment="Center"
@@ -57,7 +57,7 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="x:String">
                     <Border Width="100" Padding="0,4">
-                        <TextBlock Text="{Binding}"
+                        <SelectableTextBlock Text="{Binding}"
                                    HorizontalAlignment="Center"
                                    Opacity="0.72"
                                    FontSize="12"
@@ -96,12 +96,12 @@
 
                                         <Grid RowDefinitions="Auto,Auto,Auto">
                                             <Grid Grid.Row="0" Margin="6,4,0,0">
-                                                <TextBlock Text="{Binding DayNumberText}"
+                                                <SelectableTextBlock Text="{Binding DayNumberText}"
                                                            FontSize="15"
                                                            FontWeight="SemiBold"
                                                            HorizontalAlignment="Left"
                                                            IsVisible="{Binding !HasAccentDayNumber}"/>
-                                                <TextBlock Text="{Binding DayNumberText}"
+                                                <SelectableTextBlock Text="{Binding DayNumberText}"
                                                            FontSize="15"
                                                            FontWeight="SemiBold"
                                                            HorizontalAlignment="Left"
@@ -110,14 +110,14 @@
                                             </Grid>
 
                                             <Grid Grid.Row="1" Margin="6,8,6,2" IsVisible="{Binding HasData}" ColumnDefinitions="*,*">
-                                                <TextBlock Grid.Column="0"
+                                                <SelectableTextBlock Grid.Column="0"
                                                            HorizontalAlignment="Left"
                                                            VerticalAlignment="Center"
                                                            FontSize="11"
                                                            FontWeight="Normal"
                                                            Foreground="{DynamicResource CalendarMutedForegroundBrush}"
                                                            Text="{Binding ExpectedCursorText}"/>
-                                                <TextBlock Grid.Column="1"
+                                                <SelectableTextBlock Grid.Column="1"
                                                            HorizontalAlignment="Right"
                                                            VerticalAlignment="Center"
                                                            FontSize="12"
@@ -128,14 +128,14 @@
                                             </Grid>
 
                                             <Grid Grid.Row="2" Margin="6,0,6,4" IsVisible="{Binding HasData}" ColumnDefinitions="*,*">
-                                                <TextBlock Grid.Column="0"
+                                                <SelectableTextBlock Grid.Column="0"
                                                            HorizontalAlignment="Left"
                                                            VerticalAlignment="Center"
                                                            FontSize="11"
                                                            FontWeight="Normal"
                                                            Foreground="{DynamicResource CalendarMutedForegroundBrush}"
                                                            Text="{Binding ExpectedOtherText}"/>
-                                                <TextBlock Grid.Column="1"
+                                                <SelectableTextBlock Grid.Column="1"
                                                            HorizontalAlignment="Right"
                                                            VerticalAlignment="Center"
                                                            FontSize="12"

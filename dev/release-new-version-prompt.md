@@ -1,4 +1,4 @@
-Create a new release notes file `release-notes/RELEASE_NOTES_<version>.md` for Cursor Usage Progress using the instructions below. This file is the `--notes-file` input for `.\scripts\release.ps1`.
+Create a new release notes file `release-notes/RELEASE_NOTES_<version>.md` for Cursor Usage Progress using the instructions below. The release scripts require this file, and the tag-triggered Release workflow uses it as the GitHub Release description.
 
 **Instructions:**
 
@@ -12,7 +12,7 @@ Create a new release notes file `release-notes/RELEASE_NOTES_<version>.md` for C
      - `## Why this release matters` — One or two sentences on the main impact or reason for this release.
      - `## Detailed Changes` — The `[Unreleased]` bullets, cleaned up but not rewritten into marketing copy. Keep conventional types (**Added**, **Changed**, **Fixed**, **Removed**) and a short scope.
      - `---`
-     - `## Install` — Tell users to download `CursorUsageProgress-<version>-win-x64-setup.exe` from this GitHub Release. Note that the build is unsigned and SmartScreen may require **More info**, then **Run anyway**. Note that **Sign in** needs the Microsoft Edge WebView2 Runtime.
+     - `## Install` — List the unsigned Windows x64 installer, Linux x64 AppImage, and macOS ARM64/x64 zip files from the GitHub Release. Mention the relevant SmartScreen or Gatekeeper override and that **Sign in** on Windows needs the Microsoft Edge WebView2 Runtime.
      - `---`
      - `## Documentation` — Link QUICKSTART, DEVELOPMENT, and README as in the example below. Use the `master` branch on `https://github.com/wsj-br/CursorUsageProgress`.
      - `---`
