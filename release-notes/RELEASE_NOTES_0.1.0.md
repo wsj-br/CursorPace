@@ -15,13 +15,7 @@ First public build of a local Windows planner for Cursor model quota. It does no
 
 ## Detailed Changes
 
-- **Added**: app — Windows desktop planner for Cursor model quota across a monthly renewal cycle (no Cursor API).
-- **Added**: calendar — current-cycle month view with today, renewal, and projected run-out days highlighted.
-- **Added**: quotas — independent Cursor Models and Other Models percentages, with manual day edits as interpolation anchors.
-- **Added**: estimates — Theil-Sen daily usage and run-out day projection.
-- **Added**: tray — close hides the window; Quit exits; optional Run at Windows sign-in (per-user, no elevation).
-- **Added**: process — single-instance mutex; a second launch shows the existing window.
-- **Added**: install — per-user Inno Setup build (`CursorUsageProgress-<version>-win-x64-setup.exe`).
+See [`dev/CHANGELOG.md`](https://github.com/wsj-br/CursorPace/blob/master/dev/CHANGELOG.md#010---2026-08-17) for the full list of changes in this release.
 
 ---
 

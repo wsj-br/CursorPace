@@ -10,7 +10,7 @@ Create a new release notes file `release-notes/RELEASE_NOTES_<version>.md` for C
    - Sections:
      - `## Highlights` — Summarize the most important user-facing changes from the changelog bullets (features, fixes, major improvements). Do not list every change verbatim; write clear summaries for people who install the app.
      - `## Why this release matters` — One or two sentences on the main impact or reason for this release.
-     - `## Detailed Changes` — The `[Unreleased]` bullets, cleaned up but not rewritten into marketing copy. Keep conventional types (**Added**, **Changed**, **Fixed**, **Removed**) and a short scope.
+     - `## Detailed Changes` — Do not copy changelog bullets. Point to `dev/CHANGELOG.md` on `master` with a fragment for the version heading (for example `[0.2.0] - 2026-08-30` becomes `#020---2026-08-30`).
      - `---`
      - `## Install` — List the unsigned Windows x64 installer, Linux x64 AppImage, and macOS ARM64/x64 zip files from the GitHub Release. Mention the relevant SmartScreen or Gatekeeper override and that **Sign in** on Windows needs the Microsoft Edge WebView2 Runtime.
      - `---`
@@ -38,8 +38,7 @@ One or two sentences describing the practical impact (for example, "Fixes tray r
 
 ## Detailed Changes
 
-- **Fixed**: tray — recreate the notify icon after Explorer restarts.
-- **Changed**: calendar — clearer highlight for projected run-out days.
+See [`dev/CHANGELOG.md`](https://github.com/wsj-br/CursorPace/blob/master/dev/CHANGELOG.md#101---2026-08-30) for the full list of changes in this release.
 
 ---
 
