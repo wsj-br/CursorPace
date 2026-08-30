@@ -107,7 +107,7 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 - **Changed**: scripts - moved `dev.ps1`, `build.ps1`, `clean.ps1`, and `release.ps1` to `scripts/`.
 - **Fixed**: calendar - restore `CursorProjectedAtOrAbove100` and `OtherProjectedAtOrAbove100` on `CalendarCellViewModel` so compiled bindings can apply projected quota colors.
 
-## [1.0.0] - 2026-08-17
+## [0.1.0] - 2026-08-17
 
 - **Added**: app — Windows desktop planner for Cursor model quota across a monthly renewal cycle (no Cursor API).
 - **Added**: calendar — current-cycle month view with today, renewal, and projected run-out days highlighted.

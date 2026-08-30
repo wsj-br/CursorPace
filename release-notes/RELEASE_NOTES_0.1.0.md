@@ -1,4 +1,4 @@
-# Cursor Usage Progress 1.0.0 Release Notes
+# Cursor Usage Progress 0.1.0 Release Notes
 
 ## Highlights
 
