@@ -198,5 +198,5 @@ fi
 echo "Release tag pushed successfully: $TAG"
 echo ''
 echo "The Release workflow will build all unsigned packages, verify them, and create $TAG."
-echo "See progress at $REPO_URL"
+echo "See progress at $REPO_URL/actions"
 echo ''

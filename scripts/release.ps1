@@ -246,5 +246,5 @@ if ($DryRun) {
 Write-Host "Release tag pushed successfully: $tag"
 Write-Host ''
 Write-Host "The Release workflow will build all unsigned packages, verify them, and create $tag."
-Write-Host "See progress at $repoUrl"
+Write-Host "See progress at $repoUrl/actions"
 Write-Host ''
