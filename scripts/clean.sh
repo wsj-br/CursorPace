@@ -23,7 +23,7 @@ Usage: ./scripts/clean.sh [options]
   --configuration, -c NAME  Build configuration for dotnet clean (Debug default).
   --dry-run                 Skip deletions (and skip dotnet clean / nuget clear).
   --no-purge-nuget          Keep local NuGet caches.
-  --no-purge-temp           Keep CursorUsageProgress-related TEMP files.
+  --no-purge-temp           Keep CursorPace-related TEMP files.
   -h, --help                Show this help.
 
 By default clears local NuGet caches and matching files under the user TEMP folder.
@@ -82,9 +82,9 @@ remove_generated_path() {
   fi
 }
 
-echo "Cleaning Cursor Usage Progress ($CONFIGURATION)..."
+echo "Cleaning Cursor Pace ($CONFIGURATION)..."
 if [[ "$DRY_RUN" -eq 0 ]]; then
-  if ! dotnet clean ./CursorUsageProgress.csproj -c "$CONFIGURATION" --nologo; then
+  if ! dotnet clean ./CursorPace.csproj -c "$CONFIGURATION" --nologo; then
     echo "Warning: dotnet clean exited with a non-zero status. Continuing with forced artifact cleanup." >&2
   fi
 fi
@@ -148,7 +148,7 @@ if [[ "$PURGE_USER_TEMP" -eq 1 ]]; then
   if [[ -d "$temp_root" ]]; then
     # *XamlCompiler* is a leftover WinUI temp-name pattern
     shopt -s nullglob
-    for entry in "$temp_root"/*CursorUsageProgress* "$temp_root"/*XamlCompiler*; do
+    for entry in "$temp_root"/*CursorPace* "$temp_root"/*XamlCompiler*; do
       remove_generated_path "$entry"
     done
     shopt -u nullglob

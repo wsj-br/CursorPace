@@ -122,7 +122,7 @@ if [[ "$RID" == osx-* && "$(uname -s)" != "Darwin" ]]; then
   exit 1
 fi
 
-APP_CSPROJ="$REPO_ROOT/CursorUsageProgress.csproj"
+APP_CSPROJ="$REPO_ROOT/CursorPace.csproj"
 
 get_csproj_property() {
   local path="$1"
@@ -143,13 +143,13 @@ PUBLISH_DIR="$REPO_ROOT/bin/Release/$TFM/$RID/publish"
 echo "Publishing $VERSION ($TFM / $RID, self-contained)..."
 if [[ "$SKIP_TESTS" -eq 0 ]]; then
   echo "Running tests..."
-  dotnet test ./Tests/CursorUsageProgress.Tests.csproj -c Release
+  dotnet test ./Tests/CursorPace.Tests.csproj -c Release
 fi
 
 dotnet publish "$APP_CSPROJ" -c Release -r "$RID" --self-contained \
   -p:PublishSingleFile=false
 
-PUBLISHED_EXE="$PUBLISH_DIR/CursorUsageProgress"
+PUBLISHED_EXE="$PUBLISH_DIR/CursorPace"
 if [[ ! -f "$PUBLISHED_EXE" ]]; then
   echo "Error: Publish succeeded but did not produce $PUBLISHED_EXE" >&2
   exit 1

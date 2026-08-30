@@ -1,18 +1,18 @@
-; Cursor Usage Progress Installer Script
+; Cursor Pace Installer Script
 ; Inno Setup 6.x required
 
-#define MyAppName "Cursor Usage Progress"
+#define MyAppName "Cursor Pace"
 #ifndef MyAppVersion
-#define MyAppVersion "0.2.0"
+#define MyAppVersion "0.2.1"
 #endif
-#define MyAppPublisher "Cursor Usage Progress"
-#define MyAppExeName "CursorUsageProgress.exe"
+#define MyAppPublisher "Cursor Pace"
+#define MyAppExeName "CursorPace.exe"
 #ifndef PublishDir
 #define PublishDir "bin\Release\net10.0\win-x64\publish"
 #endif
 
 [Setup]
-AppId={{B4F8A9C2-5E3D-4F1A-9B2C-8D7E6F4A5C3B}
+AppId={{E0051EAA-2865-44BB-BBC5-0951554456C5}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
@@ -21,12 +21,12 @@ DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=installer
-OutputBaseFilename=CursorUsageProgress-{#MyAppVersion}-win-x64-setup
+OutputBaseFilename=CursorPace-{#MyAppVersion}-win-x64-setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\{#MyAppExeName}
-SetupIconFile=Assets\cursor_usage_progress.ico
+SetupIconFile=Assets\cursor_pace.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -46,7 +46,7 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppName}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
-Type: filesandordirs; Name: "{localappdata}\CursorUsageProgress"
+Type: filesandordirs; Name: "{localappdata}\CursorPace"
 
 [Code]
 function IsWebView2Installed(): Boolean;
@@ -67,9 +67,9 @@ end;
 function WaitUntilAppClosed(const ActionPhrase: String): Boolean;
 begin
   Result := True;
-  while CheckForMutexes('CursorUsageProgress_SingleInstance') do
+  while CheckForMutexes('CursorPace_SingleInstance') do
   begin
-    if MsgBox('Cursor Usage Progress is currently running. Close it, then click Retry to continue ' + ActionPhrase + ', or click Cancel to abort.', mbError, MB_RETRYCANCEL) <> IDRETRY then
+    if MsgBox('Cursor Pace is currently running. Close it, then click Retry to continue ' + ActionPhrase + ', or click Cancel to abort.', mbError, MB_RETRYCANCEL) <> IDRETRY then
     begin
       Result := False;
       Exit;

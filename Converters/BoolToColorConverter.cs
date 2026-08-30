@@ -4,7 +4,7 @@ using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Avalonia.Styling;
 
-namespace CursorUsageProgress.Converters;
+namespace CursorPace.Converters;
 
 public sealed class BoolToColorConverter : IValueConverter
 {

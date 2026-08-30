@@ -5,10 +5,10 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
-using CursorUsageProgress.Services;
-using CursorUsageProgress.ViewModels;
+using CursorPace.Services;
+using CursorPace.ViewModels;
 
-namespace CursorUsageProgress.Views;
+namespace CursorPace.Views;
 
 public partial class MainWindow : Window
 {
@@ -71,7 +71,7 @@ public partial class MainWindow : Window
 
     private void SetupWindow()
     {
-        Title = "Cursor Usage Progress";
+        Title = "Cursor Pace";
         Width = DefaultWindowWidth;
         Height = DefaultWindowHeight;
         CanResize = false;

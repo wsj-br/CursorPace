@@ -1,8 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
-using CursorUsageProgress.ViewModels;
+using CursorPace.ViewModels;
 
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public sealed class TrayService : ITrayService
 {
@@ -40,7 +40,7 @@ public sealed class TrayService : ITrayService
         if (_icon == null)
             return;
         _icon.ToolTipText = string.IsNullOrWhiteSpace(text)
-            ? "Cursor Usage Progress"
+            ? "Cursor Pace"
             : text;
     }
 

@@ -1,10 +1,10 @@
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public static class WebViewProfilePaths
 {
     public static string AppDataDirectory { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "CursorUsageProgress");
+        "CursorPace");
 
     // An AppImage bundles its own WebKitGTK build. If it wrote to the same
     // profile folder as a system-WebKitGTK run (a dev build, or a

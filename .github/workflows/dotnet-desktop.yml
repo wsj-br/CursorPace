@@ -52,9 +52,9 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        version="$(awk -F '[<>]' '/<Version>/{gsub(/[[:space:]]/, "", $3); print $3; exit}' CursorUsageProgress.csproj)"
+        version="$(awk -F '[<>]' '/<Version>/{gsub(/[[:space:]]/, "", $3); print $3; exit}' CursorPace.csproj)"
         if [[ -z "$version" ]]; then
-          echo "Could not read <Version> from CursorUsageProgress.csproj." >&2
+          echo "Could not read <Version> from CursorPace.csproj." >&2
           exit 1
         fi
         if [[ "$RELEASE_TAG" != "v$version" ]]; then
@@ -64,10 +64,10 @@ jobs:
         test -f "release-notes/RELEASE_NOTES_${version}.md"
 
     - name: Restore locked dependencies
-      run: dotnet restore ./CursorUsageProgress.slnx --locked-mode
+      run: dotnet restore ./CursorPace.slnx --locked-mode
 
     - name: Test
-      run: dotnet test ./Tests/CursorUsageProgress.Tests.csproj -c Release --no-restore
+      run: dotnet test ./Tests/CursorPace.Tests.csproj -c Release --no-restore
 
   build-windows:
     name: Build Windows x64
@@ -229,16 +229,16 @@ jobs:
         set -euo pipefail
         version="${RELEASE_TAG#v}"
         expected=(
-          "CursorUsageProgress-${version}-win-x64-setup.exe"
-          "CursorUsageProgress-${version}-win-x64-setup.exe.sha256"
-          "CursorUsageProgress-${version}-linux-x64.AppImage"
-          "CursorUsageProgress-${version}-linux-x64.AppImage.sha256"
-          "CursorUsageProgress-${version}-linux-arm64.AppImage"
-          "CursorUsageProgress-${version}-linux-arm64.AppImage.sha256"
-          "CursorUsageProgress-${version}-osx-arm64.zip"
-          "CursorUsageProgress-${version}-osx-arm64.zip.sha256"
-          "CursorUsageProgress-${version}-osx-x64.zip"
-          "CursorUsageProgress-${version}-osx-x64.zip.sha256"
+          "CursorPace-${version}-win-x64-setup.exe"
+          "CursorPace-${version}-win-x64-setup.exe.sha256"
+          "CursorPace-${version}-linux-x64.AppImage"
+          "CursorPace-${version}-linux-x64.AppImage.sha256"
+          "CursorPace-${version}-linux-arm64.AppImage"
+          "CursorPace-${version}-linux-arm64.AppImage.sha256"
+          "CursorPace-${version}-osx-arm64.zip"
+          "CursorPace-${version}-osx-arm64.zip.sha256"
+          "CursorPace-${version}-osx-x64.zip"
+          "CursorPace-${version}-osx-x64.zip.sha256"
         )
         for asset in "${expected[@]}"; do
           test -f "installer/$asset"
@@ -258,16 +258,16 @@ jobs:
       run: |
         set -euo pipefail
         assets=(
-          "installer/CursorUsageProgress-${VERSION}-win-x64-setup.exe"
-          "installer/CursorUsageProgress-${VERSION}-win-x64-setup.exe.sha256"
-          "installer/CursorUsageProgress-${VERSION}-linux-x64.AppImage"
-          "installer/CursorUsageProgress-${VERSION}-linux-x64.AppImage.sha256"
-          "installer/CursorUsageProgress-${VERSION}-linux-arm64.AppImage"
-          "installer/CursorUsageProgress-${VERSION}-linux-arm64.AppImage.sha256"
-          "installer/CursorUsageProgress-${VERSION}-osx-arm64.zip"
-          "installer/CursorUsageProgress-${VERSION}-osx-arm64.zip.sha256"
-          "installer/CursorUsageProgress-${VERSION}-osx-x64.zip"
-          "installer/CursorUsageProgress-${VERSION}-osx-x64.zip.sha256"
+          "installer/CursorPace-${VERSION}-win-x64-setup.exe"
+          "installer/CursorPace-${VERSION}-win-x64-setup.exe.sha256"
+          "installer/CursorPace-${VERSION}-linux-x64.AppImage"
+          "installer/CursorPace-${VERSION}-linux-x64.AppImage.sha256"
+          "installer/CursorPace-${VERSION}-linux-arm64.AppImage"
+          "installer/CursorPace-${VERSION}-linux-arm64.AppImage.sha256"
+          "installer/CursorPace-${VERSION}-osx-arm64.zip"
+          "installer/CursorPace-${VERSION}-osx-arm64.zip.sha256"
+          "installer/CursorPace-${VERSION}-osx-x64.zip"
+          "installer/CursorPace-${VERSION}-osx-x64.zip.sha256"
         )
         existing_draft="$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft 2>/dev/null || true)"
         if [[ "$existing_draft" == "true" ]]; then

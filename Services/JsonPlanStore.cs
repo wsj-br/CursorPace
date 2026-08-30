@@ -1,15 +1,15 @@
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CursorUsageProgress.Models;
+using CursorPace.Models;
 
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public sealed class JsonPlanStore : IPlanStore
 {
     private static readonly string DefaultAppDataPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "CursorUsageProgress");
+        "CursorPace");
 
     private static readonly JsonSerializerOptions Options = new()
     {

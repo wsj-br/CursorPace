@@ -1,9 +1,9 @@
 using System.Globalization;
-using CursorUsageProgress.Models;
-using CursorUsageProgress.Services;
-using CursorUsageProgress.ViewModels;
+using CursorPace.Models;
+using CursorPace.Services;
+using CursorPace.ViewModels;
 
-namespace CursorUsageProgress.Tests;
+namespace CursorPace.Tests;
 
 public class MainViewModelTests
 {
@@ -379,9 +379,9 @@ public class MainViewModelTests
     {
         var vm = CreateViewModel(signedIn: false);
 
-        Assert.Equal("cursor-usage-progress-2026-08-18-12_00_00", vm.SuggestedCycleFileName);
+        Assert.Equal("cursor-pace-2026-08-18-12_00_00", vm.SuggestedCycleFileName);
         Assert.Equal("usage-samples-2026-08-18-12_00_00", vm.SuggestedUsageSamplesFileName);
-        Assert.Equal("cursor-usage-progress-backup-2026-08-18-12_00_00", vm.SuggestedBackupFileName);
+        Assert.Equal("cursor-pace-backup-2026-08-18-12_00_00", vm.SuggestedBackupFileName);
     }
 
     [Fact]

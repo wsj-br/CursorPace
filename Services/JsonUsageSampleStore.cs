@@ -1,15 +1,15 @@
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CursorUsageProgress.Models;
+using CursorPace.Models;
 
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public sealed class JsonUsageSampleStore : IUsageSampleStore
 {
     private static readonly string DefaultPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "CursorUsageProgress",
+        "CursorPace",
         "usage-samples.json");
 
     private static readonly JsonSerializerOptions Options = new()

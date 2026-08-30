@@ -1,6 +1,6 @@
-using CursorUsageProgress.Services;
+using CursorPace.Services;
 
-namespace CursorUsageProgress.Tests;
+namespace CursorPace.Tests;
 
 public class WebView2ScriptResultParserTests
 {

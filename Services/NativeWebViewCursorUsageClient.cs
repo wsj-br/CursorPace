@@ -1,8 +1,8 @@
 using Avalonia.Controls;
-using CursorUsageProgress.Models;
-using CursorUsageProgress.Views;
+using CursorPace.Models;
+using CursorPace.Views;
 
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
 {

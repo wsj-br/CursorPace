@@ -16,12 +16,12 @@ usage() {
   cat <<'EOF'
 Usage: ./scripts/build-appbundle.sh --version VERSION --rid RID --publish-dir PATH
 
-  --version       App version (matches CursorUsageProgress.csproj).
+  --version       App version (matches CursorPace.csproj).
   --rid           osx-x64 or osx-arm64.
   --publish-dir   Self-contained publish output directory.
   -h, --help      Show this help.
 
-Must run on macOS. Writes installer/CursorUsageProgress-<version>-<rid>.zip and a .sha256 file.
+Must run on macOS. Writes installer/CursorPace-<version>-<rid>.zip and a .sha256 file.
 EOF
 }
 
@@ -75,20 +75,20 @@ if [[ ! -d "$PUBLISH_DIR" ]]; then
   exit 1
 fi
 
-PUBLISHED_BIN="$PUBLISH_DIR/CursorUsageProgress"
+PUBLISHED_BIN="$PUBLISH_DIR/CursorPace"
 if [[ ! -f "$PUBLISHED_BIN" ]]; then
   echo "Error: publish folder is missing $PUBLISHED_BIN" >&2
   exit 1
 fi
 
-ICON_PNG="$REPO_ROOT/Assets/cursor_usage_progress.png"
+ICON_PNG="$REPO_ROOT/Assets/cursor_pace.png"
 if [[ ! -f "$ICON_PNG" ]]; then
   echo "Error: icon not found: $ICON_PNG" >&2
   exit 1
 fi
 
 BUILD_DIR="$REPO_ROOT/.appbundle-build"
-BUNDLE_NAME="Cursor Usage Progress.app"
+BUNDLE_NAME="Cursor Pace.app"
 BUNDLE_DIR="$BUILD_DIR/$BUNDLE_NAME"
 MACOS_DIR="$BUNDLE_DIR/Contents/MacOS"
 RESOURCES_DIR="$BUNDLE_DIR/Contents/Resources"
@@ -97,9 +97,9 @@ mkdir -p "$BUILD_DIR" "$REPO_ROOT/installer"
 rm -rf "$BUNDLE_DIR"
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
 cp -a "$PUBLISH_DIR/." "$MACOS_DIR/"
-chmod +x "$MACOS_DIR/CursorUsageProgress"
+chmod +x "$MACOS_DIR/CursorPace"
 
-ICON_BASENAME="cursor_usage_progress"
+ICON_BASENAME="cursor_pace"
 if command -v iconutil >/dev/null 2>&1 && command -v sips >/dev/null 2>&1; then
   ICONSET="$BUILD_DIR/$ICON_BASENAME.iconset"
   rm -rf "$ICONSET"
@@ -125,11 +125,11 @@ cat >"$BUNDLE_DIR/Contents/Info.plist" <<EOF
 <plist version="1.0">
 <dict>
   <key>CFBundleName</key>
-  <string>Cursor Usage Progress</string>
+  <string>Cursor Pace</string>
   <key>CFBundleDisplayName</key>
-  <string>Cursor Usage Progress</string>
+  <string>Cursor Pace</string>
   <key>CFBundleIdentifier</key>
-  <string>com.cursorusageprogress.app</string>
+  <string>com.cursorpace.app</string>
   <key>CFBundleVersion</key>
   <string>$VERSION</string>
   <key>CFBundleShortVersionString</key>
@@ -139,7 +139,7 @@ cat >"$BUNDLE_DIR/Contents/Info.plist" <<EOF
   <key>CFBundleSignature</key>
   <string>????</string>
   <key>CFBundleExecutable</key>
-  <string>CursorUsageProgress</string>
+  <string>CursorPace</string>
   <key>CFBundleIconFile</key>
   <string>$ICON_BASENAME</string>
   <key>LSMinimumSystemVersion</key>
@@ -150,7 +150,7 @@ cat >"$BUNDLE_DIR/Contents/Info.plist" <<EOF
 </plist>
 EOF
 
-ARCHIVE_NAME="CursorUsageProgress-$VERSION-$RID.zip"
+ARCHIVE_NAME="CursorPace-$VERSION-$RID.zip"
 ARCHIVE_PATH="$REPO_ROOT/installer/$ARCHIVE_NAME"
 rm -f "$ARCHIVE_PATH"
 (

@@ -3,12 +3,12 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
-using CursorUsageProgress.Models;
-using CursorUsageProgress.Services;
-using CursorUsageProgress.ViewModels;
-using CursorUsageProgress.Views;
+using CursorPace.Models;
+using CursorPace.Services;
+using CursorPace.ViewModels;
+using CursorPace.Views;
 
-namespace CursorUsageProgress;
+namespace CursorPace;
 
 public partial class App : Application
 {

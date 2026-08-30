@@ -293,7 +293,7 @@
           "xunit.extensibility.core": "[2.9.3]"
         }
       },
-      "cursorusageprogress": {
+      "cursorpace": {
         "type": "Project",
         "dependencies": {
           "Avalonia": "[12.1.1, )",

@@ -1,6 +1,6 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="CursorUsageProgress.App"
+             x:Class="CursorPace.App"
              RequestedThemeVariant="Default">
     <Application.Styles>
         <FluentTheme />
@@ -54,8 +54,8 @@
 
     <TrayIcon.Icons>
         <TrayIcons>
-            <TrayIcon Icon="avares://CursorUsageProgress/Assets/cursor_usage_progress.ico"
-                      ToolTipText="Cursor Usage Progress">
+            <TrayIcon Icon="avares://CursorPace/Assets/cursor_pace.ico"
+                      ToolTipText="Cursor Pace">
                 <TrayIcon.Menu>
                     <NativeMenu>
                         <NativeMenuItem Header="Open"/>

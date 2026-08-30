@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public sealed class MacStartupRegistration : IStartupRegistration
 {
-    private const string Label = "com.cursorusageprogress.app";
+    private const string Label = "com.cursorpace.app";
 
     private static string PlistPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),

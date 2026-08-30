@@ -1,7 +1,7 @@
 using System.Globalization;
-using CursorUsageProgress.Models;
+using CursorPace.Models;
 
-namespace CursorUsageProgress.ViewModels;
+namespace CursorPace.ViewModels;
 
 public sealed class DayRowViewModel : ViewModelBase
 {

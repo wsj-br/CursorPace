@@ -1,7 +1,7 @@
 using System.Globalization;
-using CursorUsageProgress.Models;
+using CursorPace.Models;
 
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public sealed class UsageSyncService : IUsageSyncService
 {

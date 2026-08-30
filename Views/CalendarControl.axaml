@@ -1,9 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:CursorUsageProgress.ViewModels"
-             xmlns:local="using:CursorUsageProgress.Views"
-             xmlns:converters="using:CursorUsageProgress.Converters"
-             x:Class="CursorUsageProgress.Views.CalendarControl"
+             xmlns:vm="using:CursorPace.ViewModels"
+             xmlns:local="using:CursorPace.Views"
+             xmlns:converters="using:CursorPace.Converters"
+             x:Class="CursorPace.Views.CalendarControl"
              x:Name="Root"
              x:DataType="local:CalendarControl">
 

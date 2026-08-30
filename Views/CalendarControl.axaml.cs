@@ -2,9 +2,9 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
-using CursorUsageProgress.ViewModels;
+using CursorPace.ViewModels;
 
-namespace CursorUsageProgress.Views;
+namespace CursorPace.Views;
 
 public partial class CalendarControl : UserControl
 {

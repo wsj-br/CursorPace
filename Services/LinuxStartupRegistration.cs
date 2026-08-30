@@ -1,11 +1,11 @@
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public sealed class LinuxStartupRegistration : IStartupRegistration
 {
     private static string DesktopPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "autostart",
-        "cursor-usage-progress.desktop");
+        "cursor-pace.desktop");
 
     public bool IsRegistered => File.Exists(DesktopPath);
 
@@ -20,7 +20,7 @@ public sealed class LinuxStartupRegistration : IStartupRegistration
         var desktop = $"""
             [Desktop Entry]
             Type=Application
-            Name=Cursor Usage Progress
+            Name=Cursor Pace
             Exec={exec}
             X-GNOME-Autostart-enabled=true
             Hidden=false

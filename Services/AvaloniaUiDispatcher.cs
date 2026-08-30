@@ -1,6 +1,6 @@
 using Avalonia.Threading;
 
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public sealed class AvaloniaUiDispatcher : IUiDispatcher
 {

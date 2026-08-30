@@ -2,9 +2,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform;
-using CursorUsageProgress.Services;
+using CursorPace.Services;
 
-namespace CursorUsageProgress.Views;
+namespace CursorPace.Views;
 
 public partial class WebViewHostWindow : Window
 {

@@ -1,7 +1,7 @@
-using CursorUsageProgress.Models;
-using CursorUsageProgress.ViewModels;
+using CursorPace.Models;
+using CursorPace.ViewModels;
 
-namespace CursorUsageProgress.Tests;
+namespace CursorPace.Tests;
 
 public class DayRowViewModelTests
 {

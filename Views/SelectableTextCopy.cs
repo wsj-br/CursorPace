@@ -2,7 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.VisualTree;
 
-namespace CursorUsageProgress.Views;
+namespace CursorPace.Views;
 
 internal static class SelectableTextCopy
 {

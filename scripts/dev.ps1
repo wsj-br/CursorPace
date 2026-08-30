@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Run Cursor Usage Progress for local development.
+  Run Cursor Pace for local development.
 
 .PARAMETER Background
   Launch in tray-only mode (--background).
@@ -27,14 +27,14 @@ Set-Location $RepoRoot
 
 if ($Test) {
     Write-Host "Running tests ($Configuration)..."
-    dotnet test .\Tests\CursorUsageProgress.Tests.csproj -c $Configuration
+    dotnet test .\Tests\CursorPace.Tests.csproj -c $Configuration
     exit $LASTEXITCODE
 }
 
-Write-Host "Starting Cursor Usage Progress ($Configuration)..."
+Write-Host "Starting Cursor Pace ($Configuration)..."
 $runArgs = @(
     'run',
-    '--project', '.\CursorUsageProgress.csproj',
+    '--project', '.\CursorPace.csproj',
     '-c', $Configuration
 )
 if ($Background) {

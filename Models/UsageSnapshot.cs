@@ -1,4 +1,4 @@
-namespace CursorUsageProgress.Models;
+namespace CursorPace.Models;
 
 public sealed class UsageSnapshot
 {

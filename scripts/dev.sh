@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run Cursor Usage Progress for local development.
+# Run Cursor Pace for local development.
 #
 # Usage:
 #   ./scripts/dev.sh
@@ -66,11 +66,11 @@ esac
 
 if [[ "$TEST" -eq 1 ]]; then
   echo "Running tests ($CONFIGURATION)..."
-  exec dotnet test ./Tests/CursorUsageProgress.Tests.csproj -c "$CONFIGURATION"
+  exec dotnet test ./Tests/CursorPace.Tests.csproj -c "$CONFIGURATION"
 fi
 
-echo "Starting Cursor Usage Progress ($CONFIGURATION)..."
-run_args=(run --project ./CursorUsageProgress.csproj -c "$CONFIGURATION")
+echo "Starting Cursor Pace ($CONFIGURATION)..."
+run_args=(run --project ./CursorPace.csproj -c "$CONFIGURATION")
 if [[ "$BACKGROUND" -eq 1 ]]; then
   run_args+=(-- --background)
 fi

@@ -3,7 +3,7 @@
   Start a GitHub release build from HEAD using the csproj version.
 
 .DESCRIPTION
-  Reads <Version> from CursorUsageProgress.csproj and requires
+  Reads <Version> from CursorPace.csproj and requires
   release-notes/RELEASE_NOTES_<version>.md. Then:
 
   - Deletes an existing GitHub release and/or tag for v<version> if present
@@ -114,15 +114,15 @@ function Test-RequiredCommand {
 function Get-CsprojVersion {
     param([Parameter(Mandatory = $true)][string]$Path)
     if (-not (Test-Path -LiteralPath $Path)) {
-        Fail "CursorUsageProgress.csproj not found in repository root."
+        Fail "CursorPace.csproj not found in repository root."
     }
     $raw = Get-Content -LiteralPath $Path -Raw
     if ($raw -notmatch '<Version>([^<]+)</Version>') {
-        Fail "Could not find <Version> in CursorUsageProgress.csproj"
+        Fail "Could not find <Version> in CursorPace.csproj"
     }
     $value = $Matches[1].Trim()
     if (-not $value) {
-        Fail "Could not read CursorUsageProgress.csproj version."
+        Fail "Could not read CursorPace.csproj version."
     }
     return $value
 }
@@ -155,7 +155,7 @@ if ($auth.Status -ne 0) {
     Fail 'GitHub CLI is not authenticated. Run: gh auth login'
 }
 
-$version = Get-CsprojVersion -Path (Join-Path $RepoRoot 'CursorUsageProgress.csproj')
+$version = Get-CsprojVersion -Path (Join-Path $RepoRoot 'CursorPace.csproj')
 $tag = "v$version"
 $notesFile = "release-notes/RELEASE_NOTES_$version.md"
 $notesPath = Join-Path $RepoRoot $notesFile

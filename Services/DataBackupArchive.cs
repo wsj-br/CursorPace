@@ -2,12 +2,12 @@ using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public static class DataBackupArchive
 {
     public const int FormatVersion = 1;
-    public const string ProductName = "CursorUsageProgress";
+    public const string ProductName = "CursorPace";
     public const string ManifestEntryName = "manifest.json";
     public const string SettingsEntryName = "settings.json";
     public const string SamplesEntryName = "usage-samples.json";
@@ -60,7 +60,7 @@ public static class DataBackupArchive
                     && !string.IsNullOrWhiteSpace(manifest.Product)
                     && !string.Equals(manifest.Product, ProductName, StringComparison.Ordinal))
                 {
-                    return DataBackupReadResult.Fail("This file is not a Cursor Usage Progress backup.");
+                    return DataBackupReadResult.Fail("This file is not a Cursor Pace backup.");
                 }
             }
 

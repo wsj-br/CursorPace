@@ -1,27 +1,27 @@
 # Quick start
 
-End-user guide for Cursor Usage Progress. For building from source, see [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md).
+End-user guide for Cursor Pace. For building from source, see [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md).
 
 ## Install
 
 ### Windows
 
-1. Download `CursorUsageProgress-*-win-x64-setup.exe` from this repository's Releases page.
+1. Download `CursorPace-*-win-x64-setup.exe` from this repository's Releases page.
 2. Run the installer. If SmartScreen warns that the app is unsigned, choose **More info**, then **Run anyway**.
 3. If the installer reports that Microsoft Edge WebView2 Runtime is missing, open the download page it offers. **Sign in** on Windows needs the runtime.
 4. Finish the wizard. The app launches when setup completes.
 
 ### Linux
 
-1. Download `CursorUsageProgress-*-linux-x64.AppImage` (x86_64) or `*-linux-arm64.AppImage` (ARM64) from Releases.
-2. Make it executable: `chmod +x CursorUsageProgress-*.AppImage`
+1. Download `CursorPace-*-linux-x64.AppImage` (x86_64) or `*-linux-arm64.AppImage` (ARM64) from Releases.
+2. Make it executable: `chmod +x CursorPace-*.AppImage`
 3. Run the AppImage (double-click or from a terminal). The bundle includes GTK/WebKit dependencies from the build host; most recent distros work without extra packages.
 4. Google sign-in may be blocked in WebKit; use GitHub, email, or sign in on Windows if needed.
 
 ### macOS
 
-1. Download `CursorUsageProgress-*-osx-arm64.zip` (Apple Silicon) or `*-osx-x64.zip` (Intel) from Releases.
-2. Unzip and move `Cursor Usage Progress.app` to Applications (or run from the download folder).
+1. Download `CursorPace-*-osx-arm64.zip` (Apple Silicon) or `*-osx-x64.zip` (Intel) from Releases.
+2. Unzip and move `Cursor Pace.app` to Applications (or run from the download folder).
 3. If Gatekeeper blocks the unsigned build, attempt to open it once, then open **System Settings → Privacy & Security** and choose **Open Anyway**.
 4. Launch the app and sign in to Cursor.
 
@@ -109,7 +109,7 @@ Open **Settings** from the title bar. Settings replace the calendar or chart in 
 | **Theme** | System (default), Light, or Dark. Overrides the Fluent theme variant for the app |
 | **Export Cycle CSV** | Writes each day: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
 | **Export Usage** | Writes collected sample timestamps and percents (shown while signed in). The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
-| **Backup** | Writes `manifest.json`, `settings.json`, and `usage-samples.json` as one `.zip` file (suggested name `cursor-usage-progress-backup-yyyy-MM-dd-HH_mm_ss`) |
+| **Backup** | Writes `manifest.json`, `settings.json`, and `usage-samples.json` as one `.zip` file (suggested name `cursor-pace-backup-yyyy-MM-dd-HH_mm_ss`) |
 | **Restore** | Replaces local settings and samples from a backup zip. The Cursor sign-in session is not changed |
 
 After a local export or backup completes, choose **Open Folder** on the left side of the completion dialog to open its destination folder, or choose **OK** on the right to close it.
@@ -136,9 +136,9 @@ If the icon is missing, expand the overflow chevron (`^`). On Linux, GNOME may n
 Files live under the OS local app-data folder:
 
 ```text
-Windows: %LocalAppData%\CursorUsageProgress\
-Linux:   ~/.local/share/CursorUsageProgress/
-macOS:   ~/Library/Application Support/CursorUsageProgress/
+Windows: %LocalAppData%\CursorPace\
+Linux:   ~/.local/share/CursorPace/
+macOS:   ~/Library/Application Support/CursorPace/
 ```
 
 | Path | Contents |
@@ -164,14 +164,14 @@ The window does not need to stay visible, but the process must be running for mi
 ## Uninstall
 
 1. Quit from the title bar or the tray menu.
-2. Windows: Settings, **Apps**, **Installed apps**, **Cursor Usage Progress**, **Uninstall**. That removes the app and the data folder.
+2. Windows: Settings, **Apps**, **Installed apps**, **Cursor Pace**, **Uninstall**. That removes the app and the data folder.
 3. Linux/macOS: delete the published folder (or app bundle) and, if you want a clean start, the data folder listed above.
 
 ## Troubleshooting
 
 **App will not start**
 
-- End any `CursorUsageProgress` process, then launch again.
+- End any `CursorPace` process, then launch again.
 - If it still fails on Windows, check Event Viewer for the application error. On Linux try `journalctl --user -xe`; on macOS check Console.app.
 
 **Sign in fails or "The specified module could not be found"**
@@ -193,7 +193,7 @@ The window does not need to stay visible, but the process must be running for mi
 
 **Settings not saving**
 
-- Confirm write access to the data folder for your OS (`%LocalAppData%\CursorUsageProgress`, `~/.local/share/CursorUsageProgress`, or `~/Library/Application Support/CursorUsageProgress`).
+- Confirm write access to the data folder for your OS (`%LocalAppData%\CursorPace`, `~/.local/share/CursorPace`, or `~/Library/Application Support/CursorPace`).
 - If `settings.corrupt.json` exists, the previous file was unreadable. Delete both files to reset.
 
 **Wrong percentage for today**
@@ -204,9 +204,9 @@ The window does not need to stay visible, but the process must be running for mi
 **Auto-start not working**
 
 - Confirm **Launch at login** is on in Settings.
-- Windows registry (current user): `Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorUsageProgress`. With **Start in notification tray** the command includes `--background`.
-- macOS: `~/Library/LaunchAgents/com.cursorusageprogress.app.plist`
-- Linux: `~/.config/autostart/cursor-usage-progress.desktop`
+- Windows registry (current user): `Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorPace`. With **Start in notification tray** the command includes `--background`.
+- macOS: `~/Library/LaunchAgents/com.cursorpace.app.plist`
+- Linux: `~/.config/autostart/cursor-pace.desktop`
 
 ## Tips
 

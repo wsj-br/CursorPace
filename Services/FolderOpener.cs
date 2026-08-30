@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public static class FolderOpener
 {

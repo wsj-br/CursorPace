@@ -1,11 +1,11 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:CursorUsageProgress.ViewModels"
-        xmlns:local="using:CursorUsageProgress.Views"
+        xmlns:vm="using:CursorPace.ViewModels"
+        xmlns:local="using:CursorPace.Views"
         xmlns:chrome="using:Avalonia.Controls.Chrome"
-        x:Class="CursorUsageProgress.Views.MainWindow"
+        x:Class="CursorPace.Views.MainWindow"
         x:DataType="vm:MainViewModel"
-        Title="Cursor Usage Progress"
+        Title="Cursor Pace"
         Width="760"
         Height="787"
         CanResize="False"
@@ -14,7 +14,7 @@
         ExtendClientAreaToDecorationsHint="True"
         WindowDecorations="None"
         ExtendClientAreaTitleBarHeightHint="48"
-        Icon="avares://CursorUsageProgress/Assets/cursor_usage_progress.ico"
+        Icon="avares://CursorPace/Assets/cursor_pace.ico"
         WindowStartupLocation="Manual">
 
     <Grid x:Name="RootGrid" RowDefinitions="Auto,*">
@@ -31,7 +31,7 @@
                     chrome:WindowDecorationProperties.ElementRole="TitleBar">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0"
-                           Text="Cursor Usage Progress"
+                           Text="Cursor Pace"
                            VerticalAlignment="Center"
                            FontSize="12"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4"

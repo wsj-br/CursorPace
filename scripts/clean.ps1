@@ -13,7 +13,7 @@
   Clear local NuGet caches by default. Use -PurgeNuGetCache:$false to skip. Packages must be downloaded again on the next restore.
 
 .PARAMETER PurgeUserTemp
-  Remove CursorUsageProgress-related files from the current user's TEMP folder by default. Use -PurgeUserTemp:$false to skip.
+  Remove CursorPace-related files from the current user's TEMP folder by default. Use -PurgeUserTemp:$false to skip.
 
 .EXAMPLE
   .\scripts\clean.ps1
@@ -66,9 +66,9 @@ function Remove-GeneratedFile {
     }
 }
 
-Write-Host "Cleaning Cursor Usage Progress ($Configuration)..."
+Write-Host "Cleaning Cursor Pace ($Configuration)..."
 if (-not $DryRun) {
-    & dotnet clean .\CursorUsageProgress.csproj -c $Configuration --nologo
+    & dotnet clean .\CursorPace.csproj -c $Configuration --nologo
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "dotnet clean exited with code $LASTEXITCODE. Continuing with forced artifact cleanup."
     }
@@ -139,7 +139,7 @@ if ($PurgeNuGetCache) {
 if ($PurgeUserTemp) {
     $tempRoot = [System.IO.Path]::GetTempPath()
     Get-ChildItem -LiteralPath $tempRoot -Force -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -like '*CursorUsageProgress*' -or $_.Name -like '*XamlCompiler*' } | # *XamlCompiler* is a leftover WinUI temp-name pattern
+        Where-Object { $_.Name -like '*CursorPace*' -or $_.Name -like '*XamlCompiler*' } | # *XamlCompiler* is a leftover WinUI temp-name pattern
         ForEach-Object {
             Remove-GeneratedPath -Path $_.FullName -Description 'project temporary data'
         }

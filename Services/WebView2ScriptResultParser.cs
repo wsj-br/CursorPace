@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public static class WebView2ScriptResultParser
 {

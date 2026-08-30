@@ -77,8 +77,8 @@ sudo pacman -S gtk3 webkit2gtk-4.1 libsoup3
 ## Clone and restore
 
 ```bash
-git clone https://github.com/wsj-br/CursorUsageProgress.git
-cd CursorUsageProgress
+git clone https://github.com/wsj-br/CursorPace.git
+cd CursorPace
 dotnet restore
 ```
 
@@ -87,7 +87,7 @@ dotnet restore
 | Task | PowerShell (Windows) | Bash (Linux / macOS) |
 | --- | --- | --- |
 | Build | `dotnet build` | `dotnet build` |
-| Tests | `dotnet test .\Tests\CursorUsageProgress.Tests.csproj` | `dotnet test ./Tests/CursorUsageProgress.Tests.csproj` |
+| Tests | `dotnet test .\Tests\CursorPace.Tests.csproj` | `dotnet test ./Tests/CursorPace.Tests.csproj` |
 | Run (window) | `.\scripts\dev.ps1` | `./scripts/dev.sh` |
 | Run (tray only) | `.\scripts\dev.ps1 -Background` | `./scripts/dev.sh --background` |
 | Run (Release) | `.\scripts\dev.ps1 -Configuration Release` | `./scripts/dev.sh --configuration Release` |
@@ -105,7 +105,7 @@ dotnet restore
 Launch flags after `--`:
 
 ```bash
-dotnet run --project ./CursorUsageProgress.csproj -- --background
+dotnet run --project ./CursorPace.csproj -- --background
 ```
 
 `--background` starts the tray icon without showing the main window. **Start in notification tray** does the same for a normal launch; Windows Run, macOS Launch Agent, and Linux XDG autostart also pass `--background` when that setting is on.
@@ -115,23 +115,23 @@ Maintainer scripts ship as PowerShell (`.ps1`) and bash (`.sh`) with the same be
 ## Solution layout
 
 ```text
-CursorUsageProgress/
+CursorPace/
 ├── Program.cs
 ├── App.axaml, App.axaml.cs
-├── CursorUsageProgress.csproj
-├── CursorUsageProgress.slnx
+├── CursorPace.csproj
+├── CursorPace.slnx
 ├── Models/
 ├── Services/                    # cycle math, JSON stores, NativeWebView client, sync
 ├── ViewModels/                  # MainViewModel, calendar, UsageChartViewModel
 ├── Views/                       # MainWindow, SettingsView, chart, WebView host
 ├── Converters/
-├── Assets/                      # cursor_usage_progress.ico / .png
+├── Assets/                      # cursor_pace.ico / .png
 ├── Tests/
-│   └── CursorUsageProgress.Tests.csproj
+│   └── CursorPace.Tests.csproj
 ├── setup.iss                    # Inno Setup (Windows only; checks WebView2 Runtime)
 ├── packaging/
-│   ├── cursor-usage-progress.desktop
-│   └── io.github.wsj_br.CursorUsageProgress.appdata.xml
+│   ├── cursor-pace.desktop
+│   └── io.github.wsj_br.CursorPace.appdata.xml
 ├── scripts/
 │   ├── build.ps1 / build.sh
 │   ├── build-appimage.sh
@@ -145,7 +145,7 @@ CursorUsageProgress/
     └── release-new-version-prompt.md
 ```
 
-Open `CursorUsageProgress.slnx` in Visual Studio, or build the `.csproj` files directly.
+Open `CursorPace.slnx` in Visual Studio, or build the `.csproj` files directly.
 
 ## Stack
 
@@ -155,7 +155,7 @@ Open `CursorUsageProgress.slnx` in Visual Studio, or build the `.csproj` files d
 | Tray | Avalonia `TrayIcon` |
 | Cursor session | `NativeWebView` host window + persistent profile under LocalApplicationData |
 | Tests | xUnit, project under `Tests/` |
-| Settings | JSON under LocalApplicationData `CursorUsageProgress` |
+| Settings | JSON under LocalApplicationData `CursorPace` |
 | Installer | Inno Setup 6 (Windows), AppImage (Linux), zipped `.app` bundle (macOS) |
 
 Manual construction in `App.OnFrameworkInitializationCompleted` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IUsageSampleStore`, `ICursorUsageClient`, `IUsageSyncService`, `IDataBackupService`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. There is no DI container.
@@ -197,15 +197,15 @@ Add cases next to the existing facts when you change those areas. Do not commit 
 1. Runs tests (unless `-SkipTests`)
 2. `dotnet publish` self-contained `win-x64` (not single-file; trimming and ReadyToRun stay off)
 3. Compiles `setup.iss` unless `-SkipInstaller`
-4. Writes `installer\CursorUsageProgress-<version>-win-x64-setup.exe` and a sibling `.sha256` file
+4. Writes `installer\CursorPace-<version>-win-x64-setup.exe` and a sibling `.sha256` file
 
 ### Linux and macOS (`./scripts/build.sh`)
 
 1. Runs tests (unless `--skip-tests`)
 2. Detects the host RID (`linux-x64`, `linux-arm64`, `osx-arm64`, or `osx-x64`) and publishes self-contained output
 3. Unless `--skip-installer`:
-   - **Linux**: `./scripts/build-appimage.sh` writes `installer/CursorUsageProgress-<version>-<rid>.AppImage` (+ `.sha256`) for `linux-x64` or `linux-arm64`. Needs WebKitGTK/GTK libraries on the build host matching the target architecture; [linuxdeploy](https://github.com/linuxdeploy/linuxdeploy) tooling is downloaded automatically for that architecture. AppImage packaging must run on a host whose architecture matches `--rid` because linuxdeploy bundles the host's native libraries.
-   - **macOS**: `./scripts/build-appbundle.sh` writes `installer/CursorUsageProgress-<version>-<rid>.zip` containing `Cursor Usage Progress.app` (+ `.sha256`)
+   - **Linux**: `./scripts/build-appimage.sh` writes `installer/CursorPace-<version>-<rid>.AppImage` (+ `.sha256`) for `linux-x64` or `linux-arm64`. Needs WebKitGTK/GTK libraries on the build host matching the target architecture; [linuxdeploy](https://github.com/linuxdeploy/linuxdeploy) tooling is downloaded automatically for that architecture. AppImage packaging must run on a host whose architecture matches `--rid` because linuxdeploy bundles the host's native libraries.
+   - **macOS**: `./scripts/build-appbundle.sh` writes `installer/CursorPace-<version>-<rid>.zip` containing `Cursor Pace.app` (+ `.sha256`)
 
 Publish output is under `bin/Release/net10.0/<rid>/publish/`. Trimming, ReadyToRun, and PublishSingleFile stay off.
 
@@ -218,7 +218,7 @@ dotnet publish -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=fal
 dotnet publish -c Release -r osx-x64 --self-contained -p:PublishSingleFile=false
 ```
 
-The Windows installer prompts to open the WebView2 Runtime download page when the runtime is missing. Uninstall deletes `%LocalAppData%\CursorUsageProgress`.
+The Windows installer prompts to open the WebView2 Runtime download page when the runtime is missing. Uninstall deletes `%LocalAppData%\CursorPace`.
 
 `installer/` is gitignored. Release packages are intentionally unsigned; their SHA-256 checksum files detect download corruption but are not code-signing identities.
 
@@ -228,7 +228,7 @@ Do not commit built binaries.
 
 Keep these in sync:
 
-1. `<Version>` in `CursorUsageProgress.csproj` (`scripts/build.*` and `scripts/release.*` read this)
+1. `<Version>` in `CursorPace.csproj` (`scripts/build.*` and `scripts/release.*` read this)
 2. Default `MyAppVersion` in `setup.iss` (overridden by `scripts/build.*` with `/DMyAppVersion=...`)
 3. `dev/CHANGELOG.md`: when releasing, move `[Unreleased]` bullets into `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`
 4. `release-notes/RELEASE_NOTES_<version>.md` (required by `scripts/release.*`)
@@ -240,7 +240,7 @@ The workflow pins hosted runner generations, the .NET SDK, and GitHub Actions ma
 
 ## Settings format
 
-`JsonPlanStore` writes camelCase JSON to `%LocalAppData%\CursorUsageProgress\settings.json` (atomic: write `settings.json.tmp`, then move). The `Version` field is `2`. Leftover `renewalDay`, cycle `edits`, and legacy `days[]` are ignored on load.
+`JsonPlanStore` writes camelCase JSON to `%LocalAppData%\CursorPace\settings.json` (atomic: write `settings.json.tmp`, then move). The `Version` field is `2`. Leftover `renewalDay`, cycle `edits`, and legacy `days[]` are ignored on load.
 
 Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so older files still deserialize):
 
@@ -267,19 +267,19 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 
 **App will not start after an update**
 
-- End `CursorUsageProgress` so the single-instance mutex or lock file is released.
+- End `CursorPace` so the single-instance mutex or lock file is released.
 - Confirm the published folder contains the self-contained Avalonia payload.
 
 **Sign in fails in a local run**
 
-- Windows: confirm the WebView2 Runtime. Profile folder: `%LocalAppData%\CursorUsageProgress\WebView2`.
+- Windows: confirm the WebView2 Runtime. Profile folder: `%LocalAppData%\CursorPace\WebView2`.
 - Linux/macOS: profile folder is `WebView` under LocalApplicationData; a Linux AppImage run uses `WebView-AppImage` instead (see below). Google may block WebKit login.
 - After a successful Cursor session, the sign-in window should close on its own (or after **Continue**). An `Unsupported result type` banner meant the usage script returned a non-string value to WebKit; current builds stringify the fetch result.
 - Delete the profile folder to force a fresh login. Do not delete `settings.json` unless you also want to reset the cycle.
 
 **"Lost" Cursor login that keeps recurring on Linux**
 
-An AppImage bundles its own WebKitGTK build via `linuxdeploy --plugin gtk`. If that bundled WebKit and the system WebKitGTK used by a `dotnet run`/`dev.sh` build ever wrote cookies to the *same* profile folder, one build's WebKit can fail to read the other's cookie database, and the fetch returns `AuthRequired` even though nothing actually signed you out. `WebViewProfilePaths` detects an AppImage run via the `APPIMAGE` environment variable (set by AppImage's `AppRun`) and gives it a separate `WebView-AppImage` profile folder so a dev run and an AppImage run never share one cookie store. If you still see recurring `AuthRequired` after this, compare `~/.local/share/CursorUsageProgress/WebView/` and `.../WebView-AppImage/` timestamps to confirm which build wrote which profile, and check whether a newer AppImage build picked up a different bundled WebKitGTK version than a previous one (that scenario is not covered by the folder split, since both are "AppImage" runs).
+An AppImage bundles its own WebKitGTK build via `linuxdeploy --plugin gtk`. If that bundled WebKit and the system WebKitGTK used by a `dotnet run`/`dev.sh` build ever wrote cookies to the *same* profile folder, one build's WebKit can fail to read the other's cookie database, and the fetch returns `AuthRequired` even though nothing actually signed you out. `WebViewProfilePaths` detects an AppImage run via the `APPIMAGE` environment variable (set by AppImage's `AppRun`) and gives it a separate `WebView-AppImage` profile folder so a dev run and an AppImage run never share one cookie store. If you still see recurring `AuthRequired` after this, compare `~/.local/share/CursorPace/WebView/` and `.../WebView-AppImage/` timestamps to confirm which build wrote which profile, and check whether a newer AppImage build picked up a different bundled WebKitGTK version than a previous one (that scenario is not covered by the folder split, since both are "AppImage" runs).
 
 **App shows `(connected)` right after Sign in even though Cursor never accepted the session**
 
@@ -343,14 +343,14 @@ If auto-detection still fails, set **Theme** to **Light** or **Dark** in Setting
 
 **Settings lost**
 
-- `%LocalAppData%\CursorUsageProgress\`
+- `%LocalAppData%\CursorPace\`
 - `settings.corrupt.json` / `usage-samples.corrupt.json` are backups of files that failed to parse
 
 **Startup registration**
 
-- Windows: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorUsageProgress`
-- macOS: `~/Library/LaunchAgents/com.cursorusageprogress.app.plist`
-- Linux: `~/.config/autostart/cursor-usage-progress.desktop`
+- Windows: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorPace`
+- macOS: `~/Library/LaunchAgents/com.cursorpace.app.plist`
+- Linux: `~/.config/autostart/cursor-pace.desktop`
 - Command includes `--background` when **Start in notification tray** is on
 
 **Tests or publish path wrong**

@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text;
-using CursorUsageProgress.Models;
+using CursorPace.Models;
 
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public static class UsageSamplesCsvBuilder
 {

@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:CursorUsageProgress.ViewModels"
-             x:Class="CursorUsageProgress.Views.SettingsView"
+             xmlns:vm="using:CursorPace.ViewModels"
+             x:Class="CursorPace.Views.SettingsView"
              x:DataType="vm:MainViewModel">
 
     <DockPanel>

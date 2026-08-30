@@ -1,4 +1,4 @@
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public interface IClock
 {

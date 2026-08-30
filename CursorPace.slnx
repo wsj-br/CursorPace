@@ -1,4 +1,4 @@
 <Solution>
-  <Project Path="CursorUsageProgress.csproj" />
-  <Project Path="Tests/CursorUsageProgress.Tests.csproj" />
+  <Project Path="CursorPace.csproj" />
+  <Project Path="Tests/CursorPace.Tests.csproj" />
 </Solution>

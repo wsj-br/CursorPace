@@ -8,6 +8,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Changed**: install - version is `0.2.1`.
+- **Changed**: rebrand - renamed the app from `CursorUsageProgress` / Cursor Usage Progress to `CursorPace` / Cursor Pace across namespaces, project files, packaging, installer identity (`AppId`, mutex, AppData folder, desktop id, macOS bundle id), and documentation. No settings or WebView profile migration; a new `%LocalAppData%\CursorPace` folder starts empty.
 - **Fixed**: install - `packaging/cursor-usage-progress.appdata.xml` is renamed to `packaging/io.github.wsj_br.CursorUsageProgress.appdata.xml` (matching the component `<id>`), and `build-appimage.sh` copies it into `usr/share/metainfo/` under that same name; `appstreamcli`'s tree validation flagged the previous mismatched filename as a `metainfo-filename-cid-mismatch` warning, which made `appimagetool` fail AppStream validation and abort the `linux-arm64` AppImage build in CI.
 
 ## [0.2.0] - 2026-08-30
@@ -50,7 +52,7 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 - **Changed**: settings - `Sign in` is hidden while connected; Export Cycle CSV explains why it is disabled.
 - **Fixed**: dialogs - Escape cancels, focus starts on the safe button, and Windows uses primary-then-cancel order.
 - **Changed**: install - keep `Avalonia.Controls.WebView` on the latest published version that matches Avalonia 12 (currently 12.1.0).
-- **Fixed**: window - restore the `Cursor Usage Progress` label to the left side of the custom title bar.
+- **Fixed**: window - restore the `Cursor Pace` label to the left side of the custom title bar.
 - **Changed**: window - add a small gap between `Quit` and the window controls.
 - **Fixed**: window - use a fully custom fixed-size title bar so Minimize and Close are right-aligned without competing with Avalonia's overlay caption controls.
 - **Changed**: settings - opens in the main window with a `Back` control and clickable `Settings` heading below the title bar.
@@ -65,7 +67,7 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 - **Removed**: settings - Windows-only Mica title bar; Fluent theme follows the system light/dark variant instead.
 - **Added**: settings - launch-at-login on macOS (Launch Agent) and Linux (XDG autostart); the setting is labeled `Launch at login`.
 - **Changed**: tray - notification icon uses Avalonia `TrayIcon` instead of `H.NotifyIcon.WinUI`.
-- **Changed**: sync - usage fetch runs in Avalonia `NativeWebView` with a persistent per-OS profile; Windows still uses `%LocalAppData%\CursorUsageProgress\WebView2`.
+- **Changed**: sync - usage fetch runs in Avalonia `NativeWebView` with a persistent per-OS profile; Windows still uses `%LocalAppData%\CursorPace\WebView2`.
 
 - **Fixed**: build - (WinUI era) `dotnet test` and `scripts/build.ps1` succeed with `EnableMsixTooling` on RID-less AnyCPU builds (`AllowNeutralPackageWithAppHost`).
 - **Fixed**: install - (WinUI era) unpackaged publish now includes `resources.pri`, so the Inno-installed exe no longer starts and exits immediately (`Microsoft.UI.Xaml.dll` `0xc000027b`).

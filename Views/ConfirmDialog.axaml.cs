@@ -3,7 +3,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 
-namespace CursorUsageProgress.Views;
+namespace CursorPace.Views;
 
 public partial class ConfirmDialog : Window
 {

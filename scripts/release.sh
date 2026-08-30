@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Start a GitHub release build from HEAD using the csproj version.
 #
-# Reads <Version> from CursorUsageProgress.csproj and requires
+# Reads <Version> from CursorPace.csproj and requires
 # release-notes/RELEASE_NOTES_<version>.md. Then:
 #   - Deletes an existing GitHub release and/or tag for v<version> if present
 #   - Creates an annotated tag at HEAD and pushes it to origin
@@ -69,12 +69,12 @@ require_command() {
 get_csproj_version() {
   local path="$1"
   if [[ ! -f "$path" ]]; then
-    fail "CursorUsageProgress.csproj not found in repository root."
+    fail "CursorPace.csproj not found in repository root."
   fi
   local value
   value="$(sed -n 's/.*<Version>\([^<]*\)<\/Version>.*/\1/p' "$path" | head -n 1 | tr -d '[:space:]')"
   if [[ -z "$value" ]]; then
-    fail "Could not find <Version> in CursorUsageProgress.csproj"
+    fail "Could not find <Version> in CursorPace.csproj"
   fi
   printf '%s\n' "$value"
 }
@@ -110,7 +110,7 @@ if ! gh auth status >/dev/null 2>&1; then
   fail 'GitHub CLI is not authenticated. Run: gh auth login'
 fi
 
-VERSION="$(get_csproj_version "$REPO_ROOT/CursorUsageProgress.csproj")"
+VERSION="$(get_csproj_version "$REPO_ROOT/CursorPace.csproj")"
 TAG="v$VERSION"
 NOTES_FILE="release-notes/RELEASE_NOTES_${VERSION}.md"
 NOTES_PATH="$REPO_ROOT/$NOTES_FILE"

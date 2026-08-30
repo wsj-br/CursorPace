@@ -5,10 +5,10 @@ using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using Avalonia.Styling;
-using CursorUsageProgress.Models;
-using CursorUsageProgress.Services;
+using CursorPace.Models;
+using CursorPace.Services;
 
-namespace CursorUsageProgress.Views;
+namespace CursorPace.Views;
 
 public partial class UsageChartControl : UserControl
 {

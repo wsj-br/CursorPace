@@ -1,7 +1,7 @@
-# Cursor Usage Progress
+# Cursor Pace
 
 <p align="center">
-  <img src="Assets/cursor_usage_progress.png" alt="Cursor Usage Progress" width="180">
+  <img src="Assets/cursor_pace.png" alt="Cursor Pace" width="180">
 </p>
 
 Desktop app for Windows, Linux, and macOS that tracks Cursor model quota across a billing cycle. Sign in with your Cursor account to pull usage automatically. The calendar and chart show two independent percentages: **Cursor Models** and **Other Models**.
@@ -21,12 +21,12 @@ Sign in uses an embedded native WebView (WebView2 on Windows, WKWebView on macOS
 ## Install
 
 1. Download the build for your platform from this repository's Releases page:
-   - **Windows**: `CursorUsageProgress-*-win-x64-setup.exe`
-   - **Linux**: `CursorUsageProgress-*-linux-x64.AppImage` (x86_64) or `*-linux-arm64.AppImage` (ARM64)
-   - **macOS**: `CursorUsageProgress-*-osx-arm64.zip` (Apple Silicon) or `*-osx-x64.zip` (Intel)
+   - **Windows**: `CursorPace-*-win-x64-setup.exe`
+   - **Linux**: `CursorPace-*-linux-x64.AppImage` (x86_64) or `*-linux-arm64.AppImage` (ARM64)
+   - **macOS**: `CursorPace-*-osx-arm64.zip` (Apple Silicon) or `*-osx-x64.zip` (Intel)
 2. **Windows**: run the installer. If SmartScreen warns that the app is unsigned, choose **More info**, then **Run anyway**. If WebView2 Runtime is missing, open the download page the installer offers.
 3. **Linux**: make the AppImage executable (`chmod +x`), then run it. First launch may take a moment while the bundle extracts.
-4. **macOS**: unzip the archive, move `Cursor Usage Progress.app` to Applications, then open it. If Gatekeeper blocks the unsigned app, attempt to open it once and then choose **Open Anyway** in **System Settings → Privacy & Security**.
+4. **macOS**: unzip the archive, move `Cursor Pace.app` to Applications, then open it. If Gatekeeper blocks the unsigned app, attempt to open it once and then choose **Open Anyway** in **System Settings → Privacy & Security**.
 5. Sign in to Cursor when the app opens.
 
 See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, the calendar and chart, tray behavior, and troubleshooting.
@@ -53,8 +53,8 @@ On Windows (PowerShell) or Linux/macOS (bash):
 ```bash
 dotnet restore
 dotnet build
-dotnet test ./Tests/CursorUsageProgress.Tests.csproj
-dotnet run --project ./CursorUsageProgress.csproj
+dotnet test ./Tests/CursorPace.Tests.csproj
+dotnet run --project ./CursorPace.csproj
 ```
 
 Or use the maintainer scripts: `.\scripts\dev.ps1` / `./scripts/dev.sh`.

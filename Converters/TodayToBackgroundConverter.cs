@@ -2,7 +2,7 @@ using System.Globalization;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 
-namespace CursorUsageProgress.Converters;
+namespace CursorPace.Converters;
 
 public sealed class TodayToBackgroundConverter : IValueConverter
 {

@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows.Input;
-using CursorUsageProgress.Models;
-using CursorUsageProgress.Services;
+using CursorPace.Models;
+using CursorPace.Services;
 
-namespace CursorUsageProgress.ViewModels;
+namespace CursorPace.ViewModels;
 
 public sealed class MainViewModel : ViewModelBase
 {
@@ -120,12 +120,12 @@ public sealed class MainViewModel : ViewModelBase
         get
         {
             if (!TryGetTodayDay(out var day))
-                return "Cursor Usage Progress";
+                return "Cursor Pace";
 
             var samples = _sync.Samples;
             var cursorEop = _calculator.ProjectedPercentAt(_cycle!, QuotaKind.CursorModels, _cycle!.NextRenewal, samples);
             var otherEop = _calculator.ProjectedPercentAt(_cycle, QuotaKind.OtherModels, _cycle.NextRenewal, samples);
-            return $"Cursor Usage Progress\nCursor: {FormatPercent(day.CursorModelsPercent)}{FormatEop(cursorEop)}\nOther models: {FormatPercent(day.OtherModelsPercent)}{FormatEop(otherEop)}";
+            return $"Cursor Pace\nCursor: {FormatPercent(day.CursorModelsPercent)}{FormatEop(cursorEop)}\nOther models: {FormatPercent(day.OtherModelsPercent)}{FormatEop(otherEop)}";
         }
     }
 
@@ -247,13 +247,13 @@ public sealed class MainViewModel : ViewModelBase
     public ICommand DisconnectCommand { get; }
 
     public string SuggestedCycleFileName =>
-        $"cursor-usage-progress-{_clock.Now.ToString(ExportFileTimestampFormat, CultureInfo.InvariantCulture)}";
+        $"cursor-pace-{_clock.Now.ToString(ExportFileTimestampFormat, CultureInfo.InvariantCulture)}";
 
     public string SuggestedUsageSamplesFileName =>
         $"usage-samples-{_clock.Now.ToString(ExportFileTimestampFormat, CultureInfo.InvariantCulture)}";
 
     public string SuggestedBackupFileName =>
-        $"cursor-usage-progress-backup-{_clock.Now.ToString(ExportFileTimestampFormat, CultureInfo.InvariantCulture)}";
+        $"cursor-pace-backup-{_clock.Now.ToString(ExportFileTimestampFormat, CultureInfo.InvariantCulture)}";
 
     public event Action? QuitRequested;
 

@@ -1,11 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
-using CursorUsageProgress.Models;
-using CursorUsageProgress.Services;
-using CursorUsageProgress.ViewModels;
+using CursorPace.Models;
+using CursorPace.Services;
+using CursorPace.ViewModels;
 
-namespace CursorUsageProgress.Views;
+namespace CursorPace.Views;
 
 public partial class SettingsView : UserControl
 {

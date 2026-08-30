@@ -1,8 +1,8 @@
 using System.IO.Compression;
-using CursorUsageProgress.Models;
-using CursorUsageProgress.Services;
+using CursorPace.Models;
+using CursorPace.Services;
 
-namespace CursorUsageProgress.Tests;
+namespace CursorPace.Tests;
 
 public class DataBackupArchiveTests
 {

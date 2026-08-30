@@ -16,7 +16,7 @@ usage() {
   cat <<'EOF'
 Usage: ./scripts/build-appimage.sh --version VERSION --rid RID --publish-dir PATH
 
-  --version       App version (matches CursorUsageProgress.csproj).
+  --version       App version (matches CursorPace.csproj).
   --rid           linux-x64 or linux-arm64.
   --publish-dir   Self-contained publish output directory matching --rid.
   -h, --help      Show this help.
@@ -78,15 +78,15 @@ if [[ ! -d "$PUBLISH_DIR" ]]; then
   exit 1
 fi
 
-PUBLISHED_BIN="$PUBLISH_DIR/CursorUsageProgress"
+PUBLISHED_BIN="$PUBLISH_DIR/CursorPace"
 if [[ ! -f "$PUBLISHED_BIN" ]]; then
   echo "Error: publish folder is missing $PUBLISHED_BIN" >&2
   exit 1
 fi
 
-DESKTOP_SOURCE="$REPO_ROOT/packaging/cursor-usage-progress.desktop"
-ICON_SOURCE="$REPO_ROOT/Assets/cursor_usage_progress.png"
-APPDATA_SOURCE="$REPO_ROOT/packaging/io.github.wsj_br.CursorUsageProgress.appdata.xml"
+DESKTOP_SOURCE="$REPO_ROOT/packaging/cursor-pace.desktop"
+ICON_SOURCE="$REPO_ROOT/Assets/cursor_pace.png"
+APPDATA_SOURCE="$REPO_ROOT/packaging/io.github.wsj_br.CursorPace.appdata.xml"
 if [[ ! -f "$DESKTOP_SOURCE" ]]; then
   echo "Error: desktop file not found: $DESKTOP_SOURCE" >&2
   exit 1
@@ -101,7 +101,7 @@ if [[ ! -f "$APPDATA_SOURCE" ]]; then
 fi
 
 BUILD_DIR="$REPO_ROOT/.appimage-build"
-APPDIR="$BUILD_DIR/CursorUsageProgress.AppDir"
+APPDIR="$BUILD_DIR/CursorPace.AppDir"
 LINUXDEPLOY_VERSION="1-alpha-20251107-1"
 # linuxdeploy-plugin-gtk has no tagged releases; its script only ever lives on
 # master, so pin a commit to keep the AppImage build reproducible.
@@ -121,7 +121,7 @@ prepare_appimage_icon() {
   fi
 }
 
-ICON_FOR_APPIMAGE="$BUILD_DIR/cursor-usage-progress.png"
+ICON_FOR_APPIMAGE="$BUILD_DIR/cursor-pace.png"
 prepare_appimage_icon "$ICON_SOURCE" "$ICON_FOR_APPIMAGE"
 
 download_file() {
@@ -163,7 +163,7 @@ download_file \
 rm -rf "$APPDIR"
 mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/share/metainfo"
 cp -a "$PUBLISH_DIR/." "$APPDIR/usr/bin/"
-cp "$APPDATA_SOURCE" "$APPDIR/usr/share/metainfo/io.github.wsj_br.CursorUsageProgress.appdata.xml"
+cp "$APPDATA_SOURCE" "$APPDIR/usr/share/metainfo/io.github.wsj_br.CursorPace.appdata.xml"
 # Optional .NET diagnostics pull lttng deps that are not needed at runtime.
 rm -f "$APPDIR/usr/bin/createdump" "$APPDIR/usr/bin/libcoreclrtraceptprovider.so"
 
@@ -174,7 +174,7 @@ export DEPLOY_GTK_VERSION=3
 echo "Bundling dependencies into AppDir ..."
 "$LINUXDEPLOY" --appimage-extract-and-run \
   --appdir="$APPDIR" \
-  --executable="$APPDIR/usr/bin/CursorUsageProgress" \
+  --executable="$APPDIR/usr/bin/CursorPace" \
   --desktop-file="$DESKTOP_SOURCE" \
   --icon-file="$ICON_FOR_APPIMAGE" \
   --plugin gtk \
@@ -196,7 +196,7 @@ if [[ -z "$APPIMAGE_PATH" || ! -f "$APPIMAGE_PATH" ]]; then
   exit 1
 fi
 
-INSTALLER_NAME="CursorUsageProgress-$VERSION-$RID.AppImage"
+INSTALLER_NAME="CursorPace-$VERSION-$RID.AppImage"
 INSTALLER_PATH="$REPO_ROOT/installer/$INSTALLER_NAME"
 mv -f "$APPIMAGE_PATH" "$INSTALLER_PATH"
 chmod +x "$INSTALLER_PATH"

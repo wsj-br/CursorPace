@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=Cursor Usage Progress
+Name=Cursor Pace
 Comment=Track Cursor quota across a billing cycle
-Exec=CursorUsageProgress
-Icon=cursor-usage-progress
+Exec=CursorPace
+Icon=cursor-pace
 Categories=Utility;
 Terminal=false

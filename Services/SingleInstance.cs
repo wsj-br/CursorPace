@@ -1,11 +1,11 @@
 using System.Net.Sockets;
 using System.Runtime.Versioning;
 
-namespace CursorUsageProgress.Services;
+namespace CursorPace.Services;
 
 public static class SingleInstance
 {
-    public const string MutexName = "CursorUsageProgress_SingleInstance";
+    public const string MutexName = "CursorPace_SingleInstance";
     public const string EventName = MutexName + "_Event";
 
     public static ISingleInstance Create() =>

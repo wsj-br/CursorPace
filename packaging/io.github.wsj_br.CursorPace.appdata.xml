@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>io.github.wsj_br.CursorUsageProgress</id>
-  <name>Cursor Usage Progress</name>
+  <id>io.github.wsj_br.CursorPace</id>
+  <name>Cursor Pace</name>
   <summary>Track Cursor quota across a billing cycle</summary>
   <metadata_license>MIT</metadata_license>
   <project_license>MIT</project_license>
   <developer id="io.github.wsj_br">
     <name>Waldemar Scudeller Jr.</name>
   </developer>
-  <url type="homepage">https://github.com/wsj-br/CursorUsageProgress</url>
+  <url type="homepage">https://github.com/wsj-br/CursorPace</url>
   <description>
     <p>
       Desktop app for Windows, Linux, and macOS that tracks Cursor model quota
@@ -17,9 +17,9 @@
       Cursor Models and Other Models.
     </p>
   </description>
-  <launchable type="desktop-id">cursor-usage-progress.desktop</launchable>
+  <launchable type="desktop-id">cursor-pace.desktop</launchable>
   <provides>
-    <binary>CursorUsageProgress</binary>
+    <binary>CursorPace</binary>
   </provides>
   <content_rating type="oars-1.1" />
 </component>

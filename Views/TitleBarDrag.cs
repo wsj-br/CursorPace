@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 
-namespace CursorUsageProgress.Views;
+namespace CursorPace.Views;
 
 internal sealed class TitleBarDrag
 {

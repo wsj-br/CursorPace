@@ -1,4 +1,4 @@
-namespace CursorUsageProgress.Models;
+namespace CursorPace.Models;
 
 /// <summary>
 /// One axis slot delimited by local midnights. Slots are labelled with the day of

@@ -5,10 +5,10 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>Assets\cursor_usage_progress.ico</ApplicationIcon>
-    <Version>0.2.0</Version>
-    <Company>https://github.com/wsj-br/CursorUsageProgress</Company>
-    <Product>Cursor Usage Progress</Product>
+    <ApplicationIcon>Assets\cursor_pace.ico</ApplicationIcon>
+    <Version>0.2.1</Version>
+    <Company>https://github.com/wsj-br/CursorPace</Company>
+    <Product>Cursor Pace</Product>
     <Copyright>Copyright © 2026 Waldemar Scudeller Jr.</Copyright>
     <DefaultItemExcludes>$(DefaultItemExcludes);Tests/**</DefaultItemExcludes>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -28,10 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Assets\cursor_usage_progress.ico">
+    <Content Include="Assets\cursor_pace.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\cursor_usage_progress.png">
+    <Content Include="Assets\cursor_pace.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

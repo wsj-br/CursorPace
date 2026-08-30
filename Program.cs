@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Avalonia;
 
-namespace CursorUsageProgress;
+namespace CursorPace;
 
 internal static class Program
 {
@@ -33,7 +33,7 @@ internal static class Program
             Trace.WriteLine(text);
             var folder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "CursorUsageProgress");
+                "CursorPace");
             Directory.CreateDirectory(folder);
             File.AppendAllText(Path.Combine(folder, "crash.log"), text + Environment.NewLine);
         }

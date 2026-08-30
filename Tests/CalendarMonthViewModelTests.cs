@@ -1,7 +1,7 @@
 using System.Globalization;
-using CursorUsageProgress.ViewModels;
+using CursorPace.ViewModels;
 
-namespace CursorUsageProgress.Tests;
+namespace CursorPace.Tests;
 
 public class CalendarMonthViewModelTests
 {

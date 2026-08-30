@@ -1,6 +1,6 @@
-using CursorUsageProgress.Models;
+using CursorPace.Models;
 
-namespace CursorUsageProgress.Tests;
+namespace CursorPace.Tests;
 
 public class SyncScheduleTests
 {
