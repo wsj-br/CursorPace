@@ -56,6 +56,7 @@ public partial class MainWindow : Window
         _dayCheckTimer.Start();
 
         _restorePlacementPending = _viewModel.TryGetSavedWindowPosition(out _, out _);
+        Opened += OnWindowOpened;
         Activated += OnWindowActivated;
         PositionChanged += OnPositionChanged;
         Closing += OnWindowClosing;
@@ -135,6 +136,21 @@ public partial class MainWindow : Window
         PersistWindowPosition();
         _dayCheckTimer.Stop();
         (Application.Current as App)?.Quit();
+    }
+
+    private void OnWindowOpened(object? sender, EventArgs e)
+    {
+        // On Linux, window managers do not reliably raise Activated when the
+        // window is first shown (it fires only once the user interacts with
+        // the window), so the initial placement would otherwise fall back to
+        // the WM's default position. Opened always fires when the window is
+        // shown, on every platform, so restore eagerly here too.
+        if (!_restorePlacementPending)
+            return;
+
+        _restorePlacementPending = false;
+        RestoreWindowPosition();
+        _dispatcher.Post(RestoreWindowPosition);
     }
 
     private void OnWindowActivated(object? sender, EventArgs e)
