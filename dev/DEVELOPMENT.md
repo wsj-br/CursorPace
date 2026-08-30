@@ -130,7 +130,8 @@ CursorUsageProgress/
 │   └── CursorUsageProgress.Tests.csproj
 ├── setup.iss                    # Inno Setup (Windows only; checks WebView2 Runtime)
 ├── packaging/
-│   └── cursor-usage-progress.desktop
+│   ├── cursor-usage-progress.desktop
+│   └── cursor-usage-progress.appdata.xml
 ├── scripts/
 │   ├── build.ps1 / build.sh
 │   ├── build-appimage.sh
@@ -279,6 +280,14 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 **"Lost" Cursor login that keeps recurring on Linux**
 
 An AppImage bundles its own WebKitGTK build via `linuxdeploy --plugin gtk`. If that bundled WebKit and the system WebKitGTK used by a `dotnet run`/`dev.sh` build ever wrote cookies to the *same* profile folder, one build's WebKit can fail to read the other's cookie database, and the fetch returns `AuthRequired` even though nothing actually signed you out. `WebViewProfilePaths` detects an AppImage run via the `APPIMAGE` environment variable (set by AppImage's `AppRun`) and gives it a separate `WebView-AppImage` profile folder so a dev run and an AppImage run never share one cookie store. If you still see recurring `AuthRequired` after this, compare `~/.local/share/CursorUsageProgress/WebView/` and `.../WebView-AppImage/` timestamps to confirm which build wrote which profile, and check whether a newer AppImage build picked up a different bundled WebKitGTK version than a previous one (that scenario is not covered by the folder split, since both are "AppImage" runs).
+
+**App shows `(connected)` right after Sign in even though Cursor never accepted the session**
+
+Do not resurrect a `HasPersistedProfile`-style check that treats the WebView profile folder existing/being non-empty as evidence of a signed-in session: WebKitGTK writes `Cache/hsts-storage.sqlite`, `Cache/WebKitCache/`, `localstorage/`, `storage/`, and `mediakeys/` to that folder as soon as the embedded browser is first initialized, before any cookie is ever set. Verified locally (WSLg + `libwebkit2gtk-4.1-0` 2.52.3): the folder was ~40 MB with those files after only opening the sign-in window, with zero Cursor cookies. `IsSignedIn` must come only from `cursorAccountConnected`/prior-sync evidence in `UsageSyncService`'s constructor and from actual `FetchAsync` results (`Ok` / `SignedOut`); other statuses (`AuthRequired`, `Syncing`, `RateLimited`, `Error`) must leave `IsSignedIn` unchanged rather than deriving it from the profile folder.
+
+**Sign out on Linux also signs out Google/GitHub**
+
+`NativeWebViewCursorUsageClient.DisconnectAsync` tries `NativeWebView.TryGetCookieManager()` to delete only `cursor.com` cookies, and only falls back to deleting the whole profile folder (which also clears Google/GitHub) if no cookie manager is available. Verified locally: on Linux with the WebKitGTK backend (`AdapterInfo.Type == WebKitGtk`, WebKit 2.52.3), `TryGetCookieManager()` returns `null`, so Sign out always takes the full-wipe fallback there. This is a limitation of `Avalonia.Controls.WebView` 12.1.0's WebKitGTK adapter, not a bug in this app's logic; re-check if a future `Avalonia.Controls.WebView` release adds cookie-manager support for that backend. Windows (`ICoreWebView2CookieManager`) and macOS (`WKHTTPCookieStore`) have their own cookie-manager implementations in the same package and are expected to support the scoped delete, but that has not been verified on those platforms.
 
 **Tray icon missing**
 

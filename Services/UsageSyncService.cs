@@ -42,7 +42,6 @@ public sealed class UsageSyncService : IUsageSyncService
         _timer.Tick += OnTimerTick;
 
         var connected = settings.CursorAccountConnected
-            || _client.HasPersistedProfile
             || (settings.ActiveCycle != null && settings.LastUsageSyncUtc != null);
         if (connected)
         {
@@ -241,8 +240,7 @@ public sealed class UsageSyncService : IUsageSyncService
         {
             SyncStatus.Ok or SyncStatus.Idle => true,
             SyncStatus.SignedOut => false,
-            SyncStatus.AuthRequired => IsSignedIn || _client.HasPersistedProfile,
-            SyncStatus.Syncing or SyncStatus.RateLimited or SyncStatus.Error => IsSignedIn,
+            SyncStatus.AuthRequired or SyncStatus.Syncing or SyncStatus.RateLimited or SyncStatus.Error => IsSignedIn,
             _ => IsSignedIn,
         };
         RaiseStateChanged();

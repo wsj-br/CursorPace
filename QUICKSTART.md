@@ -49,7 +49,7 @@ While signed in:
 - The billing cycle start and next renewal come from Cursor.
 - **Export Usage** appears next to **Export Cycle CSV**.
 
-Choose **Refresh now** to fetch immediately. **Sign out** clears the saved Cursor session; a Google or GitHub session stored in the app's private browser profile is kept when possible, so signing in again may not ask for that password. Samples stay on disk until you delete `usage-samples.json` or uninstall.
+Choose **Refresh now** to fetch immediately. **Sign out** clears the saved Cursor session. On Windows and macOS this keeps a Google or GitHub session stored in the app's private browser profile when possible, so signing in again may not ask for that password; on Linux the embedded WebKitGTK browser has no way to clear only the Cursor session, so **Sign out** clears the whole browser profile there, including Google/GitHub. Samples stay on disk until you delete `usage-samples.json` or uninstall.
 
 ### Automatic updates
 
@@ -101,7 +101,7 @@ Open **Settings** from the title bar. Settings replace the calendar or chart in 
 | --- | --- |
 | **Sign in** | Open the Cursor session window (disabled while already signed in) |
 | **Refresh now** | Fetch usage immediately |
-| **Sign out** | Clear the saved Cursor session (keeps a Google/GitHub session in the browser profile when possible) |
+| **Sign out** | Clear the saved Cursor session (keeps a Google/GitHub session in the browser profile on Windows/macOS when possible; clears the whole profile on Linux) |
 | **Update usage automatically** | Clock-aligned refreshes at the interval below |
 | **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
 | **Launch at login** | Starts the app at OS login (Windows Run key, macOS Launch Agent, or Linux XDG autostart) |

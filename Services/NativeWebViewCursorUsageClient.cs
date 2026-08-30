@@ -61,11 +61,6 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
         _dispatcher = dispatcher;
     }
 
-    public bool HasPersistedProfile =>
-        Directory.Exists(WebViewProfilePaths.ProfileDirectory)
-        && Directory.EnumerateFileSystemEntries(WebViewProfilePaths.ProfileDirectory).Any()
-        && !File.Exists(WebViewProfilePaths.SignedOutMarkerPath);
-
     public async Task<UsageFetchResult> FetchAsync(
         bool allowInteractiveLogin,
         CancellationToken cancellationToken = default)
@@ -186,10 +181,7 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
             }
 
             if (clearedCursorCookiesOnly)
-            {
-                File.WriteAllText(WebViewProfilePaths.SignedOutMarkerPath, string.Empty);
                 return;
-            }
 
             // Fallback for backends without a cookie manager: this also clears
             // any Google/GitHub session stored in the profile.
@@ -458,17 +450,6 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
                 null,
                 "The Cursor usage response could not be parsed.",
                 fetch.Status);
-        }
-
-        // A 200 response proves a live Cursor session exists, so any earlier
-        // Sign out marker (cursor.com cookies cleared, other cookies kept) no
-        // longer applies.
-        try
-        {
-            File.Delete(WebViewProfilePaths.SignedOutMarkerPath);
-        }
-        catch (IOException)
-        {
         }
 
         return new UsageFetchResult(UsageFetchStatus.Ok, snapshot, null, fetch.Status);

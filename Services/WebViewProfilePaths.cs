@@ -24,10 +24,4 @@ public static class WebViewProfilePaths
                 : "WebView");
 
     public static string CacheDirectory { get; } = Path.Combine(ProfileDirectory, "Cache");
-
-    // Written by Sign out when only cursor.com cookies were cleared (Google/GitHub
-    // cookies were kept); cleared on the next successful Cursor fetch. Lets
-    // HasPersistedProfile tell "no live Cursor session" apart from "profile folder
-    // has leftover non-Cursor cookies" without needing a live WebView to check.
-    public static string SignedOutMarkerPath { get; } = Path.Combine(ProfileDirectory, ".cursor-signed-out");
 }

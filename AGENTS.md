@@ -26,6 +26,7 @@ Flat repo. App project: `CursorUsageProgress.csproj`. Tests: `Tests/CursorUsageP
 | `Assets/` | Icon and tray image. |
 | `Tests/` | Unit tests. App csproj excludes this folder. |
 | `dev/` | Maintainer files: `CHANGELOG.md`, `DEVELOPMENT.md`, release-notes prompt. |
+| `packaging/` | Linux packaging inputs: `.desktop` file, AppStream `.appdata.xml`. Consumed by `scripts/build-appimage.sh`. |
 | `scripts/` | Maintainer scripts: PowerShell (`.ps1`) and bash (`.sh`) for `dev`, `build`, `clean`, `release`. |
 | `Program.cs` | Avalonia entry: `BuildAvaloniaApp()`. |
 | `App.axaml.cs` | Process entry: single-instance, DI wiring, tray, `--background`. |
@@ -40,7 +41,7 @@ Construct services in `App.OnFrameworkInitializationCompleted` and pass them in.
 - Persistence: `IPlanStore` / `JsonPlanStore`. Path `%LocalAppData%\CursorUsageProgress\settings.json` (or the OS LocalApplicationData equivalent). `Load()` must never let a transient I/O read failure (locked file, permission error) overwrite the on-disk file. Only a JSON parse failure counts as corruption; back up and reset in that case only.
 - Usage samples: `IUsageSampleStore` / `JsonUsageSampleStore`. Path `%LocalAppData%\CursorUsageProgress\usage-samples.json`. Same load exception contract as `IPlanStore`.
 - Backup: `IDataBackupService` / `DataBackupService`. One zip of `settings.json` and `usage-samples.json`. Does not include the WebView profile.
-- Cursor usage: `ICursorUsageClient` / `NativeWebViewCursorUsageClient`. Windows profile folder `%LocalAppData%\CursorUsageProgress\WebView2`; other OS use `WebView` under LocalApplicationData. Keep the `Avalonia.Controls.WebView` package version aligned with `Avalonia` / `Avalonia.Desktop` when a matching WebView package exists.
+- Cursor usage: `ICursorUsageClient` / `NativeWebViewCursorUsageClient`. Profile folder is `WebViewProfilePaths.ProfileDirectory`: Windows uses `%LocalAppData%\CursorUsageProgress\WebView2`; Linux/macOS use `WebView` under LocalApplicationData, except a Linux AppImage run (detected via the `APPIMAGE` env var), which uses `WebView-AppImage` so its bundled WebKitGTK never shares a cookie database with a system-WebKitGTK dev build. Keep the `Avalonia.Controls.WebView` package version aligned with `Avalonia` / `Avalonia.Desktop` when a matching WebView package exists.
 - Sync: `IUsageSyncService` / `UsageSyncService`. Clock-aligned auto refresh; `SyncSchedule` decides launch skip. Takes `IUiDispatcher`, not a platform dispatcher. Services that raise events consumed by view models (`StateChanged` / `SnapshotReceived`, WebView navigation callbacks) must marshal through `IUiDispatcher` before invoking; never assume a continuation after `await` resumes on the UI thread.
 - Startup: `IStartupRegistration` via `StartupRegistration.Create()` (Windows Run key, macOS Launch Agent, Linux XDG autostart).
 - Tray: `ITrayService` / `TrayService` (Avalonia `TrayIcon`). Lives for the whole process.
@@ -72,7 +73,7 @@ If you change `CycleCalculator`, `QuotaCycle`, or `JsonPlanStore` serialization,
 ## Sync contract
 Allowed intervals: 1, 2, 4, 6, 12 hours (`SyncInterval.Clamp`). Auto refresh fires at `SyncSchedule.NextAlignedLocal`. On launch, never refresh when `lastUsageSyncUtc` is under 20 minutes old. After that window, refresh only when a clock-aligned slot was missed or the last update is already older than the interval; otherwise wait for the next aligned timer. Duplicate snapshots within 30 seconds are not appended (`UsageSampleAppender`).
 
-`cursorAccountConnected` in `settings.json` records whether the Cursor account is signed in. `HasPersistedProfile` on the WebView profile folder can also mark the session connected; it is false when the folder is empty/missing or a sign-out marker file is present. Sign out deletes only `cursor.com` cookies via the cookie manager when available (falls back to deleting the whole profile directory otherwise); it does not delete `usage-samples.json`.
+`cursorAccountConnected` in `settings.json` records whether the Cursor account is signed in; it is the only durable "signed in" signal (plus `ActiveCycle`/`LastUsageSyncUtc` as a fallback for a prior successful sync). Do not derive "signed in" from the WebView profile folder existing or being non-empty: the browser engine writes cache/HSTS/storage housekeeping files to that folder as soon as it is first used, regardless of whether login ever succeeded, so folder presence is not evidence of a valid Cursor session. Sign out deletes only `cursor.com` cookies via the WebView's cookie manager when the current backend supports one (falls back to deleting the whole profile directory, including any Google/GitHub session, when it does not — confirmed on Linux WebKitGTK, which has no cookie manager in `Avalonia.Controls.WebView` 12.1.0); it does not delete `usage-samples.json`.
 
 `Export Usage` is visible when connected. There is no calendar editing, **Reset**, or **Change renewal day**.
 
@@ -85,7 +86,7 @@ Close hides the window. Process stays in the tray. Only Quit (button or tray men
 
 First run (`ActiveCycle` unset): the main window shows an empty state with **Sign in**. After a successful snapshot, `GenerateCycleFromBounds` creates the cycle.
 
-Main window is fixed size, fully custom title bar (`WindowDecorations="None"`) with app-owned Settings, Quit, Minimize, and Close controls; Fluent theme follows `themeMode` in settings (`System` / `Light` / `Dark`, default System). Do not make it resizable unless asked. Persist `WindowX` / `WindowY` on close-to-tray or quit; restore with `WindowPlacement.ClampToWorkArea`. Midnight/timezone: `MainWindow` polls `CheckForNewDay` on a 5-minute timer and on activate.
+Main window is fixed size, fully custom title bar (`WindowDecorations="None"`) with app-owned Settings, Quit, Minimize, and Close controls; Fluent theme follows `themeMode` in settings (`System` / `Light` / `Dark`, default System). Do not make it resizable unless asked. Persist `WindowX` / `WindowY` on close-to-tray or quit; restore with `WindowPlacement.ClampToWorkArea`. Midnight/timezone: `MainWindow` polls `CheckForNewDay` on a 5-minute timer and on activate. Title bar drag: Windows uses `BeginMoveDrag`; Linux/macOS track pointer movement and set `Window.Position` directly, because `BeginMoveDrag` is unreliable under WSLg and many Linux compositors. Keep both paths if you touch title-bar drag.
 
 ## Commands
 ```

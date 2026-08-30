@@ -86,12 +86,17 @@ fi
 
 DESKTOP_SOURCE="$REPO_ROOT/packaging/cursor-usage-progress.desktop"
 ICON_SOURCE="$REPO_ROOT/Assets/cursor_usage_progress.png"
+APPDATA_SOURCE="$REPO_ROOT/packaging/cursor-usage-progress.appdata.xml"
 if [[ ! -f "$DESKTOP_SOURCE" ]]; then
   echo "Error: desktop file not found: $DESKTOP_SOURCE" >&2
   exit 1
 fi
 if [[ ! -f "$ICON_SOURCE" ]]; then
   echo "Error: icon not found: $ICON_SOURCE" >&2
+  exit 1
+fi
+if [[ ! -f "$APPDATA_SOURCE" ]]; then
+  echo "Error: AppStream metadata not found: $APPDATA_SOURCE" >&2
   exit 1
 fi
 
@@ -156,8 +161,9 @@ download_file \
   1
 
 rm -rf "$APPDIR"
-mkdir -p "$APPDIR/usr/bin"
+mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/share/metainfo"
 cp -a "$PUBLISH_DIR/." "$APPDIR/usr/bin/"
+cp "$APPDATA_SOURCE" "$APPDIR/usr/share/metainfo/cursor-usage-progress.appdata.xml"
 # Optional .NET diagnostics pull lttng deps that are not needed at runtime.
 rm -f "$APPDIR/usr/bin/createdump" "$APPDIR/usr/bin/libcoreclrtraceptprovider.so"
 
