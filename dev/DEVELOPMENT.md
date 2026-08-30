@@ -22,7 +22,7 @@ Confirm the SDK after install:
 dotnet --list-sdks
 ```
 
-You need a `10.0.x` SDK listed. Full install docs: [Windows](https://learn.microsoft.com/dotnet/core/install/windows), [Linux](https://learn.microsoft.com/dotnet/core/install/linux), [macOS](https://learn.microsoft.com/dotnet/core/install/macos).
+You need a `10.0.x` SDK listed. `global.json` pins `10.0.111` for CI; locally, `rollForward: latestFeature` allows any newer installed 10.0 SDK (for example `10.0.400` on Windows). Full install docs: [Windows](https://learn.microsoft.com/dotnet/core/install/windows), [Linux](https://learn.microsoft.com/dotnet/core/install/linux), [macOS](https://learn.microsoft.com/dotnet/core/install/macos).
 
 ### Windows
 

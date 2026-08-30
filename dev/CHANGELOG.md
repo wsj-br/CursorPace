@@ -8,6 +8,7 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Fixed**: build - `global.json` uses `rollForward: latestFeature` so local Windows/macOS installs with a newer 10.0 SDK (for example `10.0.400`) work while CI still pins `10.0.111`.
 - **Changed**: ui - sync alert banner now uses a light-red border with a brighter, semi-transparent red fill instead of a flat, dull rose; the alert text color is themed (`SyncAlertForegroundBrush`) instead of hardcoded white so it stays readable against the lighter fill.
 - **Added**: install - Linux ARM64 AppImage release build; `build-linux` in `.github/workflows/dotnet-desktop.yml` is now a matrix over `linux-x64` (`ubuntu-24.04`) and `linux-arm64` (`ubuntu-24.04-arm`), and `scripts/build.sh` / `scripts/build-appimage.sh` accept `--rid linux-arm64` and select the matching `linuxdeploy-aarch64` tool.
 
