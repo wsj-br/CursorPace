@@ -8,6 +8,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-09-07
+
 - **Added**: scripts - `version.ps1` / `version.sh` print the current app version, or set `x.y.z` in `CursorPace.csproj` and `setup.iss`.
 - **Changed**: chart - replace sample markers with thicker solid Cursor and Other Models polylines through the last in-cycle sample of each local day; keep the dashed linear **Expected usage** line and thinner estimated lines.
 - **Changed**: chart - replace the two sample-following expected curves with a single dashed linear **Expected usage** line from 0% at cycle start to 100% at next renewal. Calendar and CSV expected values are unchanged.
