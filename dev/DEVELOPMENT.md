@@ -104,6 +104,7 @@ dotnet restore
 | Release without clean-tree check | `.\scripts\release.ps1 -VerifyClean:$false` | `./scripts/release.sh --no-verify-clean` |
 | Show app version | `.\scripts\version.ps1` | `./scripts/version.sh` |
 | Set app version | `.\scripts\version.ps1 0.2.4` | `./scripts/version.sh 0.2.4` |
+| List outdated NuGet packages | `dotnet list .\CursorPace.slnx package --outdated` | `dotnet list ./CursorPace.slnx package --outdated` |
 
 Launch flags after `--`:
 
@@ -247,7 +248,59 @@ Settings **About** reads `<Version>` and `<Copyright>` from the assembly, and `B
 
 `.\scripts\release.ps1` / `./scripts/release.sh` recreates and pushes the annotated tag from HEAD. The tag starts `.github/workflows/dotnet-desktop.yml`, which validates the version, tests once, builds unsigned Windows x64, Linux x64, Linux ARM64, macOS ARM64, and macOS x64 packages, verifies all checksums, and creates the GitHub Release only after every build succeeds. The Linux ARM64 job runs on the `ubuntu-24.04-arm` hosted runner. A manual workflow dispatch builds the same artifacts without creating a release.
 
-The workflow pins hosted runner generations, the .NET SDK, and GitHub Actions major versions. NuGet restores use committed `packages.lock.json` files in locked mode on CI; Dependabot proposes action and NuGet updates.
+The workflow pins hosted runner generations, the .NET SDK, and GitHub Actions major versions. NuGet restores use committed `packages.lock.json` files in locked mode on CI; Dependabot proposes action and NuGet updates. See [Update dependencies](#update-dependencies) for the local bump steps.
+
+## Update dependencies
+
+There is no central package management. Direct versions live in `CursorPace.csproj` and `Tests/CursorPace.Tests.csproj`. `Directory.Build.props` always writes lock files (`RestorePackagesWithLockFile`). Locked-mode restore (`RestoreLockedMode`) is on only when `CI=true`, which the GitHub Actions jobs set. Local `dotnet restore` may refresh `packages.lock.json` and `Tests/packages.lock.json`; CI runs `dotnet restore ./CursorPace.slnx --locked-mode` and fails if those files are stale.
+
+`.github/dependabot.yml` opens weekly PRs for NuGet (app and tests) and GitHub Actions. Prefer reviewing those PRs when they already include the lock-file diffs. For a manual bump:
+
+1. List what is behind:
+
+```text
+dotnet list ./CursorPace.slnx package --outdated
+```
+
+2. Let the .NET 10 SDK rewrite the `PackageReference` versions. With no package list it takes every direct reference in the solution to the highest version on the configured sources ([`dotnet package update`](https://learn.microsoft.com/dotnet/core/tools/dotnet-package-update)):
+
+```text
+dotnet package update --project ./CursorPace.slnx
+```
+
+Target one package, or pin a version with `@`:
+
+```text
+dotnet package update xunit --project ./CursorPace.slnx
+dotnet package update Avalonia@12.1.2 --project ./CursorPace.csproj
+```
+
+`--vulnerable` only lifts packages that NuGet Audit reports, and only to the lowest safe version.
+
+Keep `Avalonia`, `Avalonia.Desktop`, `Avalonia.Themes.Fluent`, and `Avalonia.Fonts.Inter` on the same version. After a full-solution update, confirm those four still match; if nuget.org published them out of lockstep, pin with `@` as above. Keep `Avalonia.Controls.WebView` on the newest published version that matches that Avalonia line; it may lag (today Avalonia 12.1.2 with WebView 12.1.0), so do not force it to a version that is not on nuget.org. Do not mix Avalonia 11 and 12 packages.
+
+3. Refresh both lock files and restore the new graph:
+
+```text
+dotnet restore ./CursorPace.slnx --force-evaluate
+```
+
+Commit `CursorPace.csproj` / `Tests/CursorPace.Tests.csproj` together with `packages.lock.json` and `Tests/packages.lock.json`.
+
+4. Run `dotnet test ./Tests/CursorPace.Tests.csproj` and a local `.\scripts\dev.ps1` / `./scripts/dev.sh` pass that covers Sign in if Avalonia or WebView changed.
+
+5. Log the bump under `## [Unreleased]` in `dev/CHANGELOG.md` (`Changed` / `install` or `build`). Note WebView cookie-manager behavior if that package moved.
+
+Other pins (not NuGet):
+
+| Pin | Where | How to bump |
+| --- | --- | --- |
+| .NET SDK | `global.json` (`10.0.111`) and `DOTNET_VERSION` in `.github/workflows/dotnet-desktop.yml` | Change both to the same `10.0.x`. Local installs may still use a newer 10.0 SDK because `rollForward` is `latestFeature`. |
+| GitHub Actions | `uses:` lines in `.github/workflows/dotnet-desktop.yml` | Dependabot groups these; otherwise bump major tags together (`actions/checkout`, `setup-dotnet`, artifact actions). |
+| linuxdeploy | `LINUXDEPLOY_VERSION` in `scripts/build-appimage.sh` | Set to a [linuxdeploy release](https://github.com/linuxdeploy/linuxdeploy/releases) tag. Cached filenames include the version, so the next AppImage build re-downloads. |
+| linuxdeploy GTK plugin | `GTK_PLUGIN_REF` in `scripts/build-appimage.sh` | The plugin has no tags; pin a commit SHA from [linuxdeploy-plugin-gtk](https://github.com/linuxdeploy/linuxdeploy-plugin-gtk). |
+
+Do not add trim, ReadyToRun, or PublishSingleFile when bumping packages. After a lock-file-only Dependabot PR, still run tests before merge: a resolved transitive bump can change runtime behavior even when the `.csproj` versions look unchanged.
 
 ## Settings format
 
