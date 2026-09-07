@@ -102,6 +102,8 @@ dotnet restore
 | GitHub release from HEAD | `.\scripts\release.ps1` | `./scripts/release.sh` |
 | Dry-run release | `.\scripts\release.ps1 -DryRun` | `./scripts/release.sh --dry-run` |
 | Release without clean-tree check | `.\scripts\release.ps1 -VerifyClean:$false` | `./scripts/release.sh --no-verify-clean` |
+| Show app version | `.\scripts\version.ps1` | `./scripts/version.sh` |
+| Set app version | `.\scripts\version.ps1 0.2.4` | `./scripts/version.sh 0.2.4` |
 
 Launch flags after `--`:
 
@@ -140,7 +142,8 @@ CursorPace/
 │   ├── build-appbundle.sh
 │   ├── clean.ps1 / clean.sh
 │   ├── dev.ps1 / dev.sh
-│   └── release.ps1 / release.sh
+│   ├── release.ps1 / release.sh
+│   └── version.ps1 / version.sh
 └── dev/
     ├── CHANGELOG.md
     ├── DEVELOPMENT.md
@@ -170,7 +173,7 @@ Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do n
 | --- | --- |
 | `CycleCalculatorTests.cs` | Cycle bounds, `ExpectedPercentAt`, Theil-Sen, run-out |
 | `SampleEstimationTests.cs` | Sample-driven expected percents, burn, and run-out |
-| `UsageChartSeriesBuilderTests.cs` | Chart seconds mapping, markers, midnight slots |
+| `UsageChartSeriesBuilderTests.cs` | Chart seconds mapping, linear Expected usage, last-of-day usage polylines, midnight slots |
 | `SyncScheduleTests.cs` | Launch skip window and clock-aligned intervals |
 | `UsageSummaryParserTests.cs` | `usage-summary` JSON shape |
 | `WebView2ScriptResultParserTests.cs` | Object vs JSON-string script results |
@@ -229,10 +232,13 @@ Do not commit built binaries.
 
 ## Version bumps
 
-Keep these in sync:
+`.\scripts\version.ps1` / `./scripts/version.sh` with no argument prints the current version. Pass `x.y.z` to write it to the two files that `scripts/build.*` and `scripts/release.*` read:
 
-1. `<Version>` in `CursorPace.csproj` (`scripts/build.*` and `scripts/release.*` read this)
+1. `<Version>` in `CursorPace.csproj`
 2. Default `MyAppVersion` in `setup.iss` (overridden by `scripts/build.*` with `/DMyAppVersion=...`)
+
+Still keep these in sync when releasing:
+
 3. `dev/CHANGELOG.md`: when releasing, move `[Unreleased]` bullets into `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`
 4. `release-notes/RELEASE_NOTES_<version>.md` (required by `scripts/release.*`)
 5. Git tag `v<version>`

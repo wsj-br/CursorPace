@@ -14,16 +14,17 @@ public class UsageChartSeriesBuilderTests
         var cycle = MidnightCycle();
         var document = _builder.Build(cycle, _calculator, samples: null);
 
-        Assert.Equal(0m, document.CursorExpected[0].X);
-        Assert.Equal(0m, document.CursorExpected[0].Y);
-        Assert.Equal(document.CycleSeconds, document.CursorExpected[^1].X);
-        Assert.Equal(100m, document.CursorExpected[^1].Y);
+        Assert.Equal(2, document.ExpectedUsage.Count);
+        Assert.Equal(0m, document.ExpectedUsage[0].X);
+        Assert.Equal(0m, document.ExpectedUsage[0].Y);
+        Assert.Equal(document.CycleSeconds, document.ExpectedUsage[^1].X);
+        Assert.Equal(100m, document.ExpectedUsage[^1].Y);
         Assert.Equal(CycleCalculator.CycleSeconds(cycle), document.CycleSeconds);
         Assert.Equal(0m, UsageChartSeriesBuilder.ToAxisX(cycle, cycle.CycleStart));
     }
 
     [Fact]
-    public void ExpectedPolyline_IncludesEveryInCycleSample()
+    public void ExpectedPolyline_IgnoresSamples_StaysTwoPoints()
     {
         var cycle = MidnightCycle();
         var samples = new List<UsageSample>
@@ -34,11 +35,10 @@ public class UsageChartSeriesBuilderTests
 
         var document = _builder.Build(cycle, _calculator, samples);
 
-        Assert.Equal(4, document.CursorExpected.Count);
-        Assert.Equal(25m, document.CursorExpected[1].Y);
-        Assert.Equal(UsageChartSeriesBuilder.ToAxisX(cycle, cycle.CycleStart.AddHours(12)), document.CursorExpected[1].X);
-        Assert.Equal(40m, document.CursorExpected[2].Y);
-        Assert.Equal(100m, document.CursorExpected[^1].Y);
+        Assert.Equal(2, document.ExpectedUsage.Count);
+        Assert.Equal(0m, document.ExpectedUsage[0].Y);
+        Assert.Equal(100m, document.ExpectedUsage[^1].Y);
+        Assert.Equal(document.CycleSeconds, document.ExpectedUsage[^1].X);
     }
 
     [Fact]
@@ -89,9 +89,9 @@ public class UsageChartSeriesBuilderTests
 
         var document = _builder.Build(cycle, _calculator, samples);
 
-        Assert.Equal(0m, document.CursorExpected[0].X);
-        Assert.Equal(document.CycleSeconds, document.CursorExpected[^1].X);
-        Assert.Equal(100m, document.CursorExpected[^1].Y);
+        Assert.Equal(0m, document.ExpectedUsage[0].X);
+        Assert.Equal(document.CycleSeconds, document.ExpectedUsage[^1].X);
+        Assert.Equal(100m, document.ExpectedUsage[^1].Y);
         Assert.Equal(UsageChartSeriesBuilder.ToAxisX(cycle, sampleLocal), document.CursorEstimated[0].X);
         Assert.Equal(document.CycleSeconds, document.CursorEstimated[^1].X);
     }
@@ -144,62 +144,72 @@ public class UsageChartSeriesBuilderTests
     }
 
     [Fact]
-    public void OriginMarker_IsAtZero()
+    public void UsagePolyline_OmittedWithFewerThanTwoDays()
     {
-        var start = new DateTime(2026, 8, 2, 22, 19, 47);
-        var cycle = _calculator.GenerateCycleFromBounds(start, start.AddMonths(1));
-        var document = _builder.Build(cycle, _calculator, samples: null);
-        var origin = Assert.Single(document.Markers, m => m.MarkerKind == ChartMarkerKind.Origin);
+        var cycle = MidnightCycle();
+        var samples = new List<UsageSample>
+        {
+            SampleAt(cycle.CycleStart.AddHours(1), 10m, 12m)
+        };
 
-        Assert.Equal(0m, origin.X);
-        Assert.Equal(0m, origin.Y);
-        Assert.Equal(start, origin.Instant);
-        Assert.Null(origin.QuotaKind);
+        var document = _builder.Build(cycle, _calculator, samples);
+
+        Assert.Empty(document.CursorUsage);
+        Assert.Empty(document.OtherUsage);
+        Assert.False(document.HasCursorUsage);
+        Assert.False(document.HasOtherUsage);
     }
 
     [Fact]
-    public void Samples_OutsideCycle_AreOmitted()
+    public void UsagePolyline_OmitsOutsideCycle_AndKeepsInCycleDays()
     {
         var start = new DateTime(2026, 8, 2, 22, 19, 47);
         var end = start.AddMonths(1);
         var cycle = _calculator.GenerateCycleFromBounds(start, end);
+        var day1 = start.AddHours(1);
+        var day2 = start.AddDays(1).AddHours(1);
         var samples = new List<UsageSample>
         {
             SampleAt(start.AddHours(-1), 1m, 1m),
             SampleAt(end, 90m, 90m),
-            SampleAt(start.AddHours(1), 10m, 12m)
+            SampleAt(day1, 10m, 12m),
+            SampleAt(day2, 20m, 22m)
         };
 
         var document = _builder.Build(cycle, _calculator, samples);
-        var sampleMarkers = document.Markers.Where(m => m.MarkerKind == ChartMarkerKind.Sample).ToList();
 
-        Assert.Equal(2, sampleMarkers.Count);
-        Assert.Contains(sampleMarkers, m => m.QuotaKind == QuotaKind.CursorModels && m.Y == 10m);
-        Assert.Contains(sampleMarkers, m => m.QuotaKind == QuotaKind.OtherModels && m.Y == 12m);
+        Assert.True(document.HasCursorUsage);
+        Assert.Equal(2, document.CursorUsage.Count);
+        Assert.Equal(10m, document.CursorUsage[0].Y);
+        Assert.Equal(12m, document.OtherUsage[0].Y);
+        Assert.Equal(20m, document.CursorUsage[1].Y);
+        Assert.Equal(22m, document.OtherUsage[1].Y);
+        Assert.Equal(UsageChartSeriesBuilder.ToAxisX(cycle, day1), document.CursorUsage[0].X);
+        Assert.Equal(UsageChartSeriesBuilder.ToAxisX(cycle, day2), document.CursorUsage[1].X);
     }
 
     [Fact]
-    public void Samples_SameLocalDate_KeepDistinctFractionalX()
+    public void UsagePolyline_SameLocalDate_CollapsesToLastSample()
     {
         var cycle = MidnightCycle();
         var morning = cycle.CycleStart.AddHours(3);
         var evening = cycle.CycleStart.AddHours(23);
+        var nextDay = cycle.CycleStart.AddDays(1).AddHours(12);
         var samples = new List<UsageSample>
         {
             SampleAt(morning, 5m, 6m),
-            SampleAt(evening, 8m, 9m)
+            SampleAt(evening, 8m, 9m),
+            SampleAt(nextDay, 15m, 16m)
         };
 
         var document = _builder.Build(cycle, _calculator, samples);
-        var cursorSamples = document.Markers
-            .Where(m => m.MarkerKind == ChartMarkerKind.Sample && m.QuotaKind == QuotaKind.CursorModels)
-            .OrderBy(m => m.X)
-            .ToList();
 
-        Assert.Equal(2, cursorSamples.Count);
-        Assert.Equal(UsageChartSeriesBuilder.ToAxisX(cycle, morning), cursorSamples[0].X);
-        Assert.Equal(UsageChartSeriesBuilder.ToAxisX(cycle, evening), cursorSamples[1].X);
-        Assert.NotEqual(cursorSamples[0].X, cursorSamples[1].X);
+        Assert.Equal(2, document.CursorUsage.Count);
+        Assert.Equal(UsageChartSeriesBuilder.ToAxisX(cycle, evening), document.CursorUsage[0].X);
+        Assert.Equal(8m, document.CursorUsage[0].Y);
+        Assert.Equal(9m, document.OtherUsage[0].Y);
+        Assert.Equal(UsageChartSeriesBuilder.ToAxisX(cycle, nextDay), document.CursorUsage[1].X);
+        Assert.Equal(15m, document.CursorUsage[1].Y);
     }
 
     [Fact]
@@ -208,7 +218,7 @@ public class UsageChartSeriesBuilderTests
         var document = _builder.Build(MidnightCycle(), _calculator, samples: null);
 
         Assert.Equal(100m, document.UsageLimitPercent);
-        Assert.DoesNotContain(document.CursorExpected, p => p.X == 0 && p.Y == 100m);
+        Assert.DoesNotContain(document.ExpectedUsage, p => p.X == 0 && p.Y == 100m);
     }
 
     [Fact]

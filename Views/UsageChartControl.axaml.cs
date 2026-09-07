@@ -17,11 +17,11 @@ public partial class UsageChartControl : UserControl
     private const double PlotTop = 28;
     private const double PlotBottomPad = 28;
     private const double MinTickSpacing = 16;
-    private const double MarkerSize = 7;
+    private const double EstimatedStrokeThickness = 2;
+    private const double UsageStrokeThickness = 4;
     private bool _rebuilding;
 
-    private static readonly Color CursorExpectedColor = Color.FromArgb(255, 37, 99, 235);
-    private static readonly Color OtherExpectedColor = Color.FromArgb(255, 234, 88, 12);
+    private static readonly Color ExpectedUsageColor = Color.FromArgb(255, 100, 116, 139);
     private static readonly Color CursorEstimatedColor = Color.FromArgb(255, 21, 128, 61);
     private static readonly Color OtherEstimatedColor = Color.FromArgb(255, 2, 132, 199);
 
@@ -72,10 +72,7 @@ public partial class UsageChartControl : UserControl
         var document = Document;
         var hostWidth = PlotSize.Width;
         var hostHeight = PlotSize.Height;
-        var hasSeries = document != null
-            && (document.CursorExpected.Count >= 2
-                || document.OtherExpected.Count >= 2
-                || document.Markers.Count > 0);
+        var hasSeries = document != null && document.ExpectedUsage.Count >= 2;
         EmptyPlotText.IsVisible = document == null || !hasSeries;
         if (document == null || !IsEffectivelyVisible || hostWidth < 80 || hostHeight < 60)
             return;
@@ -99,20 +96,21 @@ public partial class UsageChartControl : UserControl
         var verticalBrush = new SolidColorBrush(ThemeColor("ChartGridLineColor", Color.FromArgb(40, 160, 160, 160)));
         var boxBrush = ThemeBrush("CardStrokeBrush", Color.FromArgb(140, 140, 140, 140));
         var limitBrush = ThemeBrush("CalendarMutedForegroundBrush", Color.FromArgb(180, 128, 128, 128));
-        var cursorExpected = ThemeColor("ChartCursorExpectedColor", CursorExpectedColor);
-        var otherExpected = ThemeColor("ChartOtherExpectedColor", OtherExpectedColor);
-        var cursorEstimated = ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor);
-        var otherEstimated = ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor);
+        var expectedUsage = ThemeColor("ChartExpectedUsageColor", ExpectedUsageColor);
+        var cursorColor = ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor);
+        var otherColor = ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor);
 
         DrawGrid(document, plot, xMin, xMax, yMin, yMax, gridBrush, verticalBrush, mutedBrush, limitBrush);
         DrawPlotBox(plot, boxBrush);
-        DrawPolyline(document.CursorExpected, plot, xMin, xMax, yMin, yMax, cursorExpected, dashed: true);
-        DrawPolyline(document.OtherExpected, plot, xMin, xMax, yMin, yMax, otherExpected, dashed: true);
+        DrawPolyline(document.ExpectedUsage, plot, xMin, xMax, yMin, yMax, expectedUsage, dashed: true, EstimatedStrokeThickness);
+        if (document.HasCursorUsage)
+            DrawPolyline(document.CursorUsage, plot, xMin, xMax, yMin, yMax, cursorColor, dashed: false, UsageStrokeThickness);
+        if (document.HasOtherUsage)
+            DrawPolyline(document.OtherUsage, plot, xMin, xMax, yMin, yMax, otherColor, dashed: false, UsageStrokeThickness);
         if (document.HasCursorEstimated)
-            DrawPolyline(document.CursorEstimated, plot, xMin, xMax, yMin, yMax, cursorEstimated, dashed: false);
+            DrawPolyline(document.CursorEstimated, plot, xMin, xMax, yMin, yMax, cursorColor, dashed: false, EstimatedStrokeThickness);
         if (document.HasOtherEstimated)
-            DrawPolyline(document.OtherEstimated, plot, xMin, xMax, yMin, yMax, otherEstimated, dashed: false);
-        DrawMarkers(document, plot, xMin, xMax, yMin, yMax);
+            DrawPolyline(document.OtherEstimated, plot, xMin, xMax, yMin, yMax, otherColor, dashed: false, EstimatedStrokeThickness);
         DrawAxes(document, plot, xMin, xMax, mutedBrush);
         DrawLegend(document, mutedBrush);
         }
@@ -272,7 +270,8 @@ public partial class UsageChartControl : UserControl
         decimal yMin,
         decimal yMax,
         Color color,
-        bool dashed)
+        bool dashed,
+        double strokeThickness)
     {
         if (points.Count < 2)
             return;
@@ -280,7 +279,7 @@ public partial class UsageChartControl : UserControl
         var polyline = new Polyline
         {
             Stroke = new SolidColorBrush(color),
-            StrokeThickness = 2,
+            StrokeThickness = strokeThickness,
             StrokeJoin = PenLineJoin.Round,
             Fill = null
         };
@@ -297,63 +296,41 @@ public partial class UsageChartControl : UserControl
         PlotCanvas.Children.Add(polyline);
     }
 
-    private void DrawMarkers(
-        UsageChartDocument document,
-        Rect plot,
-        decimal xMin,
-        decimal xMax,
-        decimal yMin,
-        decimal yMax)
-    {
-        foreach (var marker in document.Markers)
-        {
-            if (marker.X < xMin || marker.X > xMax)
-                continue;
-
-            var color = MarkerColor(marker);
-            var ellipse = new Ellipse
-            {
-                Width = MarkerSize,
-                Height = MarkerSize,
-                Fill = new SolidColorBrush(color),
-                Stroke = ThemeBrush("SystemControlBackgroundChromeMediumLowBrush", Color.FromArgb(255, 255, 255, 255)),
-                StrokeThickness = 1
-            };
-            Canvas.SetLeft(ellipse, MapX(marker.X, plot, xMin, xMax) - MarkerSize / 2);
-            Canvas.SetTop(ellipse, MapY(marker.Y, plot, yMin, yMax) - MarkerSize / 2);
-            ToolTip.SetTip(ellipse, MarkerTooltip(marker));
-            PlotCanvas.Children.Add(ellipse);
-        }
-    }
-
     private void DrawLegend(UsageChartDocument document, IBrush mutedBrush)
     {
-        var expectedRow = CreateLegendRow(mutedBrush,
-            ("Cursor (expected)", ThemeColor("ChartCursorExpectedColor", CursorExpectedColor), true),
-            ("Other Models (expected)", ThemeColor("ChartOtherExpectedColor", OtherExpectedColor), true));
-        LegendPanel.Children.Add(expectedRow);
+        LegendPanel.Children.Add(CreateLegendRow(mutedBrush,
+            ("Expected usage", ThemeColor("ChartExpectedUsageColor", ExpectedUsageColor), true, true)));
 
-        if (!document.HasCursorEstimated && !document.HasOtherEstimated)
-            return;
+        var usage = new List<(string Label, Color Color, bool Dashed, bool Thin)>();
+        if (document.HasCursorUsage)
+            usage.Add(("Cursor", ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor), false, false));
+        if (document.HasOtherUsage)
+            usage.Add(("Other Models", ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor), false, false));
+        if (usage.Count > 0)
+            LegendPanel.Children.Add(CreateLegendRow(mutedBrush, usage.ToArray()));
 
-        var estimated = new List<(string Label, Color Color, bool Dashed)>();
+        var estimated = new List<(string Label, Color Color, bool Dashed, bool Thin)>();
         if (document.HasCursorEstimated)
-            estimated.Add(("Cursor (estimated)", ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor), false));
+            estimated.Add(("Cursor (estimated)", ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor), false, true));
         if (document.HasOtherEstimated)
-            estimated.Add(("Other Models (estimated)", ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor), false));
-        LegendPanel.Children.Add(CreateLegendRow(mutedBrush, estimated.ToArray()));
+            estimated.Add(("Other Models (estimated)", ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor), false, true));
+        if (estimated.Count > 0)
+            LegendPanel.Children.Add(CreateLegendRow(mutedBrush, estimated.ToArray()));
     }
 
-    private static StackPanel CreateLegendRow(IBrush mutedBrush, params (string Label, Color Color, bool Dashed)[] items)
+    private static StackPanel CreateLegendRow(
+        IBrush mutedBrush,
+        params (string Label, Color Color, bool Dashed, bool Thin)[] items)
     {
         var row = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 16 };
         foreach (var item in items)
         {
             var entry = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 6 };
+            var height = item.Thin ? 2.0 : 4.0;
             var line = new Rectangle
             {
                 Width = 18,
-                Height = 2,
+                Height = height,
                 Fill = item.Dashed ? null : new SolidColorBrush(item.Color),
                 Stroke = new SolidColorBrush(item.Color),
                 StrokeThickness = item.Dashed ? 1.5 : 0,
@@ -408,46 +385,6 @@ public partial class UsageChartControl : UserControl
         var t = (double)((y - yMin) / span);
         return plot.Bottom - t * plot.Height;
     }
-
-    private Color MarkerColor(UsageChartMarker marker)
-    {
-        if (marker.MarkerKind == ChartMarkerKind.Origin)
-            return ThemeColor("CalendarMutedForegroundBrush", Color.FromArgb(255, 80, 80, 80));
-
-        return marker.QuotaKind switch
-        {
-            QuotaKind.CursorModels => marker.MarkerKind == ChartMarkerKind.Edit
-                ? ThemeColor("ChartCursorExpectedColor", CursorExpectedColor)
-                : ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor),
-            QuotaKind.OtherModels => marker.MarkerKind == ChartMarkerKind.Edit
-                ? ThemeColor("ChartOtherExpectedColor", OtherExpectedColor)
-                : ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor),
-            null => Color.FromArgb(255, 80, 80, 80),
-            _ => throw new ArgumentOutOfRangeException(nameof(marker.QuotaKind), marker.QuotaKind, null)
-        };
-    }
-
-    private static string MarkerTooltip(UsageChartMarker marker)
-    {
-        var instant = marker.Instant.ToString("g", CultureInfo.CurrentCulture);
-        var percent = marker.Y.ToString("0.##", CultureInfo.CurrentCulture);
-        return marker.MarkerKind switch
-        {
-            ChartMarkerKind.Origin => $"Cycle start  {percent}%\n{instant}",
-            ChartMarkerKind.Sample => $"{QuotaLabel(marker.QuotaKind)} sample  {percent}%\n{instant}",
-            ChartMarkerKind.Edit => $"{QuotaLabel(marker.QuotaKind)} edit  {percent}%\n{instant}",
-            _ => throw new ArgumentOutOfRangeException(nameof(marker.MarkerKind), marker.MarkerKind, null)
-        };
-    }
-
-    private static string QuotaLabel(QuotaKind? kind) =>
-        kind switch
-        {
-            QuotaKind.CursorModels => "Cursor",
-            QuotaKind.OtherModels => "Other Models",
-            null => "Usage",
-            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
-        };
 
     private IBrush ThemeBrush(string key, Color fallback)
     {

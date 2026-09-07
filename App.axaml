@@ -19,8 +19,7 @@
                     <SolidColorBrush x:Key="SyncAlertBrush">#33EF4444</SolidColorBrush>
                     <SolidColorBrush x:Key="SyncAlertBorderBrush">#F87171</SolidColorBrush>
                     <SolidColorBrush x:Key="SyncAlertForegroundBrush">#7F1D1D</SolidColorBrush>
-                    <Color x:Key="ChartCursorExpectedColor">#2563EB</Color>
-                    <Color x:Key="ChartOtherExpectedColor">#EA580C</Color>
+                    <Color x:Key="ChartExpectedUsageColor">#64748B</Color>
                     <Color x:Key="ChartCursorEstimatedColor">#15803D</Color>
                     <Color x:Key="ChartOtherEstimatedColor">#0284C7</Color>
                     <Color x:Key="ChartGridLineColor">#28808080</Color>
@@ -35,8 +34,7 @@
                     <SolidColorBrush x:Key="SyncAlertBrush">#40F87171</SolidColorBrush>
                     <SolidColorBrush x:Key="SyncAlertBorderBrush">#FCA5A5</SolidColorBrush>
                     <SolidColorBrush x:Key="SyncAlertForegroundBrush">#FEE2E2</SolidColorBrush>
-                    <Color x:Key="ChartCursorExpectedColor">#60A5FA</Color>
-                    <Color x:Key="ChartOtherExpectedColor">#FB923C</Color>
+                    <Color x:Key="ChartExpectedUsageColor">#94A3B8</Color>
                     <Color x:Key="ChartCursorEstimatedColor">#4ADE80</Color>
                     <Color x:Key="ChartOtherEstimatedColor">#38BDF8</Color>
                     <Color x:Key="ChartGridLineColor">#40A3A3A3</Color>

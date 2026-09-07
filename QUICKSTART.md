@@ -70,7 +70,7 @@ The body is a month calendar or a usage chart for the current cycle. Switch with
 
 Each calendar day shows two percents. On the left, a day with a synced sample shows that day's last reading (teal day number); a day without a sample shows the expected (renewal-paced) value at that day's midnight. The estimated burn value on the right appears only on days after the last sample for that quota (green when ≤100%, red when >100%).
 
-The chart is read-only: expected percents are dashed lines from 0% at cycle start through each sample to 100% at next renewal, estimated percents are solid from the last sample to next renewal, and a gray line marks 100%. The left and right edges are the cycle start and next renewal instants. Vertical gridlines sit at midnight. Axis labels are the day of the month: the truncated slot before the first midnight is unlabeled, and every other slot (including the renewal-date slot) is labelled. Markers are the cycle-start origin and every sync sample (placed by timestamp).
+The chart is read-only: a dashed **Expected usage** line runs linearly from 0% at cycle start to 100% at next renewal. Thick solid **Cursor** and **Other Models** paths connect the last in-cycle sample of each local day (no sample dots). Thinner estimated lines run from the last sample to next renewal, and a gray line marks 100%. The left and right edges are the cycle start and next renewal instants. Vertical gridlines sit at midnight. Axis labels are the day of the month: the truncated slot before the first midnight is unlabeled, and every other slot (including the renewal-date slot) is labelled.
 
 Title bar actions:
 
@@ -88,8 +88,10 @@ The window is a fixed size. It restores its last position on show and launch. In
 
 ## Expected vs estimated
 
-- **Expected** (chart dashed; calendar left on days without a sample): a continuous line from 0% at cycle start through each sample's timestamp, then remaining quota paced to 100% at the next renewal. Days before the first sample rise toward that sample. On the calendar, a day with a synced sample shows that day's last reading on the left instead of this interpolated value.
-- **Estimated** (calendar right, chart solid): Theil-Sen daily burn from samples. It can exceed 100% before renewal. On the chart it is a straight line from the last sample to next renewal. The calendar shows it only after the last-update date.
+- **Expected usage** (chart dashed): a straight line from 0% at cycle start to 100% at the next renewal. It does not pass through samples.
+- **Usage** (chart thick solid): Cursor and Other Models paths through the last in-cycle sample of each local day. Omitted until at least two local dates have samples.
+- **Expected** (calendar left on days without a sample; CSV expected columns): a continuous line from 0% at cycle start through each sample's timestamp, then remaining quota paced to 100% at the next renewal. Days before the first sample rise toward that sample. On the calendar, a day with a synced sample shows that day's last reading on the left instead of this interpolated value.
+- **Estimated** (calendar right, chart thin solid): Theil-Sen daily burn from samples. It can exceed 100% before renewal. On the chart it is a straight line from the last sample to next renewal. The calendar shows it only after the last-update date.
 
 Each quota is independent.
 

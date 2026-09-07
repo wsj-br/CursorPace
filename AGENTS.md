@@ -27,7 +27,7 @@ Flat repo. App project: `CursorPace.csproj`. Tests: `Tests/CursorPace.Tests.cspr
 | `Tests/` | Unit tests. App csproj excludes this folder. |
 | `dev/` | Maintainer files: `CHANGELOG.md`, `DEVELOPMENT.md`, release-notes prompt. |
 | `packaging/` | Linux packaging inputs: `.desktop` file, AppStream `.appdata.xml`. Consumed by `scripts/build-appimage.sh`. |
-| `scripts/` | Maintainer scripts: PowerShell (`.ps1`) and bash (`.sh`) for `dev`, `build`, `clean`, `release`. |
+| `scripts/` | Maintainer scripts: PowerShell (`.ps1`) and bash (`.sh`) for `dev`, `build`, `clean`, `release`, `version`. |
 | `Program.cs` | Avalonia entry: `BuildAvaloniaApp()`. |
 | `App.axaml.cs` | Process entry: single-instance, DI wiring, tray, `--background`, `--show`. |
 
@@ -56,7 +56,7 @@ A cycle exists only from a signed-in snapshot via `GenerateCycleFromBounds` with
 
 Calendar rows are every local date that intersects `[CycleStart, NextRenewal)`. `D` is that count. Day 1 midnight is clamped to `CycleStart` when the cycle starts later that day. When `NextRenewal` is after midnight, the renewal calendar date is a normal data row; `ExpectedPercent` still evaluates at that day's midnight, not at the renewal instant. Renewal remains the 100% anchor at the `NextRenewal` instant.
 
-Chart and interpolation use elapsed seconds from `CycleStart` (`CycleCalculator.AxisSeconds` / `CycleSeconds`, ticks over `TicksPerSecond`). The plot domain is exactly `[CycleStart, NextRenewal]` (`X = 0` .. `CycleSeconds`). Midnight is a grid marker, not a unit.
+Chart and interpolation use elapsed seconds from `CycleStart` (`CycleCalculator.AxisSeconds` / `CycleSeconds`, ticks over `TicksPerSecond`). The plot domain is exactly `[CycleStart, NextRenewal]` (`X = 0` .. `CycleSeconds`). Midnight is a grid marker, not a unit. The chart's dashed **Expected usage** series is a straight line from `(0, 0%)` to `(CycleSeconds, 100%)` (independent of samples). Observed usage is two thicker solid polylines (Cursor and Other Models) through the last in-cycle sample of each local date; there are no sample markers. Calendar and CSV expected values still use `ExpectedPercentAt` below.
 
 `ExpectedPercentAt` is linear interpolation along `(0, 0%)`, every in-cycle sample at its timestamp, and `(CycleSeconds, 100%)`. Days before the first sample interpolate toward that sample. After the last sample the line paces remaining quota to 100% at `NextRenewal`. `ExpectedPercent(dayNumber)` evaluates that curve at the day's midnight (clamped to `CycleStart`). Editing one kind never existed independently of the other; kinds stay independent because samples carry both percents.
 
@@ -104,6 +104,10 @@ dotnet run --project .\CursorPace.csproj
 .\scripts\build.ps1 -SkipInstaller # Windows: publish only
 ./scripts/build.sh                 # Linux/macOS: publish + AppImage or app bundle
 ./scripts/build.sh --skip-installer
+.\scripts\version.ps1              # Print current app version
+.\scripts\version.ps1 0.2.4        # Set version in CursorPace.csproj and setup.iss
+./scripts/version.sh
+./scripts/version.sh 0.2.4
 ```
 
 Do not add trim, ReadyToRun, or PublishSingleFile. `scripts/build.ps1` / `scripts/build.sh` already set `PublishSingleFile=false`.

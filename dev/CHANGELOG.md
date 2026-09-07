@@ -8,6 +8,9 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Added**: scripts - `version.ps1` / `version.sh` print the current app version, or set `x.y.z` in `CursorPace.csproj` and `setup.iss`.
+- **Changed**: chart - replace sample markers with thicker solid Cursor and Other Models polylines through the last in-cycle sample of each local day; keep the dashed linear **Expected usage** line and thinner estimated lines.
+- **Changed**: chart - replace the two sample-following expected curves with a single dashed linear **Expected usage** line from 0% at cycle start to 100% at next renewal. Calendar and CSV expected values are unchanged.
 - **Added**: tray - `--show` forces the main window open on launch, overriding **Start in notification tray** and `--background`.
 - **Added**: settings - About card at the bottom shows version, UTC build date, copyright, MIT license, and a link to the GitHub repository.
 - **Fixed**: tray - launch honors **Start in notification tray** and `--background`. Avalonia's desktop lifetime always calls `MainWindow.Show()` after startup, so the window is no longer assigned as `desktop.MainWindow` until it should be visible.

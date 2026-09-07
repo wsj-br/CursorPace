@@ -14,19 +14,20 @@ public sealed class UsageChartSeriesBuilder
         IReadOnlyList<UsageSample>? samples)
     {
         var cycleSeconds = CycleCalculator.CycleSeconds(cycle);
-        var cursorExpected = BuildExpected(cycle, QuotaKind.CursorModels, samples);
-        var otherExpected = BuildExpected(cycle, QuotaKind.OtherModels, samples);
+        var expectedUsage = BuildExpected(cycle);
+        var cursorUsage = BuildUsage(cycle, QuotaKind.CursorModels, samples);
+        var otherUsage = BuildUsage(cycle, QuotaKind.OtherModels, samples);
         var cursorEstimated = BuildEstimated(cycle, calculator, QuotaKind.CursorModels, samples);
         var otherEstimated = BuildEstimated(cycle, calculator, QuotaKind.OtherModels, samples);
-        var yMax = ComputeYMax(cursorExpected, otherExpected, cursorEstimated, otherEstimated);
+        var yMax = ComputeYMax(cursorUsage, otherUsage, cursorEstimated, otherEstimated);
 
         return new UsageChartDocument
         {
-            CursorExpected = cursorExpected,
-            OtherExpected = otherExpected,
+            ExpectedUsage = expectedUsage,
+            CursorUsage = cursorUsage,
+            OtherUsage = otherUsage,
             CursorEstimated = cursorEstimated,
             OtherEstimated = otherEstimated,
-            Markers = BuildMarkers(cycle, samples),
             Slots = BuildSlots(cycle),
             CycleSeconds = cycleSeconds,
             CycleStart = cycle.CycleStart,
@@ -39,38 +40,46 @@ public sealed class UsageChartSeriesBuilder
     public static decimal ToAxisX(QuotaCycle cycle, DateTime local) =>
         CycleCalculator.AxisSeconds(cycle, local);
 
-    private static List<UsageChartPoint> BuildExpected(
+    private static List<UsageChartPoint> BuildExpected(QuotaCycle cycle) =>
+    [
+        new() { X = 0m, Y = 0m },
+        new() { X = CycleCalculator.CycleSeconds(cycle), Y = 100m }
+    ];
+
+    private static List<UsageChartPoint> BuildUsage(
         QuotaCycle cycle,
         QuotaKind kind,
         IReadOnlyList<UsageSample>? samples)
     {
-        var points = new List<UsageChartPoint>
-        {
-            new() { X = 0m, Y = 0m }
-        };
+        if (samples == null || samples.Count == 0)
+            return [];
 
-        if (samples != null)
+        var lastByDate = new Dictionary<DateTime, UsageSample>();
+        foreach (var sample in samples)
         {
-            foreach (var sample in samples.OrderBy(s => s.TimestampUtc))
+            var local = sample.TimestampUtc.LocalDateTime;
+            if (local < cycle.CycleStart || local >= cycle.NextRenewal)
+                continue;
+
+            var date = local.Date;
+            if (!lastByDate.TryGetValue(date, out var existing)
+                || sample.TimestampUtc > existing.TimestampUtc)
             {
-                var local = sample.TimestampUtc.LocalDateTime;
-                if (local < cycle.CycleStart || local >= cycle.NextRenewal)
-                    continue;
-
-                var x = CycleCalculator.AxisSeconds(cycle, local);
-                if (x <= 0m)
-                    continue;
-
-                points.Add(new UsageChartPoint { X = x, Y = sample.GetPercent(kind) });
+                lastByDate[date] = sample;
             }
         }
 
-        points.Add(new UsageChartPoint
-        {
-            X = CycleCalculator.CycleSeconds(cycle),
-            Y = 100m
-        });
-        return points;
+        if (lastByDate.Count < 2)
+            return [];
+
+        return lastByDate.Values
+            .OrderBy(s => s.TimestampUtc)
+            .Select(s => new UsageChartPoint
+            {
+                X = CycleCalculator.AxisSeconds(cycle, s.TimestampUtc.LocalDateTime),
+                Y = s.GetPercent(kind)
+            })
+            .ToList();
     }
 
     private static List<UsageChartPoint> BuildEstimated(
@@ -91,37 +100,6 @@ public sealed class UsageChartSeriesBuilder
             new UsageChartPoint { X = CycleCalculator.AxisSeconds(cycle, instant), Y = percent },
             new UsageChartPoint { X = CycleCalculator.CycleSeconds(cycle), Y = endY.Value }
         ];
-    }
-
-    private static List<UsageChartMarker> BuildMarkers(QuotaCycle cycle, IReadOnlyList<UsageSample>? samples)
-    {
-        var markers = new List<UsageChartMarker>
-        {
-            new()
-            {
-                MarkerKind = ChartMarkerKind.Origin,
-                QuotaKind = null,
-                X = 0m,
-                Y = 0m,
-                Instant = cycle.CycleStart
-            }
-        };
-
-        if (samples == null)
-            return markers;
-
-        foreach (var sample in samples)
-        {
-            var local = sample.TimestampUtc.LocalDateTime;
-            if (local < cycle.CycleStart || local >= cycle.NextRenewal)
-                continue;
-
-            var x = CycleCalculator.AxisSeconds(cycle, local);
-            AddKindMarker(markers, ChartMarkerKind.Sample, QuotaKind.CursorModels, x, sample.CursorModelsPercent, local);
-            AddKindMarker(markers, ChartMarkerKind.Sample, QuotaKind.OtherModels, x, sample.OtherModelsPercent, local);
-        }
-
-        return markers;
     }
 
     private static List<UsageChartSlot> BuildSlots(QuotaCycle cycle)
@@ -161,24 +139,6 @@ public sealed class UsageChartSeriesBuilder
             EndX = endX,
             IsLeadingPartial = start != start.Date
         };
-
-    private static void AddKindMarker(
-        List<UsageChartMarker> markers,
-        ChartMarkerKind markerKind,
-        QuotaKind kind,
-        decimal x,
-        decimal y,
-        DateTime instant)
-    {
-        markers.Add(new UsageChartMarker
-        {
-            MarkerKind = markerKind,
-            QuotaKind = kind,
-            X = x,
-            Y = y,
-            Instant = instant
-        });
-    }
 
     private static decimal ComputeYMax(params IReadOnlyList<UsageChartPoint>[] series)
     {

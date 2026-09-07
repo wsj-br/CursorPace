@@ -6,7 +6,7 @@
 
 Desktop app for Windows, Linux, and macOS that tracks Cursor model quota across a billing cycle. Sign in with your Cursor account to pull usage automatically. The calendar and chart show two independent percentages: **Cursor Models** and **Other Models**.
 
-Expected percents follow each usage sample in time, then pace remaining quota to 100% at the next renewal. A separate Theil-Sen estimate projects daily burn and run-out.
+Expected percents on the calendar and in CSV follow each usage sample in time, then pace remaining quota to 100% at the next renewal. The chart's dashed **Expected usage** line is a straight linear pace from 0% at cycle start to 100% at next renewal. Thick solid Cursor and Other Models paths follow the last reading of each local day (no sample dots). A separate Theil-Sen estimate projects daily burn and run-out.
 
 Sign in uses an embedded native WebView (WebView2 on Windows, WKWebView on macOS, WebKitGTK or WPE on Linux) and your Cursor dashboard session. There is no official personal-plan API and no Team API key.
 
@@ -35,7 +35,7 @@ See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, 
 
 - Sign in to Cursor from the empty state or Settings; optional automatic updates on clock-aligned 1, 2, 4, 6, or 12 hour intervals
 - Billing cycle start and next renewal come from Cursor
-- Calendar or chart for the current cycle, with today, renewal, and projected run-out days highlighted. Calendar left is the day's last sample when one exists, otherwise the interpolated expected percent; estimated on the right appears only after the last sample date (green ≤100%, red >100%)
+- Calendar or chart for the current cycle, with today, renewal, and projected run-out days highlighted. Calendar left is the day's last sample when one exists, otherwise the interpolated expected percent; estimated on the right appears only after the last sample date (green ≤100%, red >100%). The chart shows a linear Expected usage line, thick solid Cursor/Other paths through the last reading per day, and thinner estimated lines from the last sample
 - Separate **Cursor Models** and **Other Models** percentages
 - Chart axis runs from cycle start to next renewal in elapsed seconds; midnight ticks are day markers, and labels use the day of the month (the truncated first slot is unlabeled)
 - Fixed-size custom title bar shows the app name on the left and keeps Settings, Quit, Minimize, and Close in separate, right-aligned controls
