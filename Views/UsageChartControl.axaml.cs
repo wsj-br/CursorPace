@@ -259,7 +259,7 @@ public partial class UsageChartControl : UserControl
             AddLabel(labelled[i].Date.ToString("d", CultureInfo.CurrentCulture), x, plot.Top - 18, mutedBrush, 10);
         }
 
-        AddLabel(labelled[lastIndex].Date.ToString("d", CultureInfo.CurrentCulture), lastX, plot.Top - 18, mutedBrush, 10);
+        AddLabel(labelled[lastIndex].Date.ToString("d", CultureInfo.CurrentCulture), plot.Right, plot.Top - 18, mutedBrush, 10, alignRight: true);
     }
 
     private void DrawPolyline(
@@ -362,7 +362,11 @@ public partial class UsageChartControl : UserControl
             Foreground = brush
         };
         block.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var left = alignRight ? x - block.DesiredSize.Width : x - block.DesiredSize.Width / 2;
+        var width = block.DesiredSize.Width;
+        var left = alignRight ? x - width : x - width / 2;
+        var canvasWidth = PlotCanvas.Width;
+        if (canvasWidth > 0 && width > 0)
+            left = Math.Clamp(left, 0, Math.Max(0, canvasWidth - width));
         Canvas.SetLeft(block, left);
         Canvas.SetTop(block, y);
         PlotCanvas.Children.Add(block);

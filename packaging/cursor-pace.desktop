@@ -4,5 +4,6 @@ Name=Cursor Pace
 Comment=Track Cursor quota across a billing cycle
 Exec=CursorPace
 Icon=cursor-pace
+StartupWMClass=CursorPace
 Categories=Utility;
 Terminal=false

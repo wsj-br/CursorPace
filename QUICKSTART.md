@@ -31,7 +31,7 @@ End-user guide for Cursor Pace. For building from source, see [dev/DEVELOPMENT.m
 
 1. Choose **Sign in**.
 2. Complete Google, GitHub, or two-factor sign-in in the embedded window. The window closes when Cursor accepts the session. If you already see your account, choose **Continue**.
-3. After a successful update, the billing cycle and usage appear on the calendar and chart. A last-updated time appears under the month heading (or above the chart).
+3. After a successful update, the billing cycle and usage appear on the calendar and chart. A last-updated time appears under the month heading on both views.
 
 You can also sign in later from **Settings**.
 
@@ -66,7 +66,7 @@ Launch never refreshes when the last successful update is under 20 minutes old. 
 
 ## Main window
 
-The body is a month calendar or a usage chart for the current cycle. Switch with the calendar and chart icons on the right of the info cards (selected is accent color, the other is dimmed). The calendar shows the month name above the weekday row, highlights today and the renewal day, and includes the renewal date when the cycle still has time left that day. A projected run-out day has a subtle yellow background.
+The body is a month calendar or a usage chart for the displayed billing cycle. Switch with the calendar and chart icons on the right of the info cards (selected is accent color, the other is dimmed). Both views show the cycle-start month and year, with Previous/Next chevrons to move through stored cycles (disabled on the oldest cycle and on the current one) and the last-updated time under that heading. The calendar highlights today and the renewal day, and includes the renewal date when the cycle still has time left that day. A projected run-out day has a subtle yellow background.
 
 Each calendar day shows two percents. On the left, a day with a synced sample shows that day's last reading (teal day number); a day without a sample shows the expected (renewal-paced) value at that day's midnight. The estimated burn value on the right appears only on days after the last sample for that quota (green when ≤100%, red when >100%).
 
@@ -78,13 +78,13 @@ Title bar actions:
 | --- | --- |
 | **Settings** | Open Settings in this window (account, appearance, startup, CSV, backup, About) |
 | **Back** | On the Settings page, the chevron or the **Settings** heading returns to the calendar or chart |
-| **Quit** | Exit the process (does not keep the tray icon) |
 | **Minimize** | Minimize the window; the app stays in the tray |
+| **Maximize** | Maximize or restore the window |
 | Window close (X) | Hide the window; the app stays in the tray |
 
-Quit is separated from the Minimize and Close controls by a small gap.
+Settings is separated from the Minimize, Maximize, and Close controls by a small gap.
 
-The window is a fixed size. It restores its last position on show and launch. Informational labels can be selected and copied.
+The window is resizable and can be maximized. It restores its last size, position, and maximized state on show and launch. Informational labels can be selected and copied.
 
 ## Expected vs estimated
 
@@ -109,11 +109,11 @@ Open **Settings** from the title bar. Settings replace the calendar or chart in 
 | **Launch at login** | Starts the app at OS login (Windows Run key, macOS Launch Agent, or Linux XDG autostart) |
 | **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same. `--show` forces the window open |
 | **Theme** | System (default), Light, or Dark. Overrides the Fluent theme variant for the app |
-| **Export Cycle CSV** | Writes each day: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
-| **Export Usage** | Writes collected sample timestamps and percents (shown while signed in). The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
+| **Export Cycle CSV** | Writes each day of the cycle currently shown on the calendar or chart: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
+| **Export Usage** | Writes all retained sample timestamps and percents across stored cycles (shown while signed in). The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
 | **Backup** | Writes `manifest.json`, `settings.json`, and `usage-samples.json` as one `.zip` file (suggested name `cursor-pace-backup-yyyy-MM-dd-HH_mm_ss`) |
 | **Restore** | Replaces local settings and samples from a backup zip. The Cursor sign-in session is not changed |
-| **About** | Version from the build, UTC compile date, copyright, MIT license, and a link to the GitHub repository |
+| **About** | Version from the build, UTC compile date and time (`dd-MMM-yyyy HH:mm:ss UTC`), copyright, MIT license, and a link to the GitHub repository |
 
 After a local export or backup completes, choose **Open Folder** on the left side of the completion dialog to open its destination folder, or choose **OK** on the right to close it.
 
@@ -122,7 +122,7 @@ After a local export or backup completes, choose **Open Folder** on the left sid
 While the process is running, an icon stays in the notification area.
 
 - **Left-click** or **Open**: show the window
-- **Quit** (tray menu or title bar): exit
+- **Quit** (tray menu): exit
 
 Hover over the tray icon to see today's expected percentage and the projected percent at the next renewal for Cursor and Other Models. The renewal projection is omitted until enough data exists.
 
@@ -146,8 +146,8 @@ macOS:   ~/Library/Application Support/CursorPace/
 
 | Path | Contents |
 | --- | --- |
-| `settings.json` | Startup, theme, sync interval, last window position, connection flag, last successful sync time, and the current cycle bounds |
-| `usage-samples.json` | Collected usage samples for the current Cursor billing cycle |
+| `settings.json` | Startup, theme, sync interval, last window position and size, connection flag, last successful sync time, the current cycle bounds, and previous cycle bounds (`cycleHistory`) |
+| `usage-samples.json` | Collected usage samples for stored Cursor billing cycles |
 | `WebView2\` | Windows embedded browser profile (Cursor session cookies) |
 | `WebView\` | Linux and macOS embedded browser profile |
 | `WebView-AppImage\` | Linux only: used instead of `WebView\` when running from an AppImage, so its bundled WebKit never shares a cookie store with a non-AppImage run |
@@ -160,13 +160,13 @@ On Windows, uninstalling via the Inno installer removes this folder. On Linux an
 
 ## Renewal
 
-The next successful fetch that reports a new billing-cycle start replaces the cycle and drops samples from the previous cycle. If the local date reaches the stored next renewal before that fetch, the app requests a refresh.
+The next successful fetch that reports a new billing-cycle start archives the previous cycle bounds and keeps its samples. Previous/Next on the month heading opens those stored cycles. If the local date reaches the stored next renewal before that fetch, the app requests a refresh.
 
 The window does not need to stay visible, but the process must be running for midnight checks and for automatic usage updates.
 
 ## Uninstall
 
-1. Quit from the title bar or the tray menu.
+1. Quit from the tray menu.
 2. Windows: Settings, **Apps**, **Installed apps**, **Cursor Pace**, **Uninstall**. That removes the app and the data folder.
 3. Linux/macOS: delete the published folder (or app bundle) and, if you want a clean start, the data folder listed above.
 
@@ -194,6 +194,10 @@ The window does not need to stay visible, but the process must be running for mi
 - Expand the notification overflow (`^`).
 - On Windows, lock and unlock the session, or restart the app. On Linux/macOS, restart the app or the desktop session.
 
+**Taskbar icon missing (Linux)**
+
+- Restart the app. A launch writes `~/.local/share/applications/CursorPace.desktop` so GNOME can match the open window to the app icon. The window stays in the taskbar while it is open; closing it hides to the tray. If the icon is still the generic gear, log out of the desktop session once, or press Alt+F2, type `r`, and Enter (X11 sessions).
+
 **Settings not saving**
 
 - Confirm write access to the data folder for your OS (`%LocalAppData%\CursorPace`, `~/.local/share/CursorPace`, or `~/Library/Application Support/CursorPace`).
@@ -209,7 +213,15 @@ The window does not need to stay visible, but the process must be running for mi
 - Confirm **Launch at login** is on in Settings.
 - Windows registry (current user): `Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorPace`. With **Start in notification tray** the command includes `--background`.
 - macOS: `~/Library/LaunchAgents/com.cursorpace.app.plist`
-- Linux: `~/.config/autostart/cursor-pace.desktop`
+- Linux: `~/.config/autostart/cursor-pace.desktop`. For an AppImage, `Exec` must be the `.AppImage` file, not a path under `/tmp/.mount_*`. Launch the app once after updating, or turn **Launch at login** off and on, to rewrite the file.
+
+**Two tray icons or a crash at login**
+
+- The session started two copies (login autostart plus a restored session, or an AppImage helper). Current builds keep the first process and exit the second before creating another tray icon. Quit from the tray menu, then start the app once.
+
+**Signed out after a Linux reboot**
+
+- Sign in once more on a build that persists WebKit cookies (`cookies.sqlite` under `WebView/` or `WebView-AppImage/`). WebView2 on Windows already keeps the session across reboots.
 
 ## Tips
 

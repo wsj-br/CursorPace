@@ -132,44 +132,57 @@ public class MainViewModelTests
     }
 
     [Fact]
-    public void SaveWindowPosition_PersistsCoordinates()
+    public void SaveWindowPlacement_PersistsCoordinatesSizeAndMaximized()
     {
         var store = new FakePlanStore();
         var vm = CreateViewModel(new FakeSync(), store);
 
-        vm.SaveWindowPosition(120, 80);
+        vm.SaveWindowPlacement(120, 80, 900, 820, true);
 
         Assert.Equal(120, store.Settings.WindowX);
         Assert.Equal(80, store.Settings.WindowY);
+        Assert.Equal(900, store.Settings.WindowWidth);
+        Assert.Equal(820, store.Settings.WindowHeight);
+        Assert.True(store.Settings.WindowMaximized);
     }
 
     [Fact]
-    public void SaveWindowPosition_WhenUnchanged_DoesNotSaveAgain()
+    public void SaveWindowPlacement_WhenUnchanged_DoesNotSaveAgain()
     {
         var store = new FakePlanStore
         {
-            Settings = new AppSettings { WindowX = 10, WindowY = 20 }
+            Settings = new AppSettings
+            {
+                WindowX = 10,
+                WindowY = 20,
+                WindowWidth = 760,
+                WindowHeight = 787,
+                WindowMaximized = false
+            }
         };
         var vm = CreateViewModel(new FakeSync(), store);
         var savesAfterLoad = store.SaveCount;
 
-        vm.SaveWindowPosition(10, 20);
+        vm.SaveWindowPlacement(10, 20, 760, 787, false);
 
         Assert.Equal(savesAfterLoad, store.SaveCount);
     }
 
     [Fact]
-    public void TryGetSavedWindowPosition_WhenUnset_ReturnsFalse()
+    public void TryGetSavedWindowPlacement_WhenUnset_ReturnsFalse()
     {
         var vm = CreateViewModel(signedIn: false);
 
-        Assert.False(vm.TryGetSavedWindowPosition(out var x, out var y));
-        Assert.Equal(0, x);
-        Assert.Equal(0, y);
+        Assert.False(vm.TryGetSavedWindowPlacement(out var x, out var y, out var width, out var height, out var maximized));
+        Assert.Null(x);
+        Assert.Null(y);
+        Assert.Null(width);
+        Assert.Null(height);
+        Assert.False(maximized);
     }
 
     [Fact]
-    public void TryGetSavedWindowPosition_WhenLoaded_ReturnsStoredCoordinates()
+    public void TryGetSavedWindowPlacement_WhenOnlyPositionLoaded_ReturnsCoordinates()
     {
         var store = new FakePlanStore
         {
@@ -177,9 +190,36 @@ public class MainViewModelTests
         };
         var vm = CreateViewModel(new FakeSync(), store);
 
-        Assert.True(vm.TryGetSavedWindowPosition(out var x, out var y));
+        Assert.True(vm.TryGetSavedWindowPlacement(out var x, out var y, out var width, out var height, out var maximized));
         Assert.Equal(40, x);
         Assert.Equal(60, y);
+        Assert.Null(width);
+        Assert.Null(height);
+        Assert.False(maximized);
+    }
+
+    [Fact]
+    public void TryGetSavedWindowPlacement_WhenLoaded_ReturnsStoredPlacement()
+    {
+        var store = new FakePlanStore
+        {
+            Settings = new AppSettings
+            {
+                WindowX = 40,
+                WindowY = 60,
+                WindowWidth = 1024,
+                WindowHeight = 900,
+                WindowMaximized = true
+            }
+        };
+        var vm = CreateViewModel(new FakeSync(), store);
+
+        Assert.True(vm.TryGetSavedWindowPlacement(out var x, out var y, out var width, out var height, out var maximized));
+        Assert.Equal(40, x);
+        Assert.Equal(60, y);
+        Assert.Equal(1024, width);
+        Assert.Equal(900, height);
+        Assert.True(maximized);
     }
 
     [Fact]
@@ -457,6 +497,194 @@ public class MainViewModelTests
         Assert.Equal(cycle.CycleStart, settings.ActiveCycle!.CycleStart);
     }
 
+    [Fact]
+    public void Snapshot_NewCycleStart_ArchivesPreviousAndStaysOnLive()
+    {
+        var calculator = new CycleCalculator();
+        var previous = calculator.GenerateCycleFromBounds(
+            new DateTime(2026, 7, 1),
+            new DateTime(2026, 8, 1));
+        var store = new FakePlanStore { Settings = new AppSettings { ActiveCycle = previous } };
+        var sync = new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok };
+        var vm = CreateViewModel(sync, store);
+
+        Assert.False(vm.CanGoToPreviousCycle);
+        Assert.False(vm.CanGoToNextCycle);
+
+        sync.RaiseSnapshotReceived(SnapshotFor(
+            new DateTime(2026, 8, 1, 8, 0, 0),
+            new DateTime(2026, 9, 1, 8, 0, 0),
+            1m,
+            2m));
+
+        Assert.Equal(new DateTime(2026, 8, 1, 8, 0, 0), store.Settings.ActiveCycle!.CycleStart);
+        var archived = Assert.Single(store.Settings.CycleHistory);
+        Assert.Equal(previous.CycleStart, archived.CycleStart);
+        Assert.Equal(
+            CalendarMonthViewModel.FormatMonthHeading(new DateTime(2026, 8, 1)),
+            vm.Calendar.MonthHeading);
+        Assert.True(vm.CanGoToPreviousCycle);
+        Assert.False(vm.CanGoToNextCycle);
+        Assert.False(vm.GoToNextCycleCommand.CanExecute(null));
+        Assert.True(vm.GoToPreviousCycleCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public void GoToPreviousCycle_ShowsArchivedCycleSamplesAndChart()
+    {
+        var calculator = new CycleCalculator();
+        var previousStart = new DateTime(2026, 7, 1, 8, 0, 0);
+        var liveStart = new DateTime(2026, 8, 1, 8, 0, 0);
+        var previous = calculator.GenerateCycleFromBounds(previousStart, liveStart);
+        var live = calculator.GenerateCycleFromBounds(liveStart, new DateTime(2026, 9, 1, 8, 0, 0));
+        var samples = new List<UsageSample>
+        {
+            SampleAt(previousStart.AddDays(1), 40m, 41m),
+            SampleAt(liveStart.AddDays(1), 5m, 6m)
+        };
+        var store = new FakePlanStore
+        {
+            Settings = new AppSettings
+            {
+                ActiveCycle = live,
+                CycleHistory = [previous]
+            }
+        };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok, Samples = samples },
+            store);
+
+        Assert.Equal(CalendarMonthViewModel.FormatMonthHeading(liveStart.Date), vm.Calendar.MonthHeading);
+        Assert.Equal(liveStart, vm.Chart.Document!.CycleStart);
+
+        vm.GoToPreviousCycleCommand.Execute(null);
+
+        Assert.Equal(CalendarMonthViewModel.FormatMonthHeading(previousStart.Date), vm.Calendar.MonthHeading);
+        Assert.Equal(previousStart.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CycleStartText);
+        Assert.DoesNotContain(vm.Days, d => d.Date == liveStart.Date.AddDays(1));
+        Assert.Contains(vm.Days, d => d.Date == previousStart.Date.AddDays(1) && d.IsActual);
+        Assert.Equal(previousStart, vm.Chart.Document!.CycleStart);
+        Assert.False(vm.CanGoToPreviousCycle);
+        Assert.True(vm.CanGoToNextCycle);
+
+        vm.GoToNextCycleCommand.Execute(null);
+
+        Assert.Equal(CalendarMonthViewModel.FormatMonthHeading(liveStart.Date), vm.Calendar.MonthHeading);
+        Assert.Equal(liveStart, vm.Chart.Document!.CycleStart);
+        Assert.True(vm.CanGoToPreviousCycle);
+        Assert.False(vm.CanGoToNextCycle);
+    }
+
+    [Fact]
+    public void Snapshot_WhileViewingHistory_DoesNotChangeDisplayedCycle()
+    {
+        var calculator = new CycleCalculator();
+        var previous = calculator.GenerateCycleFromBounds(
+            new DateTime(2026, 7, 1, 8, 0, 0),
+            new DateTime(2026, 8, 1, 8, 0, 0));
+        var live = calculator.GenerateCycleFromBounds(
+            new DateTime(2026, 8, 1, 8, 0, 0),
+            new DateTime(2026, 9, 1, 8, 0, 0));
+        var store = new FakePlanStore
+        {
+            Settings = new AppSettings
+            {
+                ActiveCycle = live,
+                CycleHistory = [previous]
+            }
+        };
+        var sync = new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok };
+        var vm = CreateViewModel(sync, store);
+        vm.GoToPreviousCycleCommand.Execute(null);
+        var heading = vm.Calendar.MonthHeading;
+
+        sync.RaiseSnapshotReceived(SnapshotFor(
+            new DateTime(2026, 8, 1, 8, 0, 0),
+            new DateTime(2026, 9, 1, 8, 0, 0),
+            12m,
+            14m));
+
+        Assert.Equal(heading, vm.Calendar.MonthHeading);
+        Assert.Equal(previous.CycleStart.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CycleStartText);
+        Assert.Equal(live.CycleStart, store.Settings.ActiveCycle!.CycleStart);
+    }
+
+    [Fact]
+    public void CheckForNewDay_WhileViewingHistory_UsesLiveRenewal()
+    {
+        var calculator = new CycleCalculator();
+        var previous = calculator.GenerateCycleFromBounds(
+            new DateTime(2026, 7, 1),
+            new DateTime(2026, 8, 1));
+        var live = calculator.GenerateCycleFromBounds(
+            new DateTime(2026, 8, 1),
+            new DateTime(2026, 9, 1));
+        var store = new FakePlanStore
+        {
+            Settings = new AppSettings
+            {
+                ActiveCycle = live,
+                CycleHistory = [previous]
+            }
+        };
+        var sync = new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok };
+        var clock = new FakeClock { Now = new DateTime(2026, 8, 18, 12, 0, 0) };
+        var vm = CreateViewModel(sync, store, new FakeStartup(), clock);
+        vm.GoToPreviousCycleCommand.Execute(null);
+
+        vm.CheckForNewDay();
+        Assert.Equal(0, sync.RefreshNowCount);
+
+        clock.Now = new DateTime(2026, 9, 1, 12, 0, 0);
+        vm.CheckForNewDay();
+        Assert.Equal(1, sync.RefreshNowCount);
+        Assert.Equal(CalendarMonthViewModel.FormatMonthHeading(previous.CycleStart.Date), vm.Calendar.MonthHeading);
+    }
+
+    [Fact]
+    public void RestoreBackup_WithHistory_ShowsLiveCycle()
+    {
+        var calculator = new CycleCalculator();
+        var previous = calculator.GenerateCycleFromBounds(
+            new DateTime(2026, 7, 1),
+            new DateTime(2026, 8, 1));
+        var live = calculator.GenerateCycleFromBounds(
+            new DateTime(2026, 8, 1),
+            new DateTime(2026, 9, 1));
+        var destCycle = calculator.GenerateCycleFromBounds(
+            new DateTime(2026, 6, 1),
+            new DateTime(2026, 7, 1));
+
+        var sourceStore = new FakePlanStore
+        {
+            Settings = new AppSettings
+            {
+                ActiveCycle = live,
+                CycleHistory = [previous]
+            }
+        };
+        var archive = new MemoryStream();
+        new DataBackupService(sourceStore, new FakeSampleStore())
+            .WriteBackup(archive, DateTimeOffset.Parse("2026-08-18T10:40:00Z"));
+
+        var destStore = new FakePlanStore
+        {
+            Settings = new AppSettings { ActiveCycle = destCycle }
+        };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok },
+            destStore);
+        Assert.Equal(CalendarMonthViewModel.FormatMonthHeading(destCycle.CycleStart.Date), vm.Calendar.MonthHeading);
+
+        archive.Position = 0;
+        Assert.True(vm.TryRestoreBackup(archive, out var error));
+        Assert.Null(error);
+        Assert.Equal(CalendarMonthViewModel.FormatMonthHeading(live.CycleStart.Date), vm.Calendar.MonthHeading);
+        Assert.Equal(live.CycleStart, destStore.Settings.ActiveCycle!.CycleStart);
+        Assert.True(vm.CanGoToPreviousCycle);
+        Assert.False(vm.CanGoToNextCycle);
+    }
+
     private static MainViewModel CreateViewModel(bool signedIn) =>
         CreateViewModel(new FakeSync { IsSignedIn = signedIn, Status = signedIn ? SyncStatus.Ok : SyncStatus.SignedOut });
 
@@ -467,8 +695,15 @@ public class MainViewModelTests
         CreateViewModel(sync, store, new FakeStartup());
 
     private static MainViewModel CreateViewModel(FakeSync sync, FakePlanStore store, FakeStartup startup) =>
+        CreateViewModel(sync, store, startup, new FakeClock());
+
+    private static MainViewModel CreateViewModel(
+        FakeSync sync,
+        FakePlanStore store,
+        FakeStartup startup,
+        FakeClock clock) =>
         new(
-            new FakeClock(),
+            clock,
             new CycleCalculator(),
             store,
             startup,
@@ -497,6 +732,29 @@ public class MainViewModelTests
             CursorModelsPercent = cursor,
             OtherModelsPercent = other
         };
+    }
+
+    private static UsageSnapshot SnapshotFor(
+        DateTime startLocal,
+        DateTime endLocal,
+        decimal cursor,
+        decimal other,
+        DateTime? fetchedLocal = null)
+    {
+        return new UsageSnapshot
+        {
+            BillingCycleStartUtc = AtLocal(startLocal),
+            BillingCycleEndUtc = AtLocal(endLocal),
+            CursorModelsPercent = cursor,
+            OtherModelsPercent = other,
+            FetchedAtUtc = AtLocal(fetchedLocal ?? startLocal.AddHours(1))
+        };
+    }
+
+    private static DateTimeOffset AtLocal(DateTime local)
+    {
+        var offset = TimeZoneInfo.Local.GetUtcOffset(local);
+        return new DateTimeOffset(DateTime.SpecifyKind(local, DateTimeKind.Unspecified), offset);
     }
 
     private sealed class FakeClock : IClock
@@ -558,11 +816,14 @@ public class MainViewModelTests
             };
         }
         public event EventHandler? StateChanged;
-#pragma warning disable CS0067
         public event EventHandler<UsageSnapshot>? SnapshotReceived;
-#pragma warning restore CS0067
+        public int RefreshNowCount { get; private set; }
         public Task StartAsync(bool autoSyncEnabled, int intervalHours) => Task.CompletedTask;
-        public Task RefreshNowAsync(bool allowInteractiveLogin) => Task.CompletedTask;
+        public Task RefreshNowAsync(bool allowInteractiveLogin)
+        {
+            RefreshNowCount++;
+            return Task.CompletedTask;
+        }
         public Task SignInAsync() => Task.CompletedTask;
         public Task DisconnectAsync() => Task.CompletedTask;
         public void SetIntervalHours(int hours) { }
@@ -589,5 +850,8 @@ public class MainViewModelTests
             IsSignedIn = true;
             StateChanged?.Invoke(this, EventArgs.Empty);
         }
+
+        public void RaiseSnapshotReceived(UsageSnapshot snapshot) =>
+            SnapshotReceived?.Invoke(this, snapshot);
     }
 }

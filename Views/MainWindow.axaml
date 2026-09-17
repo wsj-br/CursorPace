@@ -8,15 +8,19 @@
         Title="Cursor Pace"
         Width="760"
         Height="787"
-        CanResize="False"
+        MinWidth="760"
+        MinHeight="787"
+        CanResize="True"
         CanMinimize="True"
-        CanMaximize="False"
+        CanMaximize="True"
         ExtendClientAreaToDecorationsHint="True"
         WindowDecorations="None"
         ExtendClientAreaTitleBarHeightHint="48"
         Icon="avares://CursorPace/Assets/cursor_pace.ico"
+        ShowInTaskbar="True"
         WindowStartupLocation="Manual">
 
+    <Grid>
     <Grid x:Name="RootGrid" RowDefinitions="Auto,*">
 
         <Grid x:Name="AppTitleBar" Grid.Row="0" Height="48">
@@ -50,19 +54,6 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Click="OnQuitClick"
-                            chrome:WindowDecorationProperties.ElementRole="User"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Height="32"
-                            Padding="12,0"
-                            CornerRadius="4">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <PathIcon Data="{StaticResource CloseIcon}" Width="14" Height="14"/>
-                            <TextBlock Text="Quit" VerticalAlignment="Center" FontSize="12"/>
-                        </StackPanel>
-                    </Button>
-
                     <Button Click="OnMinimizeClick"
                             chrome:WindowDecorationProperties.ElementRole="User"
                             Background="Transparent"
@@ -77,6 +68,30 @@
                         <PathIcon Data="{StaticResource MinimizeIcon}"
                                   Width="14"
                                   Height="14"/>
+                    </Button>
+
+                    <Button x:Name="MaximizeButton"
+                            Click="OnMaximizeClick"
+                            chrome:WindowDecorationProperties.ElementRole="User"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Width="40"
+                            Height="32"
+                            Padding="0"
+                            CornerRadius="4"
+                            ToolTip.Tip="Maximize"
+                            AutomationProperties.Name="Maximize">
+                        <Panel>
+                            <PathIcon x:Name="MaximizeIconControl"
+                                      Data="{StaticResource MaximizeIcon}"
+                                      Width="14"
+                                      Height="14"/>
+                            <PathIcon x:Name="RestoreIconControl"
+                                      Data="{StaticResource RestoreIcon}"
+                                      Width="14"
+                                      Height="14"
+                                      IsVisible="False"/>
+                        </Panel>
                     </Button>
 
                     <Button Click="OnWindowCloseClick"
@@ -129,54 +144,70 @@
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <StackPanel Orientation="Horizontal" Spacing="12" IsVisible="{Binding IsInitialized}">
+                    <Grid ColumnDefinitions="*,*,*,*"
+                          ColumnSpacing="12"
+                          IsVisible="{Binding IsInitialized}">
 
-                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                        <Border Grid.Column="0"
+                                HorizontalAlignment="Stretch"
+                                Background="{DynamicResource CardBackgroundBrush}"
                                 BorderBrush="{DynamicResource CardStrokeBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="14,10">
                             <StackPanel>
                                 <TextBlock Text="Cycle start" Opacity="0.6" FontSize="11"/>
                                 <SelectableTextBlock Text="{Binding CycleStartText}"
+                                                     TextWrapping="Wrap"
                                                      FontWeight="SemiBold"
                                                      FontSize="14" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                        <Border Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Background="{DynamicResource CardBackgroundBrush}"
                                 BorderBrush="{DynamicResource CardStrokeBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="14,10">
                             <StackPanel>
                                 <TextBlock Text="Next renewal" Opacity="0.6" FontSize="11"/>
                                 <SelectableTextBlock Text="{Binding NextRenewalText}"
+                                                     TextWrapping="Wrap"
                                                      FontWeight="SemiBold"
                                                      FontSize="14" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                        <Border Grid.Column="2"
+                                HorizontalAlignment="Stretch"
+                                Background="{DynamicResource CardBackgroundBrush}"
                                 BorderBrush="{DynamicResource CardStrokeBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="14,10">
                             <StackPanel>
-                                <TextBlock Text="Cursor Models run out" Opacity="0.6" FontSize="11"/>
+                                <TextBlock Text="Cursor Models run out" Opacity="0.6" FontSize="11"
+                                           TextWrapping="Wrap"/>
                                 <SelectableTextBlock Text="{Binding CursorModelsRunOutText}"
+                                                     TextWrapping="Wrap"
                                                      FontWeight="SemiBold"
                                                      Foreground="{DynamicResource ThemeAccentBrush}"
                                                      FontSize="14" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                        <Border Grid.Column="3"
+                                HorizontalAlignment="Stretch"
+                                Background="{DynamicResource CardBackgroundBrush}"
                                 BorderBrush="{DynamicResource CardStrokeBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="14,10">
                             <StackPanel>
-                                <TextBlock Text="Other Models run out" Opacity="0.6" FontSize="11"/>
+                                <TextBlock Text="Other Models run out" Opacity="0.6" FontSize="11"
+                                           TextWrapping="Wrap"/>
                                 <SelectableTextBlock Text="{Binding OtherModelsRunOutText}"
+                                                     TextWrapping="Wrap"
                                                      FontWeight="SemiBold"
                                                      Foreground="{DynamicResource ThemeAccentBrush}"
                                                      FontSize="14" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
-                    </StackPanel>
+                    </Grid>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1"
@@ -232,15 +263,48 @@
                             IsVisible="{Binding ShowEmptySignIn}"/>
                 </StackPanel>
 
-                <Grid IsVisible="{Binding IsInitialized}">
-                    <local:CalendarControl x:Name="CalendarView"
-                                           Weeks="{Binding Calendar.Weeks}"
-                                           MonthHeading="{Binding Calendar.MonthHeading}"
-                                           LastSyncText="{Binding LastSyncText}"
-                                           IsSyncing="{Binding IsSyncing}"
-                                           ShowLastSync="{Binding !HasSyncAlert}"
-                                           IsVisible="{Binding IsCalendarView}"/>
-                    <Grid IsVisible="{Binding IsChartView}" RowDefinitions="Auto,*">
+                <Grid IsVisible="{Binding IsInitialized}" RowDefinitions="Auto,*">
+                    <StackPanel>
+                        <Grid ColumnDefinitions="Auto,*,Auto"
+                              HorizontalAlignment="Center"
+                              Margin="0,0,0,4">
+                            <Button Grid.Column="0"
+                                    Command="{Binding GoToPreviousCycleCommand}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Width="32"
+                                    Height="32"
+                                    Padding="0"
+                                    ToolTip.Tip="Previous cycle"
+                                    AutomationProperties.Name="Previous cycle">
+                                <PathIcon Data="{StaticResource BackIcon}"
+                                          Width="18"
+                                          Height="18"/>
+                            </Button>
+                            <SelectableTextBlock Grid.Column="1"
+                                                 Text="{Binding Calendar.MonthHeading}"
+                                                 HorizontalAlignment="Center"
+                                                 VerticalAlignment="Center"
+                                                 TextAlignment="Center"
+                                                 FontSize="20"
+                                                 FontWeight="SemiBold"
+                                                 LetterSpacing="1.6"
+                                                 Opacity="0.88"
+                                                 Margin="8,0"/>
+                            <Button Grid.Column="2"
+                                    Command="{Binding GoToNextCycleCommand}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Width="32"
+                                    Height="32"
+                                    Padding="0"
+                                    ToolTip.Tip="Next cycle"
+                                    AutomationProperties.Name="Next cycle">
+                                <PathIcon Data="{StaticResource ForwardIcon}"
+                                          Width="18"
+                                          Height="18"/>
+                            </Button>
+                        </Grid>
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
                                     Spacing="8"
@@ -256,8 +320,13 @@
                                                  FontSize="11"
                                                  VerticalAlignment="Center"/>
                         </StackPanel>
+                    </StackPanel>
+                    <Grid Grid.Row="1">
+                        <local:CalendarControl x:Name="CalendarView"
+                                               Weeks="{Binding Calendar.Weeks}"
+                                               IsVisible="{Binding IsCalendarView}"/>
                         <local:UsageChartControl x:Name="UsageChartView"
-                                                 Grid.Row="1"
+                                                 IsVisible="{Binding IsChartView}"
                                                  Document="{Binding Chart.Document}"/>
                     </Grid>
                 </Grid>
@@ -265,5 +334,71 @@
         </Grid>
         </Grid>
         </Border>
+    </Grid>
+
+        <Border x:Name="ResizeGripN" Height="8" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                Background="Transparent"
+                Cursor="SizeNorthSouth"
+                PointerPressed="OnResizeGripPressed"
+                PointerMoved="OnResizeGripMoved"
+                PointerReleased="OnResizeGripReleased"
+                PointerCaptureLost="OnResizeGripCaptureLost"
+                chrome:WindowDecorationProperties.ElementRole="ResizeN"/>
+        <Border x:Name="ResizeGripS" Height="8" VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
+                Background="Transparent"
+                Cursor="SizeNorthSouth"
+                PointerPressed="OnResizeGripPressed"
+                PointerMoved="OnResizeGripMoved"
+                PointerReleased="OnResizeGripReleased"
+                PointerCaptureLost="OnResizeGripCaptureLost"
+                chrome:WindowDecorationProperties.ElementRole="ResizeS"/>
+        <Border x:Name="ResizeGripW" Width="8" HorizontalAlignment="Left" VerticalAlignment="Stretch"
+                Background="Transparent"
+                Cursor="SizeWestEast"
+                PointerPressed="OnResizeGripPressed"
+                PointerMoved="OnResizeGripMoved"
+                PointerReleased="OnResizeGripReleased"
+                PointerCaptureLost="OnResizeGripCaptureLost"
+                chrome:WindowDecorationProperties.ElementRole="ResizeW"/>
+        <Border x:Name="ResizeGripE" Width="8" HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                Background="Transparent"
+                Cursor="SizeWestEast"
+                PointerPressed="OnResizeGripPressed"
+                PointerMoved="OnResizeGripMoved"
+                PointerReleased="OnResizeGripReleased"
+                PointerCaptureLost="OnResizeGripCaptureLost"
+                chrome:WindowDecorationProperties.ElementRole="ResizeE"/>
+        <Border x:Name="ResizeGripNW" Width="12" Height="12" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Background="Transparent"
+                Cursor="TopLeftCorner"
+                PointerPressed="OnResizeGripPressed"
+                PointerMoved="OnResizeGripMoved"
+                PointerReleased="OnResizeGripReleased"
+                PointerCaptureLost="OnResizeGripCaptureLost"
+                chrome:WindowDecorationProperties.ElementRole="ResizeNW"/>
+        <Border x:Name="ResizeGripNE" Width="12" Height="12" HorizontalAlignment="Right" VerticalAlignment="Top"
+                Background="Transparent"
+                Cursor="TopRightCorner"
+                PointerPressed="OnResizeGripPressed"
+                PointerMoved="OnResizeGripMoved"
+                PointerReleased="OnResizeGripReleased"
+                PointerCaptureLost="OnResizeGripCaptureLost"
+                chrome:WindowDecorationProperties.ElementRole="ResizeNE"/>
+        <Border x:Name="ResizeGripSW" Width="12" Height="12" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                Background="Transparent"
+                Cursor="BottomLeftCorner"
+                PointerPressed="OnResizeGripPressed"
+                PointerMoved="OnResizeGripMoved"
+                PointerReleased="OnResizeGripReleased"
+                PointerCaptureLost="OnResizeGripCaptureLost"
+                chrome:WindowDecorationProperties.ElementRole="ResizeSW"/>
+        <Border x:Name="ResizeGripSE" Width="12" Height="12" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Background="Transparent"
+                Cursor="BottomRightCorner"
+                PointerPressed="OnResizeGripPressed"
+                PointerMoved="OnResizeGripMoved"
+                PointerReleased="OnResizeGripReleased"
+                PointerCaptureLost="OnResizeGripCaptureLost"
+                chrome:WindowDecorationProperties.ElementRole="ResizeSE"/>
     </Grid>
 </Window>

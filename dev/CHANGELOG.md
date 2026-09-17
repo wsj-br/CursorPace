@@ -8,6 +8,26 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Fixed**: chart - the last top-axis date sits inside the plot instead of clipping at the right edge.
+- **Fixed**: tray - **Open** and a tray-icon click raise the main window when it is already visible behind other windows.
+- **Added**: calendar - Previous/Next chevrons on the shared month heading page stored billing cycles in both the calendar and the chart.
+- **Changed**: persistence - a new Cursor billing-cycle start archives previous bounds in `cycleHistory` and keeps usage samples instead of clearing them.
+
+- **Changed**: window - the main window is resizable (minimum 760x787) and maximizable, with custom caption Maximize/Restore, title-bar double-click, and edge resize grips; size and maximized state restore with position.
+- **Fixed**: window - Linux/macOS resize grips drag the frame with pointer handlers (`WindowResizeDrag`); chrome `ElementRole` alone does not start a platform resize on an undecorated window.
+- **Changed**: calendar - week cells and the four summary cards stretch to fill leftover window space.
+- **Changed**: persistence - `settings.json` stores `windowWidth`, `windowHeight`, and `windowMaximized` (normal bounds, not the maximized frame).
+- **Fixed**: tray - take the single-instance lock in `Program.Main` before Avalonia starts. Login can launch a second process (session restore plus **Launch at login**, or AppImageLauncher re-exec). The duplicate used to create another tray icon, then call `Shutdown()` during startup and crash with `Dispatcher shut down`.
+- **Fixed**: install - Linux autostart `Exec` sets `APPIMAGELAUNCHER_DISABLE=1` so AppImageLauncher does not start a second copy of the same AppImage at login.
+- **Changed**: chart - the month/year heading and last-update line now sit above the plot, matching the calendar header.
+- **Fixed**: window - Linux no longer sets `ShowInTaskbar` to false while restoring the saved position, so an open main window keeps its taskbar icon on GNOME/Zorin.
+- **Fixed**: install - Linux installs `~/.local/share/applications/CursorPace.desktop` (desktop id and `StartupWMClass` both `CursorPace`) with an absolute `Icon=` path to the PNG, so GNOME/Zorin can show the app icon instead of the generic gear.
+- **Removed**: window - drop the title bar **Quit** button; exit from the tray menu instead.
+- **Changed**: settings - About **Build date** includes the UTC compile time (`HH:mm:ss UTC`), not only the calendar day.
+- **Added**: scripts - `update-packages.ps1` / `update-packages.sh` list or update NuGet packages in the app and test projects, then refresh both lock files. `dotnet package update` cannot take the `.slnx` yet.
+- **Changed**: tests - `Microsoft.NET.Test.Sdk` 18.9.0 to 18.10.0.
+- **Fixed**: sync - Linux WebKitGTK now persists the Cursor session to `cookies.sqlite` in the WebView profile. Avalonia's GTK adapter never called `webkit_cookie_manager_set_persistent_storage`, so cookies stayed in memory and the account looked signed out after a reboot (WebView2 on Windows already writes cookies to its user-data folder).
+- **Fixed**: install - Linux **Launch at login** uses the `APPIMAGE` path instead of `Environment.ProcessPath`. An AppImage's process path is the FUSE mount under `/tmp/.mount_*`, which is gone after reboot, so autostart never relaunched the app.
 
 ## [0.2.3] - 2026-09-07
 

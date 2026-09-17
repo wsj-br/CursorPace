@@ -12,7 +12,6 @@ namespace CursorPace;
 
 public partial class App : Application
 {
-    private ISingleInstance? _singleInstance;
     private ITrayService? _trayService;
     private MainWindow? _mainWindow;
     private MainViewModel? _viewModel;
@@ -31,18 +30,8 @@ public partial class App : Application
 
         desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-        _singleInstance = SingleInstance.Create();
-        if (!_singleInstance.TryAcquire())
-        {
-            _singleInstance.SignalExisting();
-            _singleInstance.Dispose();
-            _singleInstance = null;
-            desktop.Shutdown();
-            return;
-        }
-
         _dispatcher = new AvaloniaUiDispatcher();
-        _singleInstance.Listen(ShowMainWindow);
+        SingleInstance.Current?.Listen(ShowMainWindow);
 
         var clock = new SystemClock();
         var calculator = new CycleCalculator();
@@ -56,6 +45,7 @@ public partial class App : Application
 
         _viewModel = new MainViewModel(clock, calculator, store, startupReg, sync, backup);
         ApplyTheme(_viewModel.ThemeMode);
+        LinuxDesktopIntegration.EnsureUserEntry();
 
         _trayService = new TrayService();
         _trayService.Initialize(
@@ -114,8 +104,6 @@ public partial class App : Application
         _syncService = null;
         _trayService?.Dispose();
         _trayService = null;
-        _singleInstance?.Dispose();
-        _singleInstance = null;
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             desktop.Shutdown();
     }

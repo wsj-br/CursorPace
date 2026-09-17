@@ -26,6 +26,16 @@ internal sealed class TitleBarDrag
         if (!e.GetCurrentPoint(_window).Properties.IsLeftButtonPressed)
             return;
 
+        if (e.ClickCount >= 2)
+        {
+            ToggleMaximize();
+            e.Handled = true;
+            return;
+        }
+
+        if (_window.WindowState == WindowState.Maximized)
+            return;
+
         if (OperatingSystem.IsWindows())
         {
             _window.BeginMoveDrag(e);
@@ -66,6 +76,13 @@ internal sealed class TitleBarDrag
             return;
 
         EndDrag(e.Pointer);
+    }
+
+    private void ToggleMaximize()
+    {
+        _window.WindowState = _window.WindowState == WindowState.Maximized
+            ? WindowState.Normal
+            : WindowState.Maximized;
     }
 
     private void EndDrag(IPointer pointer)

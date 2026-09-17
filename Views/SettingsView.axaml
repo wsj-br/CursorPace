@@ -133,7 +133,7 @@
                     <StackPanel Spacing="12">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Data" FontSize="16" FontWeight="SemiBold"/>
-                            <SelectableTextBlock Text="Export the current cycle, or collected usage samples, as CSV."
+                            <SelectableTextBlock Text="Export the displayed cycle, or all collected usage samples, as CSV."
                                                  TextWrapping="Wrap"
                                                  Opacity="0.7"
                                                  FontSize="12"/>

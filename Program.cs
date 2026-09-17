@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Avalonia;
+using CursorPace.Services;
 
 namespace CursorPace;
 
@@ -16,12 +17,31 @@ internal static class Program
             e.SetObserved();
         };
 
-        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        var singleInstance = SingleInstance.Create();
+        if (!singleInstance.TryAcquire())
+        {
+            if (LaunchMode.ActivateExistingInstance(args))
+                singleInstance.SignalExisting();
+            singleInstance.Dispose();
+            return;
+        }
+
+        SingleInstance.Current = singleInstance;
+        try
+        {
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        }
+        finally
+        {
+            SingleInstance.Current = null;
+            singleInstance.Dispose();
+        }
     }
 
     public static AppBuilder BuildAvaloniaApp() =>
         AppBuilder.Configure<App>()
             .UsePlatformDetect()
+            .With(new X11PlatformOptions { WmClass = "CursorPace" })
             .WithInterFont()
             .LogToTrace();
 

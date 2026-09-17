@@ -18,45 +18,25 @@
                                          FalseColor="#6A9E7C"/>
     </UserControl.Resources>
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*">
+    <UserControl.Styles>
+        <Style Selector="ItemsControl > ContentPresenter">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+        </Style>
+    </UserControl.Styles>
 
-        <SelectableTextBlock x:Name="MonthHeadingText"
-                   Grid.Row="0"
-                   Text="{Binding MonthHeading, ElementName=Root}"
-                   HorizontalAlignment="Center"
-                   TextAlignment="Center"
-                   FontSize="20"
-                   FontWeight="SemiBold"
-                   LetterSpacing="1.6"
-                   Opacity="0.88"
-                   Margin="0,0,0,4"/>
+    <Grid RowDefinitions="Auto,*">
 
-        <StackPanel Grid.Row="1"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Spacing="8"
-                    Margin="0,0,0,10"
-                    IsVisible="{Binding ShowLastSync, ElementName=Root}">
-            <ProgressBar IsIndeterminate="True"
-                         Width="80"
-                         Height="4"
-                         VerticalAlignment="Center"
-                         IsVisible="{Binding IsSyncing, ElementName=Root}"/>
-            <SelectableTextBlock Text="{Binding LastSyncText, ElementName=Root}"
-                                 Opacity="0.55"
-                                 FontSize="11"
-                                 VerticalAlignment="Center"/>
-        </StackPanel>
-
-        <ItemsControl x:Name="DayNamesList" Grid.Row="2" Margin="0,0,0,2">
+        <ItemsControl x:Name="DayNamesList" Grid.Row="0" Margin="0,0,0,2"
+                      HorizontalAlignment="Stretch">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" Spacing="1"/>
+                    <UniformGrid Columns="7"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="x:String">
-                    <Border Width="100" Padding="0,4">
+                    <Border HorizontalAlignment="Stretch" Padding="0,4" Margin="0,0,1,0">
                         <SelectableTextBlock Text="{Binding}"
                                    HorizontalAlignment="Center"
                                    Opacity="0.72"
@@ -67,23 +47,31 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <ItemsControl Grid.Row="3" ItemsSource="{Binding Weeks, ElementName=Root}">
+        <ItemsControl Grid.Row="1"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      ItemsSource="{Binding Weeks, ElementName=Root}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <StackPanel Orientation="Vertical" Spacing="1"/>
+                    <UniformGrid Columns="1"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:CalendarWeekViewModel">
-                    <ItemsControl ItemsSource="{Binding Cells}">
+                    <ItemsControl ItemsSource="{Binding Cells}"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" Spacing="1"/>
+                                <UniformGrid Columns="7"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:CalendarCellViewModel">
-                                <Border Width="100" Height="85"
+                                <Border MinWidth="100" MinHeight="85"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        Margin="0,0,1,1"
                                         BorderBrush="{DynamicResource CardStrokeBrush}"
                                         BorderThickness="1"
                                         Padding="0"

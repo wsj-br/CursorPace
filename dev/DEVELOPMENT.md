@@ -104,7 +104,8 @@ dotnet restore
 | Release without clean-tree check | `.\scripts\release.ps1 -VerifyClean:$false` | `./scripts/release.sh --no-verify-clean` |
 | Show app version | `.\scripts\version.ps1` | `./scripts/version.sh` |
 | Set app version | `.\scripts\version.ps1 0.2.4` | `./scripts/version.sh 0.2.4` |
-| List outdated NuGet packages | `dotnet list .\CursorPace.slnx package --outdated` | `dotnet list ./CursorPace.slnx package --outdated` |
+| List outdated NuGet packages | `.\scripts\update-packages.ps1 -List` | `./scripts/update-packages.sh --list` |
+| Update NuGet packages | `.\scripts\update-packages.ps1` | `./scripts/update-packages.sh` |
 
 Launch flags after `--`:
 
@@ -135,7 +136,7 @@ CursorPace/
 │   └── CursorPace.Tests.csproj
 ├── setup.iss                    # Inno Setup (Windows only; checks WebView2 Runtime)
 ├── packaging/
-│   ├── cursor-pace.desktop
+│   ├── cursor-pace.desktop      # StartupWMClass=CursorPace matches X11 WmClass
 │   └── io.github.wsj_br.CursorPace.appdata.xml
 ├── scripts/
 │   ├── build.ps1 / build.sh
@@ -144,6 +145,7 @@ CursorPace/
 │   ├── clean.ps1 / clean.sh
 │   ├── dev.ps1 / dev.sh
 │   ├── release.ps1 / release.sh
+│   ├── update-packages.ps1 / update-packages.sh
 │   └── version.ps1 / version.sh
 └── dev/
     ├── CHANGELOG.md
@@ -159,12 +161,12 @@ Open `CursorPace.slnx` in Visual Studio, or build the `.csproj` files directly.
 | --- | --- |
 | UI | Avalonia 12 (`net10.0`) |
 | Tray | Avalonia `TrayIcon` |
-| Cursor session | `NativeWebView` host window + persistent profile under LocalApplicationData |
+| Cursor session | `NativeWebView` host window + persistent profile under LocalApplicationData. On Linux, `LinuxWebKitCookiePersistence` points WebKit at `cookies.sqlite` in that profile; Avalonia's GTK adapter does not. |
 | Tests | xUnit, project under `Tests/` |
 | Settings | JSON under LocalApplicationData `CursorPace` |
 | Installer | Inno Setup 6 (Windows), AppImage (Linux), zipped `.app` bundle (macOS) |
 
-Manual construction in `App.OnFrameworkInitializationCompleted` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IUsageSampleStore`, `ICursorUsageClient`, `IUsageSyncService`, `IDataBackupService`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. There is no DI container.
+Manual construction in `App.OnFrameworkInitializationCompleted` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IUsageSampleStore`, `ICursorUsageClient`, `IUsageSyncService`, `IDataBackupService`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. On Linux it also calls `LinuxDesktopIntegration.EnsureUserEntry()` before the window is created. `WebViewHostWindow` calls `LinuxWebKitCookiePersistence.EnsureAsync` after the NativeWebView adapter exists and before navigation. There is no DI container.
 
 Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do not copy Cursor cookies into `HttpClient`.
 
@@ -178,13 +180,18 @@ Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do n
 | `SyncScheduleTests.cs` | Launch skip window and clock-aligned intervals |
 | `UsageSummaryParserTests.cs` | `usage-summary` JSON shape |
 | `WebView2ScriptResultParserTests.cs` | Object vs JSON-string script results |
-| `JsonPlanStoreTests.cs` / `UsageSampleStoreTests.cs` / `UsageSampleAppenderTests.cs` | Settings/sample file load, corruption vs I/O errors, cycle rollover |
+| `JsonPlanStoreTests.cs` / `UsageSampleStoreTests.cs` / `UsageSampleAppenderTests.cs` / `CycleHistoryTests.cs` | Settings/sample file load, corruption vs I/O errors, cycle rollover, `cycleHistory` |
 | `UsageSyncServiceTests.cs` | Sign-in state on startup, launch/interval refresh skip rules, `StateChanged` / `SnapshotReceived` |
 | `CycleCsvBuilderTests.cs` / `UsageSamplesCsvBuilderTests.cs` | CSV columns |
-| `MainViewModelTests.cs` / `DayRowViewModelTests.cs` / `CalendarMonthViewModelTests.cs` | Initialization, connected-account persistence, exports, calendar heading, settings page, backup restore |
+| `MainViewModelTests.cs` / `DayRowViewModelTests.cs` / `CalendarMonthViewModelTests.cs` | Initialization, connected-account persistence, exports, calendar heading, Previous/Next cycle, settings page, backup restore |
 | `DataBackupArchiveTests.cs` | Zip backup format, missing entries, restore into stores |
 | `WindowPlacementTests.cs` | Restore clamped to the work area |
-| `LaunchModeTests.cs` | `--background` and **Start in notification tray** hide the window on launch; `--show` forces it open |
+| `LaunchModeTests.cs` | `--background` and **Start in notification tray** hide the window on launch; `--show` forces it open; duplicate `--background` does not activate the running instance |
+| `SingleInstanceTests.cs` | Unix lock file rejects a second acquire until the first instance disposes; socket signal reaches `Listen` |
+| `AppInfoTests.cs` | Settings About version, UTC build date/time, copyright, license, repository URL |
+| `LinuxStartupRegistrationTests.cs` | Linux autostart `Exec` uses the `APPIMAGE` path, not the FUSE `ProcessPath`, and sets `APPIMAGELAUNCHER_DISABLE=1` |
+| `LinuxDesktopIntegrationTests.cs` | Linux taskbar `.desktop` id, `StartupWMClass`, and absolute `Icon=` path |
+| `LinuxWebKitCookiePersistenceTests.cs` | WebKit cookie database path under the profile folder |
 | `AsyncRelayCommandTests.cs` | Async command reentrancy guard and exception handling |
 
 `CycleCalculatorTests` still covers:
@@ -244,7 +251,7 @@ Still keep these in sync when releasing:
 4. `release-notes/RELEASE_NOTES_<version>.md` (required by `scripts/release.*`)
 5. Git tag `v<version>`
 
-Settings **About** reads `<Version>` and `<Copyright>` from the assembly, and `BuildDateUtc` metadata stamped at compile time (`yyyy-MM-dd` UTC). License text and the repository URL live in `AppInfo`.
+Settings **About** reads `<Version>` and `<Copyright>` from the assembly, and `BuildDateUtc` metadata stamped at compile time (`yyyy-MM-dd HH:mm:ss` UTC). The About card formats that as `dd-MMM-yyyy HH:mm:ss UTC`. License text and the repository URL live in `AppInfo`.
 
 `.\scripts\release.ps1` / `./scripts/release.sh` recreates and pushes the annotated tag from HEAD. The tag starts `.github/workflows/dotnet-desktop.yml`, which validates the version, tests once, builds unsigned Windows x64, Linux x64, Linux ARM64, macOS ARM64, and macOS x64 packages, verifies all checksums, and creates the GitHub Release only after every build succeeds. The Linux ARM64 job runs on the `ubuntu-24.04-arm` hosted runner. A manual workflow dispatch builds the same artifacts without creating a release.
 
@@ -254,40 +261,30 @@ The workflow pins hosted runner generations, the .NET SDK, and GitHub Actions ma
 
 There is no central package management. Direct versions live in `CursorPace.csproj` and `Tests/CursorPace.Tests.csproj`. `Directory.Build.props` always writes lock files (`RestorePackagesWithLockFile`). Locked-mode restore (`RestoreLockedMode`) is on only when `CI=true`, which the GitHub Actions jobs set. Local `dotnet restore` may refresh `packages.lock.json` and `Tests/packages.lock.json`; CI runs `dotnet restore ./CursorPace.slnx --locked-mode` and fails if those files are stale.
 
-`.github/dependabot.yml` opens weekly PRs for NuGet (app and tests) and GitHub Actions. Prefer reviewing those PRs when they already include the lock-file diffs. For a manual bump:
-
-1. List what is behind:
+`.github/dependabot.yml` opens weekly PRs for NuGet (app and tests) and GitHub Actions. Prefer reviewing those PRs when they already include the lock-file diffs. For a manual bump, use `.\scripts\update-packages.ps1` / `./scripts/update-packages.sh`. Those wrap the steps below because [`dotnet package update`](https://learn.microsoft.com/dotnet/core/tools/dotnet-package-update) cannot take the `.slnx` yet (`Updating more than one project is not yet supported`).
 
 ```text
-dotnet list ./CursorPace.slnx package --outdated
+./scripts/update-packages.sh --list
+./scripts/update-packages.sh
+./scripts/update-packages.sh --vulnerable
+./scripts/update-packages.sh --test
+./scripts/update-packages.sh xunit
+./scripts/update-packages.sh Avalonia@12.1.2
 ```
 
-2. Let the .NET 10 SDK rewrite the `PackageReference` versions. With no package list it takes every direct reference in the solution to the highest version on the configured sources ([`dotnet package update`](https://learn.microsoft.com/dotnet/core/tools/dotnet-package-update)):
+What the scripts do:
 
-```text
-dotnet package update --project ./CursorPace.slnx
-```
+1. List what is behind (`--list` / `-List`). That is `dotnet list ./CursorPace.slnx package --outdated` (or `--vulnerable` when that flag is also set).
 
-Target one package, or pin a version with `@`:
+2. Rewrite `PackageReference` versions, one project at a time. With no package list it takes every direct reference in that project to the highest version on the configured sources. Named packages are updated only in the project that references them. `--vulnerable` / `-Vulnerable` only lifts packages that NuGet Audit reports, and only to the lowest safe version.
 
-```text
-dotnet package update xunit --project ./CursorPace.slnx
-dotnet package update Avalonia@12.1.2 --project ./CursorPace.csproj
-```
+Keep `Avalonia`, `Avalonia.Desktop`, `Avalonia.Themes.Fluent`, and `Avalonia.Fonts.Inter` on the same version. The scripts fail if those four differ after an app-project update; pin with `@` as above if nuget.org published them out of lockstep. Keep `Avalonia.Controls.WebView` on the newest published version that matches that Avalonia line; it may lag (today Avalonia 12.1.2 with WebView 12.1.0), so do not force it to a version that is not on nuget.org. Do not mix Avalonia 11 and 12 packages.
 
-`--vulnerable` only lifts packages that NuGet Audit reports, and only to the lowest safe version.
-
-Keep `Avalonia`, `Avalonia.Desktop`, `Avalonia.Themes.Fluent`, and `Avalonia.Fonts.Inter` on the same version. After a full-solution update, confirm those four still match; if nuget.org published them out of lockstep, pin with `@` as above. Keep `Avalonia.Controls.WebView` on the newest published version that matches that Avalonia line; it may lag (today Avalonia 12.1.2 with WebView 12.1.0), so do not force it to a version that is not on nuget.org. Do not mix Avalonia 11 and 12 packages.
-
-3. Refresh both lock files and restore the new graph:
-
-```text
-dotnet restore ./CursorPace.slnx --force-evaluate
-```
+3. Refresh both lock files with `dotnet restore ./CursorPace.slnx --force-evaluate`.
 
 Commit `CursorPace.csproj` / `Tests/CursorPace.Tests.csproj` together with `packages.lock.json` and `Tests/packages.lock.json`.
 
-4. Run `dotnet test ./Tests/CursorPace.Tests.csproj` and a local `.\scripts\dev.ps1` / `./scripts/dev.sh` pass that covers Sign in if Avalonia or WebView changed.
+4. Run tests (`--test` / `-Test`) and a local `.\scripts\dev.ps1` / `./scripts/dev.sh` pass that covers Sign in if Avalonia or WebView changed.
 
 5. Log the bump under `## [Unreleased]` in `dev/CHANGELOG.md` (`Changed` / `install` or `build`). Note WebView cookie-manager behavior if that package moved.
 
@@ -311,6 +308,7 @@ Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so 
 | Field | Role |
 | --- | --- |
 | `activeCycle` | `renewalDay`, `cycleStart`, `nextRenewal` |
+| `cycleHistory` | Previous cycle bounds (same shape as `activeCycle`); omitted when empty |
 | `runAtStartup` | Launch at login (Windows Run key, macOS Launch Agent, Linux XDG autostart) |
 | `startInNotificationTray` | Default `true`; hide the window on launch; startup registration includes `--background` |
 | `themeMode` | `System` (default), `Light`, or `Dark`; sets Avalonia `RequestedThemeVariant` |
@@ -320,8 +318,10 @@ Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so 
 | `cursorAccountConnected` | Last known signed-in state for launch skip |
 | `lastUsageSyncUtc` | Last successful usage fetch |
 | `windowX` / `windowY` | Last window position |
+| `windowWidth` / `windowHeight` | Last normal (non-maximized) window size |
+| `windowMaximized` | Last maximized state; restore uses the saved normal bounds |
 
-`usage-samples.json` is a separate document: `version`, `cycleStartUtc`, and `samples` (`ts`, `cursor`, `other`). A new Cursor billing-cycle start clears that sample list.
+`usage-samples.json` is a separate document: `version`, `cycleStartUtc` (latest cycle start), and `samples` (`ts`, `cursor`, `other`) for every stored cycle. A new Cursor billing-cycle start keeps that sample list and appends the first sample of the new cycle.
 
 Settings **Backup** writes a zip (`manifest.json`, `settings.json`, `usage-samples.json`). It does not include the WebView profile. **Restore** replaces those two JSON files and reloads the cycle in the running app.
 
@@ -334,6 +334,10 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 - End `CursorPace` so the single-instance mutex or lock file is released.
 - Confirm the published folder contains the self-contained Avalonia payload.
 
+**Two tray icons, then a crash, after login**
+
+- A second process started (GNOME session restore plus XDG autostart, or AppImageLauncher re-exec) and reached `App.Initialize` before the single-instance check. `TrayIcon` is declared in `App.axaml`, so both processes showed an icon. The duplicate then called `desktop.Shutdown()` from `OnFrameworkInitializationCompleted`, which shuts the dispatcher down before `StartCore` can `PushFrame` (`InvalidOperationException: Dispatcher shut down`). `DBusTrayIconImpl.WatchAsync` `TaskCanceledException` in `crash.log` is the same teardown. Acquire the lock in `Program.Main` before `StartWithClassicDesktopLifetime`.
+
 **Sign in fails in a local run**
 
 - Windows: confirm the WebView2 Runtime. Profile folder: `%LocalAppData%\CursorPace\WebView2`.
@@ -341,9 +345,14 @@ When you add settings fields, give them defaults on `AppSettings` / `StoredSetti
 - After a successful Cursor session, the sign-in window should close on its own (or after **Continue**). An `Unsupported result type` banner meant the usage script returned a non-string value to WebKit; current builds stringify the fetch result.
 - Delete the profile folder to force a fresh login. Do not delete `settings.json` unless you also want to reset the cycle.
 
-**"Lost" Cursor login that keeps recurring on Linux**
+**"Lost" Cursor login after a Linux reboot**
 
-An AppImage bundles its own WebKitGTK build via `linuxdeploy --plugin gtk`. If that bundled WebKit and the system WebKitGTK used by a `dotnet run`/`dev.sh` build ever wrote cookies to the *same* profile folder, one build's WebKit can fail to read the other's cookie database, and the fetch returns `AuthRequired` even though nothing actually signed you out. `WebViewProfilePaths` detects an AppImage run via the `APPIMAGE` environment variable (set by AppImage's `AppRun`) and gives it a separate `WebView-AppImage` profile folder so a dev run and an AppImage run never share one cookie store. If you still see recurring `AuthRequired` after this, compare `~/.local/share/CursorPace/WebView/` and `.../WebView-AppImage/` timestamps to confirm which build wrote which profile, and check whether a newer AppImage build picked up a different bundled WebKitGTK version than a previous one (that scenario is not covered by the folder split, since both are "AppImage" runs).
+Two separate Linux-only causes, both of which leave Windows (WebView2) unaffected:
+
+1. **WebKitGTK cookies were never written to disk.** Avalonia's GTK adapter creates a `WebsiteDataManager` with `BaseDataDirectory` (so cache, HSTS, and localStorage show up under `WebView/` or `WebView-AppImage/`) but never calls `webkit_cookie_manager_set_persistent_storage`. Without that call, WebKit keeps cookies in memory only. The session survives hourly refreshes for as long as the process stays in the tray, then disappears on reboot. `LinuxWebKitCookiePersistence` points the cookie manager at `cookies.sqlite` in the profile folder after the WebView adapter is created and before navigation. After a successful sign-in, that file should exist; if the profile has cache/localStorage but no `cookies.sqlite`, persistence did not take.
+2. **AppImage launch-at-login used a path that dies on reboot.** `Environment.ProcessPath` inside an AppImage is the FUSE mount (`/tmp/.mount_CursorXXXX/usr/bin/CursorPace`). `/tmp` is cleared at boot, so `~/.config/autostart/cursor-pace.desktop` could not start the app. `LinuxStartupRegistration` writes `Exec` from the `APPIMAGE` environment variable (the stable `.AppImage` file) when that file exists. Toggling **Launch at login** off and on, or simply launching a build that includes this fix once (the constructor re-registers), rewrites the desktop file.
+
+An AppImage also bundles its own WebKitGTK build via `linuxdeploy --plugin gtk`. If that bundled WebKit and the system WebKitGTK used by a `dotnet run`/`dev.sh` build ever wrote cookies to the *same* profile folder, one build's WebKit can fail to read the other's cookie database, and the fetch returns `AuthRequired` even though nothing actually signed you out. `WebViewProfilePaths` detects an AppImage run via the `APPIMAGE` environment variable (set by AppImage's `AppRun`) and gives it a separate `WebView-AppImage` profile folder so a dev run and an AppImage run never share one cookie store. If you still see recurring `AuthRequired` after the two fixes above, compare `~/.local/share/CursorPace/WebView/` and `.../WebView-AppImage/` timestamps to confirm which build wrote which profile, and check whether a newer AppImage build picked up a different bundled WebKitGTK version than a previous one (that scenario is not covered by the folder split, since both are "AppImage" runs).
 
 **App shows `(connected)` right after Sign in even though Cursor never accepted the session**
 
@@ -356,6 +365,10 @@ Do not resurrect a `HasPersistedProfile`-style check that treats the WebView pro
 **Tray icon missing**
 
 - Restart the app. On GNOME, install the AppIndicator extension.
+
+**Taskbar icon missing (Linux)**
+
+GNOME matches the window via `WM_CLASS` / `StartupWMClass`, not `_NET_WM_ICON`. `LinuxDesktopIntegration` writes `~/.local/share/applications/CursorPace.desktop` (id `CursorPace`, matching `X11PlatformOptions.WmClass`) with an absolute `Icon=` path to the PNG. A themed `Icon=cursor-pace` name is not enough: GTK's icon cache often misses a newly copied hicolor file and the taskbar shows the generic gear. Do not set `ShowInTaskbar` to false while restoring window position: Mutter keeps the window off the taskbar after that.
 
 **System theme wrong on Linux or WSL (Settings → Theme = System)**
 

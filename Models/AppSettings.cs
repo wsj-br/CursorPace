@@ -4,6 +4,7 @@ public sealed class AppSettings
 {
     public int Version { get; set; } = 2;
     public QuotaCycle? ActiveCycle { get; set; }
+    public List<QuotaCycle> CycleHistory { get; set; } = new();
     public bool RunAtStartup { get; set; }
     public bool StartInNotificationTray { get; set; } = true;
     public UiThemeMode ThemeMode { get; set; } = UiThemeMode.System;
@@ -14,4 +15,7 @@ public sealed class AppSettings
     public DateTimeOffset? LastUsageSyncUtc { get; set; }
     public int? WindowX { get; set; }
     public int? WindowY { get; set; }
+    public int? WindowWidth { get; set; }
+    public int? WindowHeight { get; set; }
+    public bool WindowMaximized { get; set; }
 }

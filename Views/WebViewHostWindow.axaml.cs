@@ -21,30 +21,33 @@ public partial class WebViewHostWindow : Window
 
     public void SetBannerStatus(string text) => SignInBannerText.Text = text;
 
-    public Task EnsureReadyAsync()
+    public async Task EnsureReadyAsync()
     {
         Directory.CreateDirectory(WebViewProfilePaths.ProfileDirectory);
         if (!OperatingSystem.IsWindows())
             Directory.CreateDirectory(WebViewProfilePaths.CacheDirectory);
 
-        if (Browser.AdapterInfo != null)
-            return Task.CompletedTask;
-
-        var ready = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        void OnCreated(object? sender, EventArgs e)
+        if (Browser.AdapterInfo == null)
         {
-            Browser.AdapterCreated -= OnCreated;
-            ready.TrySetResult();
+            var ready = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            void OnCreated(object? sender, EventArgs e)
+            {
+                Browser.AdapterCreated -= OnCreated;
+                ready.TrySetResult();
+            }
+
+            Browser.AdapterCreated += OnCreated;
+            if (Browser.AdapterInfo != null)
+            {
+                Browser.AdapterCreated -= OnCreated;
+            }
+            else
+            {
+                await ready.Task.WaitAsync(TimeSpan.FromSeconds(30));
+            }
         }
 
-        Browser.AdapterCreated += OnCreated;
-        if (Browser.AdapterInfo != null)
-        {
-            Browser.AdapterCreated -= OnCreated;
-            return Task.CompletedTask;
-        }
-
-        return ready.Task.WaitAsync(TimeSpan.FromSeconds(30));
+        await LinuxWebKitCookiePersistence.EnsureAsync(Browser);
     }
 
     public void PlaceOffscreen()

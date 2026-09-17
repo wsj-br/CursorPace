@@ -16,16 +16,13 @@ public static class UsageSampleAppender
         cycleRolledOver = document.CycleStartUtc is { } existing
             && !SameCycleStart(existing, snapshot.BillingCycleStartUtc);
 
-        if (cycleRolledOver)
-            document.Samples.Clear();
-
         document.CycleStartUtc = snapshot.BillingCycleStartUtc;
 
-        if (document.Samples.Count > 0)
+        if (!cycleRolledOver && document.Samples.Count > 0)
         {
             var last = document.Samples[^1];
             if (snapshot.FetchedAtUtc - last.TimestampUtc < minGap)
-                return cycleRolledOver;
+                return false;
         }
 
         document.Samples.Add(new UsageSample

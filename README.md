@@ -35,15 +35,15 @@ See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, 
 
 - Sign in to Cursor from the empty state or Settings; optional automatic updates on clock-aligned 1, 2, 4, 6, or 12 hour intervals
 - Billing cycle start and next renewal come from Cursor
-- Calendar or chart for the current cycle, with today, renewal, and projected run-out days highlighted. Calendar left is the day's last sample when one exists, otherwise the interpolated expected percent; estimated on the right appears only after the last sample date (green ≤100%, red >100%). The chart shows a linear Expected usage line, thick solid Cursor/Other paths through the last reading per day, and thinner estimated lines from the last sample
+- Calendar or chart for the current cycle, with today, renewal, and projected run-out days highlighted. Both views show the cycle-start month and last-updated time, with Previous/Next controls to open stored earlier cycles. Calendar left is the day's last sample when one exists, otherwise the interpolated expected percent; estimated on the right appears only after the last sample date (green ≤100%, red >100%). The chart shows a linear Expected usage line, thick solid Cursor/Other paths through the last reading per day, and thinner estimated lines from the last sample
 - Separate **Cursor Models** and **Other Models** percentages
 - Chart axis runs from cycle start to next renewal in elapsed seconds; midnight ticks are day markers, and labels use the day of the month (the truncated first slot is unlabeled)
-- Fixed-size custom title bar shows the app name on the left and keeps Settings, Quit, Minimize, and Close in separate, right-aligned controls
-- System tray: closing the window hides it; **Quit** exits. The tooltip shows today's expected percent and the projected percent at renewal
+- Custom title bar shows the app name on the left and keeps Settings, Minimize, Maximize, and Close in separate, right-aligned controls
+- System tray: closing the window hides it; **Quit** on the tray menu exits. The tooltip shows today's expected percent and the projected percent at renewal
 - Optional launch at login (Windows Run key, macOS Launch Agent, Linux XDG autostart)
 - Single-instance: a second launch brings the existing window forward
-- Settings: Cursor account, appearance (theme), startup, timestamped CSV exports, backup or restore of settings plus usage samples as a zip file, an **Open Folder** action on the left after local saves, and an About card with version, build date, copyright, MIT license, and a link to the GitHub repository
-- Remembers window position; informational labels can be selected and copied
+- Settings: Cursor account, appearance (theme), startup, timestamped CSV exports, backup or restore of settings plus usage samples as a zip file, an **Open Folder** action on the left after local saves, and an About card with version, UTC build date and time, copyright, MIT license, and a link to the GitHub repository
+- Remembers window size, position, and maximized state; informational labels can be selected and copied
 - Theme: follow the system, or force light or dark
 
 ## Build from source

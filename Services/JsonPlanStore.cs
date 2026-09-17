@@ -117,22 +117,11 @@ public sealed class JsonPlanStore : IPlanStore
 
     private static AppSettings ToAppSettings(StoredSettings stored)
     {
-        QuotaCycle? cycle = null;
-        if (stored.ActiveCycle != null
-            && stored.ActiveCycle.NextRenewal > stored.ActiveCycle.CycleStart)
-        {
-            cycle = new QuotaCycle
-            {
-                RenewalDay = stored.ActiveCycle.CycleStart.Day,
-                CycleStart = stored.ActiveCycle.CycleStart,
-                NextRenewal = stored.ActiveCycle.NextRenewal
-            };
-        }
-
         return new AppSettings
         {
             Version = 2,
-            ActiveCycle = cycle,
+            ActiveCycle = ToQuotaCycle(stored.ActiveCycle),
+            CycleHistory = ToQuotaCycles(stored.CycleHistory),
             RunAtStartup = stored.RunAtStartup,
             StartInNotificationTray = stored.StartInNotificationTray,
             ThemeMode = UiTheme.Clamp(stored.ThemeMode),
@@ -142,27 +131,20 @@ public sealed class JsonPlanStore : IPlanStore
             CursorAccountConnected = stored.CursorAccountConnected,
             LastUsageSyncUtc = stored.LastUsageSyncUtc,
             WindowX = stored.WindowX,
-            WindowY = stored.WindowY
+            WindowY = stored.WindowY,
+            WindowWidth = stored.WindowWidth,
+            WindowHeight = stored.WindowHeight,
+            WindowMaximized = stored.WindowMaximized
         };
     }
 
     private static StoredSettings ToStoredSettings(AppSettings settings)
     {
-        StoredCycle? cycle = null;
-        if (settings.ActiveCycle != null)
-        {
-            cycle = new StoredCycle
-            {
-                RenewalDay = settings.ActiveCycle.RenewalDay,
-                CycleStart = settings.ActiveCycle.CycleStart,
-                NextRenewal = settings.ActiveCycle.NextRenewal
-            };
-        }
-
         return new StoredSettings
         {
             Version = 2,
-            ActiveCycle = cycle,
+            ActiveCycle = ToStoredCycle(settings.ActiveCycle),
+            CycleHistory = ToStoredCycles(settings.CycleHistory),
             RunAtStartup = settings.RunAtStartup,
             StartInNotificationTray = settings.StartInNotificationTray,
             ThemeMode = UiTheme.Clamp(settings.ThemeMode),
@@ -172,7 +154,68 @@ public sealed class JsonPlanStore : IPlanStore
             CursorAccountConnected = settings.CursorAccountConnected,
             LastUsageSyncUtc = settings.LastUsageSyncUtc,
             WindowX = settings.WindowX,
-            WindowY = settings.WindowY
+            WindowY = settings.WindowY,
+            WindowWidth = settings.WindowWidth,
+            WindowHeight = settings.WindowHeight,
+            WindowMaximized = settings.WindowMaximized
+        };
+    }
+
+    private static List<QuotaCycle> ToQuotaCycles(List<StoredCycle>? stored)
+    {
+        var cycles = new List<QuotaCycle>();
+        if (stored == null)
+            return cycles;
+
+        foreach (var item in stored)
+        {
+            var cycle = ToQuotaCycle(item);
+            if (cycle != null)
+                cycles.Add(cycle);
+        }
+
+        return cycles;
+    }
+
+    private static QuotaCycle? ToQuotaCycle(StoredCycle? stored)
+    {
+        if (stored == null || stored.NextRenewal <= stored.CycleStart)
+            return null;
+
+        return new QuotaCycle
+        {
+            RenewalDay = stored.CycleStart.Day,
+            CycleStart = stored.CycleStart,
+            NextRenewal = stored.NextRenewal
+        };
+    }
+
+    private static List<StoredCycle>? ToStoredCycles(List<QuotaCycle>? cycles)
+    {
+        if (cycles == null || cycles.Count == 0)
+            return null;
+
+        var stored = new List<StoredCycle>(cycles.Count);
+        foreach (var cycle in cycles)
+        {
+            var item = ToStoredCycle(cycle);
+            if (item != null)
+                stored.Add(item);
+        }
+
+        return stored.Count == 0 ? null : stored;
+    }
+
+    private static StoredCycle? ToStoredCycle(QuotaCycle? cycle)
+    {
+        if (cycle == null)
+            return null;
+
+        return new StoredCycle
+        {
+            RenewalDay = cycle.RenewalDay,
+            CycleStart = cycle.CycleStart,
+            NextRenewal = cycle.NextRenewal
         };
     }
 
@@ -180,6 +223,7 @@ public sealed class JsonPlanStore : IPlanStore
     {
         public int Version { get; set; } = 2;
         public StoredCycle? ActiveCycle { get; set; }
+        public List<StoredCycle>? CycleHistory { get; set; }
         public bool RunAtStartup { get; set; }
         public bool StartInNotificationTray { get; set; } = true;
         public UiThemeMode ThemeMode { get; set; } = UiThemeMode.System;
@@ -190,6 +234,9 @@ public sealed class JsonPlanStore : IPlanStore
         public DateTimeOffset? LastUsageSyncUtc { get; set; }
         public int? WindowX { get; set; }
         public int? WindowY { get; set; }
+        public int? WindowWidth { get; set; }
+        public int? WindowHeight { get; set; }
+        public bool WindowMaximized { get; set; }
     }
 
     private sealed class StoredCycle

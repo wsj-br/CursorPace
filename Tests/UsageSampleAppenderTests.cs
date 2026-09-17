@@ -38,7 +38,7 @@ public class UsageSampleAppenderTests
     }
 
     [Fact]
-    public void ApplySnapshot_NewCycleStart_ClearsPreviousSamples()
+    public void ApplySnapshot_NewCycleStart_KeepsPreviousSamples()
     {
         var oldStart = DateTimeOffset.Parse("2026-07-02T21:19:47Z");
         var newStart = DateTimeOffset.Parse("2026-08-02T21:19:47Z");
@@ -53,9 +53,31 @@ public class UsageSampleAppenderTests
 
         Assert.True(changed);
         Assert.True(rolled);
-        Assert.Single(document.Samples);
-        Assert.Equal(1m, document.Samples[0].CursorModelsPercent);
+        Assert.Equal(2, document.Samples.Count);
+        Assert.Equal(80m, document.Samples[0].CursorModelsPercent);
+        Assert.Equal(1m, document.Samples[1].CursorModelsPercent);
         Assert.Equal(newStart, document.CycleStartUtc);
+    }
+
+    [Fact]
+    public void ApplySnapshot_NewCycleStart_WithinMinGap_StillAppends()
+    {
+        var oldStart = DateTimeOffset.Parse("2026-07-02T21:19:47Z");
+        var newStart = DateTimeOffset.Parse("2026-08-02T21:19:47Z");
+        var lastOld = newStart.AddSeconds(-10);
+        var document = new UsageSampleDocument();
+        UsageSampleAppender.ApplySnapshot(document, Snapshot(oldStart, 80m, 80m, lastOld), TimeSpan.FromSeconds(30), out _);
+
+        var changed = UsageSampleAppender.ApplySnapshot(
+            document,
+            Snapshot(newStart, 1m, 2m, newStart),
+            TimeSpan.FromSeconds(30),
+            out var rolled);
+
+        Assert.True(changed);
+        Assert.True(rolled);
+        Assert.Equal(2, document.Samples.Count);
+        Assert.Equal(1m, document.Samples[1].CursorModelsPercent);
     }
 
     private static UsageSnapshot Snapshot(

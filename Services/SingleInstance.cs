@@ -8,10 +8,14 @@ public static class SingleInstance
     public const string MutexName = "CursorPace_SingleInstance";
     public const string EventName = MutexName + "_Event";
 
+    // Set in Program.Main after a successful acquire, before Avalonia starts.
+    // A second process must not reach Initialize() (TrayIcon lives in App.axaml).
+    public static ISingleInstance? Current { get; internal set; }
+
     public static ISingleInstance Create() =>
         OperatingSystem.IsWindows()
             ? new WindowsSingleInstance()
-            : new UnixSingleInstance();
+            : new UnixSingleInstance(WebViewProfilePaths.AppDataDirectory);
 }
 
 [SupportedOSPlatform("windows")]
@@ -79,20 +83,26 @@ internal sealed class WindowsSingleInstance : ISingleInstance
 
 internal sealed class UnixSingleInstance : ISingleInstance
 {
+    private readonly string _lockPath;
+    private readonly string _socketPath;
     private FileStream? _lockStream;
     private Socket? _listener;
     private CancellationTokenSource? _listenCts;
 
-    private static string LockPath => Path.Combine(WebViewProfilePaths.AppDataDirectory, "instance.lock");
-    private static string SocketPath => Path.Combine(WebViewProfilePaths.AppDataDirectory, "instance.sock");
+    public UnixSingleInstance(string appDataDirectory)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(appDataDirectory);
+        _lockPath = Path.Combine(appDataDirectory, "instance.lock");
+        _socketPath = Path.Combine(appDataDirectory, "instance.sock");
+    }
 
     public bool TryAcquire()
     {
-        Directory.CreateDirectory(WebViewProfilePaths.AppDataDirectory);
+        Directory.CreateDirectory(Path.GetDirectoryName(_lockPath)!);
         try
         {
             _lockStream = new FileStream(
-                LockPath,
+                _lockPath,
                 FileMode.OpenOrCreate,
                 FileAccess.ReadWrite,
                 FileShare.None);
@@ -111,15 +121,15 @@ internal sealed class UnixSingleInstance : ISingleInstance
         _listenCts = new CancellationTokenSource();
         try
         {
-            if (File.Exists(SocketPath))
-                File.Delete(SocketPath);
+            if (File.Exists(_socketPath))
+                File.Delete(_socketPath);
         }
         catch
         {
         }
 
         _listener = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
-        _listener.Bind(new UnixDomainSocketEndPoint(SocketPath));
+        _listener.Bind(new UnixDomainSocketEndPoint(_socketPath));
         _listener.Listen(1);
 
         var token = _listenCts.Token;
@@ -150,7 +160,7 @@ internal sealed class UnixSingleInstance : ISingleInstance
         try
         {
             using var client = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
-            client.Connect(new UnixDomainSocketEndPoint(SocketPath));
+            client.Connect(new UnixDomainSocketEndPoint(_socketPath));
         }
         catch
         {
@@ -164,8 +174,8 @@ internal sealed class UnixSingleInstance : ISingleInstance
         _lockStream?.Dispose();
         try
         {
-            if (File.Exists(SocketPath))
-                File.Delete(SocketPath);
+            if (File.Exists(_socketPath))
+                File.Delete(_socketPath);
         }
         catch
         {

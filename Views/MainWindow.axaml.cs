@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -19,10 +20,12 @@ public partial class MainWindow : Window
     private readonly IUiDispatcher _dispatcher = null!;
     private readonly DispatcherTimer _dayCheckTimer = null!;
     private readonly TitleBarDrag _titleBarDrag = null!;
+    private readonly WindowResizeDrag _resizeDrag = null!;
     private PixelPoint? _lastNormalPosition;
+    private Size? _lastNormalSize;
+    private WindowState _restoreWindowState = WindowState.Normal;
     private bool _restorePlacementPending;
     private bool _concealUntilPlaced;
-    private bool _reallyClosing;
 
     public MainViewModel ViewModel => _viewModel;
 
@@ -43,23 +46,26 @@ public partial class MainWindow : Window
         DataContext = _viewModel;
         InitializeComponent();
         _titleBarDrag = new TitleBarDrag(this, TitleBarContent);
+        _resizeDrag = new WindowResizeDrag(this);
         UpdateViewModeIcons();
 
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
-        _viewModel.QuitRequested += () => _dispatcher.Post(CloseForReal);
 
         SetupWindow();
-        ApplySavedWindowPosition();
+        ApplySavedWindowPlacement();
         ConcealUntilPlaced();
+        UpdateMaximizeCaption();
 
         _dayCheckTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(5) };
         _dayCheckTimer.Tick += (_, _) => _viewModel.CheckForNewDay();
         _dayCheckTimer.Start();
 
-        _restorePlacementPending = _viewModel.TryGetSavedWindowPosition(out _, out _);
+        _restorePlacementPending = _viewModel.TryGetSavedWindowPlacement(out _, out _, out _, out _, out _);
         Opened += OnWindowOpened;
         Activated += OnWindowActivated;
         PositionChanged += OnPositionChanged;
+        SizeChanged += OnWindowSizeChanged;
+        PropertyChanged += OnWindowPropertyChanged;
         Closing += OnWindowClosing;
         KeyDown += OnWindowKeyDown;
     }
@@ -73,23 +79,34 @@ public partial class MainWindow : Window
     private void SetupWindow()
     {
         Title = "Cursor Pace";
+        MinWidth = DefaultWindowWidth;
+        MinHeight = DefaultWindowHeight;
         Width = DefaultWindowWidth;
         Height = DefaultWindowHeight;
-        CanResize = false;
+        CanResize = true;
+        CanMaximize = true;
+        _lastNormalSize = new Size(DefaultWindowWidth, DefaultWindowHeight);
     }
 
     public void BringToFront()
     {
         if (!IsVisible)
         {
-            ApplySavedWindowPosition();
+            ApplySavedWindowPlacement();
             ConcealUntilPlaced();
-            _restorePlacementPending = _viewModel.TryGetSavedWindowPosition(out _, out _);
+            _restorePlacementPending = _viewModel.TryGetSavedWindowPlacement(out _, out _, out _, out _, out _);
         }
 
         Show();
-        WindowState = WindowState.Normal;
+        WindowState = _restoreWindowState == WindowState.Maximized
+            ? WindowState.Maximized
+            : WindowState.Normal;
         Activate();
+        // GNOME/Mutter often ignores Activate() for a window that is already
+        // mapped behind others. Toggling Topmost forces a raise without
+        // leaving the window always-on-top.
+        Topmost = true;
+        Topmost = false;
         _viewModel.CheckForNewDay();
     }
 
@@ -126,20 +143,16 @@ public partial class MainWindow : Window
 
     private void OnWindowClosing(object? sender, WindowClosingEventArgs e)
     {
-        if (_reallyClosing)
+        PersistWindowPlacement();
+        if (e.CloseReason is WindowCloseReason.ApplicationShutdown or WindowCloseReason.OSShutdown)
+        {
+            _dayCheckTimer.Stop();
             return;
+        }
+
         e.Cancel = true;
-        PersistWindowPosition();
         _restorePlacementPending = true;
         Hide();
-    }
-
-    private void CloseForReal()
-    {
-        _reallyClosing = true;
-        PersistWindowPosition();
-        _dayCheckTimer.Stop();
-        (Application.Current as App)?.Quit();
     }
 
     private void OnWindowOpened(object? sender, EventArgs e)
@@ -149,13 +162,15 @@ public partial class MainWindow : Window
 
         // Linux WMs (especially Mutter) often ignore PPosition and map at the
         // default top-left, then honor a later move. Keep the window invisible
-        // until that second apply so the jump is not visible.
+        // until that second apply so the jump is not visible. Do not toggle
+        // ShowInTaskbar: GNOME/Zorin drop the taskbar icon when the window maps
+        // with skip-taskbar, and clearing that hint later does not restore it.
         if (OperatingSystem.IsLinux() && _concealUntilPlaced)
         {
-            ApplySavedWindowPosition();
+            ApplySavedWindowPlacement();
             _dispatcher.Post(() =>
             {
-                ApplySavedWindowPosition();
+                ApplySavedWindowPlacement();
                 _dispatcher.Post(RevealPlacedWindow);
             });
             return;
@@ -176,11 +191,36 @@ public partial class MainWindow : Window
         _lastNormalPosition = Position;
     }
 
-    private void PersistWindowPosition()
+    private void OnWindowSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        if (WindowState != WindowState.Normal)
+            return;
+
+        var size = CurrentFrameSize();
+        if (size.Width > 0 && size.Height > 0)
+            _lastNormalSize = size;
+    }
+
+    private void OnWindowPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property != WindowStateProperty)
+            return;
+
+        UpdateMaximizeCaption();
+        if (WindowState is WindowState.Normal or WindowState.Maximized)
+            _restoreWindowState = WindowState;
+    }
+
+    private void PersistWindowPlacement()
     {
         if (!TryGetNormalPosition(out var position))
             return;
-        _viewModel.SaveWindowPosition(position.X, position.Y);
+        if (!TryGetNormalSize(out var width, out var height))
+            return;
+
+        var maximized = WindowState == WindowState.Maximized
+            || (WindowState == WindowState.Minimized && _restoreWindowState == WindowState.Maximized);
+        _viewModel.SaveWindowPlacement(position.X, position.Y, width, height, maximized);
     }
 
     private bool TryGetNormalPosition(out PixelPoint position)
@@ -195,51 +235,98 @@ public partial class MainWindow : Window
         return WindowState != WindowState.Minimized && IsPlausiblePosition(position);
     }
 
-    private void ApplySavedWindowPosition()
+    private bool TryGetNormalSize(out int width, out int height)
     {
-        if (!_viewModel.TryGetSavedWindowPosition(out var x, out var y))
+        if (_lastNormalSize is { } saved && saved.Width > 0 && saved.Height > 0)
+        {
+            width = (int)Math.Round(saved.Width);
+            height = (int)Math.Round(saved.Height);
+            return true;
+        }
+
+        var size = CurrentFrameSize();
+        width = (int)Math.Round(size.Width);
+        height = (int)Math.Round(size.Height);
+        return width > 0 && height > 0;
+    }
+
+    private Size CurrentFrameSize()
+    {
+        if (FrameSize is { Width: > 0, Height: > 0 } frame)
+            return frame;
+        return new Size(Width, Height);
+    }
+
+    private void ApplySavedWindowPlacement()
+    {
+        if (!_viewModel.TryGetSavedWindowPlacement(out var savedX, out var savedY, out var savedWidth, out var savedHeight, out var maximized))
             return;
 
         try
         {
-            var width = (int)Math.Round(FrameSize?.Width ?? Width);
-            var height = (int)Math.Round(FrameSize?.Height ?? Height);
+            var width = savedWidth ?? (int)Math.Round(CurrentFrameSize().Width);
+            var height = savedHeight ?? (int)Math.Round(CurrentFrameSize().Height);
+            var x = savedX ?? Position.X;
+            var y = savedY ?? Position.Y;
+
             var screen = Screens.ScreenFromPoint(new PixelPoint(x, y)) ?? Screens.Primary;
             if (screen == null)
             {
-                Position = new PixelPoint(x, y);
+                ApplyNormalBounds(x, y, width, height);
+                ApplyMaximizedState(maximized);
                 return;
             }
 
             var work = screen.WorkingArea;
-            var (clampedX, clampedY) = WindowPlacement.ClampToWorkArea(
+            var clamped = WindowPlacement.ClampToWorkArea(
                 x, y, width, height, work.X, work.Y, work.Width, work.Height);
-            Position = new PixelPoint(clampedX, clampedY);
+            ApplyNormalBounds(clamped.X, clamped.Y, clamped.Width, clamped.Height);
+            ApplyMaximizedState(maximized);
         }
         catch
         {
         }
     }
 
+    private void ApplyNormalBounds(int x, int y, int width, int height)
+    {
+        if (WindowState == WindowState.Maximized)
+            WindowState = WindowState.Normal;
+
+        Width = width;
+        Height = height;
+        Position = new PixelPoint(x, y);
+        _lastNormalSize = new Size(width, height);
+        if (IsPlausiblePosition(Position))
+            _lastNormalPosition = Position;
+    }
+
+    private void ApplyMaximizedState(bool maximized)
+    {
+        WindowState = maximized ? WindowState.Maximized : WindowState.Normal;
+        _restoreWindowState = WindowState;
+        UpdateMaximizeCaption();
+    }
+
     private void ConcealUntilPlaced()
     {
         if (!OperatingSystem.IsLinux())
             return;
-        if (!_viewModel.TryGetSavedWindowPosition(out _, out _))
+        if (!_viewModel.TryGetSavedWindowPlacement(out var x, out var y, out _, out _, out _))
+            return;
+        if (x is null || y is null)
             return;
 
         Opacity = 0;
-        ShowInTaskbar = false;
         _concealUntilPlaced = true;
     }
 
     private void RevealPlacedWindow()
     {
-        ApplySavedWindowPosition();
+        ApplySavedWindowPlacement();
         if (_concealUntilPlaced)
         {
             Opacity = 1;
-            ShowInTaskbar = true;
             _concealUntilPlaced = false;
         }
 
@@ -261,11 +348,58 @@ public partial class MainWindow : Window
     private void OnTitleBarPointerCaptureLost(object? sender, PointerCaptureLostEventArgs e) =>
         _titleBarDrag.OnPointerCaptureLost(e);
 
+    private void OnResizeGripPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control grip)
+            return;
+        _resizeDrag.OnPointerPressed(ResizeEdge(grip), grip, e);
+    }
+
+    private void OnResizeGripMoved(object? sender, PointerEventArgs e) =>
+        _resizeDrag.OnPointerMoved(e);
+
+    private void OnResizeGripReleased(object? sender, PointerReleasedEventArgs e) =>
+        _resizeDrag.OnPointerReleased(e);
+
+    private void OnResizeGripCaptureLost(object? sender, PointerCaptureLostEventArgs e) =>
+        _resizeDrag.OnPointerCaptureLost(e);
+
+    private static WindowEdge ResizeEdge(Control grip) => grip.Name switch
+    {
+        "ResizeGripN" => WindowEdge.North,
+        "ResizeGripS" => WindowEdge.South,
+        "ResizeGripW" => WindowEdge.West,
+        "ResizeGripE" => WindowEdge.East,
+        "ResizeGripNW" => WindowEdge.NorthWest,
+        "ResizeGripNE" => WindowEdge.NorthEast,
+        "ResizeGripSW" => WindowEdge.SouthWest,
+        "ResizeGripSE" => WindowEdge.SouthEast,
+        _ => WindowEdge.SouthEast
+    };
+
     private void OnMinimizeClick(object? sender, RoutedEventArgs e) =>
         WindowState = WindowState.Minimized;
 
+    private void OnMaximizeClick(object? sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState == WindowState.Maximized
+            ? WindowState.Normal
+            : WindowState.Maximized;
+    }
+
+    private void UpdateMaximizeCaption()
+    {
+        if (MaximizeButton is null || MaximizeIconControl is null || RestoreIconControl is null)
+            return;
+
+        var maximized = WindowState == WindowState.Maximized;
+        MaximizeIconControl.IsVisible = !maximized;
+        RestoreIconControl.IsVisible = maximized;
+        var caption = maximized ? "Restore" : "Maximize";
+        ToolTip.SetTip(MaximizeButton, caption);
+        AutomationProperties.SetName(MaximizeButton, caption);
+    }
+
     private void OnWindowCloseClick(object? sender, RoutedEventArgs e) =>
         Close();
-
-    private void OnQuitClick(object? sender, RoutedEventArgs e) => CloseForReal();
 }

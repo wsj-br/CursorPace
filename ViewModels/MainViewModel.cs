@@ -19,8 +19,8 @@ public sealed class MainViewModel : ViewModelBase
     private const string ExportFileTimestampFormat = "yyyy-MM-dd-HH_mm_ss";
 
     private AppSettings _settings;
-    private QuotaCycle? _cycle;
-    private int _currentDayNumber;
+    private QuotaCycle? _displayedCycle;
+    private int _liveTodayDayNumber;
     private bool _isSettingsView;
 
     public MainViewModel(
@@ -39,17 +39,16 @@ public sealed class MainViewModel : ViewModelBase
         _backup = backup;
 
         _settings = _store.Load();
-        _cycle = _settings.ActiveCycle;
-        if (_cycle != null)
-            _calculator.RebuildDays(_cycle, _sync.Samples, _clock.Today);
+        _displayedCycle = _settings.ActiveCycle;
 
         Days = new ObservableCollection<DayRowViewModel>();
         Calendar = new CalendarMonthViewModel();
         Chart = new UsageChartViewModel();
 
-        QuitCommand = new RelayCommand(OnQuit);
         ShowSettingsCommand = new RelayCommand(() => IsSettingsView = true);
         HideSettingsCommand = new RelayCommand(() => IsSettingsView = false);
+        GoToPreviousCycleCommand = new RelayCommand(GoToPreviousCycle, () => CanGoToPreviousCycle);
+        GoToNextCycleCommand = new RelayCommand(GoToNextCycle, () => CanGoToNextCycle);
         RefreshNowCommand = new AsyncRelayCommand(() => _sync.RefreshNowAsync(false), () => !IsSyncing);
         SignInCommand = new AsyncRelayCommand(
             () => _sync.SignInAsync(),
@@ -61,13 +60,13 @@ public sealed class MainViewModel : ViewModelBase
         PersistCursorAccountConnected();
         PersistLastUsageSync();
 
-        if (_cycle != null)
-            RefreshCycle();
+        if (_displayedCycle != null)
+            RefreshDisplayedCycle();
 
         ApplyStartupRegistration(_settings.RunAtStartup);
     }
 
-    public bool IsInitialized => _cycle != null;
+    public bool IsInitialized => _displayedCycle != null;
 
     public bool IsSettingsView
     {
@@ -103,12 +102,12 @@ public sealed class MainViewModel : ViewModelBase
 
     public bool IsCalendarView => !_settings.ShowChartView;
 
-    public string CycleStartText => _cycle != null
-        ? _cycle.CycleStart.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
+    public string CycleStartText => _displayedCycle != null
+        ? _displayedCycle.CycleStart.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
         : string.Empty;
 
-    public string NextRenewalText => _cycle != null
-        ? _cycle.NextRenewal.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
+    public string NextRenewalText => _displayedCycle != null
+        ? _displayedCycle.NextRenewal.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
         : string.Empty;
 
     public string CursorModelsRunOutText => FormatRunOutDate(QuotaKind.CursorModels);
@@ -119,12 +118,13 @@ public sealed class MainViewModel : ViewModelBase
     {
         get
         {
-            if (!TryGetTodayDay(out var day))
+            var live = _settings.ActiveCycle;
+            if (live == null || !TryGetLiveTodayDay(out var day))
                 return "Cursor Pace";
 
             var samples = _sync.Samples;
-            var cursorEop = _calculator.ProjectedPercentAt(_cycle!, QuotaKind.CursorModels, _cycle!.NextRenewal, samples);
-            var otherEop = _calculator.ProjectedPercentAt(_cycle, QuotaKind.OtherModels, _cycle.NextRenewal, samples);
+            var cursorEop = _calculator.ProjectedPercentAt(live, QuotaKind.CursorModels, live.NextRenewal, samples);
+            var otherEop = _calculator.ProjectedPercentAt(live, QuotaKind.OtherModels, live.NextRenewal, samples);
             return $"Cursor Pace\nCursor: {FormatPercent(day.CursorModelsPercent)}{FormatEop(cursorEop)}\nOther models: {FormatPercent(day.OtherModelsPercent)}{FormatEop(otherEop)}";
         }
     }
@@ -251,12 +251,24 @@ public sealed class MainViewModel : ViewModelBase
 
     public Uri AboutRepositoryUri => AppInfo.RepositoryUri;
 
-    public ICommand QuitCommand { get; }
     public ICommand ShowSettingsCommand { get; }
     public ICommand HideSettingsCommand { get; }
+    public ICommand GoToPreviousCycleCommand { get; }
+    public ICommand GoToNextCycleCommand { get; }
     public ICommand RefreshNowCommand { get; }
     public ICommand SignInCommand { get; }
     public ICommand DisconnectCommand { get; }
+
+    public bool CanGoToPreviousCycle => DisplayedCycleIndex > 0;
+
+    public bool CanGoToNextCycle
+    {
+        get
+        {
+            var index = DisplayedCycleIndex;
+            return index >= 0 && index < StoredCycles.Count - 1;
+        }
+    }
 
     public string SuggestedCycleFileName =>
         $"cursor-pace-{_clock.Now.ToString(ExportFileTimestampFormat, CultureInfo.InvariantCulture)}";
@@ -267,41 +279,51 @@ public sealed class MainViewModel : ViewModelBase
     public string SuggestedBackupFileName =>
         $"cursor-pace-backup-{_clock.Now.ToString(ExportFileTimestampFormat, CultureInfo.InvariantCulture)}";
 
-    public event Action? QuitRequested;
-
     public void CheckForNewDay()
     {
-        if (_cycle == null) return;
+        var live = _settings.ActiveCycle;
+        if (live == null) return;
 
-        if (_clock.Today >= _cycle.NextRenewal)
+        if (_clock.Today >= live.NextRenewal)
             _ = _sync.RefreshNowAsync(false);
+        else if (IsViewingLiveCycle)
+        {
+            UpdateLiveTodayDayNumber();
+            HighlightTodayOnDisplayed();
+            NotifyTodayQuotaTexts();
+        }
         else
-            RefreshCurrentDay();
+        {
+            RebuildLiveDays();
+            NotifyTodayQuotaTexts();
+        }
     }
 
-    private void RefreshCycle()
+    private void RefreshDisplayedCycle()
     {
-        if (_cycle == null) return;
+        if (_displayedCycle == null) return;
 
-        _calculator.RebuildDays(_cycle, _sync.Samples, _clock.Today);
+        var samples = _sync.Samples;
+        _calculator.RebuildDays(_displayedCycle, samples, _clock.Today);
+        if (IsViewingLiveCycle)
+            UpdateLiveTodayDayNumber();
 
         Days.Clear();
-        var samples = _sync.Samples;
 
-        var cursorRunOutDay = _calculator.EstimateRunOutDayNumber(_cycle, QuotaKind.CursorModels, samples);
-        var otherRunOutDay = _calculator.EstimateRunOutDayNumber(_cycle, QuotaKind.OtherModels, samples);
+        var cursorRunOutDay = _calculator.EstimateRunOutDayNumber(_displayedCycle, QuotaKind.CursorModels, samples);
+        var otherRunOutDay = _calculator.EstimateRunOutDayNumber(_displayedCycle, QuotaKind.OtherModels, samples);
         var hasCursorUpdate = _calculator.TryGetLastUpdate(
-            _cycle, QuotaKind.CursorModels, samples, out var cursorLastUpdate, out _);
+            _displayedCycle, QuotaKind.CursorModels, samples, out var cursorLastUpdate, out _);
         var hasOtherUpdate = _calculator.TryGetLastUpdate(
-            _cycle, QuotaKind.OtherModels, samples, out var otherLastUpdate, out _);
+            _displayedCycle, QuotaKind.OtherModels, samples, out var otherLastUpdate, out _);
 
-        foreach (var day in _cycle.Days)
+        foreach (var day in _displayedCycle.Days)
         {
             var projectedCursor = hasCursorUpdate && day.Date > cursorLastUpdate.Date
-                ? _calculator.ProjectedPercent(_cycle, QuotaKind.CursorModels, day.DayNumber, samples)
+                ? _calculator.ProjectedPercent(_displayedCycle, QuotaKind.CursorModels, day.DayNumber, samples)
                 : null;
             var projectedOther = hasOtherUpdate && day.Date > otherLastUpdate.Date
-                ? _calculator.ProjectedPercent(_cycle, QuotaKind.OtherModels, day.DayNumber, samples)
+                ? _calculator.ProjectedPercent(_displayedCycle, QuotaKind.OtherModels, day.DayNumber, samples)
                 : null;
             Days.Add(new DayRowViewModel(
                 day,
@@ -313,49 +335,60 @@ public sealed class MainViewModel : ViewModelBase
                 otherRunOutDay == day.DayNumber));
         }
 
-        Calendar.BuildCalendar(Days.ToList(), _cycle.CycleStart, _cycle.NextRenewal);
-        Chart.Replace(new UsageChartSeriesBuilder().Build(_cycle, _calculator, samples));
+        Calendar.BuildCalendar(Days.ToList(), _displayedCycle.CycleStart, _displayedCycle.NextRenewal);
+        Chart.Replace(new UsageChartSeriesBuilder().Build(_displayedCycle, _calculator, samples));
 
-        RefreshCurrentDay();
+        HighlightTodayOnDisplayed();
         OnPropertyChanged(nameof(IsInitialized));
         OnPropertyChanged(nameof(CycleStartText));
         OnPropertyChanged(nameof(NextRenewalText));
+        NotifyTodayQuotaTexts();
+        RaiseCycleNavChanged();
     }
 
-    private void RefreshCurrentDay()
+    private void HighlightTodayOnDisplayed()
     {
-        if (_cycle == null) return;
+        if (_displayedCycle == null) return;
 
         var today = _clock.Today;
-        _currentDayNumber = 0;
-
-        for (int i = 0; i < _cycle.Days.Count; i++)
-        {
-            var isToday = _cycle.Days[i].Date.Date == today;
-            Days[i].IsToday = isToday;
-
-            if (isToday)
-                _currentDayNumber = i + 1;
-        }
+        for (int i = 0; i < _displayedCycle.Days.Count && i < Days.Count; i++)
+            Days[i].IsToday = _displayedCycle.Days[i].Date.Date == today;
 
         var todayCell = Calendar.GetCellForDate(today);
         if (todayCell != null)
             todayCell.IsToday = true;
-
-        NotifyTodayQuotaTexts();
     }
 
-    private void PersistCycle()
+    private void RebuildLiveDays()
     {
-        if (_cycle == null) return;
-        _settings.ActiveCycle = _cycle;
+        var live = _settings.ActiveCycle;
+        if (live == null) return;
+
+        _calculator.RebuildDays(live, _sync.Samples, _clock.Today);
+        UpdateLiveTodayDayNumber();
+    }
+
+    private void UpdateLiveTodayDayNumber()
+    {
+        _liveTodayDayNumber = 0;
+        var live = _settings.ActiveCycle;
+        if (live == null) return;
+
+        var today = _clock.Today;
+        for (int i = 0; i < live.Days.Count; i++)
+        {
+            if (live.Days[i].Date.Date == today)
+            {
+                _liveTodayDayNumber = i + 1;
+                break;
+            }
+        }
+    }
+
+    private void PersistSettings()
+    {
         _store.Save(_settings);
         NotifyTodayQuotaTexts();
-    }
-
-    private void OnQuit()
-    {
-        QuitRequested?.Invoke();
     }
 
     private void NotifyTodayQuotaTexts()
@@ -367,23 +400,88 @@ public sealed class MainViewModel : ViewModelBase
 
     private string FormatRunOutDate(QuotaKind kind)
     {
-        if (_cycle == null)
+        if (_displayedCycle == null)
             return "—";
 
-        var instant = _calculator.EstimateRunOutInstant(_cycle, kind, _sync.Samples);
+        var instant = _calculator.EstimateRunOutInstant(_displayedCycle, kind, _sync.Samples);
         return instant.HasValue
             ? instant.Value.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
             : "—";
     }
 
-    private bool TryGetTodayDay(out QuotaDayEntry day)
+    private bool TryGetLiveTodayDay(out QuotaDayEntry day)
     {
         day = null!;
-        if (_cycle == null || _currentDayNumber <= 0 || _currentDayNumber > _cycle.Days.Count)
+        var live = _settings.ActiveCycle;
+        if (live == null || _liveTodayDayNumber <= 0 || _liveTodayDayNumber > live.Days.Count)
             return false;
 
-        day = _cycle.Days[_currentDayNumber - 1];
+        day = live.Days[_liveTodayDayNumber - 1];
         return true;
+    }
+
+    private bool IsViewingLiveCycle =>
+        _displayedCycle != null
+        && _settings.ActiveCycle != null
+        && _displayedCycle.CycleStart.Date == _settings.ActiveCycle.CycleStart.Date;
+
+    private List<QuotaCycle> StoredCycles
+    {
+        get
+        {
+            var cycles = new List<QuotaCycle>(_settings.CycleHistory.Count + 1);
+            cycles.AddRange(_settings.CycleHistory);
+            if (_settings.ActiveCycle != null)
+                cycles.Add(_settings.ActiveCycle);
+            return cycles;
+        }
+    }
+
+    private int DisplayedCycleIndex
+    {
+        get
+        {
+            if (_displayedCycle == null)
+                return -1;
+
+            var cycles = StoredCycles;
+            for (int i = 0; i < cycles.Count; i++)
+            {
+                if (cycles[i].CycleStart.Date == _displayedCycle.CycleStart.Date)
+                    return i;
+            }
+
+            return cycles.Count - 1;
+        }
+    }
+
+    private void GoToPreviousCycle()
+    {
+        var index = DisplayedCycleIndex;
+        if (index <= 0)
+            return;
+
+        _displayedCycle = StoredCycles[index - 1];
+        RefreshDisplayedCycle();
+    }
+
+    private void GoToNextCycle()
+    {
+        var cycles = StoredCycles;
+        var index = DisplayedCycleIndex;
+        if (index < 0 || index >= cycles.Count - 1)
+            return;
+
+        _displayedCycle = cycles[index + 1];
+        RefreshDisplayedCycle();
+    }
+
+    private void RaiseCycleNavChanged()
+    {
+        OnPropertyChanged(nameof(CanGoToPreviousCycle));
+        OnPropertyChanged(nameof(CanGoToNextCycle));
+        ((RelayCommand)GoToPreviousCycleCommand).RaiseCanExecuteChanged();
+        ((RelayCommand)GoToNextCycleCommand).RaiseCanExecuteChanged();
     }
 
     public Task StartSyncAsync() =>
@@ -433,59 +531,86 @@ public sealed class MainViewModel : ViewModelBase
     {
         var startLocal = snapshot.BillingCycleStartUtc.LocalDateTime;
         var endLocal = snapshot.BillingCycleEndUtc.LocalDateTime;
+        var live = _settings.ActiveCycle;
+        var viewingLive = _displayedCycle == null || IsViewingLiveCycle;
 
-        if (_cycle == null || _cycle.CycleStart.Date != startLocal.Date)
+        if (live == null || live.CycleStart.Date != startLocal.Date)
         {
-            _cycle = _calculator.GenerateCycleFromBounds(startLocal, endLocal);
+            CycleHistory.ArchiveIfNewStartDate(_settings, startLocal);
+            var created = _calculator.GenerateCycleFromBounds(startLocal, endLocal);
+            _settings.ActiveCycle = created;
+            if (viewingLive)
+                _displayedCycle = created;
         }
-        else if (_cycle.CycleStart != startLocal || _cycle.NextRenewal != endLocal)
+        else if (live.CycleStart != startLocal || live.NextRenewal != endLocal)
         {
-            _cycle = new QuotaCycle
+            var updated = new QuotaCycle
             {
                 RenewalDay = startLocal.Day,
                 CycleStart = startLocal,
                 NextRenewal = endLocal
             };
+            _settings.ActiveCycle = updated;
+            if (viewingLive)
+                _displayedCycle = updated;
         }
 
-        PersistCycle();
-        RefreshCycle();
+        PersistSettings();
+        if (viewingLive)
+        {
+            _displayedCycle = _settings.ActiveCycle;
+            RefreshDisplayedCycle();
+        }
+        else
+        {
+            RebuildLiveDays();
+            NotifyTodayQuotaTexts();
+            RaiseCycleNavChanged();
+        }
     }
 
     private static string FormatPercent(decimal value) =>
         $"{(int)Math.Round(value, MidpointRounding.AwayFromZero)}%";
 
-    public void SaveWindowPosition(int x, int y)
+    public void SaveWindowPlacement(int x, int y, int width, int height, bool maximized)
     {
-        if (_settings.WindowX == x && _settings.WindowY == y)
+        if (_settings.WindowX == x
+            && _settings.WindowY == y
+            && _settings.WindowWidth == width
+            && _settings.WindowHeight == height
+            && _settings.WindowMaximized == maximized)
             return;
 
         _settings.WindowX = x;
         _settings.WindowY = y;
+        _settings.WindowWidth = width;
+        _settings.WindowHeight = height;
+        _settings.WindowMaximized = maximized;
         _store.Save(_settings);
     }
 
-    public bool TryGetSavedWindowPosition(out int x, out int y)
+    public bool TryGetSavedWindowPlacement(
+        out int? x,
+        out int? y,
+        out int? width,
+        out int? height,
+        out bool maximized)
     {
-        if (_settings.WindowX is int savedX && _settings.WindowY is int savedY)
-        {
-            x = savedX;
-            y = savedY;
-            return true;
-        }
-
-        x = 0;
-        y = 0;
-        return false;
+        x = _settings.WindowX;
+        y = _settings.WindowY;
+        width = _settings.WindowWidth is int savedWidth && savedWidth > 0 ? savedWidth : null;
+        height = _settings.WindowHeight is int savedHeight && savedHeight > 0 ? savedHeight : null;
+        maximized = _settings.WindowMaximized;
+        return x is not null || y is not null || width is not null || height is not null || maximized;
     }
 
     public bool TryBuildCycleCsv(out string csv)
     {
         csv = string.Empty;
-        if (_cycle == null || Days.Count == 0)
+        if (_displayedCycle == null || Days.Count == 0)
             return false;
 
-        csv = CycleCsvBuilder.Build(_cycle, _calculator, _sync.Samples);
+        csv = CycleCsvBuilder.Build(_displayedCycle, _calculator, _sync.Samples);
         return true;
     }
 
@@ -563,20 +688,22 @@ public sealed class MainViewModel : ViewModelBase
 
         ApplyStartupRegistration(_settings.RunAtStartup);
 
-        _cycle = _settings.ActiveCycle;
-        if (_cycle != null)
+        _displayedCycle = _settings.ActiveCycle;
+        if (_displayedCycle != null)
         {
-            RefreshCycle();
+            RefreshDisplayedCycle();
         }
         else
         {
             Days.Clear();
             Calendar.BuildCalendar([], default, default);
             Chart.Replace(null);
+            _liveTodayDayNumber = 0;
             OnPropertyChanged(nameof(IsInitialized));
             OnPropertyChanged(nameof(CycleStartText));
             OnPropertyChanged(nameof(NextRenewalText));
             NotifyTodayQuotaTexts();
+            RaiseCycleNavChanged();
         }
 
         OnPropertyChanged(nameof(IsChartView));

@@ -53,4 +53,24 @@ public class LaunchModeTests
             true,
             ["CursorPace", LaunchMode.BackgroundArgument, LaunchMode.ShowArgument]));
     }
+
+    [Fact]
+    public void ActivateExistingInstance_WhenInteractiveLaunch_ReturnsTrue()
+    {
+        Assert.True(LaunchMode.ActivateExistingInstance(["CursorPace"]));
+    }
+
+    [Fact]
+    public void ActivateExistingInstance_WhenBackgroundArgument_ReturnsFalse()
+    {
+        Assert.False(LaunchMode.ActivateExistingInstance(
+            ["CursorPace", LaunchMode.BackgroundArgument]));
+    }
+
+    [Fact]
+    public void ActivateExistingInstance_WhenShowArgument_OverridesBackgroundArgument()
+    {
+        Assert.True(LaunchMode.ActivateExistingInstance(
+            ["CursorPace", LaunchMode.BackgroundArgument, LaunchMode.ShowArgument]));
+    }
 }

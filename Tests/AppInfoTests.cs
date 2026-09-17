@@ -18,8 +18,9 @@ public class AppInfoTests
             assembly.GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright,
             info.Copyright);
         Assert.True(info.BuildDateUtc.HasValue);
-        Assert.True(info.BuildDateUtc.Value <= DateOnly.FromDateTime(DateTime.UtcNow));
+        Assert.True(info.BuildDateUtc.Value <= DateTime.UtcNow.AddMinutes(1));
         Assert.True(info.BuildDateUtc.Value.Year >= 2026);
+        Assert.Equal(DateTimeKind.Utc, info.BuildDateUtc.Value.Kind);
         Assert.Equal("MIT License", AppInfo.LicenseName);
         Assert.Equal("https://github.com/wsj-br/CursorPace", AppInfo.RepositoryUrl);
         Assert.Equal(new Uri("https://github.com/wsj-br/CursorPace"), AppInfo.RepositoryUri);
@@ -41,11 +42,14 @@ public class AppInfoTests
     }
 
     [Fact]
-    public void FormatBuildDate_UsesDayMonthYear()
+    public void FormatBuildDate_UsesDayMonthYearTimeAndUtc()
     {
-        var info = new AppInfo("0.2.2", "Copyright © 2026 Waldemar Scudeller Jr.", new DateOnly(2026, 8, 30));
+        var info = new AppInfo(
+            "0.2.2",
+            "Copyright © 2026 Waldemar Scudeller Jr.",
+            new DateTime(2026, 8, 30, 14, 5, 9, DateTimeKind.Utc));
 
-        Assert.Equal("30-Aug-2026", info.FormatBuildDate(CultureInfo.InvariantCulture));
+        Assert.Equal("30-Aug-2026 14:05:09 UTC", info.FormatBuildDate(CultureInfo.InvariantCulture));
     }
 
     [Fact]

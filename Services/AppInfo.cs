@@ -13,7 +13,7 @@ public sealed class AppInfo
 
     public static AppInfo Current { get; } = Read(typeof(AppInfo).Assembly);
 
-    public AppInfo(string version, string copyright, DateOnly? buildDateUtc)
+    public AppInfo(string version, string copyright, DateTime? buildDateUtc)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(version);
         ArgumentException.ThrowIfNullOrWhiteSpace(copyright);
@@ -26,7 +26,7 @@ public sealed class AppInfo
 
     public string Copyright { get; }
 
-    public DateOnly? BuildDateUtc { get; }
+    public DateTime? BuildDateUtc { get; }
 
     public static AppInfo Read(Assembly assembly)
     {
@@ -38,11 +38,18 @@ public sealed class AppInfo
         if (string.IsNullOrWhiteSpace(copyright))
             copyright = "Copyright © 2026 Waldemar Scudeller Jr.";
 
-        DateOnly? buildDate = null;
+        DateTime? buildDate = null;
         var raw = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
             .FirstOrDefault(attribute => attribute.Key == BuildDateMetadataKey)?.Value;
-        if (DateOnly.TryParseExact(raw, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+        if (DateTime.TryParseExact(
+                raw,
+                "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                out var parsed))
             buildDate = parsed;
+        else if (DateOnly.TryParseExact(raw, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateOnly))
+            buildDate = dateOnly.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
         return new AppInfo(version, copyright, buildDate);
     }
@@ -66,8 +73,12 @@ public sealed class AppInfo
     public string FormatBuildDate(CultureInfo culture)
     {
         ArgumentNullException.ThrowIfNull(culture);
-        return BuildDateUtc is { } date
-            ? date.ToString("dd-MMM-yyyy", culture)
-            : "—";
+        if (BuildDateUtc is not { } date)
+            return "—";
+
+        var utc = date.Kind == DateTimeKind.Unspecified
+            ? DateTime.SpecifyKind(date, DateTimeKind.Utc)
+            : date.ToUniversalTime();
+        return $"{utc.ToString("dd-MMM-yyyy", culture)} {utc.ToString("HH:mm:ss", CultureInfo.InvariantCulture)} UTC";
     }
 }
