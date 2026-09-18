@@ -57,7 +57,8 @@ public class SingleInstanceTests
 
     private static string CreateTempDir()
     {
-        var dir = Path.Combine(Path.GetTempPath(), "CursorPaceSingleInstance-" + Guid.NewGuid().ToString("N"));
+        // macOS sun_path is 104 bytes; keep the dir short so …/instance.sock stays under that.
+        var dir = Path.Combine(Path.GetTempPath(), "cp-si-" + Guid.NewGuid().ToString("N")[..8]);
         Directory.CreateDirectory(dir);
         return dir;
     }

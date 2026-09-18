@@ -23,14 +23,21 @@ public sealed class TrayService : ITrayService
         var openCommand = new RelayCommand(() => _onOpenRequested?.Invoke());
         var quitCommand = new RelayCommand(() => _onQuitRequested?.Invoke());
         _icon.Command = openCommand;
-        _icon.Menu = new NativeMenu
+
+        // macOS native exporter throws if TrayIcon.Menu is replaced after export.
+        // Keep the App.axaml menu instance and only set item commands.
+        if (_icon.Menu is { } menu)
         {
-            Items =
+            foreach (var item in menu.Items)
             {
-                new NativeMenuItem { Header = "Open", Command = openCommand },
-                new NativeMenuItem { Header = "Quit", Command = quitCommand }
+                if (item is not NativeMenuItem menuItem)
+                    continue;
+                if (menuItem.Header == "Open")
+                    menuItem.Command = openCommand;
+                else if (menuItem.Header == "Quit")
+                    menuItem.Command = quitCommand;
             }
-        };
+        }
     }
 
     public void ShowWindow() => _onOpenRequested?.Invoke();

@@ -27,10 +27,12 @@ You need a `10.0.x` SDK listed. `global.json` pins `10.0.111` for CI; locally, `
 ### Windows
 
 1. **.NET 10 SDK** (pick one):
-   - Download the x64 SDK installer from [.NET 10 downloads](https://dotnet.microsoft.com/download/dotnet/10.0), or
-   - `winget install Microsoft.DotNet.SDK.10`
+  - Download the x64 SDK installer from [.NET 10 downloads](https://dotnet.microsoft.com/download/dotnet/10.0), or
+  - `winget install Microsoft.DotNet.SDK.10`
 2. **WebView2 Runtime** (Evergreen x64) for **Sign in**. Already present on most Windows 11 PCs. If missing, install from [Microsoft Edge WebView2 Runtime](https://go.microsoft.com/fwlink/p/?LinkId=2124703).
 3. **Inno Setup 6** (optional, for the Windows installer): download from [jrsoftware.org/isdl.php](https://jrsoftware.org/isdl.php). `scripts/build.ps1` / `scripts/build.sh` find `ISCC.exe` on `PATH` or in the usual Program Files / LocalAppData install folders.
+
+
 
 ### Linux
 
@@ -49,7 +51,7 @@ curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 10.0
 # Then put ~/.dotnet on PATH, e.g. export DOTNET_ROOT=$HOME/.dotnet && export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
 ```
 
-2. **WebKitGTK 4.1** (and GTK 3 / libsoup 3) for **Sign in**. WPE is optional; WebKitGTK is the baseline.
+1. **WebKitGTK 4.1** (and GTK 3 / libsoup 3) for **Sign in**. WPE is optional; WebKitGTK is the baseline.
 
 ```bash
 # Debian / Ubuntu
@@ -62,17 +64,20 @@ sudo dnf install gtk3 webkit2gtk4.1 libsoup3
 sudo pacman -S gtk3 webkit2gtk-4.1 libsoup3
 ```
 
-3. **GNOME tray** (optional): install the AppIndicator extension if the tray icon does not appear.
+1. **GNOME tray** (optional): install the AppIndicator extension if the tray icon does not appear.
+2. **AppImage tooling** (optional, for `./scripts/build.sh`): WebKitGTK/GTK runtime libraries on the build host (`libgtk-3-0`, `libwebkit2gtk-4.1-0`, `libsoup-3.0-0`), plus ImageMagick (`imagemagick`) to resize the tray icon. `linuxdeploy` is downloaded on first run.
 
-4. **AppImage tooling** (optional, for `./scripts/build.sh`): WebKitGTK/GTK runtime libraries on the build host (`libgtk-3-0`, `libwebkit2gtk-4.1-0`, `libsoup-3.0-0`), plus ImageMagick (`imagemagick`) to resize the tray icon. `linuxdeploy` is downloaded on first run.
+
 
 ### macOS
 
 1. **.NET 10 SDK** (pick one):
-   - Download the macOS SDK installer (x64 or Arm64) from [.NET 10 downloads](https://dotnet.microsoft.com/download/dotnet/10.0), or
-   - Install script: `curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 10.0` (then put `~/.dotnet` on `PATH` as on Linux).
+  - Download the macOS SDK installer (x64 or Arm64) from [.NET 10 downloads](https://dotnet.microsoft.com/download/dotnet/10.0), or
+  - Install script: `curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 10.0` (then put `~/.dotnet` on `PATH` as on Linux).
 2. **WKWebView** is built into macOS; no separate WebView package is required for **Sign in**.
 3. Unsigned local builds may need **Open** from Finder the first time Gatekeeper blocks the binary.
+
+
 
 ## Clone and restore
 
@@ -82,30 +87,34 @@ cd CursorPace
 dotnet restore
 ```
 
+
+
 ## Everyday commands
 
-| Task | PowerShell (Windows) | Bash (Linux / macOS) |
-| --- | --- | --- |
-| Build | `dotnet build` | `dotnet build` |
-| Tests | `dotnet test .\Tests\CursorPace.Tests.csproj` | `dotnet test ./Tests/CursorPace.Tests.csproj` |
-| Run (window) | `.\scripts\dev.ps1` | `./scripts/dev.sh` |
-| Run (tray only) | `.\scripts\dev.ps1 -Background` | `./scripts/dev.sh --background` |
-| Run (force window) | `.\scripts\dev.ps1 -Show` | `./scripts/dev.sh --show` |
-| Run (Release) | `.\scripts\dev.ps1 -Configuration Release` | `./scripts/dev.sh --configuration Release` |
-| Tests via script | `.\scripts\dev.ps1 -Test` | `./scripts/dev.sh --test` |
-| Publish + installer | `.\scripts\build.ps1` | `./scripts/build.sh` (Linux AppImage or macOS app bundle) |
-| Publish only | `.\scripts\build.ps1 -SkipInstaller` | `./scripts/build.sh --skip-installer` |
-| Publish, skip tests | `.\scripts\build.ps1 -SkipTests` | `./scripts/build.sh --skip-tests` |
-| Clean artifacts | `.\scripts\clean.ps1` | `./scripts/clean.sh` |
-| Clean (no delete) | `.\scripts\clean.ps1 -DryRun` | `./scripts/clean.sh --dry-run` |
-| Clean, keep NuGet cache | `.\scripts\clean.ps1 -PurgeNuGetCache:$false` | `./scripts/clean.sh --no-purge-nuget` |
-| GitHub release from HEAD | `.\scripts\release.ps1` | `./scripts/release.sh` |
-| Dry-run release | `.\scripts\release.ps1 -DryRun` | `./scripts/release.sh --dry-run` |
-| Release without clean-tree check | `.\scripts\release.ps1 -VerifyClean:$false` | `./scripts/release.sh --no-verify-clean` |
-| Show app version | `.\scripts\version.ps1` | `./scripts/version.sh` |
-| Set app version | `.\scripts\version.ps1 0.2.4` | `./scripts/version.sh 0.2.4` |
-| List outdated NuGet packages | `.\scripts\update-packages.ps1 -List` | `./scripts/update-packages.sh --list` |
-| Update NuGet packages | `.\scripts\update-packages.ps1` | `./scripts/update-packages.sh` |
+
+| Task                             | PowerShell (Windows)                          | Bash (Linux / macOS)                                      |
+| -------------------------------- | --------------------------------------------- | --------------------------------------------------------- |
+| Build                            | `dotnet build`                                | `dotnet build`                                            |
+| Tests                            | `dotnet test .\Tests\CursorPace.Tests.csproj` | `dotnet test ./Tests/CursorPace.Tests.csproj`             |
+| Run (window)                     | `.\scripts\dev.ps1`                           | `./scripts/dev.sh`                                        |
+| Run (tray only)                  | `.\scripts\dev.ps1 -Background`               | `./scripts/dev.sh --background`                           |
+| Run (force window)               | `.\scripts\dev.ps1 -Show`                     | `./scripts/dev.sh --show`                                 |
+| Run (Release)                    | `.\scripts\dev.ps1 -Configuration Release`    | `./scripts/dev.sh --configuration Release`                |
+| Tests via script                 | `.\scripts\dev.ps1 -Test`                     | `./scripts/dev.sh --test`                                 |
+| Publish + installer              | `.\scripts\build.ps1`                         | `./scripts/build.sh` (Linux AppImage or macOS app bundle) |
+| Publish only                     | `.\scripts\build.ps1 -SkipInstaller`          | `./scripts/build.sh --skip-installer`                     |
+| Publish, skip tests              | `.\scripts\build.ps1 -SkipTests`              | `./scripts/build.sh --skip-tests`                         |
+| Clean artifacts                  | `.\scripts\clean.ps1`                         | `./scripts/clean.sh`                                      |
+| Clean (no delete)                | `.\scripts\clean.ps1 -DryRun`                 | `./scripts/clean.sh --dry-run`                            |
+| Clean, keep NuGet cache          | `.\scripts\clean.ps1 -PurgeNuGetCache:$false` | `./scripts/clean.sh --no-purge-nuget`                     |
+| GitHub release from HEAD         | `.\scripts\release.ps1`                       | `./scripts/release.sh`                                    |
+| Dry-run release                  | `.\scripts\release.ps1 -DryRun`               | `./scripts/release.sh --dry-run`                          |
+| Release without clean-tree check | `.\scripts\release.ps1 -VerifyClean:$false`   | `./scripts/release.sh --no-verify-clean`                  |
+| Show app version                 | `.\scripts\version.ps1`                       | `./scripts/version.sh`                                    |
+| Set app version                  | `.\scripts\version.ps1 0.2.4`                 | `./scripts/version.sh 0.2.4`                              |
+| List outdated NuGet packages     | `.\scripts\update-packages.ps1 -List`         | `./scripts/update-packages.sh --list`                     |
+| Update NuGet packages            | `.\scripts\update-packages.ps1`               | `./scripts/update-packages.sh`                            |
+
 
 Launch flags after `--`:
 
@@ -157,14 +166,16 @@ Open `CursorPace.slnx` in Visual Studio, or build the `.csproj` files directly.
 
 ## Stack
 
-| Area | Choice |
-| --- | --- |
-| UI | Avalonia 12 (`net10.0`) |
-| Tray | Avalonia `TrayIcon` |
+
+| Area           | Choice                                                                                                                                                                                                    |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| UI             | Avalonia 12 (`net10.0`)                                                                                                                                                                                   |
+| Tray           | Avalonia `TrayIcon`                                                                                                                                                                                       |
 | Cursor session | `NativeWebView` host window + persistent profile under LocalApplicationData. On Linux, `LinuxWebKitCookiePersistence` points WebKit at `cookies.sqlite` in that profile; Avalonia's GTK adapter does not. |
-| Tests | xUnit, project under `Tests/` |
-| Settings | JSON under LocalApplicationData `CursorPace` |
-| Installer | Inno Setup 6 (Windows), AppImage (Linux), zipped `.app` bundle (macOS) |
+| Tests          | xUnit, project under `Tests/`                                                                                                                                                                             |
+| Settings       | JSON under LocalApplicationData `CursorPace`                                                                                                                                                              |
+| Installer      | Inno Setup 6 (Windows), AppImage (Linux), zipped `.app` bundle (macOS)                                                                                                                                    |
+
 
 Manual construction in `App.OnFrameworkInitializationCompleted` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IUsageSampleStore`, `ICursorUsageClient`, `IUsageSyncService`, `IDataBackupService`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. On Linux it also calls `LinuxDesktopIntegration.EnsureUserEntry()` before the window is created. `WebViewHostWindow` calls `LinuxWebKitCookiePersistence.EnsureAsync` after the NativeWebView adapter exists and before navigation. There is no DI container.
 
@@ -172,27 +183,29 @@ Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do n
 
 ## Tests
 
-| File | When to update |
-| --- | --- |
-| `CycleCalculatorTests.cs` | Cycle bounds, `ExpectedPercentAt`, Theil-Sen, run-out |
-| `SampleEstimationTests.cs` | Sample-driven expected percents, burn, and run-out |
-| `UsageChartSeriesBuilderTests.cs` | Chart seconds mapping, linear Expected usage, last-of-day usage polylines, midnight slots |
-| `SyncScheduleTests.cs` | Launch skip window and clock-aligned intervals |
-| `UsageSummaryParserTests.cs` | `usage-summary` JSON shape |
-| `WebView2ScriptResultParserTests.cs` | Object vs JSON-string script results |
-| `JsonPlanStoreTests.cs` / `UsageSampleStoreTests.cs` / `UsageSampleAppenderTests.cs` / `CycleHistoryTests.cs` | Settings/sample file load, corruption vs I/O errors, cycle rollover, `cycleHistory` |
-| `UsageSyncServiceTests.cs` | Sign-in state on startup, launch/interval refresh skip rules, `StateChanged` / `SnapshotReceived` |
-| `CycleCsvBuilderTests.cs` / `UsageSamplesCsvBuilderTests.cs` | CSV columns |
-| `MainViewModelTests.cs` / `DayRowViewModelTests.cs` / `CalendarMonthViewModelTests.cs` | Initialization, connected-account persistence, exports, calendar heading, Previous/Next cycle, settings page, backup restore |
-| `DataBackupArchiveTests.cs` | Zip backup format, missing entries, restore into stores |
-| `WindowPlacementTests.cs` | Restore clamped to the work area |
-| `LaunchModeTests.cs` | `--background` and **Start in notification tray** hide the window on launch; `--show` forces it open; duplicate `--background` does not activate the running instance |
-| `SingleInstanceTests.cs` | Unix lock file rejects a second acquire until the first instance disposes; socket signal reaches `Listen` |
-| `AppInfoTests.cs` | Settings About version, UTC build date/time, copyright, license, repository URL |
-| `LinuxStartupRegistrationTests.cs` | Linux autostart `Exec` uses the `APPIMAGE` path, not the FUSE `ProcessPath`, and sets `APPIMAGELAUNCHER_DISABLE=1` |
-| `LinuxDesktopIntegrationTests.cs` | Linux taskbar `.desktop` id, `StartupWMClass`, and absolute `Icon=` path |
-| `LinuxWebKitCookiePersistenceTests.cs` | WebKit cookie database path under the profile folder |
-| `AsyncRelayCommandTests.cs` | Async command reentrancy guard and exception handling |
+
+| File                                                                                                          | When to update                                                                                                                                                        |
+| ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CycleCalculatorTests.cs`                                                                                     | Cycle bounds, `ExpectedPercentAt`, Theil-Sen, run-out                                                                                                                 |
+| `SampleEstimationTests.cs`                                                                                    | Sample-driven expected percents, burn, and run-out                                                                                                                    |
+| `UsageChartSeriesBuilderTests.cs`                                                                             | Chart seconds mapping, linear Expected usage, last-of-day usage polylines, midnight slots                                                                             |
+| `SyncScheduleTests.cs`                                                                                        | Launch skip window and clock-aligned intervals                                                                                                                        |
+| `UsageSummaryParserTests.cs`                                                                                  | `usage-summary` JSON shape                                                                                                                                            |
+| `WebView2ScriptResultParserTests.cs`                                                                          | Object vs JSON-string script results                                                                                                                                  |
+| `JsonPlanStoreTests.cs` / `UsageSampleStoreTests.cs` / `UsageSampleAppenderTests.cs` / `CycleHistoryTests.cs` | Settings/sample file load, corruption vs I/O errors, cycle rollover, `cycleHistory`                                                                                   |
+| `UsageSyncServiceTests.cs`                                                                                    | Sign-in state on startup, launch/interval refresh skip rules, `StateChanged` / `SnapshotReceived`                                                                     |
+| `CycleCsvBuilderTests.cs` / `UsageSamplesCsvBuilderTests.cs`                                                  | CSV columns                                                                                                                                                           |
+| `MainViewModelTests.cs` / `DayRowViewModelTests.cs` / `CalendarMonthViewModelTests.cs`                        | Initialization, connected-account persistence, exports, calendar heading, Previous/Next cycle, settings page, backup restore                                          |
+| `DataBackupArchiveTests.cs`                                                                                   | Zip backup format, missing entries, restore into stores                                                                                                               |
+| `WindowPlacementTests.cs`                                                                                     | Restore clamped to the work area                                                                                                                                      |
+| `LaunchModeTests.cs`                                                                                          | `--background` and **Start in notification tray** hide the window on launch; `--show` forces it open; duplicate `--background` does not activate the running instance |
+| `SingleInstanceTests.cs`                                                                                      | Unix lock file rejects a second acquire until the first instance disposes; socket signal reaches `Listen`                                                             |
+| `AppInfoTests.cs`                                                                                             | Settings About version, UTC build date/time, copyright, license, repository URL                                                                                       |
+| `LinuxStartupRegistrationTests.cs`                                                                            | Linux autostart `Exec` uses the `APPIMAGE` path, not the FUSE `ProcessPath`, and sets `APPIMAGELAUNCHER_DISABLE=1`                                                    |
+| `LinuxDesktopIntegrationTests.cs`                                                                             | Linux taskbar `.desktop` id, `StartupWMClass`, and absolute `Icon=` path                                                                                              |
+| `LinuxWebKitCookiePersistenceTests.cs`                                                                        | WebKit cookie database path under the profile folder                                                                                                                  |
+| `AsyncRelayCommandTests.cs`                                                                                   | Async command reentrancy guard and exception handling                                                                                                                 |
+
 
 `CycleCalculatorTests` still covers:
 
@@ -206,6 +219,8 @@ Add cases next to the existing facts when you change those areas. Do not commit 
 
 ## Packaging
 
+
+
 ### Windows (`.\scripts\build.ps1`)
 
 1. Runs tests (unless `-SkipTests`)
@@ -213,13 +228,15 @@ Add cases next to the existing facts when you change those areas. Do not commit 
 3. Compiles `setup.iss` unless `-SkipInstaller`
 4. Writes `installer\CursorPace-<version>-win-x64-setup.exe` and a sibling `.sha256` file
 
+
+
 ### Linux and macOS (`./scripts/build.sh`)
 
 1. Runs tests (unless `--skip-tests`)
 2. Detects the host RID (`linux-x64`, `linux-arm64`, `osx-arm64`, or `osx-x64`) and publishes self-contained output
 3. Unless `--skip-installer`:
-   - **Linux**: `./scripts/build-appimage.sh` writes `installer/CursorPace-<version>-<rid>.AppImage` (+ `.sha256`) for `linux-x64` or `linux-arm64`. Needs WebKitGTK/GTK libraries on the build host matching the target architecture; [linuxdeploy](https://github.com/linuxdeploy/linuxdeploy) tooling is downloaded automatically for that architecture. AppImage packaging must run on a host whose architecture matches `--rid` because linuxdeploy bundles the host's native libraries.
-   - **macOS**: `./scripts/build-appbundle.sh` writes `installer/CursorPace-<version>-<rid>.zip` containing `Cursor Pace.app` (+ `.sha256`)
+  - **Linux**: `./scripts/build-appimage.sh` writes `installer/CursorPace-<version>-<rid>.AppImage` (+ `.sha256`) for `linux-x64` or `linux-arm64`. Needs WebKitGTK/GTK libraries on the build host matching the target architecture; [linuxdeploy](https://github.com/linuxdeploy/linuxdeploy) tooling is downloaded automatically for that architecture. AppImage packaging must run on a host whose architecture matches `--rid` because linuxdeploy bundles the host's native libraries.
+  - **macOS**: `./scripts/build-appbundle.sh` writes `installer/CursorPace-<version>-<rid>.zip` containing `Cursor Pace.app` (+ `.sha256`)
 
 Publish output is under `bin/Release/net10.0/<rid>/publish/`. Trimming, ReadyToRun, and PublishSingleFile stay off.
 
@@ -247,9 +264,9 @@ Do not commit built binaries.
 
 Still keep these in sync when releasing:
 
-3. `dev/CHANGELOG.md`: when releasing, move `[Unreleased]` bullets into `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`
-4. `release-notes/RELEASE_NOTES_<version>.md` (required by `scripts/release.*`)
-5. Git tag `v<version>`
+1. `dev/CHANGELOG.md`: when releasing, move `[Unreleased]` bullets into `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`
+2. `release-notes/RELEASE_NOTES_<version>.md` (required by `scripts/release.*`)
+3. Git tag `v<version>`
 
 Settings **About** reads `<Version>` and `<Copyright>` from the assembly, and `BuildDateUtc` metadata stamped at compile time (`yyyy-MM-dd HH:mm:ss` UTC). The About card formats that as `dd-MMM-yyyy HH:mm:ss UTC`. License text and the repository URL live in `AppInfo`.
 
@@ -261,7 +278,7 @@ The workflow pins hosted runner generations, the .NET SDK, and GitHub Actions ma
 
 There is no central package management. Direct versions live in `CursorPace.csproj` and `Tests/CursorPace.Tests.csproj`. `Directory.Build.props` always writes lock files (`RestorePackagesWithLockFile`). Locked-mode restore (`RestoreLockedMode`) is on only when `CI=true`, which the GitHub Actions jobs set. Local `dotnet restore` may refresh `packages.lock.json` and `Tests/packages.lock.json`; CI runs `dotnet restore ./CursorPace.slnx --locked-mode` and fails if those files are stale.
 
-`.github/dependabot.yml` opens weekly PRs for NuGet (app and tests) and GitHub Actions. Prefer reviewing those PRs when they already include the lock-file diffs. For a manual bump, use `.\scripts\update-packages.ps1` / `./scripts/update-packages.sh`. Those wrap the steps below because [`dotnet package update`](https://learn.microsoft.com/dotnet/core/tools/dotnet-package-update) cannot take the `.slnx` yet (`Updating more than one project is not yet supported`).
+`.github/dependabot.yml` opens weekly PRs for NuGet (app and tests) and GitHub Actions. Prefer reviewing those PRs when they already include the lock-file diffs. For a manual bump, use `.\scripts\update-packages.ps1` / `./scripts/update-packages.sh`. Those wrap the steps below because `[dotnet package update](https://learn.microsoft.com/dotnet/core/tools/dotnet-package-update)` cannot take the `.slnx` yet (`Updating more than one project is not yet supported`).
 
 ```text
 ./scripts/update-packages.sh --list
@@ -275,27 +292,27 @@ There is no central package management. Direct versions live in `CursorPace.cspr
 What the scripts do:
 
 1. List what is behind (`--list` / `-List`). That is `dotnet list ./CursorPace.slnx package --outdated` (or `--vulnerable` when that flag is also set).
-
 2. Rewrite `PackageReference` versions, one project at a time. With no package list it takes every direct reference in that project to the highest version on the configured sources. Named packages are updated only in the project that references them. `--vulnerable` / `-Vulnerable` only lifts packages that NuGet Audit reports, and only to the lowest safe version.
 
 Keep `Avalonia`, `Avalonia.Desktop`, `Avalonia.Themes.Fluent`, and `Avalonia.Fonts.Inter` on the same version. The scripts fail if those four differ after an app-project update; pin with `@` as above if nuget.org published them out of lockstep. Keep `Avalonia.Controls.WebView` on the newest published version that matches that Avalonia line; it may lag (today Avalonia 12.1.2 with WebView 12.1.0), so do not force it to a version that is not on nuget.org. Do not mix Avalonia 11 and 12 packages.
 
-3. Refresh both lock files with `dotnet restore ./CursorPace.slnx --force-evaluate`.
+1. Refresh both lock files with `dotnet restore ./CursorPace.slnx --force-evaluate`.
 
 Commit `CursorPace.csproj` / `Tests/CursorPace.Tests.csproj` together with `packages.lock.json` and `Tests/packages.lock.json`.
 
-4. Run tests (`--test` / `-Test`) and a local `.\scripts\dev.ps1` / `./scripts/dev.sh` pass that covers Sign in if Avalonia or WebView changed.
-
-5. Log the bump under `## [Unreleased]` in `dev/CHANGELOG.md` (`Changed` / `install` or `build`). Note WebView cookie-manager behavior if that package moved.
+1. Run tests (`--test` / `-Test`) and a local `.\scripts\dev.ps1` / `./scripts/dev.sh` pass that covers Sign in if Avalonia or WebView changed.
+2. Log the bump under `## [Unreleased]` in `dev/CHANGELOG.md` (`Changed` / `install` or `build`). Note WebView cookie-manager behavior if that package moved.
 
 Other pins (not NuGet):
 
-| Pin | Where | How to bump |
-| --- | --- | --- |
-| .NET SDK | `global.json` (`10.0.111`) and `DOTNET_VERSION` in `.github/workflows/dotnet-desktop.yml` | Change both to the same `10.0.x`. Local installs may still use a newer 10.0 SDK because `rollForward` is `latestFeature`. |
-| GitHub Actions | `uses:` lines in `.github/workflows/dotnet-desktop.yml` | Dependabot groups these; otherwise bump major tags together (`actions/checkout`, `setup-dotnet`, artifact actions). |
-| linuxdeploy | `LINUXDEPLOY_VERSION` in `scripts/build-appimage.sh` | Set to a [linuxdeploy release](https://github.com/linuxdeploy/linuxdeploy/releases) tag. Cached filenames include the version, so the next AppImage build re-downloads. |
-| linuxdeploy GTK plugin | `GTK_PLUGIN_REF` in `scripts/build-appimage.sh` | The plugin has no tags; pin a commit SHA from [linuxdeploy-plugin-gtk](https://github.com/linuxdeploy/linuxdeploy-plugin-gtk). |
+
+| Pin                    | Where                                                                                     | How to bump                                                                                                                                                             |
+| ---------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| .NET SDK               | `global.json` (`10.0.111`) and `DOTNET_VERSION` in `.github/workflows/dotnet-desktop.yml` | Change both to the same `10.0.x`. Local installs may still use a newer 10.0 SDK because `rollForward` is `latestFeature`.                                               |
+| GitHub Actions         | `uses:` lines in `.github/workflows/dotnet-desktop.yml`                                   | Dependabot groups these; otherwise bump major tags together (`actions/checkout`, `setup-dotnet`, artifact actions).                                                     |
+| linuxdeploy            | `LINUXDEPLOY_VERSION` in `scripts/build-appimage.sh`                                      | Set to a [linuxdeploy release](https://github.com/linuxdeploy/linuxdeploy/releases) tag. Cached filenames include the version, so the next AppImage build re-downloads. |
+| linuxdeploy GTK plugin | `GTK_PLUGIN_REF` in `scripts/build-appimage.sh`                                           | The plugin has no tags; pin a commit SHA from [linuxdeploy-plugin-gtk](https://github.com/linuxdeploy/linuxdeploy-plugin-gtk).                                          |
+
 
 Do not add trim, ReadyToRun, or PublishSingleFile when bumping packages. After a lock-file-only Dependabot PR, still run tests before merge: a resolved transitive bump can change runtime behavior even when the `.csproj` versions look unchanged.
 
@@ -305,21 +322,23 @@ Do not add trim, ReadyToRun, or PublishSingleFile when bumping packages. After a
 
 Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so older files still deserialize):
 
-| Field | Role |
-| --- | --- |
-| `activeCycle` | `renewalDay`, `cycleStart`, `nextRenewal` |
-| `cycleHistory` | Previous cycle bounds (same shape as `activeCycle`); omitted when empty |
-| `runAtStartup` | Launch at login (Windows Run key, macOS Launch Agent, Linux XDG autostart) |
-| `startInNotificationTray` | Default `true`; hide the window on launch; startup registration includes `--background` |
-| `themeMode` | `System` (default), `Light`, or `Dark`; sets Avalonia `RequestedThemeVariant` |
-| `autoSyncEnabled` | Default `true` |
-| `syncIntervalHours` | 1, 2, 4, 6, or 12; other values clamp to 1 |
-| `showChartView` | Last main-window body (calendar vs chart) |
-| `cursorAccountConnected` | Last known signed-in state for launch skip |
-| `lastUsageSyncUtc` | Last successful usage fetch |
-| `windowX` / `windowY` | Last window position |
-| `windowWidth` / `windowHeight` | Last normal (non-maximized) window size |
-| `windowMaximized` | Last maximized state; restore uses the saved normal bounds |
+
+| Field                          | Role                                                                                    |
+| ------------------------------ | --------------------------------------------------------------------------------------- |
+| `activeCycle`                  | `renewalDay`, `cycleStart`, `nextRenewal`                                               |
+| `cycleHistory`                 | Previous cycle bounds (same shape as `activeCycle`); omitted when empty                 |
+| `runAtStartup`                 | Launch at login (Windows Run key, macOS Launch Agent, Linux XDG autostart)              |
+| `startInNotificationTray`      | Default `true`; hide the window on launch; startup registration includes `--background` |
+| `themeMode`                    | `System` (default), `Light`, or `Dark`; sets Avalonia `RequestedThemeVariant`           |
+| `autoSyncEnabled`              | Default `true`                                                                          |
+| `syncIntervalHours`            | 1, 2, 4, 6, or 12; other values clamp to 1                                              |
+| `showChartView`                | Last main-window body (calendar vs chart)                                               |
+| `cursorAccountConnected`       | Last known signed-in state for launch skip                                              |
+| `lastUsageSyncUtc`             | Last successful usage fetch                                                             |
+| `windowX` / `windowY`          | Last window position                                                                    |
+| `windowWidth` / `windowHeight` | Last normal (non-maximized) window size                                                 |
+| `windowMaximized`              | Last maximized state; restore uses the saved normal bounds                              |
+
 
 `usage-samples.json` is a separate document: `version`, `cycleStartUtc` (latest cycle start), and `samples` (`ts`, `cursor`, `other`) for every stored cycle. A new Cursor billing-cycle start keeps that sample list and appends the first sample of the new cycle.
 
@@ -354,7 +373,7 @@ Two separate Linux-only causes, both of which leave Windows (WebView2) unaffecte
 
 An AppImage also bundles its own WebKitGTK build via `linuxdeploy --plugin gtk`. If that bundled WebKit and the system WebKitGTK used by a `dotnet run`/`dev.sh` build ever wrote cookies to the *same* profile folder, one build's WebKit can fail to read the other's cookie database, and the fetch returns `AuthRequired` even though nothing actually signed you out. `WebViewProfilePaths` detects an AppImage run via the `APPIMAGE` environment variable (set by AppImage's `AppRun`) and gives it a separate `WebView-AppImage` profile folder so a dev run and an AppImage run never share one cookie store. If you still see recurring `AuthRequired` after the two fixes above, compare `~/.local/share/CursorPace/WebView/` and `.../WebView-AppImage/` timestamps to confirm which build wrote which profile, and check whether a newer AppImage build picked up a different bundled WebKitGTK version than a previous one (that scenario is not covered by the folder split, since both are "AppImage" runs).
 
-**App shows `(connected)` right after Sign in even though Cursor never accepted the session**
+**App shows** `(connected)` **right after Sign in even though Cursor never accepted the session**
 
 Do not resurrect a `HasPersistedProfile`-style check that treats the WebView profile folder existing/being non-empty as evidence of a signed-in session: WebKitGTK writes `Cache/hsts-storage.sqlite`, `Cache/WebKitCache/`, `localstorage/`, `storage/`, and `mediakeys/` to that folder as soon as the embedded browser is first initialized, before any cookie is ever set. Verified locally (WSLg + `libwebkit2gtk-4.1-0` 2.52.3): the folder was ~40 MB with those files after only opening the sign-in window, with zero Cursor cookies. `IsSignedIn` must come only from `cursorAccountConnected`/prior-sync evidence in `UsageSyncService`'s constructor and from actual `FetchAsync` results (`Ok` / `SignedOut`); other statuses (`AuthRequired`, `Syncing`, `RateLimited`, `Error`) must leave `IsSignedIn` unchanged rather than deriving it from the profile folder.
 
@@ -401,6 +420,8 @@ dbus-send --session --print-reply \
   string:org.freedesktop.appearance string:color-scheme
 ```
 
+
+
 Fix on WSL or minimal Linux sessions: create `~/.config/xdg-desktop-portal/portals.conf`:
 
 ```ini
@@ -434,6 +455,8 @@ If auto-detection still fails, set **Theme** to **Light** or **Dark** in Setting
 
 - Tests live under `Tests/`, not the repo root.
 - Windows publish output is `bin\Release\net10.0\win-x64\publish\`.
+
+
 
 ## Contributing
 
