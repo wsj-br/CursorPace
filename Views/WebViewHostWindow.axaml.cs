@@ -13,6 +13,10 @@ public partial class WebViewHostWindow : Window
         InitializeComponent();
         Title = "Sign in to Cursor";
         Browser.EnvironmentRequested += OnEnvironmentRequested;
+        // NativeWebView creates its native adapter when it is attached to the
+        // visual tree. Keep that attach until the host has a finite layout.
+        if (Browser.Parent is Panel panel)
+            panel.Children.Remove(Browser);
     }
 
     public NativeWebView WebView => Browser;
@@ -26,6 +30,9 @@ public partial class WebViewHostWindow : Window
         Directory.CreateDirectory(WebViewProfilePaths.ProfileDirectory);
         if (!OperatingSystem.IsWindows())
             Directory.CreateDirectory(WebViewProfilePaths.CacheDirectory);
+
+        await WaitForArrangedAsync();
+        AttachBrowserIfNeeded();
 
         if (Browser.AdapterInfo == null)
         {
@@ -53,21 +60,29 @@ public partial class WebViewHostWindow : Window
     public void PlaceOffscreen()
     {
         SignInBanner.IsVisible = false;
-        Width = 1;
-        Height = 1;
-        Opacity = 0;
+        Width = WebViewHostLayout.LoginWidth;
+        Height = WebViewHostLayout.LoginHeight;
+        MinWidth = WebViewHostLayout.MinWidth;
+        MinHeight = WebViewHostLayout.MinHeight;
+        WindowStartupLocation = WindowStartupLocation.Manual;
+        ShowActivated = false;
         CanResize = false;
         CanMaximize = false;
         CanMinimize = false;
         ShowInTaskbar = false;
+        Position = OffscreenPixel();
     }
 
     public void ShowForLogin()
     {
+        AttachBrowserIfNeeded();
         Opacity = 1;
         SignInBanner.IsVisible = true;
-        Width = 900;
-        Height = 700;
+        Width = WebViewHostLayout.LoginWidth;
+        Height = WebViewHostLayout.LoginHeight;
+        MinWidth = WebViewHostLayout.MinWidth;
+        MinHeight = WebViewHostLayout.MinHeight;
+        ShowActivated = true;
         CanResize = true;
         CanMaximize = false;
         CanMinimize = true;
@@ -79,6 +94,64 @@ public partial class WebViewHostWindow : Window
 
     public void HideHost() => Hide();
 
+    private async Task WaitForArrangedAsync()
+    {
+        UpdateLayout();
+        if (WebViewHostLayout.HasFinitePositiveSize(Bounds.Width, Bounds.Height))
+            return;
+
+        var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        void OnLayout(object? sender, EventArgs e)
+        {
+            if (!WebViewHostLayout.HasFinitePositiveSize(Bounds.Width, Bounds.Height))
+                return;
+            LayoutUpdated -= OnLayout;
+            done.TrySetResult();
+        }
+
+        LayoutUpdated += OnLayout;
+        try
+        {
+            OnLayout(this, EventArgs.Empty);
+            if (!done.Task.IsCompleted)
+                await done.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+        catch (TimeoutException)
+        {
+            LayoutUpdated -= OnLayout;
+        }
+    }
+
+    private void AttachBrowserIfNeeded()
+    {
+        if (Browser.Parent != null)
+            return;
+
+        var (width, height) = WebViewHostLayout.BrowserSlotSize(
+            RootGrid.Bounds.Width,
+            RootGrid.Bounds.Height,
+            SignInBanner.Bounds.Height,
+            SignInBanner.IsVisible);
+        Browser.Measure(new Size(width, height));
+        Browser.Arrange(new Rect(0, 0, width, height));
+        Grid.SetRow(Browser, 1);
+        RootGrid.Children.Add(Browser);
+    }
+
+    private PixelPoint OffscreenPixel()
+    {
+        var screen = Screens.ScreenFromWindow(this) ?? Screens.Primary;
+        if (screen == null)
+        {
+            var fallback = WebViewHostLayout.OffscreenPosition();
+            return new PixelPoint(fallback.X, fallback.Y);
+        }
+
+        var work = screen.WorkingArea;
+        var (x, y) = WebViewHostLayout.OffscreenPosition(work.X, work.Y, work.Height);
+        return new PixelPoint(x, y);
+    }
+
     private void CenterOnWorkArea()
     {
         var screen = Screens.ScreenFromWindow(this) ?? Screens.Primary;
@@ -86,8 +159,12 @@ public partial class WebViewHostWindow : Window
             return;
 
         var work = screen.WorkingArea;
-        var width = (int)Math.Round(Width);
-        var height = (int)Math.Round(Height);
+        var width = WebViewHostLayout.IsFinitePositive(Width)
+            ? (int)Math.Round(Width)
+            : WebViewHostLayout.LoginWidth;
+        var height = WebViewHostLayout.IsFinitePositive(Height)
+            ? (int)Math.Round(Height)
+            : WebViewHostLayout.LoginHeight;
         var x = work.X + Math.Max(0, (work.Width - width) / 2);
         var y = work.Y + Math.Max(0, (work.Height - height) / 2);
         Position = new PixelPoint(x, y);

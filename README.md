@@ -71,6 +71,10 @@ dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=false
 
 Linux sign-in needs WebKitGTK 4.1 installed on the machine that runs the published binary.
 
+The project carries a small compatibility build of Avalonia.Controls.WebView 12.1.0 under
+`vendor/` for macOS `CGRect`/`CGSize` ABI correctness. No separate macOS WebView runtime is
+required.
+
 Release packaging:
 
 ```powershell

@@ -8,6 +8,9 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Fixed**: install - macOS `dotnet run` / `dev.sh` now sets `NSApplication.applicationIconImage` from `Assets/cursor_pace.png`, so the Dock shows the app icon instead of the generic Unix `exec` file.
+- **Fixed**: sync - macOS no longer crashes with `Invalid view geometry: y is NaN` when the packaged app creates `WKWebView`. The sign-in host stays at a layout-safe size off-screen and attaches `NativeWebView` only after a finite arrange, instead of realizing it inside a 1x1 transparent window.
+- **Fixed**: sync - use an ABI-compatible local Avalonia WebView build on macOS, where the released 12.1.0 interop passed 32-bit rectangles to 64-bit `CGFloat` APIs and could still crash Intel builds during `WKWebView` construction.
 - **Fixed**: tray - wire Open/Quit commands onto the existing `App.axaml` `NativeMenu` instead of replacing `TrayIcon.Menu`, which crashed on macOS with `The menu being updated does not match`.
 - **Added**: settings - optional sync server (URL, API key, machine name, **Re-sync now**) shares usage samples and cycle bounds across machines on launch, after each new Cursor sample, every 10 minutes, and on demand.
 - **Changed**: settings - the sync-server **Machine name** field defaults to this computer's hostname.

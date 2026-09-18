@@ -4,7 +4,9 @@
         Title="Sign in to Cursor"
         Width="900"
         Height="700"
-        WindowStartupLocation="CenterScreen">
+        MinWidth="400"
+        MinHeight="300"
+        WindowStartupLocation="Manual">
 
     <Grid x:Name="RootGrid" RowDefinitions="Auto,*">
         <Border x:Name="SignInBanner"

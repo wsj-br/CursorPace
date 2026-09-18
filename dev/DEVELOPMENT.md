@@ -87,6 +87,11 @@ cd CursorPace
 dotnet restore
 ```
 
+The app references the ABI-fixed Avalonia WebView assemblies under
+`vendor/Avalonia.Controls.WebView/12.1.0/`. Keep those assemblies aligned with the
+Avalonia version in `CursorPace.csproj` until the upstream package includes the
+macOS `CGFloat` fix.
+
 
 
 ## Everyday commands
@@ -141,6 +146,7 @@ CursorPace/
 ├── Views/                       # MainWindow, SettingsView, chart, WebView host
 ├── Converters/
 ├── Assets/                      # cursor_pace.ico / .png
+├── vendor/                      # ABI-fixed Avalonia WebView compatibility assemblies
 ├── Tests/
 │   └── CursorPace.Tests.csproj
 ├── setup.iss                    # Inno Setup (Windows only; checks WebView2 Runtime)
@@ -171,13 +177,13 @@ Open `CursorPace.slnx` in Visual Studio, or build the `.csproj` files directly.
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | UI             | Avalonia 12 (`net10.0`)                                                                                                                                                                                   |
 | Tray           | Avalonia `TrayIcon`                                                                                                                                                                                       |
-| Cursor session | `NativeWebView` host window + persistent profile under LocalApplicationData. On Linux, `LinuxWebKitCookiePersistence` points WebKit at `cookies.sqlite` in that profile; Avalonia's GTK adapter does not. |
+| Cursor session | `NativeWebView` host window + persistent profile under LocalApplicationData. On Linux, `LinuxWebKitCookiePersistence` points WebKit at `cookies.sqlite` in that profile; Avalonia's GTK adapter does not. macOS uses the ABI-fixed WebView build under `vendor/`. |
 | Tests          | xUnit, project under `Tests/`                                                                                                                                                                             |
 | Settings       | JSON under LocalApplicationData `CursorPace`                                                                                                                                                              |
 | Installer      | Inno Setup 6 (Windows), AppImage (Linux), zipped `.app` bundle (macOS)                                                                                                                                    |
 
 
-Manual construction in `App.OnFrameworkInitializationCompleted` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IUsageSampleStore`, `ICursorUsageClient`, `IUsageSyncService`, `IDataBackupService`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. On Linux it also calls `LinuxDesktopIntegration.EnsureUserEntry()` before the window is created. `WebViewHostWindow` calls `LinuxWebKitCookiePersistence.EnsureAsync` after the NativeWebView adapter exists and before navigation. There is no DI container.
+Manual construction in `App.OnFrameworkInitializationCompleted` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IUsageSampleStore`, `ICursorUsageClient`, `IUsageSyncService`, `IDataBackupService`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. On Linux it also calls `LinuxDesktopIntegration.EnsureUserEntry()` before the window is created. On macOS it calls `MacDesktopIntegration.EnsureDockIcon()` so a `dotnet run` process does not keep the generic Unix `exec` Dock icon. `WebViewHostWindow` maps at the login size off-screen (`WebViewHostLayout`), attaches `NativeWebView` only after a finite arrange (macOS WKWebView aborts if `initWithFrame` gets NaN y), then calls `LinuxWebKitCookiePersistence.EnsureAsync` after the adapter exists and before navigation. There is no DI container.
 
 Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do not copy Cursor cookies into `HttpClient`.
 
@@ -198,11 +204,13 @@ Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do n
 | `MainViewModelTests.cs` / `DayRowViewModelTests.cs` / `CalendarMonthViewModelTests.cs`                        | Initialization, connected-account persistence, exports, calendar heading, Previous/Next cycle, settings page, backup restore                                          |
 | `DataBackupArchiveTests.cs`                                                                                   | Zip backup format, missing entries, restore into stores                                                                                                               |
 | `WindowPlacementTests.cs`                                                                                     | Restore clamped to the work area                                                                                                                                      |
+| `WebViewHostLayoutTests.cs`                                                                                   | Sign-in host off-screen position and finite `NativeWebView` slot (never 1x1 / NaN)                                                                                    |
 | `LaunchModeTests.cs`                                                                                          | `--background` and **Start in notification tray** hide the window on launch; `--show` forces it open; duplicate `--background` does not activate the running instance |
 | `SingleInstanceTests.cs`                                                                                      | Unix lock file rejects a second acquire until the first instance disposes; socket signal reaches `Listen`                                                             |
 | `AppInfoTests.cs`                                                                                             | Settings About version, UTC build date/time, copyright, license, repository URL                                                                                       |
 | `LinuxStartupRegistrationTests.cs`                                                                            | Linux autostart `Exec` uses the `APPIMAGE` path, not the FUSE `ProcessPath`, and sets `APPIMAGELAUNCHER_DISABLE=1`                                                    |
 | `LinuxDesktopIntegrationTests.cs`                                                                             | Linux taskbar `.desktop` id, `StartupWMClass`, and absolute `Icon=` path                                                                                              |
+| `MacDesktopIntegrationTests.cs`                                                                               | macOS Dock icon path under `Assets/cursor_pace.png`                                                                                                                   |
 | `LinuxWebKitCookiePersistenceTests.cs`                                                                        | WebKit cookie database path under the profile folder                                                                                                                  |
 | `AsyncRelayCommandTests.cs`                                                                                   | Async command reentrancy guard and exception handling                                                                                                                 |
 
@@ -388,6 +396,10 @@ Do not resurrect a `HasPersistedProfile`-style check that treats the WebView pro
 **Taskbar icon missing (Linux)**
 
 GNOME matches the window via `WM_CLASS` / `StartupWMClass`, not `_NET_WM_ICON`. `LinuxDesktopIntegration` writes `~/.local/share/applications/CursorPace.desktop` (id `CursorPace`, matching `X11PlatformOptions.WmClass`) with an absolute `Icon=` path to the PNG. A themed `Icon=cursor-pace` name is not enough: GTK's icon cache often misses a newly copied hicolor file and the taskbar shows the generic gear. Do not set `ShowInTaskbar` to false while restoring window position: Mutter keeps the window off the taskbar after that.
+
+**Dock icon is the generic exec file (macOS)**
+
+`Window.Icon` and the tray `TrayIcon` do not set the Dock image. An unpackaged `dotnet run` apphost has no `CFBundleIconFile`, so LaunchServices shows the Unix executable icon. `MacDesktopIntegration` loads `Assets/cursor_pace.png` from the output directory and calls `NSApplication.setApplicationIconImage`. The packaged `.app` already sets `CFBundleIconFile` in `scripts/build-appbundle.sh`.
 
 **System theme wrong on Linux or WSL (Settings → Theme = System)**
 

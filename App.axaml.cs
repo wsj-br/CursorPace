@@ -47,6 +47,7 @@ public partial class App : Application
         _viewModel = new MainViewModel(clock, calculator, store, startupReg, sync, backup, remoteSync, _dispatcher);
         ApplyTheme(_viewModel.ThemeMode);
         LinuxDesktopIntegration.EnsureUserEntry();
+        MacDesktopIntegration.EnsureDockIcon();
 
         _trayService = new TrayService();
         _trayService.Initialize(

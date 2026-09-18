@@ -181,6 +181,7 @@ The window does not need to stay visible, but the process must be running for mi
 
 - End any `CursorPace` process, then launch again.
 - If it still fails on Windows, check Event Viewer for the application error. On Linux try `journalctl --user -xe`; on macOS check Console.app.
+- macOS Console `Invalid view geometry: y is NaN` from `WKWebView` was caused by both early host layout and an ABI mismatch in the released Avalonia WebView macOS interop. Current builds use a compatible local WebView build and attach it only after finite arrange. Rebuild from this tree if you still see that report.
 
 **Sign in fails or "The specified module could not be found"**
 
