@@ -44,14 +44,22 @@
     <InternalsVisibleTo Include="CursorPace.Tests" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <UseMacWebViewCompatibility
+      Condition="$([MSBuild]::IsOSPlatform('OSX')) And Exists('$(MSBuildProjectDirectory)/vendor/Avalonia.Controls.WebView/12.1.0/lib/net10.0/Avalonia.Controls.WebView.dll') And Exists('$(MSBuildProjectDirectory)/vendor/Avalonia.Controls.WebView/12.1.0/lib/net10.0/Avalonia.Controls.WebView.Core.dll')">true</UseMacWebViewCompatibility>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.2" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.2" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Controls.WebView" Version="12.1.0">
+      <ExcludeAssets Condition="'$(UseMacWebViewCompatibility)' == 'true'">compile;runtime</ExcludeAssets>
+    </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseMacWebViewCompatibility)' == 'true'">
     <Reference Include="Avalonia.Controls.WebView">
       <HintPath>vendor/Avalonia.Controls.WebView/12.1.0/lib/net10.0/Avalonia.Controls.WebView.dll</HintPath>
       <Private>true</Private>

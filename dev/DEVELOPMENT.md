@@ -87,10 +87,12 @@ cd CursorPace
 dotnet restore
 ```
 
-The app references the ABI-fixed Avalonia WebView assemblies under
-`vendor/Avalonia.Controls.WebView/12.1.0/`. Keep those assemblies aligned with the
-Avalonia version in `CursorPace.csproj` until the upstream package includes the
-macOS `CGFloat` fix.
+The app uses the published `Avalonia.Controls.WebView` package on Windows and
+Linux. On macOS, when the ABI-fixed assemblies under
+`vendor/Avalonia.Controls.WebView/12.1.0/` are present, the project uses those
+instead because the released package has the macOS `CGFloat` interop issue.
+Keep the compatibility assemblies aligned with the Avalonia version in
+`CursorPace.csproj` until the upstream package includes that fix.
 
 
 

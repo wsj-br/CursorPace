@@ -7,6 +7,7 @@ Use conventional types (**Added**, **Changed**, **Fixed**, **Removed**), a short
 Add new entries in the `## [Unreleased]` section. When releasing, move those entries to `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`.
 
 ## [Unreleased]
+- **Fixed**: install - Linux and Windows builds now resolve `Avalonia.Controls.WebView` from NuGet instead of depending on macOS-only compatibility assemblies, while macOS keeps using the ABI-fixed assemblies when available.
 
 - **Changed**: tray - on macOS, hide the Dock icon while the main window is hidden or minimized, and restore it before tray **Open**, `--show`, or a second launch shows the window.
 - **Fixed**: install - macOS `dotnet run` / `dev.sh` now sets `NSApplication.applicationIconImage` from `Assets/cursor_pace.png`, so the Dock shows the app icon instead of the generic Unix `exec` file.
