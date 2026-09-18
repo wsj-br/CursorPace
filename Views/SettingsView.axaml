@@ -104,10 +104,41 @@
                             </StackPanel>
                         </Grid>
                         <StackPanel Spacing="4">
-                            <TextBlock Text="API key" Opacity="0.8" FontSize="12"/>
-                            <TextBox Text="{Binding RemoteSyncApiKey, Mode=TwoWay}"
+                            <TextBlock Text="API token" Opacity="0.8" FontSize="12"/>
+                            <SelectableTextBlock Text="Create this on the Tokens page of your CursorPace Sync server."
+                                                 TextWrapping="Wrap"
+                                                 Opacity="0.7"
+                                                 FontSize="12"/>
+                            <TextBox x:Name="RemoteSyncApiTokenBox"
+                                     Text="{Binding RemoteSyncApiKey, Mode=TwoWay}"
                                      PasswordChar="•"
-                                     AutomationProperties.Name="API key"/>
+                                     AutomationProperties.Name="API token">
+                                <TextBox.InnerRightContent>
+                                    <Button x:Name="RemoteSyncApiTokenRevealButton"
+                                            Click="OnToggleRemoteSyncApiTokenClick"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Padding="6,4"
+                                            Margin="0,0,2,0"
+                                            VerticalAlignment="Stretch"
+                                            ToolTip.Tip="Show token"
+                                            AutomationProperties.Name="Show API token">
+                                        <Panel>
+                                            <PathIcon x:Name="ShowRemoteSyncApiTokenIcon"
+                                                      Data="{StaticResource EyeIcon}"
+                                                      Width="16"
+                                                      Height="16"
+                                                      Opacity="0.7"/>
+                                            <PathIcon x:Name="HideRemoteSyncApiTokenIcon"
+                                                      Data="{StaticResource EyeOffIcon}"
+                                                      Width="16"
+                                                      Height="16"
+                                                      Opacity="0.7"
+                                                      IsVisible="False"/>
+                                        </Panel>
+                                    </Button>
+                                </TextBox.InnerRightContent>
+                            </TextBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button Content="Re-sync now" Command="{Binding ResyncNowCommand}"/>

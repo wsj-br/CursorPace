@@ -1,3 +1,4 @@
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
@@ -315,6 +316,20 @@ public partial class SettingsView : UserControl
     {
         if (_viewModel != null && IntervalBox.SelectedItem is int hours)
             _viewModel.SyncIntervalHours = hours;
+    }
+
+    private void OnToggleRemoteSyncApiTokenClick(object? sender, RoutedEventArgs e)
+    {
+        var reveal = RemoteSyncApiTokenBox.PasswordChar == '•';
+        RemoteSyncApiTokenBox.PasswordChar = reveal ? '\0' : '•';
+        ShowRemoteSyncApiTokenIcon.IsVisible = !reveal;
+        HideRemoteSyncApiTokenIcon.IsVisible = reveal;
+        RemoteSyncApiTokenRevealButton.SetValue(
+            ToolTip.TipProperty,
+            reveal ? "Hide token" : "Show token");
+        AutomationProperties.SetName(
+            RemoteSyncApiTokenRevealButton,
+            reveal ? "Hide API token" : "Show API token");
     }
 
     private void OnThemeChanged(object? sender, SelectionChangedEventArgs e)

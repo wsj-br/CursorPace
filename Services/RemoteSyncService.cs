@@ -66,7 +66,7 @@ public sealed class RemoteSyncService : IRemoteSyncService
         {
             var pushJson = await ReadBodyAsync(pushResponse, cancellationToken).ConfigureAwait(false);
             if (pushResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                return Fail("The sync server rejected the API key.");
+                return Fail("The sync server rejected the API token.");
             if (!pushResponse.IsSuccessStatusCode)
                 return Fail(FormatHttpError("push", pushResponse.StatusCode, pushJson));
 
@@ -97,7 +97,7 @@ public sealed class RemoteSyncService : IRemoteSyncService
         {
             var pullJson = await ReadBodyAsync(pullResponse, cancellationToken).ConfigureAwait(false);
             if (pullResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                return Fail("The sync server rejected the API key.");
+                return Fail("The sync server rejected the API token.");
             if (!pullResponse.IsSuccessStatusCode)
                 return Fail(FormatHttpError("pull", pullResponse.StatusCode, pullJson));
 

@@ -10,6 +10,7 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 - **Added**: settings - optional sync server (URL, API key, machine name, **Re-sync now**) shares usage samples and cycle bounds across machines on launch, after each new Cursor sample, every 10 minutes, and on demand.
 - **Changed**: settings - the sync-server **Machine name** field defaults to this computer's hostname.
+- **Changed**: settings - the sync-server secret field is labeled **API token**, with a hint to create it on the server Tokens page and an eye control to show or hide it.
 - **Fixed**: settings - sync-server push sends percentages as 4-decimal-digit strings so the server does not reject real Cursor samples with HTTP 400.
 
 - **Fixed**: chart - the last top-axis date sits inside the plot instead of clipping at the right edge.

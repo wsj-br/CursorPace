@@ -108,7 +108,7 @@ Open **Settings** from the title bar. Settings replace the calendar or chart in 
 | **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
 | **Sync with server** | Optional. Share usage samples and billing-cycle bounds with other machines through a CursorPace sync server. Syncs on launch, after each new Cursor sample, every 10 minutes, and when you click **Re-sync now** |
 | **Server URL** | Sync server origin, for example `http://127.0.0.1:8000` |
-| **API key** | Per-machine token from the sync server web UI |
+| **API token** | Token from the **Tokens** page of your CursorPace Sync server. The eye control shows or hides the value |
 | **Machine name** | Label shown on the server. Defaults to this computer's hostname |
 | **Re-sync now** | Push local data, then pull the merged canonical state |
 | **Launch at login** | Starts the app at OS login (Windows Run key, macOS Launch Agent, or Linux XDG autostart) |

@@ -184,7 +184,7 @@ public class RemoteSyncServiceTests
         var result = await service.SyncAsync(LocalState());
 
         Assert.False(result.Success);
-        Assert.Contains("API key", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Contains("API token", result.ErrorMessage, StringComparison.Ordinal);
     }
 
     [Fact]

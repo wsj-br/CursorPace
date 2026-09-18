@@ -816,7 +816,7 @@ public sealed class MainViewModel : ViewModelBase
             return "Sync server is off.";
         if (string.IsNullOrWhiteSpace(_settings.RemoteSyncUrl)
             || string.IsNullOrWhiteSpace(_settings.RemoteSyncApiKey))
-            return "Set the server URL and API key to sync.";
+            return "Set the server URL and API token to sync.";
         if (_settings.LastRemoteSyncUtc is { } last)
             return "Last synced "
                 + last.ToLocalTime().DateTime.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture);
