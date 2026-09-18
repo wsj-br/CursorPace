@@ -131,11 +131,11 @@ While the process is running, an icon stays in the notification area.
 
 Hover over the tray icon to see today's expected percentage and the projected percent at the next renewal for Cursor and Other Models. The renewal projection is omitted until enough data exists.
 
-If the icon is missing, expand the overflow chevron (`^`). On Linux, GNOME may need the AppIndicator extension. On macOS, left-click opens the tray menu; choose **Open** from that menu.
+If the icon is missing, expand the overflow chevron (`^`). On Linux, GNOME may need the AppIndicator extension. On macOS, left-click opens the tray menu; choose **Open** from that menu. macOS also hides the Dock icon while the main window is hidden or minimized; restore the window from the tray, `--show`, or a second launch of the app.
 
 ## Startup and single instance
 
-- With **Launch at login** on, a new OS login session starts the app. **Start in notification tray** (on by default) keeps the window hidden; turn that off to open the window. Click the tray icon to open the window.
+- With **Launch at login** on, a new OS login session starts the app. **Start in notification tray** (on by default) keeps the window hidden; turn that off to open the window. Click the tray icon to open the window. On macOS that hidden state also removes the Dock icon until the window is shown.
 - From the Start menu or app launcher, the window opens unless **Start in notification tray** is on. Pass `--show` to force the window open regardless of that setting or `--background`.
 - Only one process runs. Launching again activates the existing window.
 

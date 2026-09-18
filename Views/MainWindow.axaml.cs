@@ -90,6 +90,7 @@ public partial class MainWindow : Window
 
     public void BringToFront()
     {
+        MacDesktopIntegration.ApplyDockVisibility(true);
         if (!IsVisible)
         {
             ApplySavedWindowPlacement();
@@ -153,6 +154,7 @@ public partial class MainWindow : Window
         e.Cancel = true;
         _restorePlacementPending = true;
         Hide();
+        MacDesktopIntegration.ApplyDockVisibility(false);
     }
 
     private void OnWindowOpened(object? sender, EventArgs e)
@@ -209,7 +211,11 @@ public partial class MainWindow : Window
         UpdateMaximizeCaption();
         if (WindowState is WindowState.Normal or WindowState.Maximized)
             _restoreWindowState = WindowState;
+        SyncMacDockVisibility();
     }
+
+    private void SyncMacDockVisibility() =>
+        MacDesktopIntegration.ApplyDockVisibility(IsVisible, WindowState == WindowState.Minimized);
 
     private void PersistWindowPlacement()
     {

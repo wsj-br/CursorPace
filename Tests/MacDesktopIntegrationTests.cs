@@ -46,4 +46,38 @@ public class MacDesktopIntegrationTests
         Assert.Null(MacDesktopIntegration.ResolveBundledIconPath(""));
         Assert.Null(MacDesktopIntegration.ResolveBundledIconPath("   "));
     }
+
+    [Theory]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(false, true, false)]
+    public void ShouldShowInDock_HidesWhenWindowIsHiddenOrMinimized(
+        bool windowVisible,
+        bool windowMinimized,
+        bool expected)
+    {
+        Assert.Equal(expected, MacDesktopIntegration.ShouldShowInDock(windowVisible, windowMinimized));
+    }
+
+    [Fact]
+    public void ActivationPolicyForWindow_UsesRegularWhenDockShouldShow()
+    {
+        Assert.Equal(
+            MacDesktopIntegration.ActivationPolicyRegular,
+            MacDesktopIntegration.ActivationPolicyForWindow(true, false));
+    }
+
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    public void ActivationPolicyForWindow_UsesAccessoryWhenDockShouldHide(
+        bool windowVisible,
+        bool windowMinimized)
+    {
+        Assert.Equal(
+            MacDesktopIntegration.ActivationPolicyAccessory,
+            MacDesktopIntegration.ActivationPolicyForWindow(windowVisible, windowMinimized));
+    }
 }

@@ -128,7 +128,7 @@ dotnet run --project ./CursorPace.csproj -- --background
 dotnet run --project ./CursorPace.csproj -- --show
 ```
 
-`--background` starts the tray icon without showing the main window. **Start in notification tray** does the same for a normal launch; Windows Run, macOS Launch Agent, and Linux XDG autostart also pass `--background` when that setting is on. `--show` forces the window open and wins over both.
+`--background` starts the tray icon without showing the main window. **Start in notification tray** does the same for a normal launch; Windows Run, macOS Launch Agent, and Linux XDG autostart also pass `--background` when that setting is on. `--show` forces the window open and wins over both. On macOS, a hidden or minimized main window uses `NSApplicationActivationPolicyAccessory` so the Dock icon is removed; tray **Open**, `--show`, and a second interactive launch restore `Regular` before showing the window.
 
 Maintainer scripts ship as PowerShell (`.ps1`) and bash (`.sh`) with the same behavior. Use `.ps1` on Windows PowerShell and `.sh` on Linux/macOS (no PowerShell install required).
 
@@ -210,7 +210,7 @@ Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do n
 | `AppInfoTests.cs`                                                                                             | Settings About version, UTC build date/time, copyright, license, repository URL                                                                                       |
 | `LinuxStartupRegistrationTests.cs`                                                                            | Linux autostart `Exec` uses the `APPIMAGE` path, not the FUSE `ProcessPath`, and sets `APPIMAGELAUNCHER_DISABLE=1`                                                    |
 | `LinuxDesktopIntegrationTests.cs`                                                                             | Linux taskbar `.desktop` id, `StartupWMClass`, and absolute `Icon=` path                                                                                              |
-| `MacDesktopIntegrationTests.cs`                                                                               | macOS Dock icon path under `Assets/cursor_pace.png`                                                                                                                   |
+| `MacDesktopIntegrationTests.cs`                                                                               | macOS Dock icon path under `Assets/cursor_pace.png`, and hidden/minimized windows map to Accessory rather than Regular                                                |
 | `LinuxWebKitCookiePersistenceTests.cs`                                                                        | WebKit cookie database path under the profile folder                                                                                                                  |
 | `AsyncRelayCommandTests.cs`                                                                                   | Async command reentrancy guard and exception handling                                                                                                                 |
 
@@ -400,6 +400,10 @@ GNOME matches the window via `WM_CLASS` / `StartupWMClass`, not `_NET_WM_ICON`. 
 **Dock icon is the generic exec file (macOS)**
 
 `Window.Icon` and the tray `TrayIcon` do not set the Dock image. An unpackaged `dotnet run` apphost has no `CFBundleIconFile`, so LaunchServices shows the Unix executable icon. `MacDesktopIntegration` loads `Assets/cursor_pace.png` from the output directory and calls `NSApplication.setApplicationIconImage`. The packaged `.app` already sets `CFBundleIconFile` in `scripts/build-appbundle.sh`.
+
+**Dock icon stays after the window is hidden (macOS)**
+
+Close-to-tray and Minimize call `MacDesktopIntegration.ApplyDockVisibility`, which sets `NSApplicationActivationPolicyAccessory`. Showing the window (tray **Open**, `--show`, second launch) sets `Regular` first. Do not add `LSUIElement` to the bundle plist or replace Avalonia's AppDelegate. A hidden Dock icon cannot restore the window; use the tray.
 
 **System theme wrong on Linux or WSL (Settings → Theme = System)**
 

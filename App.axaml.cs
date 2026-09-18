@@ -67,6 +67,7 @@ public partial class App : Application
         // starting in the tray so that Show is skipped.
         if (!launchInBackground)
             desktop.MainWindow = _mainWindow;
+        MacDesktopIntegration.ApplyDockVisibility(!launchInBackground);
 
         _ = _viewModel.StartSyncAsync();
 
@@ -116,6 +117,7 @@ public partial class App : Application
         {
             if (_mainWindow == null)
                 return;
+            MacDesktopIntegration.ApplyDockVisibility(true);
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 desktop.MainWindow ??= _mainWindow;
             _mainWindow.BringToFront();

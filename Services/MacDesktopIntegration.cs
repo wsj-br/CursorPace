@@ -24,6 +24,20 @@ public static class MacDesktopIntegration
         }
     }
 
+    public static void ApplyDockVisibility(bool windowVisible, bool windowMinimized = false)
+    {
+        if (!OperatingSystem.IsMacOS())
+            return;
+
+        try
+        {
+            ApplyActivationPolicy(ActivationPolicyForWindow(windowVisible, windowMinimized));
+        }
+        catch
+        {
+        }
+    }
+
     internal static string? ResolveBundledIconPath(string baseDirectory)
     {
         if (string.IsNullOrWhiteSpace(baseDirectory))
@@ -31,6 +45,33 @@ public static class MacDesktopIntegration
 
         var candidate = Path.Combine(baseDirectory, "Assets", IconFileName);
         return File.Exists(candidate) ? candidate : null;
+    }
+
+    // Regular (0) shows the Dock icon; Accessory (1) hides it and the app switcher tile.
+    internal const int ActivationPolicyRegular = 0;
+    internal const int ActivationPolicyAccessory = 1;
+
+    internal static bool ShouldShowInDock(bool windowVisible, bool windowMinimized) =>
+        windowVisible && !windowMinimized;
+
+    internal static int ActivationPolicyForWindow(bool windowVisible, bool windowMinimized) =>
+        ShouldShowInDock(windowVisible, windowMinimized)
+            ? ActivationPolicyRegular
+            : ActivationPolicyAccessory;
+
+    private static void ApplyActivationPolicy(int policy)
+    {
+        var nsAppClass = objc_getClass("NSApplication");
+        if (nsAppClass == IntPtr.Zero)
+            return;
+
+        var sharedApplication = sel_registerName("sharedApplication");
+        var setActivationPolicy = sel_registerName("setActivationPolicy:");
+        var nsApp = IntPtr_objc_msgSend(nsAppClass, sharedApplication);
+        if (nsApp == IntPtr.Zero)
+            return;
+
+        Bool_objc_msgSend(nsApp, setActivationPolicy, policy);
     }
 
     private static void ApplyDockIcon(string iconPath)
@@ -90,4 +131,8 @@ public static class MacDesktopIntegration
 
     [DllImport(Objc, EntryPoint = "objc_msgSend")]
     private static extern void Void_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg);
+
+    [DllImport(Objc, EntryPoint = "objc_msgSend")]
+    [return: MarshalAs(UnmanagedType.U1)]
+    private static extern bool Bool_objc_msgSend(IntPtr receiver, IntPtr selector, nint arg);
 }
