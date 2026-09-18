@@ -9,8 +9,10 @@ public interface IUsageSyncService : IDisposable
     string StatusText { get; }
     DateTimeOffset? LastSuccessUtc { get; }
     IReadOnlyList<UsageSample> Samples { get; }
+    DateTimeOffset? SamplesCycleStartUtc { get; }
     event EventHandler? StateChanged;
     event EventHandler<UsageSnapshot>? SnapshotReceived;
+    event EventHandler<UsageSnapshot>? SampleAppended;
     Task StartAsync(bool autoSyncEnabled, int intervalHours);
     Task RefreshNowAsync(bool allowInteractiveLogin);
     Task SignInAsync();
@@ -18,4 +20,5 @@ public interface IUsageSyncService : IDisposable
     void SetIntervalHours(int hours);
     void SetAutoSyncEnabled(bool enabled);
     void ReloadPersistedUsage(DateTimeOffset? lastSuccessUtc);
+    int MergeRemoteSamples(IReadOnlyList<UsageSample> remoteSamples, DateTimeOffset? remoteCycleStartUtc);
 }

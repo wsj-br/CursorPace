@@ -134,7 +134,12 @@ public sealed class JsonPlanStore : IPlanStore
             WindowY = stored.WindowY,
             WindowWidth = stored.WindowWidth,
             WindowHeight = stored.WindowHeight,
-            WindowMaximized = stored.WindowMaximized
+            WindowMaximized = stored.WindowMaximized,
+            RemoteSyncEnabled = stored.RemoteSyncEnabled,
+            RemoteSyncUrl = stored.RemoteSyncUrl,
+            RemoteSyncApiKey = stored.RemoteSyncApiKey,
+            RemoteSyncMachineName = stored.RemoteSyncMachineName,
+            LastRemoteSyncUtc = stored.LastRemoteSyncUtc
         };
     }
 
@@ -157,7 +162,12 @@ public sealed class JsonPlanStore : IPlanStore
             WindowY = settings.WindowY,
             WindowWidth = settings.WindowWidth,
             WindowHeight = settings.WindowHeight,
-            WindowMaximized = settings.WindowMaximized
+            WindowMaximized = settings.WindowMaximized,
+            RemoteSyncEnabled = settings.RemoteSyncEnabled,
+            RemoteSyncUrl = settings.RemoteSyncUrl,
+            RemoteSyncApiKey = settings.RemoteSyncApiKey,
+            RemoteSyncMachineName = settings.RemoteSyncMachineName,
+            LastRemoteSyncUtc = settings.LastRemoteSyncUtc
         };
     }
 
@@ -237,6 +247,11 @@ public sealed class JsonPlanStore : IPlanStore
         public int? WindowWidth { get; set; }
         public int? WindowHeight { get; set; }
         public bool WindowMaximized { get; set; }
+        public bool RemoteSyncEnabled { get; set; }
+        public string? RemoteSyncUrl { get; set; }
+        public string? RemoteSyncApiKey { get; set; }
+        public string? RemoteSyncMachineName { get; set; }
+        public DateTimeOffset? LastRemoteSyncUtc { get; set; }
     }
 
     private sealed class StoredCycle

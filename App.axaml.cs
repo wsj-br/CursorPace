@@ -41,9 +41,10 @@ public partial class App : Application
         var usageClient = new NativeWebViewCursorUsageClient(_dispatcher);
         var sync = new UsageSyncService(_dispatcher, usageClient, sampleStore, clock, store);
         var backup = new DataBackupService(store, sampleStore);
+        var remoteSync = new RemoteSyncService();
         _syncService = sync;
 
-        _viewModel = new MainViewModel(clock, calculator, store, startupReg, sync, backup);
+        _viewModel = new MainViewModel(clock, calculator, store, startupReg, sync, backup, remoteSync, _dispatcher);
         ApplyTheme(_viewModel.ThemeMode);
         LinuxDesktopIntegration.EnsureUserEntry();
 

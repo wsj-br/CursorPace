@@ -18,4 +18,9 @@ public sealed class AppSettings
     public int? WindowWidth { get; set; }
     public int? WindowHeight { get; set; }
     public bool WindowMaximized { get; set; }
+    public bool RemoteSyncEnabled { get; set; }
+    public string? RemoteSyncUrl { get; set; }
+    public string? RemoteSyncApiKey { get; set; }
+    public string? RemoteSyncMachineName { get; set; }
+    public DateTimeOffset? LastRemoteSyncUtc { get; set; }
 }

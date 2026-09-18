@@ -685,6 +685,244 @@ public class MainViewModelTests
         Assert.False(vm.CanGoToNextCycle);
     }
 
+    [Fact]
+    public async Task RunRemoteSyncAsync_WhenDisabled_DoesNotCallServer()
+    {
+        var remoteSync = new FakeRemoteSync();
+        var vm = CreateViewModel(new FakeSync(), new FakePlanStore(), remoteSync);
+
+        await vm.RunRemoteSyncAsync();
+
+        Assert.Equal(0, remoteSync.SyncCount);
+        Assert.Equal("Sync server is off.", vm.RemoteSyncStatusText);
+    }
+
+    [Fact]
+    public async Task RunRemoteSyncAsync_WhenKeyMissing_DoesNotCallServer()
+    {
+        var store = new FakePlanStore
+        {
+            Settings = new AppSettings { RemoteSyncEnabled = true, RemoteSyncUrl = "http://server:8000" }
+        };
+        var remoteSync = new FakeRemoteSync();
+        var vm = CreateViewModel(new FakeSync(), store, remoteSync);
+
+        await vm.RunRemoteSyncAsync();
+
+        Assert.Equal(0, remoteSync.SyncCount);
+    }
+
+    [Fact]
+    public void RemoteSyncMachineName_DefaultsToHostname()
+    {
+        var vm = CreateViewModel(new FakeSync());
+
+        Assert.Equal(Environment.MachineName, vm.RemoteSyncMachineName);
+
+        vm.RemoteSyncMachineName = string.Empty;
+
+        Assert.Equal(Environment.MachineName, vm.RemoteSyncMachineName);
+    }
+
+    [Fact]
+    public void RemoteSyncMachineName_KeepsCustomName()
+    {
+        var vm = CreateViewModel(new FakeSync());
+
+        vm.RemoteSyncMachineName = "dev-box";
+
+        Assert.Equal("dev-box", vm.RemoteSyncMachineName);
+    }
+
+    [Fact]
+    public async Task RunRemoteSyncAsync_AdoptsRemoteCycleAndSamplesOnFreshMachine()
+    {
+        var store = ConfiguredRemoteStore();
+        var sync = new FakeSync();
+        var remoteSync = new FakeRemoteSync
+        {
+            Result = new RemoteSyncResult(
+                true,
+                null,
+                new RemoteSyncCanonicalState(
+                    AtUtc(2026, 8, 1),
+                    new QuotaCycle
+                    {
+                        RenewalDay = 1,
+                        CycleStart = new DateTime(2026, 8, 1),
+                        NextRenewal = new DateTime(2026, 9, 1)
+                    },
+                    [],
+                    [SampleAt(new DateTime(2026, 8, 10, 10, 0, 0), 10, 2)]),
+                0,
+                1)
+        };
+        var vm = CreateViewModel(sync, store, remoteSync);
+        Assert.False(vm.IsInitialized);
+
+        await vm.RunRemoteSyncAsync();
+
+        Assert.Equal(1, remoteSync.SyncCount);
+        Assert.True(vm.IsInitialized);
+        Assert.NotNull(store.Settings.ActiveCycle);
+        Assert.Equal(new DateTime(2026, 8, 1), store.Settings.ActiveCycle.CycleStart);
+        Assert.Single(sync.SampleStore.Document.Samples);
+        Assert.NotNull(store.Settings.LastRemoteSyncUtc);
+        Assert.Contains("Last synced", vm.RemoteSyncStatusText, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task RunRemoteSyncAsync_WhenServerFails_ShowsErrorAndKeepsLocalData()
+    {
+        var store = ConfiguredRemoteStore();
+        store.Settings.ActiveCycle = new CycleCalculator().GenerateCycleFromBounds(
+            new DateTime(2026, 8, 1),
+            new DateTime(2026, 9, 1));
+        var remoteSync = new FakeRemoteSync
+        {
+            Result = new RemoteSyncResult(false, "Could not reach the sync server.", null, 0, 0)
+        };
+        var vm = CreateViewModel(new FakeSync(), store, remoteSync);
+
+        await vm.RunRemoteSyncAsync();
+
+        Assert.Equal("Could not reach the sync server.", vm.RemoteSyncStatusText);
+        Assert.False(vm.IsRemoteSyncing);
+        Assert.NotNull(store.Settings.ActiveCycle);
+        Assert.Null(store.Settings.LastRemoteSyncUtc);
+    }
+
+    [Fact]
+    public async Task SampleAppended_TriggersRemoteSync()
+    {
+        var store = ConfiguredRemoteStore();
+        var sync = new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok };
+        var remoteSync = new FakeRemoteSync();
+        var vm = CreateViewModel(sync, store, remoteSync);
+        var snapshot = SnapshotFor(new DateTime(2026, 8, 1), new DateTime(2026, 9, 1), 10, 2);
+
+        sync.RaiseSampleAppended(snapshot);
+
+        for (var i = 0; i < 200 && remoteSync.SyncCount == 0; i++)
+            await Task.Delay(10);
+        Assert.Equal(1, remoteSync.SyncCount);
+        Assert.Equal("configured-machine", remoteSync.LastLocal!.MachineName);
+    }
+
+    [Fact]
+    public void RemoteSyncEnabled_WhenTurnedOnWithConfig_StartsSync()
+    {
+        var store = new FakePlanStore
+        {
+            Settings = new AppSettings
+            {
+                RemoteSyncUrl = "http://server:8000",
+                RemoteSyncApiKey = "key",
+                RemoteSyncMachineName = "configured-machine"
+            }
+        };
+        var remoteSync = new FakeRemoteSync();
+        var vm = CreateViewModel(new FakeSync(), store, remoteSync);
+
+        vm.RemoteSyncEnabled = true;
+
+        Assert.True(store.Settings.RemoteSyncEnabled);
+        Assert.True(vm.IsRemoteSyncing || remoteSync.SyncCount == 1);
+    }
+
+    [Fact]
+    public async Task RunRemoteSyncAsync_MergesRemoteSamplesIntoExistingCycle()
+    {
+        var calculator = new CycleCalculator();
+        var live = calculator.GenerateCycleFromBounds(
+            new DateTime(2026, 8, 1),
+            new DateTime(2026, 9, 1));
+        var store = ConfiguredRemoteStore();
+        store.Settings.ActiveCycle = live;
+        var sync = new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok };
+        sync.SampleStore.Document = new UsageSampleDocument
+        {
+            CycleStartUtc = AtUtc(2026, 8, 1),
+            Samples = [SampleAt(new DateTime(2026, 8, 10, 10, 0, 0), 10, 2)]
+        };
+        var remoteSync = new FakeRemoteSync
+        {
+            Result = new RemoteSyncResult(
+                true,
+                null,
+                new RemoteSyncCanonicalState(
+                    AtUtc(2026, 8, 1),
+                    live,
+                    [],
+                    [
+                        SampleAt(new DateTime(2026, 8, 10, 10, 0, 0), 10, 2),
+                        SampleAt(new DateTime(2026, 8, 12, 10, 0, 0), 20, 4)
+                    ]),
+                0,
+                2)
+        };
+        var vm = CreateViewModel(sync, store, remoteSync);
+        Assert.True(vm.IsInitialized);
+
+        await vm.RunRemoteSyncAsync();
+
+        Assert.Equal(2, sync.SampleStore.Document.Samples.Count);
+        Assert.Equal(live.CycleStart, store.Settings.ActiveCycle!.CycleStart);
+        Assert.Contains("2 samples", vm.RemoteSyncStatusText, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task RemoteSyncTimer_FiresAfterTenIdleMinutes()
+    {
+        var store = ConfiguredRemoteStore();
+        var remoteSync = new FakeRemoteSync();
+        var dispatcher = new FakeDispatcher();
+        var vm = CreateViewModel(new FakeSync(), store, new FakeStartup(), new FakeClock(), remoteSync, dispatcher);
+
+        await vm.RunRemoteSyncAsync();
+
+        Assert.Equal(1, remoteSync.SyncCount);
+        Assert.True(dispatcher.Timer.IsStarted);
+        Assert.Equal(TimeSpan.FromMinutes(10), dispatcher.Timer.Interval);
+
+        dispatcher.Timer.Fire();
+
+        Assert.Equal(2, remoteSync.SyncCount);
+        Assert.True(dispatcher.Timer.IsStarted);
+    }
+
+    [Fact]
+    public void RemoteSyncTimer_StopsWhenDisabled()
+    {
+        var store = ConfiguredRemoteStore();
+        var dispatcher = new FakeDispatcher();
+        var vm = CreateViewModel(new FakeSync(), store, new FakeStartup(), new FakeClock(), new FakeRemoteSync(), dispatcher);
+
+        Assert.True(dispatcher.Timer.IsStarted);
+
+        vm.RemoteSyncEnabled = false;
+
+        Assert.False(dispatcher.Timer.IsStarted);
+    }
+
+    private static FakePlanStore ConfiguredRemoteStore() =>
+        new()
+        {
+            Settings = new AppSettings
+            {
+                RemoteSyncEnabled = true,
+                RemoteSyncUrl = "http://server:8000",
+                RemoteSyncApiKey = "key",
+                RemoteSyncMachineName = "configured-machine"
+            }
+        };
+
+    private static MainViewModel CreateViewModel(FakeSync sync, FakePlanStore store, FakeRemoteSync remoteSync) =>
+        CreateViewModel(sync, store, new FakeStartup(), new FakeClock(), remoteSync, new FakeDispatcher());
+
+    private static DateTimeOffset AtUtc(int year, int month, int day) =>
+        new(year, month, day, 0, 0, 0, TimeSpan.Zero);
+
     private static MainViewModel CreateViewModel(bool signedIn) =>
         CreateViewModel(new FakeSync { IsSignedIn = signedIn, Status = signedIn ? SyncStatus.Ok : SyncStatus.SignedOut });
 
@@ -702,13 +940,24 @@ public class MainViewModelTests
         FakePlanStore store,
         FakeStartup startup,
         FakeClock clock) =>
+        CreateViewModel(sync, store, startup, clock, new FakeRemoteSync(), new FakeDispatcher());
+
+    private static MainViewModel CreateViewModel(
+        FakeSync sync,
+        FakePlanStore store,
+        FakeStartup startup,
+        FakeClock clock,
+        FakeRemoteSync remoteSync,
+        FakeDispatcher dispatcher) =>
         new(
             clock,
             new CycleCalculator(),
             store,
             startup,
             sync,
-            new DataBackupService(store, sync.SampleStore));
+            new DataBackupService(store, sync.SampleStore),
+            remoteSync,
+            dispatcher);
 
     private static MainViewModel CreateInitializedViewModel(bool signedIn, FakePlanStore? store = null)
     {
@@ -817,6 +1066,8 @@ public class MainViewModelTests
         }
         public event EventHandler? StateChanged;
         public event EventHandler<UsageSnapshot>? SnapshotReceived;
+        public event EventHandler<UsageSnapshot>? SampleAppended;
+        public DateTimeOffset? SamplesCycleStartUtc => SampleStore.Document.CycleStartUtc;
         public int RefreshNowCount { get; private set; }
         public Task StartAsync(bool autoSyncEnabled, int intervalHours) => Task.CompletedTask;
         public Task RefreshNowAsync(bool allowInteractiveLogin)
@@ -833,6 +1084,18 @@ public class MainViewModelTests
             LastSuccessUtc = lastSuccessUtc
                 ?? (Samples.Count == 0 ? null : Samples[^1].TimestampUtc);
             StateChanged?.Invoke(this, EventArgs.Empty);
+        }
+        public int MergeRemoteSamples(IReadOnlyList<UsageSample> remoteSamples, DateTimeOffset? remoteCycleStartUtc)
+        {
+            var merged = RemoteSyncMerge.UnionSamples(SampleStore.Document.Samples, remoteSamples);
+            var added = merged.Count - SampleStore.Document.Samples.Count;
+            SampleStore.Document = new UsageSampleDocument
+            {
+                Version = SampleStore.Document.Version,
+                CycleStartUtc = RemoteSyncMerge.LatestCycleStartUtc(SampleStore.Document.CycleStartUtc, remoteCycleStartUtc),
+                Samples = merged
+            };
+            return Math.Max(added, 0);
         }
         public void Dispose() { }
 
@@ -853,5 +1116,45 @@ public class MainViewModelTests
 
         public void RaiseSnapshotReceived(UsageSnapshot snapshot) =>
             SnapshotReceived?.Invoke(this, snapshot);
+
+        public void RaiseSampleAppended(UsageSnapshot snapshot) =>
+            SampleAppended?.Invoke(this, snapshot);
+    }
+
+    private sealed class FakeRemoteSync : IRemoteSyncService
+    {
+        public RemoteSyncResult Result { get; set; } =
+            new(true, null, new RemoteSyncCanonicalState(null, null, [], []), 0, 0);
+        public RemoteSyncLocalState? LastLocal { get; private set; }
+        public int SyncCount { get; private set; }
+
+        public Task<RemoteSyncResult> SyncAsync(RemoteSyncLocalState local, CancellationToken cancellationToken = default)
+        {
+            LastLocal = local;
+            SyncCount++;
+            return Task.FromResult(Result);
+        }
+    }
+
+    private sealed class FakeDispatcher : IUiDispatcher
+    {
+        public FakeTimer Timer { get; } = new();
+        public bool CheckAccess() => true;
+        public void Post(Action action) => action();
+        public IUiTimer CreateTimer() => Timer;
+    }
+
+    private sealed class FakeTimer : IUiTimer
+    {
+        public TimeSpan Interval { get; set; }
+        public bool IsRepeating { get; set; }
+        public bool IsStarted { get; private set; }
+        public event EventHandler? Tick;
+
+        public void Start() => IsStarted = true;
+
+        public void Stop() => IsStarted = false;
+
+        public void Fire() => Tick?.Invoke(this, EventArgs.Empty);
     }
 }

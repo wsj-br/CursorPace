@@ -42,7 +42,7 @@ See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, 
 - System tray: closing the window hides it; **Quit** on the tray menu exits. The tooltip shows today's expected percent and the projected percent at renewal
 - Optional launch at login (Windows Run key, macOS Launch Agent, Linux XDG autostart)
 - Single-instance: a second launch brings the existing window forward
-- Settings: Cursor account, appearance (theme), startup, timestamped CSV exports, backup or restore of settings plus usage samples as a zip file, an **Open Folder** action on the left after local saves, and an About card with version, UTC build date and time, copyright, MIT license, and a link to the GitHub repository
+- Settings: Cursor account, optional sync server (URL, API key, machine name, **Re-sync now**), appearance (theme), startup, timestamped CSV exports, backup or restore of settings plus usage samples as a zip file, an **Open Folder** action on the left after local saves, and an About card with version, UTC build date and time, copyright, MIT license, and a link to the GitHub repository
 - Remembers window size, position, and maximized state; informational labels can be selected and copied
 - Theme: follow the system, or force light or dark
 

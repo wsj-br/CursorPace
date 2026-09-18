@@ -14,14 +14,21 @@ public sealed class MainViewModel : ViewModelBase
     private readonly IStartupRegistration _startupReg;
     private readonly IUsageSyncService _sync;
     private readonly IDataBackupService _backup;
+    private readonly IRemoteSyncService _remoteSync;
+    private readonly IUiDispatcher _dispatcher;
 
     private const string InfoCardDateTimeFormat = "dd-MMM HH:mm";
     private const string ExportFileTimestampFormat = "yyyy-MM-dd-HH_mm_ss";
+    private static readonly TimeSpan RemoteSyncIdleInterval = TimeSpan.FromMinutes(10);
 
     private AppSettings _settings;
     private QuotaCycle? _displayedCycle;
     private int _liveTodayDayNumber;
     private bool _isSettingsView;
+    private bool _remoteSyncRunning;
+    private bool _isRemoteSyncing;
+    private string _remoteSyncStatusText = string.Empty;
+    private readonly IUiTimer _remoteSyncTimer;
 
     public MainViewModel(
         IClock clock,
@@ -29,7 +36,9 @@ public sealed class MainViewModel : ViewModelBase
         IPlanStore store,
         IStartupRegistration startupReg,
         IUsageSyncService sync,
-        IDataBackupService backup)
+        IDataBackupService backup,
+        IRemoteSyncService remoteSync,
+        IUiDispatcher dispatcher)
     {
         _clock = clock;
         _calculator = calculator;
@@ -37,6 +46,11 @@ public sealed class MainViewModel : ViewModelBase
         _startupReg = startupReg;
         _sync = sync;
         _backup = backup;
+        _remoteSync = remoteSync;
+        _dispatcher = dispatcher;
+        _remoteSyncTimer = dispatcher.CreateTimer();
+        _remoteSyncTimer.IsRepeating = false;
+        _remoteSyncTimer.Tick += OnRemoteSyncTimerTick;
 
         _settings = _store.Load();
         _displayedCycle = _settings.ActiveCycle;
@@ -54,11 +68,15 @@ public sealed class MainViewModel : ViewModelBase
             () => _sync.SignInAsync(),
             () => !IsSyncing && (!IsCursorConnected || _sync.Status == SyncStatus.AuthRequired));
         DisconnectCommand = new AsyncRelayCommand(() => _sync.DisconnectAsync(), () => !IsSyncing && _sync.Status != SyncStatus.SignedOut);
+        ResyncNowCommand = new AsyncRelayCommand(RunRemoteSyncAsync, () => !IsRemoteSyncing);
 
         _sync.StateChanged += OnSyncStateChanged;
         _sync.SnapshotReceived += OnSnapshotReceived;
+        _sync.SampleAppended += OnSampleAppended;
+        _remoteSyncStatusText = ComputeIdleRemoteSyncStatus();
         PersistCursorAccountConnected();
         PersistLastUsageSync();
+        ScheduleRemoteSyncTimer();
 
         if (_displayedCycle != null)
             RefreshDisplayedCycle();
@@ -210,6 +228,91 @@ public sealed class MainViewModel : ViewModelBase
 
     public IReadOnlyList<int> SyncIntervalOptions => SyncInterval.AllowedHours;
 
+    public bool RemoteSyncEnabled
+    {
+        get => _settings.RemoteSyncEnabled;
+        set
+        {
+            if (_settings.RemoteSyncEnabled == value) return;
+            _settings.RemoteSyncEnabled = value;
+            OnPropertyChanged();
+            _store.Save(_settings);
+            RemoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+            if (value)
+                _ = RunRemoteSyncAsync();
+            else
+                ScheduleRemoteSyncTimer();
+        }
+    }
+
+    public string RemoteSyncUrl
+    {
+        get => _settings.RemoteSyncUrl ?? string.Empty;
+        set
+        {
+            var url = value?.Trim();
+            if (string.IsNullOrEmpty(url))
+                url = null;
+            if (_settings.RemoteSyncUrl == url) return;
+            _settings.RemoteSyncUrl = url;
+            OnPropertyChanged();
+            _store.Save(_settings);
+            RemoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+            ScheduleRemoteSyncTimer();
+        }
+    }
+
+    public string RemoteSyncApiKey
+    {
+        get => _settings.RemoteSyncApiKey ?? string.Empty;
+        set
+        {
+            var key = value?.Trim();
+            if (string.IsNullOrEmpty(key))
+                key = null;
+            if (_settings.RemoteSyncApiKey == key) return;
+            _settings.RemoteSyncApiKey = key;
+            OnPropertyChanged();
+            _store.Save(_settings);
+            RemoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+            ScheduleRemoteSyncTimer();
+        }
+    }
+
+    public string RemoteSyncMachineName
+    {
+        get => string.IsNullOrWhiteSpace(_settings.RemoteSyncMachineName)
+            ? Environment.MachineName
+            : _settings.RemoteSyncMachineName;
+        set
+        {
+            var name = value?.Trim();
+            if (string.IsNullOrEmpty(name) || name == Environment.MachineName)
+                name = null;
+            if (_settings.RemoteSyncMachineName == name) return;
+            _settings.RemoteSyncMachineName = name;
+            OnPropertyChanged();
+            _store.Save(_settings);
+        }
+    }
+
+    public bool IsRemoteSyncing
+    {
+        get => _isRemoteSyncing;
+        private set
+        {
+            if (!SetProperty(ref _isRemoteSyncing, value))
+                return;
+            ((AsyncRelayCommand)ResyncNowCommand).RaiseCanExecuteChanged();
+        }
+    }
+
+    public string RemoteSyncStatusText
+    {
+        get => _remoteSyncStatusText;
+        private set => SetProperty(ref _remoteSyncStatusText, value);
+    }
+
     public string SyncStatusText => _sync.StatusText;
 
     public string LastSyncText => _sync.StatusText;
@@ -258,6 +361,7 @@ public sealed class MainViewModel : ViewModelBase
     public ICommand RefreshNowCommand { get; }
     public ICommand SignInCommand { get; }
     public ICommand DisconnectCommand { get; }
+    public ICommand ResyncNowCommand { get; }
 
     public bool CanGoToPreviousCycle => DisplayedCycleIndex > 0;
 
@@ -484,8 +588,243 @@ public sealed class MainViewModel : ViewModelBase
         ((RelayCommand)GoToNextCycleCommand).RaiseCanExecuteChanged();
     }
 
-    public Task StartSyncAsync() =>
-        _sync.StartAsync(_settings.AutoSyncEnabled, _settings.SyncIntervalHours);
+    public async Task StartSyncAsync()
+    {
+        await _sync.StartAsync(_settings.AutoSyncEnabled, _settings.SyncIntervalHours).ConfigureAwait(false);
+        await RunRemoteSyncAsync().ConfigureAwait(false);
+    }
+
+    public async Task RunRemoteSyncAsync()
+    {
+        RemoteSyncLocalState? snapshot;
+        try
+        {
+            snapshot = await InvokeOnUiAsync(TryBeginRemoteSync).ConfigureAwait(false);
+        }
+        catch
+        {
+            return;
+        }
+
+        if (snapshot == null)
+        {
+            try
+            {
+                await InvokeOnUiAsync(() =>
+                {
+                    if (!_remoteSyncRunning)
+                        ScheduleRemoteSyncTimer();
+                }).ConfigureAwait(false);
+            }
+            catch
+            {
+            }
+
+            return;
+        }
+
+        RemoteSyncResult result;
+        try
+        {
+            result = await _remoteSync.SyncAsync(snapshot).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            result = new RemoteSyncResult(false, ex.Message, null, 0, 0);
+        }
+
+        try
+        {
+            await InvokeOnUiAsync(() => ApplyRemoteSyncResult(result)).ConfigureAwait(false);
+        }
+        catch
+        {
+            try
+            {
+                await InvokeOnUiAsync(EndRemoteSync).ConfigureAwait(false);
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    private Task InvokeOnUiAsync(Action action) =>
+        InvokeOnUiAsync(() =>
+        {
+            action();
+            return true;
+        });
+
+    private Task<T> InvokeOnUiAsync<T>(Func<T> func)
+    {
+        if (_dispatcher.CheckAccess())
+            return Task.FromResult(func());
+
+        var completion = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _dispatcher.Post(() =>
+        {
+            try
+            {
+                completion.SetResult(func());
+            }
+            catch (Exception ex)
+            {
+                completion.SetException(ex);
+            }
+        });
+        return completion.Task;
+    }
+
+    private RemoteSyncLocalState? TryBeginRemoteSync()
+    {
+        if (_remoteSyncRunning || !_settings.RemoteSyncEnabled)
+            return null;
+        if (string.IsNullOrWhiteSpace(_settings.RemoteSyncUrl)
+            || string.IsNullOrWhiteSpace(_settings.RemoteSyncApiKey))
+            return null;
+
+        _remoteSyncRunning = true;
+        IsRemoteSyncing = true;
+        RemoteSyncStatusText = "Syncing with the server…";
+
+        var machineName = RemoteSyncMachineName;
+
+        return new RemoteSyncLocalState(
+            _settings.RemoteSyncUrl.Trim(),
+            _settings.RemoteSyncApiKey.Trim(),
+            machineName.Trim(),
+            _sync.SamplesCycleStartUtc,
+            _settings.ActiveCycle,
+            _settings.CycleHistory.ToList(),
+            _sync.Samples.ToList());
+    }
+
+    private void ApplyRemoteSyncResult(RemoteSyncResult result)
+    {
+        try
+        {
+            if (!result.Success || result.Canonical == null)
+            {
+                RemoteSyncStatusText = string.IsNullOrWhiteSpace(result.ErrorMessage)
+                    ? "Could not sync with the server."
+                    : result.ErrorMessage;
+                return;
+            }
+
+            var canonical = result.Canonical;
+            var viewingLive = _displayedCycle == null || IsViewingLiveCycle;
+            var added = _sync.MergeRemoteSamples(canonical.Samples, canonical.CycleStartUtc);
+
+            var (active, history) = RemoteSyncMerge.MergeCycles(
+                _settings.ActiveCycle,
+                _settings.CycleHistory,
+                canonical.ActiveCycle,
+                canonical.CycleHistory);
+            _settings.CycleHistory = history;
+
+            var boundsChanged = !SameCycleBounds(_settings.ActiveCycle, active);
+            if (boundsChanged)
+            {
+                _settings.ActiveCycle = active == null
+                    ? null
+                    : _calculator.GenerateCycleFromBounds(active.CycleStart, active.NextRenewal);
+            }
+
+            if (viewingLive && (boundsChanged || added > 0))
+            {
+                _displayedCycle = _settings.ActiveCycle;
+                if (_displayedCycle != null)
+                    RefreshDisplayedCycle();
+                else
+                {
+                    Days.Clear();
+                    Calendar.BuildCalendar([], default, default);
+                    Chart.Replace(null);
+                    _liveTodayDayNumber = 0;
+                    OnPropertyChanged(nameof(IsInitialized));
+                    OnPropertyChanged(nameof(CycleStartText));
+                    OnPropertyChanged(nameof(NextRenewalText));
+                    NotifyTodayQuotaTexts();
+                }
+            }
+            else if (!viewingLive && (boundsChanged || added > 0))
+            {
+                RebuildLiveDays();
+                NotifyTodayQuotaTexts();
+            }
+
+            RaiseCycleNavChanged();
+            _settings.LastRemoteSyncUtc = new DateTimeOffset(_clock.Now);
+            _store.Save(_settings);
+            NotifyTodayQuotaTexts();
+
+            var syncedLocal = _settings.LastRemoteSyncUtc.Value.ToLocalTime().DateTime;
+            RemoteSyncStatusText = "Last synced "
+                + syncedLocal.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
+                + $" · {canonical.Samples.Count} samples";
+        }
+        finally
+        {
+            EndRemoteSync();
+        }
+    }
+
+    private void EndRemoteSync()
+    {
+        _remoteSyncRunning = false;
+        IsRemoteSyncing = false;
+        ScheduleRemoteSyncTimer();
+    }
+
+    private void ScheduleRemoteSyncTimer()
+    {
+        _remoteSyncTimer.Stop();
+        if (!CanRemoteSync)
+            return;
+
+        _remoteSyncTimer.Interval = RemoteSyncIdleInterval;
+        _remoteSyncTimer.Start();
+    }
+
+    private bool CanRemoteSync =>
+        _settings.RemoteSyncEnabled
+        && !string.IsNullOrWhiteSpace(_settings.RemoteSyncUrl)
+        && !string.IsNullOrWhiteSpace(_settings.RemoteSyncApiKey);
+
+    private async void OnRemoteSyncTimerTick(object? sender, EventArgs e)
+    {
+        try
+        {
+            await RunRemoteSyncAsync().ConfigureAwait(false);
+        }
+        catch
+        {
+        }
+    }
+
+    private static bool SameCycleBounds(QuotaCycle? left, QuotaCycle? right)
+    {
+        if (left == null || right == null)
+            return left == null && right == null;
+        return left.CycleStart == right.CycleStart && left.NextRenewal == right.NextRenewal;
+    }
+
+    private string ComputeIdleRemoteSyncStatus()
+    {
+        if (!_settings.RemoteSyncEnabled)
+            return "Sync server is off.";
+        if (string.IsNullOrWhiteSpace(_settings.RemoteSyncUrl)
+            || string.IsNullOrWhiteSpace(_settings.RemoteSyncApiKey))
+            return "Set the server URL and API key to sync.";
+        if (_settings.LastRemoteSyncUtc is { } last)
+            return "Last synced "
+                + last.ToLocalTime().DateTime.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture);
+        return "Not synced yet.";
+    }
+
+    private void OnSampleAppended(object? sender, UsageSnapshot snapshot) =>
+        _ = RunRemoteSyncAsync();
 
     private void OnSyncStateChanged(object? sender, EventArgs e)
     {
@@ -713,6 +1052,12 @@ public sealed class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(ThemeMode));
         OnPropertyChanged(nameof(AutoSyncEnabled));
         OnPropertyChanged(nameof(SyncIntervalHours));
+        OnPropertyChanged(nameof(RemoteSyncEnabled));
+        OnPropertyChanged(nameof(RemoteSyncUrl));
+        OnPropertyChanged(nameof(RemoteSyncApiKey));
+        OnPropertyChanged(nameof(RemoteSyncMachineName));
+        RemoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+        ScheduleRemoteSyncTimer();
         PersistCursorAccountConnected();
         PersistLastUsageSync();
     }

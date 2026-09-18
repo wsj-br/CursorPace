@@ -106,6 +106,11 @@ Open **Settings** from the title bar. Settings replace the calendar or chart in 
 | **Sign out** | Clear the saved Cursor session (keeps a Google/GitHub session in the browser profile on Windows/macOS when possible; clears the whole profile on Linux) |
 | **Update usage automatically** | Clock-aligned refreshes at the interval below |
 | **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
+| **Sync with server** | Optional. Share usage samples and billing-cycle bounds with other machines through a CursorPace sync server. Syncs on launch, after each new Cursor sample, every 10 minutes, and when you click **Re-sync now** |
+| **Server URL** | Sync server origin, for example `http://127.0.0.1:8000` |
+| **API key** | Per-machine token from the sync server web UI |
+| **Machine name** | Label shown on the server. Defaults to this computer's hostname |
+| **Re-sync now** | Push local data, then pull the merged canonical state |
 | **Launch at login** | Starts the app at OS login (Windows Run key, macOS Launch Agent, or Linux XDG autostart) |
 | **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same. `--show` forces the window open |
 | **Theme** | System (default), Light, or Dark. Overrides the Fluent theme variant for the app |
@@ -146,7 +151,7 @@ macOS:   ~/Library/Application Support/CursorPace/
 
 | Path | Contents |
 | --- | --- |
-| `settings.json` | Startup, theme, sync interval, last window position and size, connection flag, last successful sync time, the current cycle bounds, and previous cycle bounds (`cycleHistory`) |
+| `settings.json` | Startup, theme, Cursor refresh interval, last window position and size, connection flag, last successful Cursor sync time, optional sync-server URL/key/machine name, the current cycle bounds, and previous cycle bounds (`cycleHistory`) |
 | `usage-samples.json` | Collected usage samples for stored Cursor billing cycles |
 | `WebView2\` | Windows embedded browser profile (Cursor session cookies) |
 | `WebView\` | Linux and macOS embedded browser profile |

@@ -96,3 +96,6 @@ Desktop.ini
 # AI agents temp files
 .kilo/
 
+# Secrets
+.env*
+!.envrc

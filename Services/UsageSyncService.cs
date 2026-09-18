@@ -65,9 +65,11 @@ public sealed class UsageSyncService : IUsageSyncService
     public DateTimeOffset? LastSuccessUtc =>
         _lastSuccessUtc ?? (_document.Samples.Count == 0 ? null : _document.Samples[^1].TimestampUtc);
     public IReadOnlyList<UsageSample> Samples => _document.Samples;
+    public DateTimeOffset? SamplesCycleStartUtc => _document.CycleStartUtc;
 
     public event EventHandler? StateChanged;
     public event EventHandler<UsageSnapshot>? SnapshotReceived;
+    public event EventHandler<UsageSnapshot>? SampleAppended;
 
     public async Task StartAsync(bool autoSyncEnabled, int intervalHours)
     {
@@ -121,6 +123,28 @@ public sealed class UsageSyncService : IUsageSyncService
         if (Status == SyncStatus.Ok)
             StatusText = FormatUpdatedText();
         RaiseStateChanged();
+    }
+
+    public int MergeRemoteSamples(IReadOnlyList<UsageSample> remoteSamples, DateTimeOffset? remoteCycleStartUtc)
+    {
+        var merged = RemoteSyncMerge.UnionSamples(_document.Samples, remoteSamples);
+        var latestStart = RemoteSyncMerge.LatestCycleStartUtc(_document.CycleStartUtc, remoteCycleStartUtc);
+        var added = merged.Count - _document.Samples.Count;
+
+        if (added <= 0 && latestStart == _document.CycleStartUtc)
+            return 0;
+
+        _document = new UsageSampleDocument
+        {
+            Version = _document.Version,
+            CycleStartUtc = latestStart,
+            Samples = merged
+        };
+        _sampleStore.Save(_document);
+        if (Status == SyncStatus.Ok)
+            StatusText = FormatUpdatedText();
+        RaiseStateChanged();
+        return Math.Max(added, 0);
     }
 
     public void Dispose()
@@ -186,6 +210,8 @@ public sealed class UsageSyncService : IUsageSyncService
                     _sampleStore.Save(_document);
                 SetStatus(SyncStatus.Ok, FormatUpdatedText());
                 RaiseSnapshotReceived(result.Snapshot);
+                if (changed)
+                    RaiseSampleAppended(result.Snapshot);
                 break;
 
             case UsageFetchStatus.AuthRequired:
@@ -251,6 +277,9 @@ public sealed class UsageSyncService : IUsageSyncService
 
     private void RaiseSnapshotReceived(UsageSnapshot snapshot) =>
         _dispatcher.Post(() => SnapshotReceived?.Invoke(this, snapshot));
+
+    private void RaiseSampleAppended(UsageSnapshot snapshot) =>
+        _dispatcher.Post(() => SampleAppended?.Invoke(this, snapshot));
 
     private string FormatUpdatedText()
     {

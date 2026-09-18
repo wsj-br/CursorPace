@@ -8,6 +8,10 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Added**: settings - optional sync server (URL, API key, machine name, **Re-sync now**) shares usage samples and cycle bounds across machines on launch, after each new Cursor sample, every 10 minutes, and on demand.
+- **Changed**: settings - the sync-server **Machine name** field defaults to this computer's hostname.
+- **Fixed**: settings - sync-server push sends percentages as 4-decimal-digit strings so the server does not reject real Cursor samples with HTTP 400.
+
 - **Fixed**: chart - the last top-axis date sits inside the plot instead of clipping at the right edge.
 - **Fixed**: tray - **Open** and a tray-icon click raise the main window when it is already visible behind other windows.
 - **Added**: calendar - Previous/Next chevrons on the shared month heading page stored billing cycles in both the calendar and the chart.

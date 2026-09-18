@@ -78,6 +78,63 @@ public class UsageSyncServiceTests
         Assert.Equal(SyncStatus.AuthRequired, sync.Status);
     }
 
+    [Fact]
+    public void MergeRemoteSamples_UnionsSamplesAndUpdatesCycleStart()
+    {
+        var sync = CreateService(new AppSettings { CursorAccountConnected = true });
+        var remote = new List<UsageSample>
+        {
+            new()
+            {
+                TimestampUtc = new DateTimeOffset(2026, 8, 10, 10, 0, 0, TimeSpan.Zero),
+                CursorModelsPercent = 10,
+                OtherModelsPercent = 2
+            }
+        };
+
+        var added = sync.MergeRemoteSamples(
+            remote,
+            new DateTimeOffset(2026, 8, 1, 0, 0, 0, TimeSpan.Zero));
+
+        Assert.Equal(1, added);
+        Assert.Single(sync.Samples);
+        Assert.Equal(
+            new DateTimeOffset(2026, 8, 1, 0, 0, 0, TimeSpan.Zero),
+            sync.SamplesCycleStartUtc);
+
+        Assert.Equal(0, sync.MergeRemoteSamples(
+            remote,
+            new DateTimeOffset(2026, 8, 1, 0, 0, 0, TimeSpan.Zero)));
+    }
+
+    [Fact]
+    public async Task SampleAppended_RaisedOnlyWhenSampleStored()
+    {
+        var snapshot = new UsageSnapshot
+        {
+            BillingCycleStartUtc = new DateTimeOffset(2026, 8, 1, 0, 0, 0, TimeSpan.Zero),
+            BillingCycleEndUtc = new DateTimeOffset(2026, 9, 1, 0, 0, 0, TimeSpan.Zero),
+            CursorModelsPercent = 10,
+            OtherModelsPercent = 2,
+            FetchedAtUtc = new DateTimeOffset(2026, 8, 18, 12, 0, 0, TimeSpan.Zero)
+        };
+        var client = new FakeUsageClient
+        {
+            FetchResult = new UsageFetchResult(UsageFetchStatus.Ok, snapshot, null, 200)
+        };
+        var sync = CreateService(new AppSettings { CursorAccountConnected = true }, client);
+        var appended = 0;
+        var received = 0;
+        sync.SampleAppended += (_, _) => appended++;
+        sync.SnapshotReceived += (_, _) => received++;
+
+        await sync.RefreshNowAsync(allowInteractiveLogin: false);
+        await sync.RefreshNowAsync(allowInteractiveLogin: false);
+
+        Assert.Equal(2, received);
+        Assert.Equal(1, appended);
+    }
+
     private static UsageSyncService CreateService(AppSettings settings) =>
         CreateService(settings, new FakeUsageClient());
 
@@ -131,6 +188,7 @@ public class UsageSyncServiceTests
 
     private sealed class ImmediateUiDispatcher : IUiDispatcher
     {
+        public bool CheckAccess() => true;
         public void Post(Action action) => action();
 
         public IUiTimer CreateTimer() => new NoOpUiTimer();

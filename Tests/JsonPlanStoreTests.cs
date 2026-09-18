@@ -67,6 +67,39 @@ public class JsonPlanStoreTests : IDisposable
     }
 
     [Fact]
+    public void SaveAndLoad_RoundTripsRemoteSyncSettings()
+    {
+        _store.Save(new AppSettings
+        {
+            RemoteSyncEnabled = true,
+            RemoteSyncUrl = "http://server:8000",
+            RemoteSyncApiKey = "secret-key",
+            RemoteSyncMachineName = "dev-box",
+            LastRemoteSyncUtc = new DateTimeOffset(2026, 9, 18, 10, 0, 0, TimeSpan.Zero)
+        });
+
+        var loaded = _store.Load();
+
+        Assert.True(loaded.RemoteSyncEnabled);
+        Assert.Equal("http://server:8000", loaded.RemoteSyncUrl);
+        Assert.Equal("secret-key", loaded.RemoteSyncApiKey);
+        Assert.Equal("dev-box", loaded.RemoteSyncMachineName);
+        Assert.Equal(new DateTimeOffset(2026, 9, 18, 10, 0, 0, TimeSpan.Zero), loaded.LastRemoteSyncUtc);
+    }
+
+    [Fact]
+    public void Load_MissingRemoteSyncFields_DefaultsToDisabled()
+    {
+        File.WriteAllText(_settingsPath, """{ "version": 2 }""");
+
+        var loaded = _store.Load();
+
+        Assert.False(loaded.RemoteSyncEnabled);
+        Assert.Null(loaded.RemoteSyncUrl);
+        Assert.Null(loaded.RemoteSyncApiKey);
+    }
+
+    [Fact]
     public void SaveAndLoad_RoundTripsThemeMode()
     {
         _store.Save(new AppSettings { ThemeMode = UiThemeMode.Dark });
