@@ -68,6 +68,8 @@ public partial class App : Application
         if (!launchInBackground)
             desktop.MainWindow = _mainWindow;
         MacDesktopIntegration.ApplyDockVisibility(!launchInBackground);
+        if (launchInBackground && OperatingSystem.IsMacOS())
+            _dispatcher.Post(() => MacDesktopIntegration.ApplyDockVisibility(false));
 
         _ = _viewModel.StartSyncAsync();
 

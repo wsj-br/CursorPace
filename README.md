@@ -39,7 +39,7 @@ See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, 
 - Separate **Cursor Models** and **Other Models** percentages
 - Chart axis runs from cycle start to next renewal in elapsed seconds; midnight ticks are day markers, and labels use the day of the month (the truncated first slot is unlabeled)
 - Custom title bar shows the app name on the left and keeps Settings, Minimize, Maximize, and Close in separate, right-aligned controls
-- System tray: closing the window hides it; **Quit** on the tray menu exits. The tooltip shows today's expected percent and the projected percent at renewal. On macOS the Dock icon is hidden while the window is hidden or minimized; open the window from the tray icon, `--show`, or a second launch
+- System tray: closing the window hides it; **Quit** on the tray menu exits. The tooltip shows today's expected percent and the projected percent at renewal. On macOS the Dock icon is removed after the window hides and while it is minimized; open the window from the tray icon, `--show`, or a second launch
 - Optional launch at login (Windows Run key, macOS Launch Agent, Linux XDG autostart)
 - Single-instance: a second launch brings the existing window forward
 - Settings: Cursor account, optional sync server (URL, API token, machine name, **Re-sync now**), appearance (theme), startup, timestamped CSV exports, backup or restore of settings plus usage samples as a zip file, an **Open Folder** action on the left after local saves, and an About card with version, UTC build date and time, copyright, MIT license, and a link to the GitHub repository

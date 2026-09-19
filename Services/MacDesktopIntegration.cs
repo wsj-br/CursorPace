@@ -71,7 +71,7 @@ public static class MacDesktopIntegration
         if (nsApp == IntPtr.Zero)
             return;
 
-        Bool_objc_msgSend(nsApp, setActivationPolicy, policy);
+        Void_objc_msgSend(nsApp, setActivationPolicy, (IntPtr)policy);
     }
 
     private static void ApplyDockIcon(string iconPath)
@@ -132,7 +132,4 @@ public static class MacDesktopIntegration
     [DllImport(Objc, EntryPoint = "objc_msgSend")]
     private static extern void Void_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg);
 
-    [DllImport(Objc, EntryPoint = "objc_msgSend")]
-    [return: MarshalAs(UnmanagedType.U1)]
-    private static extern bool Bool_objc_msgSend(IntPtr receiver, IntPtr selector, nint arg);
 }

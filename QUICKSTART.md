@@ -131,7 +131,7 @@ While the process is running, an icon stays in the notification area.
 
 Hover over the tray icon to see today's expected percentage and the projected percent at the next renewal for Cursor and Other Models. The renewal projection is omitted until enough data exists.
 
-If the icon is missing, expand the overflow chevron (`^`). On Linux, GNOME may need the AppIndicator extension. On macOS, left-click opens the tray menu; choose **Open** from that menu. macOS also hides the Dock icon while the main window is hidden or minimized; restore the window from the tray, `--show`, or a second launch of the app.
+If the icon is missing, expand the overflow chevron (`^`). On Linux, GNOME may need the AppIndicator extension. On macOS, left-click opens the tray menu; choose **Open** from that menu. macOS also removes the Dock icon after the main window hides and while it is minimized; restore the window from the tray, `--show`, or a second launch of the app.
 
 ## Startup and single instance
 

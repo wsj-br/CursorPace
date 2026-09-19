@@ -154,7 +154,8 @@ public partial class MainWindow : Window
         e.Cancel = true;
         _restorePlacementPending = true;
         Hide();
-        MacDesktopIntegration.ApplyDockVisibility(false);
+        if (OperatingSystem.IsMacOS())
+            _dispatcher.Post(() => MacDesktopIntegration.ApplyDockVisibility(false));
     }
 
     private void OnWindowOpened(object? sender, EventArgs e)
