@@ -7,6 +7,9 @@ Use conventional types (**Added**, **Changed**, **Fixed**, **Removed**), a short
 Add new entries in the `## [Unreleased]` section. When releasing, move those entries to `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`.
 
 ## [Unreleased]
+
+## [0.2.5] - 2026-09-19
+
 - **Fixed**: tray - on macOS, apply the accessory Dock policy after the main window finishes hiding, so close-to-tray removes the Dock icon without changing the Linux window/taskbar path.
 - **Removed**: tests - drop `RemoteSyncLiveTests`; the HTTP contract stays in `RemoteSyncServiceTests` without a live sync server.
 - **Fixed**: install - Linux and Windows builds now resolve `Avalonia.Controls.WebView` from NuGet instead of depending on macOS-only compatibility assemblies, while macOS keeps using the ABI-fixed assemblies when available.
