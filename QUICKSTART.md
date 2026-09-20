@@ -21,7 +21,7 @@ End-user guide for Cursor Pace. For building from source, see [dev/DEVELOPMENT.m
 ### macOS
 
 1. Download `CursorPace-*-osx-arm64.zip` (Apple Silicon) or `*-osx-x64.zip` (Intel) from Releases.
-2. Unzip and move `Cursor Pace.app` to Applications (or run from the download folder).
+2. Unzip and move `CursorPace.app` to Applications (or run from the download folder).
 3. If Gatekeeper blocks the unsigned build, attempt to open it once, then open **System Settings → Privacy & Security** and choose **Open Anyway**.
 4. Launch the app and sign in to Cursor.
 
@@ -111,7 +111,7 @@ Open **Settings** from the title bar. Settings replace the calendar or chart in 
 | **API token** | Token from the **Tokens** page of your CursorPace Sync server. The eye control shows or hides the value |
 | **Machine name** | Label shown on the server. Defaults to this computer's hostname |
 | **Re-sync now** | Push local data, then pull the merged canonical state |
-| **Launch at login** | Starts the app at OS login (Windows Run key, macOS Launch Agent, or Linux XDG autostart) |
+| **Launch at login** | Starts the app at OS login (Windows Run key, macOS `SMAppService` / attributed Launch Agent fallback, or Linux XDG autostart) |
 | **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same. `--show` forces the window open |
 | **Theme** | System (default), Light, or Dark. Overrides the Fluent theme variant for the app |
 | **Export Cycle CSV** | Writes each day of the cycle currently shown on the calendar or chart: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
@@ -218,7 +218,7 @@ The window does not need to stay visible, but the process must be running for mi
 
 - Confirm **Launch at login** is on in Settings.
 - Windows registry (current user): `Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorPace`. With **Start in notification tray** the command includes `--background`.
-- macOS: `~/Library/LaunchAgents/com.cursorpace.app.plist`
+- macOS 13+: a signed bundle appears under System Settings → General → Login Items → **Open at Login** as `CursorPace`. Unsigned builds use `~/Library/LaunchAgents/com.cursorpace.app.plist` as a compatibility fallback; its `AssociatedBundleIdentifiers` must contain `com.cursorpace.app` and its `ProgramArguments` must start `/usr/bin/open -a` on the `.app` bundle, not `Contents/MacOS/CursorPace`. Launch the app once after updating, or turn **Launch at login** off and on, to rewrite the registration.
 - Linux: `~/.config/autostart/cursor-pace.desktop`. For an AppImage, `Exec` must be the `.AppImage` file, not a path under `/tmp/.mount_*`. Launch the app once after updating, or turn **Launch at login** off and on, to rewrite the file.
 
 **Two tray icons or a crash at login**

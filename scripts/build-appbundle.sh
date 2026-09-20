@@ -88,7 +88,7 @@ if [[ ! -f "$ICON_PNG" ]]; then
 fi
 
 BUILD_DIR="$REPO_ROOT/.appbundle-build"
-BUNDLE_NAME="Cursor Pace.app"
+BUNDLE_NAME="CursorPace.app"
 BUNDLE_DIR="$BUILD_DIR/$BUNDLE_NAME"
 MACOS_DIR="$BUNDLE_DIR/Contents/MacOS"
 RESOURCES_DIR="$BUNDLE_DIR/Contents/Resources"
@@ -125,9 +125,9 @@ cat >"$BUNDLE_DIR/Contents/Info.plist" <<EOF
 <plist version="1.0">
 <dict>
   <key>CFBundleName</key>
-  <string>Cursor Pace</string>
+  <string>CursorPace</string>
   <key>CFBundleDisplayName</key>
-  <string>Cursor Pace</string>
+  <string>CursorPace</string>
   <key>CFBundleIdentifier</key>
   <string>com.cursorpace.app</string>
   <key>CFBundleVersion</key>
@@ -141,6 +141,8 @@ cat >"$BUNDLE_DIR/Contents/Info.plist" <<EOF
   <key>CFBundleExecutable</key>
   <string>CursorPace</string>
   <key>CFBundleIconFile</key>
+  <string>$ICON_BASENAME</string>
+  <key>CFBundleIconName</key>
   <string>$ICON_BASENAME</string>
   <key>LSMinimumSystemVersion</key>
   <string>11.0</string>

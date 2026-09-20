@@ -130,7 +130,7 @@ dotnet run --project ./CursorPace.csproj -- --background
 dotnet run --project ./CursorPace.csproj -- --show
 ```
 
-`--background` starts the tray icon without showing the main window. **Start in notification tray** does the same for a normal launch; Windows Run, macOS Launch Agent, and Linux XDG autostart also pass `--background` when that setting is on. `--show` forces the window open and wins over both. On macOS, a hidden or minimized main window uses `NSApplicationActivationPolicyAccessory` so the Dock icon is removed; tray **Open**, `--show`, and a second interactive launch restore `Regular` before showing the window.
+`--background` starts the tray icon without showing the main window. **Start in notification tray** does the same for a normal launch; Windows Run, the macOS Launch Agent fallback (`open -a` of the `.app`), and Linux XDG autostart also pass `--background` when that setting is on. On macOS 13+, a properly signed bundle uses `SMAppService.mainApp`, which launches the app at login without an extra executable or argument. Do not exec `Contents/MacOS/CursorPace` from launchd. `--show` forces the window open and wins over both. On macOS, a hidden or minimized main window uses `NSApplicationActivationPolicyAccessory` so the Dock icon is removed; tray **Open**, `--show`, and a second interactive launch restore `Regular` before showing the window.
 
 Maintainer scripts ship as PowerShell (`.ps1`) and bash (`.sh`) with the same behavior. Use `.ps1` on Windows PowerShell and `.sh` on Linux/macOS (no PowerShell install required).
 
@@ -212,6 +212,7 @@ Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do n
 | `AppInfoTests.cs`                                                                                             | Settings About version, UTC build date/time, copyright, license, repository URL                                                                                       |
 | `LinuxStartupRegistrationTests.cs`                                                                            | Linux autostart `Exec` uses the `APPIMAGE` path, not the FUSE `ProcessPath`, and sets `APPIMAGELAUNCHER_DISABLE=1`                                                    |
 | `LinuxDesktopIntegrationTests.cs`                                                                             | Linux taskbar `.desktop` id, `StartupWMClass`, and absolute `Icon=` path                                                                                              |
+| `MacStartupRegistrationTests.cs`                                                                              | macOS login uses `SMAppService.mainApp` when available; fallback resolves `CursorPace.app`, attributes it, and launches it with `open` |
 | `MacDesktopIntegrationTests.cs`                                                                               | macOS Dock icon path under `Assets/cursor_pace.png`, and hidden/minimized windows map to Accessory rather than Regular                                                |
 | `LinuxWebKitCookiePersistenceTests.cs`                                                                        | WebKit cookie database path under the profile folder                                                                                                                  |
 | `AsyncRelayCommandTests.cs`                                                                                   | Async command reentrancy guard and exception handling                                                                                                                 |
@@ -246,7 +247,7 @@ Add cases next to the existing facts when you change those areas. Do not commit 
 2. Detects the host RID (`linux-x64`, `linux-arm64`, `osx-arm64`, or `osx-x64`) and publishes self-contained output
 3. Unless `--skip-installer`:
   - **Linux**: `./scripts/build-appimage.sh` writes `installer/CursorPace-<version>-<rid>.AppImage` (+ `.sha256`) for `linux-x64` or `linux-arm64`. Needs WebKitGTK/GTK libraries on the build host matching the target architecture; [linuxdeploy](https://github.com/linuxdeploy/linuxdeploy) tooling is downloaded automatically for that architecture. AppImage packaging must run on a host whose architecture matches `--rid` because linuxdeploy bundles the host's native libraries.
-  - **macOS**: `./scripts/build-appbundle.sh` writes `installer/CursorPace-<version>-<rid>.zip` containing `Cursor Pace.app` (+ `.sha256`)
+  - **macOS**: `./scripts/build-appbundle.sh` writes `installer/CursorPace-<version>-<rid>.zip` containing `CursorPace.app` (+ `.sha256`)
 
 Publish output is under `bin/Release/net10.0/<rid>/publish/`. Trimming, ReadyToRun, and PublishSingleFile stay off.
 
@@ -337,7 +338,7 @@ Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so 
 | ------------------------------ | --------------------------------------------------------------------------------------- |
 | `activeCycle`                  | `renewalDay`, `cycleStart`, `nextRenewal`                                               |
 | `cycleHistory`                 | Previous cycle bounds (same shape as `activeCycle`); omitted when empty                 |
-| `runAtStartup`                 | Launch at login (Windows Run key, macOS Launch Agent, Linux XDG autostart)              |
+| `runAtStartup`                 | Launch at login (Windows Run key, macOS `SMAppService` / attributed Launch Agent fallback, Linux XDG autostart) |
 | `startInNotificationTray`      | Default `true`; hide the window on launch; startup registration includes `--background` |
 | `themeMode`                    | `System` (default), `Light`, or `Dark`; sets Avalonia `RequestedThemeVariant`           |
 | `autoSyncEnabled`              | Default `true`                                                                          |
@@ -465,7 +466,7 @@ If auto-detection still fails, set **Theme** to **Light** or **Dark** in Setting
 **Startup registration**
 
 - Windows: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorPace`
-- macOS: `~/Library/LaunchAgents/com.cursorpace.app.plist`
+- macOS 13+: a signed bundle uses `SMAppService.mainApp` and appears under **Open at Login** as `CursorPace`; unsigned/older systems use `~/Library/LaunchAgents/com.cursorpace.app.plist` with `AssociatedBundleIdentifiers=com.cursorpace.app` and `open -a` the `.app` bundle, not `Contents/MacOS/CursorPace`
 - Linux: `~/.config/autostart/cursor-pace.desktop`
 - Command includes `--background` when **Start in notification tray** is on
 
