@@ -9,6 +9,9 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 ## [Unreleased]
 
 - **Added**: window - title-bar **Refresh** next to Settings runs the same Cursor fetch as Settings **Refresh now**.
+- **Fixed**: install - macOS login registration now uses `SMAppService.mainApp` for signed bundles so System Settings shows `CursorPace` with its app icon under **Open at Login**; unsigned and older-system fallback plists include `AssociatedBundleIdentifiers` instead of appearing as `/usr/bin/open`.
+- **Fixed**: install - macOS **Launch at login** now starts the `.app` with `/usr/bin/open` instead of exec'ing `Contents/MacOS/CursorPace` as a Launch Agent, so login gets a GUI process with a tray icon and a hidden Dock.
+- **Changed**: install - the macOS bundle is now `CursorPace.app` (`CFBundleName` / `CFBundleDisplayName` match), so Finder and the zip no longer use `Cursor Pace.app`.
 
 ## [0.2.5] - 2026-09-19
 
