@@ -40,6 +40,22 @@
                            FontSize="12"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4"
                             chrome:WindowDecorationProperties.ElementRole="User">
+                    <Button Command="{Binding RefreshNowCommand}"
+                            IsVisible="{Binding !IsSettingsView}"
+                            chrome:WindowDecorationProperties.ElementRole="User"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Height="32"
+                            Padding="12,0"
+                            CornerRadius="4"
+                            ToolTip.Tip="Refresh now"
+                            AutomationProperties.Name="Refresh">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"/>
+                            <TextBlock Text="Refresh" VerticalAlignment="Center" FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+
                     <Button Command="{Binding ShowSettingsCommand}"
                             IsVisible="{Binding !IsSettingsView}"
                             chrome:WindowDecorationProperties.ElementRole="User"

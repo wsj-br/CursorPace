@@ -38,7 +38,7 @@ See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, 
 - Calendar or chart for the current cycle, with today, renewal, and projected run-out days highlighted. Both views show the cycle-start month and last-updated time, with Previous/Next controls to open stored earlier cycles. Calendar left is the day's last sample when one exists, otherwise the interpolated expected percent; estimated on the right appears only after the last sample date (green ≤100%, red >100%). The chart shows a linear Expected usage line, thick solid Cursor/Other paths through the last reading per day, and thinner estimated lines from the last sample
 - Separate **Cursor Models** and **Other Models** percentages
 - Chart axis runs from cycle start to next renewal in elapsed seconds; midnight ticks are day markers, and labels use the day of the month (the truncated first slot is unlabeled)
-- Custom title bar shows the app name on the left and keeps Settings, Minimize, Maximize, and Close in separate, right-aligned controls
+- Custom title bar shows the app name on the left and keeps Refresh, Settings, Minimize, Maximize, and Close in separate, right-aligned controls. **Refresh** runs the same Cursor fetch as Settings **Refresh now**
 - System tray: closing the window hides it; **Quit** on the tray menu exits. The tooltip shows today's expected percent and the projected percent at renewal. On macOS the Dock icon is removed after the window hides and while it is minimized; open the window from the tray icon, `--show`, or a second launch
 - Optional launch at login (Windows Run key, macOS Launch Agent, Linux XDG autostart)
 - Single-instance: a second launch brings the existing window forward

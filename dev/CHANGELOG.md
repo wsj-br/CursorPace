@@ -8,6 +8,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Added**: window - title-bar **Refresh** next to Settings runs the same Cursor fetch as Settings **Refresh now**.
+
 ## [0.2.5] - 2026-09-19
 
 - **Fixed**: tray - on macOS, apply the accessory Dock policy after the main window finishes hiding, so close-to-tray removes the Dock icon without changing the Linux window/taskbar path.

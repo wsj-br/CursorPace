@@ -49,7 +49,7 @@ While signed in:
 - The billing cycle start and next renewal come from Cursor.
 - **Export Usage** appears next to **Export Cycle CSV**.
 
-Choose **Refresh now** to fetch immediately. **Sign out** clears the saved Cursor session. On Windows and macOS this keeps a Google or GitHub session stored in the app's private browser profile when possible, so signing in again may not ask for that password; on Linux the embedded WebKitGTK browser has no way to clear only the Cursor session, so **Sign out** clears the whole browser profile there, including Google/GitHub. Samples stay on disk until you delete `usage-samples.json` or uninstall.
+Choose title-bar **Refresh** or Settings **Refresh now** to fetch immediately. **Sign out** clears the saved Cursor session. On Windows and macOS this keeps a Google or GitHub session stored in the app's private browser profile when possible, so signing in again may not ask for that password; on Linux the embedded WebKitGTK browser has no way to clear only the Cursor session, so **Sign out** clears the whole browser profile there, including Google/GitHub. Samples stay on disk until you delete `usage-samples.json` or uninstall.
 
 ### Automatic updates
 
@@ -76,13 +76,14 @@ Title bar actions:
 
 | Control | Action |
 | --- | --- |
+| **Refresh** | Fetch Cursor usage immediately (same as Settings **Refresh now**). Hidden on the Settings page |
 | **Settings** | Open Settings in this window (account, appearance, startup, CSV, backup, About) |
 | **Back** | On the Settings page, the chevron or the **Settings** heading returns to the calendar or chart |
 | **Minimize** | Minimize the window; the app stays in the tray |
 | **Maximize** | Maximize or restore the window |
 | Window close (X) | Hide the window; the app stays in the tray |
 
-Settings is separated from the Minimize, Maximize, and Close controls by a small gap.
+Refresh and Settings are separated from the Minimize, Maximize, and Close controls by a small gap.
 
 The window is resizable and can be maximized. It restores its last size, position, and maximized state on show and launch. Informational labels can be selected and copied.
 
@@ -102,7 +103,7 @@ Open **Settings** from the title bar. Settings replace the calendar or chart in 
 | Setting | Effect |
 | --- | --- |
 | **Sign in** | Open the Cursor session window (disabled while already signed in) |
-| **Refresh now** | Fetch usage immediately |
+| **Refresh now** | Fetch usage immediately (same action as title-bar **Refresh**) |
 | **Sign out** | Clear the saved Cursor session (keeps a Google/GitHub session in the browser profile on Windows/macOS when possible; clears the whole profile on Linux) |
 | **Update usage automatically** | Clock-aligned refreshes at the interval below |
 | **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
@@ -191,7 +192,7 @@ The window does not need to stay visible, but the process must be running for mi
 
 **Usage does not update**
 
-- Confirm **Cursor account (connected)** in Settings and that **Update usage automatically** is on, or choose **Refresh now**.
+- Confirm **Cursor account (connected)** in Settings and that **Update usage automatically** is on, or choose title-bar **Refresh** / Settings **Refresh now**.
 - Confirm system date, time, and time zone. The app uses local time for the calendar, chart, and clock-aligned intervals.
 - If Cursor rate-limits the request, the app waits until the next interval.
 
@@ -212,7 +213,7 @@ The window does not need to stay visible, but the process must be running for mi
 **Wrong percentage for today**
 
 - Confirm system date, time, and time zone.
-- Check the last-updated caption and **Refresh now**.
+- Check the last-updated caption and title-bar **Refresh** or Settings **Refresh now**.
 
 **Auto-start not working**
 
