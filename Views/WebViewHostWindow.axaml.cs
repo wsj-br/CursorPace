@@ -13,9 +13,11 @@ public partial class WebViewHostWindow : Window
         InitializeComponent();
         Title = "Sign in to Cursor";
         Browser.EnvironmentRequested += OnEnvironmentRequested;
-        // NativeWebView creates its native adapter when it is attached to the
-        // visual tree. Keep that attach until the host has a finite layout.
-        if (Browser.Parent is Panel panel)
+        // macOS WKWebView aborts if it is created with a NaN frame. Keep the
+        // attach until a finite arrange there. Linux WebKitGTK already worked
+        // in-tree on a 1x1 silent host, so leave it attached.
+        if (WebViewHostLayout.DeferBrowserAttach(OperatingSystem.IsLinux())
+            && Browser.Parent is Panel panel)
             panel.Children.Remove(Browser);
     }
 
@@ -59,23 +61,38 @@ public partial class WebViewHostWindow : Window
 
     public void PlaceOffscreen()
     {
+        var isLinux = OperatingSystem.IsLinux();
+        var size = WebViewHostLayout.SilentHostSize(isLinux);
+        var min = WebViewHostLayout.SilentHostMinSize(isLinux);
         SignInBanner.IsVisible = false;
-        Width = WebViewHostLayout.LoginWidth;
-        Height = WebViewHostLayout.LoginHeight;
-        MinWidth = WebViewHostLayout.MinWidth;
-        MinHeight = WebViewHostLayout.MinHeight;
-        WindowStartupLocation = WindowStartupLocation.Manual;
+        // AXAML still has MinWidth/MinHeight 400x300. Lower mins before size or
+        // Height=1 is clamped to 300 and Refresh shows a 1px-wide vertical line.
+        MinWidth = min.MinWidth;
+        MinHeight = min.MinHeight;
+        Width = size.Width;
+        Height = size.Height;
+        Opacity = WebViewHostLayout.SilentHostOpacity(isLinux);
         ShowActivated = false;
         CanResize = false;
         CanMaximize = false;
         CanMinimize = false;
         ShowInTaskbar = false;
+        if (WebViewHostLayout.UsesCompactSilentHost(isLinux))
+        {
+            WindowDecorations = Avalonia.Controls.WindowDecorations.None;
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            return;
+        }
+
+        WindowDecorations = Avalonia.Controls.WindowDecorations.Full;
+        WindowStartupLocation = WindowStartupLocation.Manual;
         Position = OffscreenPixel();
     }
 
     public void ShowForLogin()
     {
         AttachBrowserIfNeeded();
+        WindowDecorations = Avalonia.Controls.WindowDecorations.Full;
         Opacity = 1;
         SignInBanner.IsVisible = true;
         Width = WebViewHostLayout.LoginWidth;

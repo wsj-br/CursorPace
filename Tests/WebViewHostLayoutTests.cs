@@ -80,4 +80,36 @@ public class WebViewHostLayoutTests
         Assert.Equal(20, height);
         Assert.True(WebViewHostLayout.HasFinitePositiveSize(width, height));
     }
+
+    [Fact]
+    public void SilentHost_OnLinux_IsCompactAndTransparent()
+    {
+        Assert.True(WebViewHostLayout.UsesCompactSilentHost(isLinux: true));
+        Assert.False(WebViewHostLayout.DeferBrowserAttach(isLinux: true));
+        Assert.Equal(
+            (WebViewHostLayout.CompactSilentWidth, WebViewHostLayout.CompactSilentHeight),
+            WebViewHostLayout.SilentHostSize(isLinux: true));
+        Assert.Equal(0, WebViewHostLayout.SilentHostOpacity(isLinux: true));
+        Assert.Equal(
+            (WebViewHostLayout.CompactSilentWidth, WebViewHostLayout.CompactSilentHeight),
+            WebViewHostLayout.SilentHostMinSize(isLinux: true));
+        Assert.True(WebViewHostLayout.CentersCompactSilentHost(isLinux: true));
+        Assert.False(WebViewHostLayout.SilentHostUsesDecorations(isLinux: true));
+    }
+
+    [Fact]
+    public void SilentHost_OnMacOrWindows_KeepsLoginSizeAndOpaque()
+    {
+        Assert.False(WebViewHostLayout.UsesCompactSilentHost(isLinux: false));
+        Assert.True(WebViewHostLayout.DeferBrowserAttach(isLinux: false));
+        Assert.Equal(
+            (WebViewHostLayout.LoginWidth, WebViewHostLayout.LoginHeight),
+            WebViewHostLayout.SilentHostSize(isLinux: false));
+        Assert.Equal(1, WebViewHostLayout.SilentHostOpacity(isLinux: false));
+        Assert.Equal(
+            (WebViewHostLayout.MinWidth, WebViewHostLayout.MinHeight),
+            WebViewHostLayout.SilentHostMinSize(isLinux: false));
+        Assert.False(WebViewHostLayout.CentersCompactSilentHost(isLinux: false));
+        Assert.True(WebViewHostLayout.SilentHostUsesDecorations(isLinux: false));
+    }
 }

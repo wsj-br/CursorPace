@@ -1,3 +1,4 @@
+using System.Globalization;
 using CursorPace.Models;
 
 namespace CursorPace.Services;
@@ -39,6 +40,18 @@ public sealed class UsageChartSeriesBuilder
 
     public static decimal ToAxisX(QuotaCycle cycle, DateTime local) =>
         CycleCalculator.AxisSeconds(cycle, local);
+
+    public static decimal LinearExpectedPercent(decimal cycleSeconds, decimal elapsedSeconds)
+    {
+        if (cycleSeconds <= 0 || elapsedSeconds <= 0)
+            return 0m;
+        if (elapsedSeconds >= cycleSeconds)
+            return 100m;
+        return 100m * elapsedSeconds / cycleSeconds;
+    }
+
+    public static string FormatEndpointPercent(decimal percent) =>
+        percent.ToString("0.0", CultureInfo.CurrentCulture) + "%";
 
     private static List<UsageChartPoint> BuildExpected(QuotaCycle cycle) =>
     [

@@ -8,6 +8,13 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+## [0.2.7] - 2026-09-22
+
+- **Changed**: settings - group Settings into **Account & Usage**, **Sync Server**, **App**, **Data**, and **About** tabs instead of one long scrolling page.
+- **Fixed**: sync - Linux silent refresh lowers the 400x300 AXAML minimum before sizing the host to 1x1, and drops window decorations, so **Refresh** does not flash a vertical line. macOS and Windows keep the login-size off-screen host.
+- **Changed**: chart - label the last measured Cursor and Other Models percents (`xx.x%`, series color) to the right of those points, and draw a dotted vertical guide from the X axis to the Expected usage line at that same time with the linear expected percent.
+- **Changed**: chart - endpoint percent labels use a plot-background outline so they stay readable over the grid and series.
+
 ## [0.2.6] - 2026-09-20
 
 - **Added**: window - title-bar **Refresh** next to Settings runs the same Cursor fetch as Settings **Refresh now**.

@@ -49,7 +49,7 @@ While signed in:
 - The billing cycle start and next renewal come from Cursor.
 - **Export Usage** appears next to **Export Cycle CSV**.
 
-Choose title-bar **Refresh** or Settings **Refresh now** to fetch immediately. **Sign out** clears the saved Cursor session. On Windows and macOS this keeps a Google or GitHub session stored in the app's private browser profile when possible, so signing in again may not ask for that password; on Linux the embedded WebKitGTK browser has no way to clear only the Cursor session, so **Sign out** clears the whole browser profile there, including Google/GitHub. Samples stay on disk until you delete `usage-samples.json` or uninstall.
+Choose title-bar **Refresh** or Settings **Refresh now** to fetch immediately. On Linux that fetch uses a 1x1 transparent host and should not flash the sign-in window; the sign-in window still appears when the session needs it. **Sign out** clears the saved Cursor session. On Windows and macOS this keeps a Google or GitHub session stored in the app's private browser profile when possible, so signing in again may not ask for that password; on Linux the embedded WebKitGTK browser has no way to clear only the Cursor session, so **Sign out** clears the whole browser profile there, including Google/GitHub. Samples stay on disk until you delete `usage-samples.json` or uninstall.
 
 ### Automatic updates
 
@@ -70,14 +70,14 @@ The body is a month calendar or a usage chart for the displayed billing cycle. S
 
 Each calendar day shows two percents. On the left, a day with a synced sample shows that day's last reading (teal day number); a day without a sample shows the expected (renewal-paced) value at that day's midnight. The estimated burn value on the right appears only on days after the last sample for that quota (green when ≤100%, red when >100%).
 
-The chart is read-only: a dashed **Expected usage** line runs linearly from 0% at cycle start to 100% at next renewal. Thick solid **Cursor** and **Other Models** paths connect the last in-cycle sample of each local day (no sample dots). Thinner estimated lines run from the last sample to next renewal, and a gray line marks 100%. The left and right edges are the cycle start and next renewal instants. Vertical gridlines sit at midnight. Axis labels are the day of the month: the truncated slot before the first midnight is unlabeled, and every other slot (including the renewal-date slot) is labelled.
+The chart is read-only: a dashed **Expected usage** line runs linearly from 0% at cycle start to 100% at next renewal. Thick solid **Cursor** and **Other Models** paths connect the last in-cycle sample of each local day (no sample dots). Each path shows that last measured percent to the right of the point (`xx.x%`, in the series color). A dotted vertical guide at that same time rises from the X axis to the Expected usage line and labels the linear expected percent there. Thinner estimated lines run from the last sample to next renewal, and a gray line marks 100%. The left and right edges are the cycle start and next renewal instants. Vertical gridlines sit at midnight. Axis labels are the day of the month: the truncated slot before the first midnight is unlabeled, and every other slot (including the renewal-date slot) is labelled.
 
 Title bar actions:
 
 | Control | Action |
 | --- | --- |
 | **Refresh** | Fetch Cursor usage immediately (same as Settings **Refresh now**). Hidden on the Settings page |
-| **Settings** | Open Settings in this window (account, appearance, startup, CSV, backup, About) |
+| **Settings** | Open Settings in this window (Account & Usage, Sync Server, App, Data, About) |
 | **Back** | On the Settings page, the chevron or the **Settings** heading returns to the calendar or chart |
 | **Minimize** | Minimize the window; the app stays in the tray |
 | **Maximize** | Maximize or restore the window |
@@ -98,28 +98,28 @@ Each quota is independent.
 
 ## Settings
 
-Open **Settings** from the title bar. Settings replace the calendar or chart in the main window. A **Back** control and a **Settings** heading sit below the title bar; either one returns to the calendar or chart.
+Open **Settings** from the title bar. Settings replace the calendar or chart in the main window. A **Back** control and a **Settings** heading sit below the title bar; either one returns to the calendar or chart. Settings are grouped into **Account & Usage**, **Sync Server**, **App**, **Data**, and **About** tabs.
 
-| Setting | Effect |
-| --- | --- |
-| **Sign in** | Open the Cursor session window (disabled while already signed in) |
-| **Refresh now** | Fetch usage immediately (same action as title-bar **Refresh**) |
-| **Sign out** | Clear the saved Cursor session (keeps a Google/GitHub session in the browser profile on Windows/macOS when possible; clears the whole profile on Linux) |
-| **Update usage automatically** | Clock-aligned refreshes at the interval below |
-| **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
-| **Sync with server** | Optional. Share usage samples and billing-cycle bounds with other machines through a CursorPace sync server. Syncs on launch, after each new Cursor sample, every 10 minutes, and when you click **Re-sync now** |
-| **Server URL** | Sync server origin, for example `http://127.0.0.1:8000` |
-| **API token** | Token from the **Tokens** page of your CursorPace Sync server. The eye control shows or hides the value |
-| **Machine name** | Label shown on the server. Defaults to this computer's hostname |
-| **Re-sync now** | Push local data, then pull the merged canonical state |
-| **Launch at login** | Starts the app at OS login (Windows Run key, macOS `SMAppService` / attributed Launch Agent fallback, or Linux XDG autostart) |
-| **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same. `--show` forces the window open |
-| **Theme** | System (default), Light, or Dark. Overrides the Fluent theme variant for the app |
-| **Export Cycle CSV** | Writes each day of the cycle currently shown on the calendar or chart: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
-| **Export Usage** | Writes all retained sample timestamps and percents across stored cycles (shown while signed in). The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
-| **Backup** | Writes `manifest.json`, `settings.json`, and `usage-samples.json` as one `.zip` file (suggested name `cursor-pace-backup-yyyy-MM-dd-HH_mm_ss`) |
-| **Restore** | Replaces local settings and samples from a backup zip. The Cursor sign-in session is not changed |
-| **About** | Version from the build, UTC compile date and time (`dd-MMM-yyyy HH:mm:ss UTC`), copyright, MIT license, and a link to the GitHub repository |
+| Tab | Setting | Effect |
+| --- | --- | --- |
+| Account & Usage | **Sign in** | Open the Cursor session window (disabled while already signed in) |
+| Account & Usage | **Refresh now** | Fetch usage immediately (same action as title-bar **Refresh**) |
+| Account & Usage | **Sign out** | Clear the saved Cursor session (keeps a Google/GitHub session in the browser profile on Windows/macOS when possible; clears the whole profile on Linux) |
+| Account & Usage | **Update usage automatically** | Clock-aligned refreshes at the interval below |
+| Account & Usage | **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
+| Sync Server | **Sync with server** | Optional. Share usage samples and billing-cycle bounds with other machines through a CursorPace sync server. Syncs on launch, after each new Cursor sample, every 10 minutes, and when you click **Re-sync now** |
+| Sync Server | **Server URL** | Sync server origin, for example `http://127.0.0.1:8000` |
+| Sync Server | **API token** | Token from the **Tokens** page of your CursorPace Sync server. The eye control shows or hides the value |
+| Sync Server | **Machine name** | Label shown on the server. Defaults to this computer's hostname |
+| Sync Server | **Re-sync now** | Push local data, then pull the merged canonical state |
+| App | **Launch at login** | Starts the app at OS login (Windows Run key, macOS `SMAppService` / attributed Launch Agent fallback, or Linux XDG autostart) |
+| App | **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same. `--show` forces the window open |
+| App | **Theme** | System (default), Light, or Dark. Overrides the Fluent theme variant for the app |
+| Data | **Export Cycle CSV** | Writes each day of the cycle currently shown on the calendar or chart: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
+| Data | **Export Usage** | Writes all retained sample timestamps and percents across stored cycles (shown while signed in). The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
+| Data | **Backup** | Writes `manifest.json`, `settings.json`, and `usage-samples.json` as one `.zip` file (suggested name `cursor-pace-backup-yyyy-MM-dd-HH_mm_ss`) |
+| Data | **Restore** | Replaces local settings and samples from a backup zip. The Cursor sign-in session is not changed |
+| About | **About** | Version from the build, UTC compile date and time (`dd-MMM-yyyy HH:mm:ss UTC`), copyright, MIT license, and a link to the GitHub repository |
 
 After a local export or backup completes, choose **Open Folder** on the left side of the completion dialog to open its destination folder, or choose **OK** on the right to close it.
 
@@ -183,6 +183,7 @@ The window does not need to stay visible, but the process must be running for mi
 - End any `CursorPace` process, then launch again.
 - If it still fails on Windows, check Event Viewer for the application error. On Linux try `journalctl --user -xe`; on macOS check Console.app.
 - macOS Console `Invalid view geometry: y is NaN` from `WKWebView` was caused by both early host layout and an ABI mismatch in the released Avalonia WebView macOS interop. Current builds use a compatible local WebView build and attach it only after finite arrange. Rebuild from this tree if you still see that report.
+- Linux **Refresh** should not open a full-size sign-in window. If it does, you are on a build that still maps the macOS-style off-screen host on Linux; rebuild from this tree.
 
 **Sign in fails or "The specified module could not be found"**
 
@@ -233,4 +234,4 @@ The window does not need to stay visible, but the process must be running for mi
 ## Tips
 
 - Info-card dates use dd-MMM HH:mm; calendar dates use the system format.
-- The UI theme defaults to the system light or dark setting. Override it under **Settings** → **Theme** (System, Light, or Dark).
+- The UI theme defaults to the system light or dark setting. Override it under **Settings** → **App** → **Theme** (System, Light, or Dark).

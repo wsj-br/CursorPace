@@ -55,9 +55,15 @@ public partial class SettingsView : UserControl
             SyncThemeBox();
     }
 
+    private void OnSettingsTabChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        SyncIntervalBox();
+        SyncThemeBox();
+    }
+
     private void SyncIntervalBox()
     {
-        if (_viewModel == null)
+        if (_viewModel == null || IntervalBox == null)
             return;
 
         IntervalBox.ItemsSource = _viewModel.SyncIntervalOptions;
@@ -66,7 +72,7 @@ public partial class SettingsView : UserControl
 
     private void SyncThemeBox()
     {
-        if (_viewModel == null)
+        if (_viewModel == null || ThemeBox == null)
             return;
 
         ThemeBox.ItemsSource = _viewModel.ThemeModeOptions;

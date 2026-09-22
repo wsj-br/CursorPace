@@ -6,6 +6,29 @@ public static class WebViewHostLayout
     public const int LoginHeight = 700;
     public const int MinWidth = 400;
     public const int MinHeight = 300;
+    public const int CompactSilentWidth = 1;
+    public const int CompactSilentHeight = 1;
+
+    public static bool UsesCompactSilentHost(bool isLinux) => isLinux;
+
+    public static bool DeferBrowserAttach(bool isLinux) => !isLinux;
+
+    public static (int Width, int Height) SilentHostSize(bool isLinux) =>
+        UsesCompactSilentHost(isLinux)
+            ? (CompactSilentWidth, CompactSilentHeight)
+            : (LoginWidth, LoginHeight);
+
+    public static (int MinWidth, int MinHeight) SilentHostMinSize(bool isLinux) =>
+        UsesCompactSilentHost(isLinux)
+            ? (CompactSilentWidth, CompactSilentHeight)
+            : (MinWidth, MinHeight);
+
+    public static double SilentHostOpacity(bool isLinux) =>
+        UsesCompactSilentHost(isLinux) ? 0 : 1;
+
+    public static bool CentersCompactSilentHost(bool isLinux) => isLinux;
+
+    public static bool SilentHostUsesDecorations(bool isLinux) => !isLinux;
 
     public static (int X, int Y) OffscreenPosition() => (-32000, -32000);
 

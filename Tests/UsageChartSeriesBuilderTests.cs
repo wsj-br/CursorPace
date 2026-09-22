@@ -1,3 +1,4 @@
+using System.Globalization;
 using CursorPace.Models;
 using CursorPace.Services;
 
@@ -213,6 +214,57 @@ public class UsageChartSeriesBuilderTests
     }
 
     [Fact]
+    public void LinearExpectedPercent_FollowsStraightLineFromOriginToRenewal()
+    {
+        Assert.Equal(0m, UsageChartSeriesBuilder.LinearExpectedPercent(1_000_000m, 0m));
+        Assert.Equal(0m, UsageChartSeriesBuilder.LinearExpectedPercent(0m, 100m));
+        Assert.Equal(25m, UsageChartSeriesBuilder.LinearExpectedPercent(400m, 100m));
+        Assert.Equal(64.5m, UsageChartSeriesBuilder.LinearExpectedPercent(1000m, 645m));
+        Assert.Equal(100m, UsageChartSeriesBuilder.LinearExpectedPercent(400m, 400m));
+        Assert.Equal(100m, UsageChartSeriesBuilder.LinearExpectedPercent(400m, 500m));
+    }
+
+    [Fact]
+    public void FormatEndpointPercent_UsesOneDecimalPlace()
+    {
+        Assert.Equal(PercentLabel(0m), UsageChartSeriesBuilder.FormatEndpointPercent(0m));
+        Assert.Equal(PercentLabel(44.4m), UsageChartSeriesBuilder.FormatEndpointPercent(44.4m));
+        Assert.Equal(PercentLabel(64.52m), UsageChartSeriesBuilder.FormatEndpointPercent(64.52m));
+        Assert.Equal(PercentLabel(100m), UsageChartSeriesBuilder.FormatEndpointPercent(100m));
+        Assert.Equal(
+            64.5m,
+            decimal.Parse(
+                UsageChartSeriesBuilder.FormatEndpointPercent(64.52m).TrimEnd('%'),
+                CultureInfo.CurrentCulture));
+    }
+
+    [Fact]
+    public void LastUsagePoint_SharesXAndLinearExpectedAtThatInstant()
+    {
+        var cycle = MidnightCycle();
+        var last = cycle.CycleStart.AddDays(9).AddHours(12);
+        var samples = new List<UsageSample>
+        {
+            SampleAt(cycle.CycleStart, 0m, 0m),
+            SampleAt(last, 44.4m, 52.2m)
+        };
+
+        var document = _builder.Build(cycle, _calculator, samples);
+        var lastX = UsageChartSeriesBuilder.ToAxisX(cycle, last);
+
+        Assert.Equal(lastX, document.CursorUsage[^1].X);
+        Assert.Equal(lastX, document.OtherUsage[^1].X);
+        Assert.Equal(44.4m, document.CursorUsage[^1].Y);
+        Assert.Equal(52.2m, document.OtherUsage[^1].Y);
+        Assert.Equal(
+            UsageChartSeriesBuilder.LinearExpectedPercent(document.CycleSeconds, lastX),
+            100m * lastX / document.CycleSeconds);
+        Assert.NotEqual(
+            _calculator.ExpectedPercentAt(cycle, QuotaKind.CursorModels, last, samples),
+            UsageChartSeriesBuilder.LinearExpectedPercent(document.CycleSeconds, lastX));
+    }
+
+    [Fact]
     public void UsageLimit_IsGuideNotASeries()
     {
         var document = _builder.Build(MidnightCycle(), _calculator, samples: null);
@@ -241,6 +293,9 @@ public class UsageChartSeriesBuilderTests
 
     private QuotaCycle MidnightCycle() =>
         _calculator.GenerateCycleFromBounds(new DateTime(2026, 1, 1), new DateTime(2026, 2, 1));
+
+    private static string PercentLabel(decimal percent) =>
+        percent.ToString("0.0", CultureInfo.CurrentCulture) + "%";
 
     private static UsageSample SampleAt(DateTime local, decimal cursor, decimal other)
     {

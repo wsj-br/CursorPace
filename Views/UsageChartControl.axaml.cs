@@ -2,6 +2,7 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using Avalonia.Styling;
@@ -19,6 +20,13 @@ public partial class UsageChartControl : UserControl
     private const double MinTickSpacing = 16;
     private const double EstimatedStrokeThickness = 2;
     private const double UsageStrokeThickness = 4;
+    private const double EndpointLabelOffsetX = 6;
+    private static readonly (double X, double Y)[] HaloOffsets =
+    [
+        (-1, -1), (0, -1), (1, -1),
+        (-1, 0),           (1, 0),
+        (-1, 1),  (0, 1),  (1, 1)
+    ];
     private bool _rebuilding;
 
     private static readonly Color ExpectedUsageColor = Color.FromArgb(255, 100, 116, 139);
@@ -111,6 +119,7 @@ public partial class UsageChartControl : UserControl
             DrawPolyline(document.CursorEstimated, plot, xMin, xMax, yMin, yMax, cursorColor, dashed: false, EstimatedStrokeThickness);
         if (document.HasOtherEstimated)
             DrawPolyline(document.OtherEstimated, plot, xMin, xMax, yMin, yMax, otherColor, dashed: false, EstimatedStrokeThickness);
+        DrawLastSampleAnnotations(document, plot, xMin, xMax, yMin, yMax, expectedUsage, cursorColor, otherColor);
         DrawAxes(document, plot, xMin, xMax, mutedBrush);
         DrawLegend(document, mutedBrush);
         }
@@ -296,6 +305,77 @@ public partial class UsageChartControl : UserControl
         PlotCanvas.Children.Add(polyline);
     }
 
+    private void DrawLastSampleAnnotations(
+        UsageChartDocument document,
+        Rect plot,
+        decimal xMin,
+        decimal xMax,
+        decimal yMin,
+        decimal yMax,
+        Color expectedColor,
+        Color cursorColor,
+        Color otherColor)
+    {
+        UsageChartPoint? lastCursor = document.HasCursorUsage ? document.CursorUsage[^1] : null;
+        UsageChartPoint? lastOther = document.HasOtherUsage ? document.OtherUsage[^1] : null;
+        if (lastCursor is null && lastOther is null)
+            return;
+
+        var lastX = lastCursor?.X ?? lastOther!.X;
+        if (lastCursor is not null && lastOther is not null)
+            lastX = lastCursor.X >= lastOther.X ? lastCursor.X : lastOther.X;
+
+        var expectedY = UsageChartSeriesBuilder.LinearExpectedPercent(document.CycleSeconds, lastX);
+        var px = MapX(lastX, plot, xMin, xMax);
+        var expectedPy = MapY(expectedY, plot, yMin, yMax);
+
+        PlotCanvas.Children.Add(new Line
+        {
+            StartPoint = new Point(px, plot.Bottom),
+            EndPoint = new Point(px, expectedPy),
+            Stroke = new SolidColorBrush(expectedColor),
+            StrokeThickness = 1,
+            StrokeDashArray = new AvaloniaList<double> { 2, 2 }
+        });
+
+        var labelX = px + EndpointLabelOffsetX;
+        if (lastCursor is not null)
+        {
+            AddLabel(
+                UsageChartSeriesBuilder.FormatEndpointPercent(lastCursor.Y),
+                labelX,
+                MapY(lastCursor.Y, plot, yMin, yMax),
+                new SolidColorBrush(cursorColor),
+                11,
+                alignLeft: true,
+                centerVertically: true,
+                halo: true);
+        }
+
+        if (lastOther is not null)
+        {
+            AddLabel(
+                UsageChartSeriesBuilder.FormatEndpointPercent(lastOther.Y),
+                labelX,
+                MapY(lastOther.Y, plot, yMin, yMax),
+                new SolidColorBrush(otherColor),
+                11,
+                alignLeft: true,
+                centerVertically: true,
+                halo: true);
+        }
+
+        AddLabel(
+            UsageChartSeriesBuilder.FormatEndpointPercent(expectedY),
+            labelX,
+            expectedPy,
+            new SolidColorBrush(expectedColor),
+            11,
+            alignLeft: true,
+            centerVertically: true,
+            halo: true);
+    }
+
     private void DrawLegend(UsageChartDocument document, IBrush mutedBrush)
     {
         LegendPanel.Children.Add(CreateLegendRow(mutedBrush,
@@ -353,7 +433,16 @@ public partial class UsageChartControl : UserControl
         return row;
     }
 
-    private void AddLabel(string text, double x, double y, IBrush brush, double fontSize, bool alignRight = false)
+    private void AddLabel(
+        string text,
+        double x,
+        double y,
+        IBrush brush,
+        double fontSize,
+        bool alignRight = false,
+        bool alignLeft = false,
+        bool centerVertically = false,
+        bool halo = false)
     {
         var block = new SelectableTextBlock
         {
@@ -363,13 +452,59 @@ public partial class UsageChartControl : UserControl
         };
         block.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var width = block.DesiredSize.Width;
-        var left = alignRight ? x - width : x - width / 2;
+        var height = block.DesiredSize.Height;
+        var left = alignRight ? x - width : alignLeft ? x : x - width / 2;
+        var top = centerVertically ? y - height / 2 : y;
         var canvasWidth = PlotCanvas.Width;
+        var canvasHeight = PlotCanvas.Height;
         if (canvasWidth > 0 && width > 0)
             left = Math.Clamp(left, 0, Math.Max(0, canvasWidth - width));
+        if (centerVertically && canvasHeight > 0 && height > 0)
+            top = Math.Clamp(top, 0, Math.Max(0, canvasHeight - height));
+        if (halo)
+            AddLabelHalo(text, fontSize, left, top);
         Canvas.SetLeft(block, left);
-        Canvas.SetTop(block, y);
+        Canvas.SetTop(block, top);
         PlotCanvas.Children.Add(block);
+    }
+
+    private void AddLabelHalo(string text, double fontSize, double left, double top)
+    {
+        var outline = new SolidColorBrush(PlotBackgroundColor());
+        foreach (var offset in HaloOffsets)
+        {
+            var halo = new SelectableTextBlock
+            {
+                Text = text,
+                FontSize = fontSize,
+                Foreground = outline
+            };
+            Canvas.SetLeft(halo, left + offset.X);
+            Canvas.SetTop(halo, top + offset.Y);
+            PlotCanvas.Children.Add(halo);
+        }
+    }
+
+    private Color PlotBackgroundColor()
+    {
+        for (StyledElement? current = this; current != null; current = current.Parent as StyledElement)
+        {
+            IBrush? background = current switch
+            {
+                Panel panel => panel.Background,
+                Border border => border.Background,
+                TemplatedControl templated => templated.Background,
+                _ => null
+            };
+            if (background is ISolidColorBrush solid && solid.Color.A == 255)
+                return solid.Color;
+        }
+
+        return ThemeColor(
+            "ThemeBackgroundBrush",
+            ActualThemeVariant == ThemeVariant.Dark
+                ? Colors.Black
+                : Colors.White);
     }
 
     private static double MapX(decimal x, Rect plot, decimal xMin, decimal xMax)
