@@ -433,6 +433,40 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void StatusLine_OpensTheMatchingSettingsTab()
+    {
+        var store = new FakePlanStore();
+        var vm = CreateViewModel(new FakeSync(), store);
+
+        vm.ShowAccountSettingsCommand.Execute(null);
+
+        Assert.True(vm.IsSettingsView);
+        Assert.Equal(SettingsTab.Account, vm.SettingsTab);
+        Assert.Equal(SettingsTab.Account, store.Settings.SettingsTab);
+
+        vm.HideSettingsCommand.Execute(null);
+        Assert.False(vm.IsSettingsView);
+
+        vm.ShowSyncServerSettingsCommand.Execute(null);
+
+        Assert.True(vm.IsSettingsView);
+        Assert.Equal(SettingsTab.SyncServer, vm.SettingsTab);
+        Assert.Equal(SettingsTab.SyncServer, store.Settings.SettingsTab);
+    }
+
+    [Fact]
+    public void StatusLine_OpensSettingsWhenThatTabIsAlreadySelected()
+    {
+        var store = new FakePlanStore { Settings = new AppSettings { SettingsTab = SettingsTab.Account } };
+        var vm = CreateViewModel(new FakeSync(), store);
+
+        vm.ShowAccountSettingsCommand.Execute(null);
+
+        Assert.True(vm.IsSettingsView);
+        Assert.Equal(SettingsTab.Account, vm.SettingsTab);
+    }
+
+    [Fact]
     public void SuggestedExportFileNames_UseClockTimestamp()
     {
         var vm = CreateViewModel(signedIn: false);
@@ -906,6 +940,111 @@ public class MainViewModelTests
         vm.RemoteSyncEnabled = false;
 
         Assert.False(dispatcher.Timer.IsStarted);
+        Assert.False(vm.RemoteSyncIndicatorVisible);
+    }
+
+    [Fact]
+    public void IsRemoteSyncConfigured_RequiresUrlAndToken()
+    {
+        var store = new FakePlanStore();
+        var vm = CreateViewModel(new FakeSync(), store, new FakeRemoteSync());
+
+        Assert.False(vm.IsRemoteSyncConfigured);
+        Assert.True(vm.IsRemoteSyncUnconfigured);
+        Assert.Equal(AppInfo.SyncServerRepositoryUrl, vm.SyncServerRepositoryUrl);
+        Assert.Equal(AppInfo.SyncServerRepositoryUri, vm.SyncServerRepositoryUri);
+
+        vm.RemoteSyncUrl = "http://server:8000";
+
+        Assert.False(vm.IsRemoteSyncConfigured);
+
+        vm.RemoteSyncApiKey = "key";
+
+        Assert.True(vm.IsRemoteSyncConfigured);
+        Assert.False(vm.IsRemoteSyncUnconfigured);
+
+        vm.RemoteSyncEnabled = true;
+
+        Assert.True(vm.IsRemoteSyncConfigured);
+
+        vm.RemoteSyncEnabled = false;
+
+        Assert.True(vm.IsRemoteSyncConfigured);
+
+        vm.RemoteSyncApiKey = string.Empty;
+
+        Assert.False(vm.IsRemoteSyncConfigured);
+        Assert.True(vm.IsRemoteSyncUnconfigured);
+    }
+
+    [Fact]
+    public void RemoteSyncIndicator_HiddenWhenDisabledOrIncomplete()
+    {
+        var disabled = CreateViewModel(new FakeSync(), new FakePlanStore(), new FakeRemoteSync());
+        Assert.False(disabled.RemoteSyncIndicatorVisible);
+
+        var missingKey = new FakePlanStore
+        {
+            Settings = new AppSettings { RemoteSyncEnabled = true, RemoteSyncUrl = "http://server:8000" }
+        };
+        var incomplete = CreateViewModel(new FakeSync(), missingKey, new FakeRemoteSync());
+        Assert.False(incomplete.RemoteSyncIndicatorVisible);
+    }
+
+    [Fact]
+    public void RemoteSyncIndicator_NeverSynced_ShowsNeutralText()
+    {
+        var vm = CreateViewModel(new FakeSync(), ConfiguredRemoteStore(), new FakeRemoteSync());
+
+        Assert.True(vm.RemoteSyncIndicatorVisible);
+        Assert.True(vm.RemoteSyncIndicatorNeverSynced);
+        Assert.False(vm.RemoteSyncIndicatorOk);
+        Assert.False(vm.RemoteSyncIndicatorFailed);
+        Assert.Equal("Not synced yet", vm.RemoteSyncIndicatorText);
+    }
+
+    [Fact]
+    public async Task RemoteSyncIndicator_SuccessThenFailure_KeepsLastSuccessTimestamp()
+    {
+        var store = ConfiguredRemoteStore();
+        var remoteSync = new FakeRemoteSync
+        {
+            Result = new RemoteSyncResult(
+                true,
+                null,
+                new RemoteSyncCanonicalState(null, null, [], []),
+                0,
+                0)
+        };
+        var vm = CreateViewModel(new FakeSync(), store, remoteSync);
+
+        await vm.RunRemoteSyncAsync();
+
+        var syncedText = store.Settings.LastRemoteSyncUtc!.Value.ToLocalTime().DateTime
+            .ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture);
+        Assert.True(vm.RemoteSyncIndicatorOk);
+        Assert.False(vm.RemoteSyncIndicatorFailed);
+        Assert.False(vm.RemoteSyncIndicatorNeverSynced);
+        Assert.Equal(syncedText, vm.RemoteSyncIndicatorText);
+
+        remoteSync.Result = new RemoteSyncResult(false, "Could not reach the sync server.", null, 0, 0);
+        await vm.RunRemoteSyncAsync();
+
+        Assert.False(vm.RemoteSyncIndicatorOk);
+        Assert.True(vm.RemoteSyncIndicatorFailed);
+        Assert.Equal(syncedText, vm.RemoteSyncIndicatorText);
+    }
+
+    [Fact]
+    public void CursorAccountIndicator_IsRedWhenSignedOutOrFailing()
+    {
+        Assert.True(CreateViewModel(signedIn: false).CursorAccountIndicatorFailed);
+        Assert.False(CreateViewModel(signedIn: true).CursorAccountIndicatorFailed);
+        Assert.False(CreateViewModel(new FakeSync { IsSignedIn = true, Status = SyncStatus.Syncing }).CursorAccountIndicatorFailed);
+        Assert.False(CreateViewModel(new FakeSync { IsSignedIn = true, Status = SyncStatus.Idle }).CursorAccountIndicatorFailed);
+        Assert.True(CreateViewModel(new FakeSync { IsSignedIn = true, Status = SyncStatus.Error }).CursorAccountIndicatorFailed);
+        Assert.True(CreateViewModel(new FakeSync { IsSignedIn = true, Status = SyncStatus.AuthRequired }).CursorAccountIndicatorFailed);
+        Assert.True(CreateViewModel(new FakeSync { IsSignedIn = true, Status = SyncStatus.RateLimited }).CursorAccountIndicatorFailed);
     }
 
     [Fact]

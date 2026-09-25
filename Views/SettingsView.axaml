@@ -118,8 +118,8 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Account &amp; Usage"
-                     AutomationProperties.Name="Account and Usage">
+            <TabItem Header="Cursor account"
+                     AutomationProperties.Name="Cursor account">
                 <ScrollViewer>
                     <StackPanel Spacing="12" Margin="0,8,0,0">
                         <Border Background="{DynamicResource CardBackgroundBrush}"
@@ -247,6 +247,34 @@
                                                      TextWrapping="Wrap"
                                                      Opacity="0.7"
                                                      FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                                BorderBrush="{DynamicResource CardStrokeBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="16">
+                            <StackPanel Spacing="12">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="CursorPace sync server" FontSize="16" FontWeight="SemiBold"/>
+                                    <SelectableTextBlock Text="A CursorPace sync server can be installed by following the instructions at"
+                                                         TextWrapping="Wrap"
+                                                         Opacity="0.7"
+                                                         FontSize="12"
+                                                         IsVisible="{Binding IsRemoteSyncUnconfigured}"/>
+                                    <SelectableTextBlock Text="The sync is configured. See the repository for updates or more information."
+                                                         TextWrapping="Wrap"
+                                                         Opacity="0.7"
+                                                         FontSize="12"
+                                                         IsVisible="{Binding IsRemoteSyncConfigured}"/>
+                                </StackPanel>
+                                <HyperlinkButton NavigateUri="{Binding SyncServerRepositoryUri}"
+                                                 Content="{Binding SyncServerRepositoryUrl}"
+                                                 Padding="0"
+                                                 HorizontalAlignment="Left"
+                                                 FontSize="12"
+                                                 AutomationProperties.Name="CursorPace Sync Server repository"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>

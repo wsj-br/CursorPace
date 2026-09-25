@@ -312,17 +312,65 @@
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
                                     Spacing="8"
-                                    Margin="0,0,0,10"
-                                    IsVisible="{Binding !HasSyncAlert}">
+                                    Margin="0,0,0,10">
+                            <TextBlock Text="Updated: "
+                                    Opacity="0.55"
+                                    FontSize="11"
+                                    VerticalAlignment="Center"/>
                             <ProgressBar IsIndeterminate="True"
                                          Width="80"
                                          Height="4"
                                          VerticalAlignment="Center"
                                          IsVisible="{Binding IsSyncing}"/>
-                            <SelectableTextBlock Text="{Binding LastSyncText}"
-                                                 Opacity="0.55"
-                                                 FontSize="11"
-                                                 VerticalAlignment="Center"/>
+                            <Button Command="{Binding ShowAccountSettingsCommand}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="4,0"
+                                    MinHeight="0"
+                                    VerticalAlignment="Center"
+                                    Cursor="Hand"
+                                    ToolTip.Tip="Cursor account"
+                                    AutomationProperties.Name="Open Cursor account settings">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <Ellipse Width="8"
+                                             Height="8"
+                                             VerticalAlignment="Center"
+                                             Fill="{DynamicResource SyncFailedBrush}"
+                                             IsVisible="{Binding CursorAccountIndicatorFailed}"/>
+                                    <TextBlock Text="{Binding LastSyncText}"
+                                               Opacity="0.55"
+                                               FontSize="11"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ShowSyncServerSettingsCommand}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="4,0"
+                                    MinHeight="0"
+                                    VerticalAlignment="Center"
+                                    Cursor="Hand"
+                                    IsVisible="{Binding RemoteSyncIndicatorVisible}"
+                                    ToolTip.Tip="Sync server"
+                                    AutomationProperties.Name="Open sync server">
+                                <StackPanel Orientation="Horizontal"
+                                            Spacing="6"
+                                            VerticalAlignment="Center">
+                                <TextBlock Text="Sync server"
+                                           Opacity="0.55"
+                                           FontSize="11"
+                                           VerticalAlignment="Center"/>
+                                <Ellipse Width="8"
+                                         Height="8"
+                                         VerticalAlignment="Center"
+                                         Fill="{DynamicResource SyncFailedBrush}"
+                                         IsVisible="{Binding RemoteSyncIndicatorFailed}"/>
+                                <TextBlock Text="{Binding RemoteSyncIndicatorText}"
+                                           Opacity="0.55"
+                                           FontSize="11"
+                                           VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                     </StackPanel>
                     <local:UsageChartControl x:Name="UsageChartView"

@@ -7,11 +7,15 @@ Use conventional types (**Added**, **Changed**, **Fixed**, **Removed**), a short
 Add new entries in the `## [Unreleased]` section. When releasing, move those entries to `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`.
 
 ## [Unreleased]
+- **Added**: settings - **Sync Server** shows install instructions when the server is not configured, and the GitHub repository link when it is.
+- **Changed**: main-window - the Cursor refresh time uses `dd-MMM HH:mm`, the same format as the sync-server time.
+- **Added**: main-window - when a sync server is configured, the status line under the cycle heading shows **Sync server** and the last successful sync time, with a red dot after a failed attempt. The Cursor time gets a red dot when the account is signed out or the latest refresh failed. Clicking the Cursor time opens **Cursor account**. Clicking the sync-server status opens **Sync Server**.
 - **Changed**: settings - **Startup & Display** is the first Settings tab. A new install opens on that tab.
 - **Added**: settings - the last Settings tab is restored the next time Settings opens, including after a restart.
 - **Fixed**: chart - changing **Every sample up to** in Settings while a custom zoom is active no longer leaves the chart blank when returning to the main view.
 - **Changed**: settings - renamed the **App** tab to **Startup & Display**.
 - **Changed**: settings - renamed the **Data** tab to **Export & Backup**.
+- **Changed**: settings - renamed the **Account & Usage** tab to **Cursor account**.
 
 - **Fixed**: chart - an intraday range uses a wider hour interval for vertical grid lines and time labels so the times do not overlap.
 - **Added**: chart - drag across the plot to zoom to that interval. Right-click returns to **1M**. Choosing a range button, including the selected one, leaves the zoom and shows that range. A zoom up to the **Every sample up to** setting plots every sample; a longer zoom keeps the last sample of each local day.

@@ -16,6 +16,7 @@
                     <SolidColorBrush x:Key="SyncAlertBrush">#33EF4444</SolidColorBrush>
                     <SolidColorBrush x:Key="SyncAlertBorderBrush">#F87171</SolidColorBrush>
                     <SolidColorBrush x:Key="SyncAlertForegroundBrush">#7F1D1D</SolidColorBrush>
+                    <SolidColorBrush x:Key="SyncFailedBrush">#DC2626</SolidColorBrush>
                     <Color x:Key="ChartExpectedUsageColor">#64748B</Color>
                     <Color x:Key="ChartCursorEstimatedColor">#15803D</Color>
                     <Color x:Key="ChartOtherEstimatedColor">#0284C7</Color>
@@ -30,6 +31,7 @@
                     <SolidColorBrush x:Key="SyncAlertBrush">#40F87171</SolidColorBrush>
                     <SolidColorBrush x:Key="SyncAlertBorderBrush">#FCA5A5</SolidColorBrush>
                     <SolidColorBrush x:Key="SyncAlertForegroundBrush">#FEE2E2</SolidColorBrush>
+                    <SolidColorBrush x:Key="SyncFailedBrush">#F87171</SolidColorBrush>
                     <Color x:Key="ChartExpectedUsageColor">#94A3B8</Color>
                     <Color x:Key="ChartCursorEstimatedColor">#4ADE80</Color>
                     <Color x:Key="ChartOtherEstimatedColor">#38BDF8</Color>

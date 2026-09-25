@@ -1,3 +1,4 @@
+using System.Globalization;
 using CursorPace.Models;
 using CursorPace.Services;
 
@@ -31,6 +32,10 @@ public class UsageSyncServiceTests
         });
 
         Assert.True(sync.IsSignedIn);
+        var last = DateTimeOffset.Parse("2026-08-18T10:00:00Z");
+        Assert.Equal(
+            "Cursor " + last.ToLocalTime().DateTime.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture),
+            sync.StatusText);
     }
 
     [Fact]

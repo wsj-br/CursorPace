@@ -79,13 +79,15 @@ Title bar actions:
 | Control | Action |
 | --- | --- |
 | **Refresh** | Fetch Cursor usage immediately (same as Settings **Refresh now**). Hidden on the Settings page |
-| **Settings** | Open Settings in this window (Startup & Display, Account & Usage, Sync Server, Export & Backup, About) |
+| **Settings** | Open Settings in this window (Startup & Display, Cursor account, Sync Server, Export & Backup, About) |
 | **Back** | On the Settings page, the chevron or the **Settings** heading returns to the chart |
 | **Minimize** | Minimize the window; the app stays in the tray |
 | **Maximize** | Maximize or restore the window |
 | Window close (X) | Hide the window; the app stays in the tray |
 
 Refresh and Settings are separated from the Minimize, Maximize, and Close controls by a small gap.
+
+Under the cycle heading, a short status line shows the latest Cursor refresh as `Cursor dd-MMM HH:mm`. A red dot appears beside it when the account is signed out or the latest refresh failed. Clicking that time opens **Settings** on **Cursor account**. When **Sync with server** is on and a URL and API token are set, that line also shows **Sync server** and the last successful sync time in the same `dd-MMM HH:mm` format. A red dot appears beside it after a failed attempt. Clicking it opens **Settings** on **Sync Server**.
 
 The window is resizable and can be maximized. It restores its last size, position, and maximized state on show and launch. Informational labels can be selected and copied.
 
@@ -100,7 +102,7 @@ Each quota is independent.
 
 ## Settings
 
-Open **Settings** from the title bar. Settings replace the chart in the main window. A **Back** control and a **Settings** heading sit below the title bar; either one returns to the chart. Settings are grouped into **Startup & Display**, **Account & Usage**, **Sync Server**, **Export & Backup**, and **About** tabs. The last tab opens again the next time you enter Settings, including after you quit and start the app.
+Open **Settings** from the title bar. Settings replace the chart in the main window. A **Back** control and a **Settings** heading sit below the title bar; either one returns to the chart. Settings are grouped into **Startup & Display**, **Cursor account**, **Sync Server**, **Export & Backup**, and **About** tabs. The last tab opens again the next time you enter Settings, including after you quit and start the app.
 
 | Tab | Setting | Effect |
 | --- | --- | --- |
@@ -108,16 +110,17 @@ Open **Settings** from the title bar. Settings replace the chart in the main win
 | Startup & Display | **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same. `--show` forces the window open |
 | Startup & Display | **Theme** | System (default), Light, or Dark. Overrides the Fluent theme variant for the app |
 | Startup & Display | **Every sample up to** | **2D**, **4D** (default), or **7D**. Chart intervals up to that length plot every sample and mark each measured point. Longer intervals keep the last sample of each day. **2W** and **1M** always keep one sample per day |
-| Account & Usage | **Sign in** | Open the Cursor session window (disabled while already signed in) |
-| Account & Usage | **Refresh now** | Fetch usage immediately (same action as title-bar **Refresh**) |
-| Account & Usage | **Sign out** | Clear the saved Cursor session (keeps a Google/GitHub session in the browser profile on Windows/macOS when possible; clears the whole profile on Linux) |
-| Account & Usage | **Update usage automatically** | Clock-aligned refreshes at the interval below |
-| Account & Usage | **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
+| Cursor account | **Sign in** | Open the Cursor session window (disabled while already signed in) |
+| Cursor account | **Refresh now** | Fetch usage immediately (same action as title-bar **Refresh**) |
+| Cursor account | **Sign out** | Clear the saved Cursor session (keeps a Google/GitHub session in the browser profile on Windows/macOS when possible; clears the whole profile on Linux) |
+| Cursor account | **Update usage automatically** | Clock-aligned refreshes at the interval below |
+| Cursor account | **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
 | Sync Server | **Sync with server** | Optional. Share usage samples and billing-cycle bounds with other machines through a CursorPace sync server. Syncs on launch, after each new Cursor sample, every 10 minutes, and when you click **Re-sync now** |
 | Sync Server | **Server URL** | Sync server origin, for example `http://127.0.0.1:8000` |
 | Sync Server | **API token** | Token from the **Tokens** page of your CursorPace Sync server. The eye control shows or hides the value |
 | Sync Server | **Machine name** | Label shown on the server. Defaults to this computer's hostname |
 | Sync Server | **Re-sync now** | Push local data, then pull the merged canonical state |
+| Sync Server | **Repository** | When the server URL and API token are not set, points at the [CursorPace Sync Server](https://github.com/wsj-br/CursorPace-SyncServer) install instructions. After those fields are set, the same card shows that repository link |
 | Export & Backup | **Export Cycle CSV** | Writes each day of the cycle currently shown on the chart: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
 | Export & Backup | **Export Usage** | Writes all retained sample timestamps and percents across stored cycles (shown while signed in). The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
 | Export & Backup | **Backup** | Writes `manifest.json`, `settings.json`, and `usage-samples.json` as one `.zip` file (suggested name `cursor-pace-backup-yyyy-MM-dd-HH_mm_ss`) |

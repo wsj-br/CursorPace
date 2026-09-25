@@ -26,6 +26,7 @@ public sealed class MainViewModel : ViewModelBase
     private bool _isSettingsView;
     private bool _remoteSyncRunning;
     private bool _isRemoteSyncing;
+    private bool _lastRemoteSyncFailed;
     private string _remoteSyncStatusText = string.Empty;
     private readonly IUiTimer _remoteSyncTimer;
 
@@ -59,6 +60,8 @@ public sealed class MainViewModel : ViewModelBase
         Chart.ViewportChanged += (_, _) => RefreshChart();
 
         ShowSettingsCommand = new RelayCommand(() => IsSettingsView = true);
+        ShowAccountSettingsCommand = new RelayCommand(() => OpenSettings(SettingsTab.Account));
+        ShowSyncServerSettingsCommand = new RelayCommand(() => OpenSettings(SettingsTab.SyncServer));
         HideSettingsCommand = new RelayCommand(() => IsSettingsView = false);
         GoToPreviousCycleCommand = new RelayCommand(GoToPreviousCycle, () => CanGoToPreviousCycle);
         GoToNextCycleCommand = new RelayCommand(GoToNextCycle, () => CanGoToNextCycle);
@@ -97,6 +100,12 @@ public sealed class MainViewModel : ViewModelBase
     }
 
     public bool IsMainView => !_isSettingsView;
+
+    private void OpenSettings(SettingsTab tab)
+    {
+        SettingsTab = tab;
+        IsSettingsView = true;
+    }
 
     public UsageChartViewModel Chart { get; }
 
@@ -273,6 +282,7 @@ public sealed class MainViewModel : ViewModelBase
             OnPropertyChanged();
             _store.Save(_settings);
             RemoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+            RaiseRemoteSyncIndicatorChanged();
             if (value)
                 _ = RunRemoteSyncAsync();
             else
@@ -293,6 +303,7 @@ public sealed class MainViewModel : ViewModelBase
             OnPropertyChanged();
             _store.Save(_settings);
             RemoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+            RaiseRemoteSyncIndicatorChanged();
             ScheduleRemoteSyncTimer();
         }
     }
@@ -310,6 +321,7 @@ public sealed class MainViewModel : ViewModelBase
             OnPropertyChanged();
             _store.Save(_settings);
             RemoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+            RaiseRemoteSyncIndicatorChanged();
             ScheduleRemoteSyncTimer();
         }
     }
@@ -348,9 +360,38 @@ public sealed class MainViewModel : ViewModelBase
         private set => SetProperty(ref _remoteSyncStatusText, value);
     }
 
+    public bool IsRemoteSyncConfigured =>
+        !string.IsNullOrWhiteSpace(_settings.RemoteSyncUrl)
+        && !string.IsNullOrWhiteSpace(_settings.RemoteSyncApiKey);
+
+    public bool IsRemoteSyncUnconfigured => !IsRemoteSyncConfigured;
+
+    public string SyncServerRepositoryUrl => AppInfo.SyncServerRepositoryUrl;
+
+    public Uri SyncServerRepositoryUri => AppInfo.SyncServerRepositoryUri;
+
+    public bool RemoteSyncIndicatorVisible => CanRemoteSync;
+
+    public bool RemoteSyncIndicatorNeverSynced => _settings.LastRemoteSyncUtc == null;
+
+    public bool RemoteSyncIndicatorOk =>
+        _settings.LastRemoteSyncUtc != null && !_lastRemoteSyncFailed;
+
+    public bool RemoteSyncIndicatorFailed =>
+        _settings.LastRemoteSyncUtc != null && _lastRemoteSyncFailed;
+
+    public string RemoteSyncIndicatorText =>
+        _settings.LastRemoteSyncUtc is { } last
+            ? last.ToLocalTime().DateTime.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
+            : "Not synced yet";
+
     public string SyncStatusText => _sync.StatusText;
 
     public string LastSyncText => _sync.StatusText;
+
+    public bool CursorAccountIndicatorFailed =>
+        !IsCursorConnected
+        || _sync.Status is SyncStatus.SignedOut or SyncStatus.AuthRequired or SyncStatus.Error or SyncStatus.RateLimited;
 
     public bool IsSyncing => _sync.Status == SyncStatus.Syncing;
 
@@ -390,6 +431,8 @@ public sealed class MainViewModel : ViewModelBase
     public Uri AboutRepositoryUri => AppInfo.RepositoryUri;
 
     public ICommand ShowSettingsCommand { get; }
+    public ICommand ShowAccountSettingsCommand { get; }
+    public ICommand ShowSyncServerSettingsCommand { get; }
     public ICommand HideSettingsCommand { get; }
     public ICommand GoToPreviousCycleCommand { get; }
     public ICommand GoToNextCycleCommand { get; }
@@ -749,9 +792,11 @@ public sealed class MainViewModel : ViewModelBase
         {
             if (!result.Success || result.Canonical == null)
             {
+                _lastRemoteSyncFailed = true;
                 RemoteSyncStatusText = string.IsNullOrWhiteSpace(result.ErrorMessage)
                     ? "Could not sync with the server."
                     : result.ErrorMessage;
+                RaiseRemoteSyncIndicatorChanged();
                 return;
             }
 
@@ -802,10 +847,12 @@ public sealed class MainViewModel : ViewModelBase
             _store.Save(_settings);
             NotifyTodayQuotaTexts();
 
+            _lastRemoteSyncFailed = false;
             var syncedLocal = _settings.LastRemoteSyncUtc.Value.ToLocalTime().DateTime;
             RemoteSyncStatusText = "Last synced "
                 + syncedLocal.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
                 + $" · {canonical.Samples.Count} samples";
+            RaiseRemoteSyncIndicatorChanged();
         }
         finally
         {
@@ -866,6 +913,17 @@ public sealed class MainViewModel : ViewModelBase
         return "Not synced yet.";
     }
 
+    private void RaiseRemoteSyncIndicatorChanged()
+    {
+        OnPropertyChanged(nameof(IsRemoteSyncConfigured));
+        OnPropertyChanged(nameof(IsRemoteSyncUnconfigured));
+        OnPropertyChanged(nameof(RemoteSyncIndicatorVisible));
+        OnPropertyChanged(nameof(RemoteSyncIndicatorNeverSynced));
+        OnPropertyChanged(nameof(RemoteSyncIndicatorOk));
+        OnPropertyChanged(nameof(RemoteSyncIndicatorFailed));
+        OnPropertyChanged(nameof(RemoteSyncIndicatorText));
+    }
+
     private void OnSampleAppended(object? sender, UsageSnapshot snapshot) =>
         _ = RunRemoteSyncAsync();
 
@@ -873,6 +931,7 @@ public sealed class MainViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(SyncStatusText));
         OnPropertyChanged(nameof(LastSyncText));
+        OnPropertyChanged(nameof(CursorAccountIndicatorFailed));
         OnPropertyChanged(nameof(IsSyncing));
         OnPropertyChanged(nameof(HasSyncAlert));
         OnPropertyChanged(nameof(ShowSyncAlertSignInActions));
@@ -1099,7 +1158,9 @@ public sealed class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(RemoteSyncUrl));
         OnPropertyChanged(nameof(RemoteSyncApiKey));
         OnPropertyChanged(nameof(RemoteSyncMachineName));
+        _lastRemoteSyncFailed = false;
         RemoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+        RaiseRemoteSyncIndicatorChanged();
         ScheduleRemoteSyncTimer();
         PersistCursorAccountConnected();
         PersistLastUsageSync();

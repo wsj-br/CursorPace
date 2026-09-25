@@ -24,6 +24,8 @@ public class AppInfoTests
         Assert.Equal("MIT License", AppInfo.LicenseName);
         Assert.Equal("https://github.com/wsj-br/CursorPace", AppInfo.RepositoryUrl);
         Assert.Equal(new Uri("https://github.com/wsj-br/CursorPace"), AppInfo.RepositoryUri);
+        Assert.Equal("https://github.com/wsj-br/CursorPace-SyncServer", AppInfo.SyncServerRepositoryUrl);
+        Assert.Equal(new Uri("https://github.com/wsj-br/CursorPace-SyncServer"), AppInfo.SyncServerRepositoryUri);
     }
 
     [Theory]

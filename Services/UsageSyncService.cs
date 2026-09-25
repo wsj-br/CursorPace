@@ -308,6 +308,6 @@ public sealed class UsageSyncService : IUsageSyncService
             return "Connected";
 
         var local = last.ToLocalTime().DateTime;
-        return "Updated " + local.ToString("dd/MM HH:mm", CultureInfo.CurrentCulture);
+        return "Cursor " + local.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture);
     }
 }

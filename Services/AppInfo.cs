@@ -7,9 +7,12 @@ public sealed class AppInfo
 {
     public const string LicenseName = "MIT License";
     public const string RepositoryUrl = "https://github.com/wsj-br/CursorPace";
+    public const string SyncServerRepositoryUrl = "https://github.com/wsj-br/CursorPace-SyncServer";
     public const string BuildDateMetadataKey = "BuildDateUtc";
 
     public static Uri RepositoryUri { get; } = new(RepositoryUrl, UriKind.Absolute);
+
+    public static Uri SyncServerRepositoryUri { get; } = new(SyncServerRepositoryUrl, UriKind.Absolute);
 
     public static AppInfo Current { get; } = Read(typeof(AppInfo).Assembly);
 
