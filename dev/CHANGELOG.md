@@ -9,6 +9,7 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 ## [Unreleased]
 
 - **Fixed**: sync - automatic refresh posts the Cursor fetch after the timer tick returns, so an open main window no longer freezes when the interval fires. On Linux, cookie persistence runs inline when it is already on the UI thread.
+- **Fixed**: sync - a refresh due at launch no longer starts before the dispatcher loop, so the main window and tray icon can appear.
 
 ## [0.2.7] - 2026-09-22
 

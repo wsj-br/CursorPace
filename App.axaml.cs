@@ -71,7 +71,12 @@ public partial class App : Application
         if (launchInBackground && OperatingSystem.IsMacOS())
             _dispatcher.Post(() => MacDesktopIntegration.ApplyDockVisibility(false));
 
-        _ = _viewModel.StartSyncAsync();
+        // StartCore shows the main window and enters the dispatcher loop only
+        // after this method returns. A WebView created on this stack waits on
+        // that loop, so the window and tray icon never appear. Two posted turns
+        // also let the Linux opacity-0 placement reveal run before the fetch.
+        _dispatcher.Post(() =>
+            _dispatcher.Post(() => _ = _viewModel.StartSyncAsync()));
 
         base.OnFrameworkInitializationCompleted();
     }
