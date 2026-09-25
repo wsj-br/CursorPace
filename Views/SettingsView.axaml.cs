@@ -11,6 +11,8 @@ namespace CursorPace.Views;
 public partial class SettingsView : UserControl
 {
     private MainViewModel? _viewModel;
+    private bool _applyingSettingsTab;
+    private bool _settingsTabReady;
 
     public SettingsView()
     {
@@ -22,10 +24,18 @@ public partial class SettingsView : UserControl
 
     private Window? HostWindow => TopLevel.GetTopLevel(this) as Window;
 
-    private void OnLoaded(object? sender, RoutedEventArgs e) =>
+    private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
         HookViewModel(DataContext as MainViewModel);
+        _settingsTabReady = true;
+        ApplySettingsTab();
+    }
 
-    private void OnUnloaded(object? sender, RoutedEventArgs e) => HookViewModel(null);
+    private void OnUnloaded(object? sender, RoutedEventArgs e)
+    {
+        _settingsTabReady = false;
+        HookViewModel(null);
+    }
 
     private void OnDataContextChanged(object? sender, EventArgs e) =>
         HookViewModel(DataContext as MainViewModel);
@@ -43,6 +53,7 @@ public partial class SettingsView : UserControl
             return;
 
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        ApplySettingsTab();
         SyncIntervalBox();
         SyncThemeBox();
         SyncSampleDetailBox();
@@ -56,6 +67,28 @@ public partial class SettingsView : UserControl
             SyncThemeBox();
         else if (e.PropertyName == nameof(MainViewModel.RawSampleMaxDays))
             SyncSampleDetailBox();
+        else if (e.PropertyName is nameof(MainViewModel.SettingsTab) or nameof(MainViewModel.IsSettingsView))
+            ApplySettingsTab();
+    }
+
+    private void ApplySettingsTab()
+    {
+        if (_viewModel == null || SettingsTabs == null)
+            return;
+
+        var index = SettingsTabIds.ToIndex(_viewModel.SettingsTab);
+        if (SettingsTabs.SelectedIndex == index)
+            return;
+
+        _applyingSettingsTab = true;
+        try
+        {
+            SettingsTabs.SelectedIndex = index;
+        }
+        finally
+        {
+            _applyingSettingsTab = false;
+        }
     }
 
     private void OnSettingsTabChanged(object? sender, SelectionChangedEventArgs e)
@@ -63,6 +96,17 @@ public partial class SettingsView : UserControl
         SyncIntervalBox();
         SyncThemeBox();
         SyncSampleDetailBox();
+
+        if (!_settingsTabReady || _applyingSettingsTab || _viewModel == null)
+            return;
+
+        if (e.AddedItems.Count == 0 || e.AddedItems[0] is not TabItem)
+            return;
+
+        if (SettingsTabs.SelectedIndex < 0)
+            return;
+
+        _viewModel.SettingsTab = SettingsTabIds.FromIndex(SettingsTabs.SelectedIndex);
     }
 
     private void SyncIntervalBox()

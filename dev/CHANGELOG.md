@@ -7,14 +7,17 @@ Use conventional types (**Added**, **Changed**, **Fixed**, **Removed**), a short
 Add new entries in the `## [Unreleased]` section. When releasing, move those entries to `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`.
 
 ## [Unreleased]
-- **Changed**: settings - renamed the **App** tab to **Startup and Appearance**.
+- **Changed**: settings - **Startup & Display** is the first Settings tab. A new install opens on that tab.
+- **Added**: settings - the last Settings tab is restored the next time Settings opens, including after a restart.
+- **Fixed**: chart - changing **Every sample up to** in Settings while a custom zoom is active no longer leaves the chart blank when returning to the main view.
+- **Changed**: settings - renamed the **App** tab to **Startup & Display**.
 - **Changed**: settings - renamed the **Data** tab to **Export & Backup**.
 
 - **Fixed**: chart - an intraday range uses a wider hour interval for vertical grid lines and time labels so the times do not overlap.
 - **Added**: chart - drag across the plot to zoom to that interval. Right-click returns to **1M**. Choosing a range button, including the selected one, leaves the zoom and shows that range. A zoom up to the **Every sample up to** setting plots every sample; a longer zoom keeps the last sample of each local day.
 - **Changed**: chart - while a drag zoom is active, the hover readout shows each metric's value at the start of that zoom and the change from that start to the pointer. Preset ranges hide those rows.
 - **Added**: chart - intervals up to the **Every sample up to** setting draw a small circle on each measured Cursor and Other Models sample. The expected line has no circles.
-- **Added**: settings - **Settings** → **Startup and Appearance** → **Every sample up to** chooses **2D**, **4D**, or **7D**. The default is **4D**. **7D** and **1W** plot every sample when the choice is **7D**. **2W** and **1M** keep the last sample of each day.
+- **Added**: settings - **Settings** → **Startup & Display** → **Every sample up to** chooses **2D**, **4D**, or **7D**. The default is **4D**. **7D** and **1W** plot every sample when the choice is **7D**. **2W** and **1M** keep the last sample of each day.
 - **Changed**: scripts - development scripts now show the main window by default; `-NoShow` / `--no-show` uses the app's normal startup visibility.
 - **Changed**: chart - the hover readout sits at the top-left corner of the plot, below the date labels.
 - **Changed**: chart - the legend sits beside the range selectors, right-aligned to the plot, with estimated series on a second row.

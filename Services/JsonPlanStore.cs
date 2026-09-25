@@ -125,6 +125,7 @@ public sealed class JsonPlanStore : IPlanStore
             RunAtStartup = stored.RunAtStartup,
             StartInNotificationTray = stored.StartInNotificationTray,
             ThemeMode = UiTheme.Clamp(stored.ThemeMode),
+            SettingsTab = SettingsTabIds.Parse(stored.SettingsTab),
             RawSampleMaxDays = SampleDetail.Clamp(stored.RawSampleMaxDays),
             AutoSyncEnabled = stored.AutoSyncEnabled,
             SyncIntervalHours = SyncInterval.Clamp(stored.SyncIntervalHours),
@@ -153,6 +154,7 @@ public sealed class JsonPlanStore : IPlanStore
             RunAtStartup = settings.RunAtStartup,
             StartInNotificationTray = settings.StartInNotificationTray,
             ThemeMode = UiTheme.Clamp(settings.ThemeMode),
+            SettingsTab = SettingsTabIds.ToStored(settings.SettingsTab),
             RawSampleMaxDays = SampleDetail.Clamp(settings.RawSampleMaxDays),
             AutoSyncEnabled = settings.AutoSyncEnabled,
             SyncIntervalHours = SyncInterval.Clamp(settings.SyncIntervalHours),
@@ -237,6 +239,7 @@ public sealed class JsonPlanStore : IPlanStore
         public bool RunAtStartup { get; set; }
         public bool StartInNotificationTray { get; set; } = true;
         public UiThemeMode ThemeMode { get; set; } = UiThemeMode.System;
+        public string? SettingsTab { get; set; }
         public int RawSampleMaxDays { get; set; } = SampleDetail.DefaultDays;
         public bool AutoSyncEnabled { get; set; } = true;
         public int SyncIntervalHours { get; set; } = 1;

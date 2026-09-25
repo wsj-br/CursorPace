@@ -33,6 +33,91 @@
                     <Setter Property="FontSize" Value="16"/>
                 </Style>
             </TabControl.Styles>
+            <TabItem Header="Startup &amp; Display"
+                     AutomationProperties.Name="Startup &amp; Display">
+                <ScrollViewer>
+                    <StackPanel Spacing="12" Margin="0,8,0,0">
+                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                                BorderBrush="{DynamicResource CardStrokeBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="16">
+                            <StackPanel Spacing="12">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Startup" FontSize="16" FontWeight="SemiBold"/>
+                                    <SelectableTextBlock Text="Launch at login and start in the notification tray."
+                                                         TextWrapping="Wrap"
+                                                         Opacity="0.7"
+                                                         FontSize="12"/>
+                                </StackPanel>
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="48">
+                                    <StackPanel Grid.Column="0" Spacing="4">
+                                        <TextBlock Text="Launch at login" Opacity="0.8" FontSize="12"/>
+                                        <ToggleSwitch IsChecked="{Binding RunAtStartup, Mode=TwoWay}"
+                                                      HorizontalAlignment="Left"
+                                                      AutomationProperties.Name="Launch at login"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="4">
+                                        <TextBlock Text="Start in notification tray" Opacity="0.8" FontSize="12"/>
+                                        <ToggleSwitch IsChecked="{Binding StartInNotificationTray, Mode=TwoWay}"
+                                                      HorizontalAlignment="Left"
+                                                      AutomationProperties.Name="Start in notification tray"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                                BorderBrush="{DynamicResource CardStrokeBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="16">
+                            <StackPanel Spacing="12">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Appearance" FontSize="16" FontWeight="SemiBold"/>
+                                    <SelectableTextBlock Text="Override the interface theme, or follow the system light or dark setting."
+                                                         TextWrapping="Wrap"
+                                                         Opacity="0.7"
+                                                         FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Theme" Opacity="0.8" FontSize="12"/>
+                                    <ComboBox x:Name="ThemeBox"
+                                              MinWidth="160"
+                                              HorizontalAlignment="Left"
+                                              SelectionChanged="OnThemeChanged"
+                                              AutomationProperties.Name="Theme"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                                BorderBrush="{DynamicResource CardStrokeBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="16">
+                            <StackPanel Spacing="12">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Chart" FontSize="16" FontWeight="SemiBold"/>
+                                    <SelectableTextBlock Text="Plot every sample for intervals up to this length. Longer intervals keep the last sample of each day."
+                                                         TextWrapping="Wrap"
+                                                         Opacity="0.7"
+                                                         FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Every sample up to" Opacity="0.8" FontSize="12"/>
+                                    <ComboBox x:Name="SampleDetailBox"
+                                              MinWidth="160"
+                                              HorizontalAlignment="Left"
+                                              SelectionChanged="OnSampleDetailChanged"
+                                              AutomationProperties.Name="Every sample up to"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
             <TabItem Header="Account &amp; Usage"
                      AutomationProperties.Name="Account and Usage">
                 <ScrollViewer>
@@ -162,91 +247,6 @@
                                                      TextWrapping="Wrap"
                                                      Opacity="0.7"
                                                      FontSize="12"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-            <TabItem Header="Startup and Appearance"
-                     AutomationProperties.Name="Startup and Appearance">
-                <ScrollViewer>
-                    <StackPanel Spacing="12" Margin="0,8,0,0">
-                        <Border Background="{DynamicResource CardBackgroundBrush}"
-                                BorderBrush="{DynamicResource CardStrokeBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                Padding="16">
-                            <StackPanel Spacing="12">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="Startup" FontSize="16" FontWeight="SemiBold"/>
-                                    <SelectableTextBlock Text="Launch at login and start in the notification tray."
-                                                         TextWrapping="Wrap"
-                                                         Opacity="0.7"
-                                                         FontSize="12"/>
-                                </StackPanel>
-                                <Grid ColumnDefinitions="*,*" ColumnSpacing="48">
-                                    <StackPanel Grid.Column="0" Spacing="4">
-                                        <TextBlock Text="Launch at login" Opacity="0.8" FontSize="12"/>
-                                        <ToggleSwitch IsChecked="{Binding RunAtStartup, Mode=TwoWay}"
-                                                      HorizontalAlignment="Left"
-                                                      AutomationProperties.Name="Launch at login"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Spacing="4">
-                                        <TextBlock Text="Start in notification tray" Opacity="0.8" FontSize="12"/>
-                                        <ToggleSwitch IsChecked="{Binding StartInNotificationTray, Mode=TwoWay}"
-                                                      HorizontalAlignment="Left"
-                                                      AutomationProperties.Name="Start in notification tray"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Background="{DynamicResource CardBackgroundBrush}"
-                                BorderBrush="{DynamicResource CardStrokeBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                Padding="16">
-                            <StackPanel Spacing="12">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="Appearance" FontSize="16" FontWeight="SemiBold"/>
-                                    <SelectableTextBlock Text="Override the interface theme, or follow the system light or dark setting."
-                                                         TextWrapping="Wrap"
-                                                         Opacity="0.7"
-                                                         FontSize="12"/>
-                                </StackPanel>
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="Theme" Opacity="0.8" FontSize="12"/>
-                                    <ComboBox x:Name="ThemeBox"
-                                              MinWidth="160"
-                                              HorizontalAlignment="Left"
-                                              SelectionChanged="OnThemeChanged"
-                                              AutomationProperties.Name="Theme"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Background="{DynamicResource CardBackgroundBrush}"
-                                BorderBrush="{DynamicResource CardStrokeBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                Padding="16">
-                            <StackPanel Spacing="12">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="Chart" FontSize="16" FontWeight="SemiBold"/>
-                                    <SelectableTextBlock Text="Plot every sample for intervals up to this length. Longer intervals keep the last sample of each day."
-                                                         TextWrapping="Wrap"
-                                                         Opacity="0.7"
-                                                         FontSize="12"/>
-                                </StackPanel>
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="Every sample up to" Opacity="0.8" FontSize="12"/>
-                                    <ComboBox x:Name="SampleDetailBox"
-                                              MinWidth="160"
-                                              HorizontalAlignment="Left"
-                                              SelectionChanged="OnSampleDetailChanged"
-                                              AutomationProperties.Name="Every sample up to"/>
-                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </StackPanel>

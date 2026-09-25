@@ -8,6 +8,7 @@ public sealed class AppSettings
     public bool RunAtStartup { get; set; }
     public bool StartInNotificationTray { get; set; } = true;
     public UiThemeMode ThemeMode { get; set; } = UiThemeMode.System;
+    public SettingsTab SettingsTab { get; set; } = SettingsTab.Startup;
     public int RawSampleMaxDays { get; set; } = SampleDetail.DefaultDays;
     public bool AutoSyncEnabled { get; set; } = true;
     public int SyncIntervalHours { get; set; } = 1;

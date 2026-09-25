@@ -130,6 +130,61 @@ public class JsonPlanStoreTests : IDisposable
     }
 
     [Fact]
+    public void SaveAndLoad_RoundTripsSettingsTab()
+    {
+        _store.Save(new AppSettings { SettingsTab = SettingsTab.About });
+
+        var loaded = _store.Load();
+
+        Assert.Equal(SettingsTab.About, loaded.SettingsTab);
+        Assert.Contains("\"settingsTab\": \"About\"", File.ReadAllText(_settingsPath), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Load_MissingOrUnknownSettingsTab_DefaultsToStartup()
+    {
+        File.WriteAllText(_settingsPath, """
+            {
+              "version": 2,
+              "themeMode": "Dark"
+            }
+            """);
+
+        var missing = _store.Load();
+
+        Assert.Equal(SettingsTab.Startup, missing.SettingsTab);
+        Assert.Equal(UiThemeMode.Dark, missing.ThemeMode);
+
+        File.WriteAllText(_settingsPath, """
+            {
+              "version": 2,
+              "themeMode": "Dark",
+              "settingsTab": "Nope"
+            }
+            """);
+
+        var unknown = _store.Load();
+
+        Assert.Equal(SettingsTab.Startup, unknown.SettingsTab);
+        Assert.Equal(UiThemeMode.Dark, unknown.ThemeMode);
+        Assert.Contains("\"themeMode\": \"Dark\"", File.ReadAllText(_settingsPath), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SettingsTabIds_FollowSettingsPageOrder()
+    {
+        Assert.Equal(SettingsTab.Startup, SettingsTabIds.FromIndex(0));
+        Assert.Equal(SettingsTab.Account, SettingsTabIds.FromIndex(1));
+        Assert.Equal(SettingsTab.SyncServer, SettingsTabIds.FromIndex(2));
+        Assert.Equal(SettingsTab.Export, SettingsTabIds.FromIndex(3));
+        Assert.Equal(SettingsTab.About, SettingsTabIds.FromIndex(4));
+        Assert.Equal(SettingsTab.Startup, SettingsTabIds.FromIndex(-1));
+        Assert.Equal(0, SettingsTabIds.ToIndex(SettingsTab.Startup));
+        Assert.Equal(SettingsTab.Startup, SettingsTabIds.Parse(null));
+        Assert.Equal(SettingsTab.Startup, SettingsTabIds.Parse("Nope"));
+    }
+
+    [Fact]
     public void Load_MissingThemeMode_DefaultsToSystem()
     {
         File.WriteAllText(_settingsPath, """

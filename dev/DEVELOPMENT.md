@@ -341,6 +341,7 @@ Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so 
 | `runAtStartup`                 | Launch at login (Windows Run key, macOS `SMAppService` / attributed Launch Agent fallback, Linux XDG autostart) |
 | `startInNotificationTray`      | Default `true`; hide the window on launch; startup registration includes `--background` |
 | `themeMode`                    | `System` (default), `Light`, or `Dark`; sets Avalonia `RequestedThemeVariant`           |
+| `settingsTab`                  | Last Settings tab: `Startup` (default), `Account`, `SyncServer`, `Export`, or `About`. Unknown values stay on Startup & Display |
 | `autoSyncEnabled`              | Default `true`                                                                          |
 | `syncIntervalHours`            | 1, 2, 4, 6, or 12; other values clamp to 1                                              |
 | `showChartView`                | Removed. Older files may still contain it; load ignores it and the next save omits it  |

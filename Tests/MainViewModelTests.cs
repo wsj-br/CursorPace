@@ -300,6 +300,23 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void SettingsTab_PersistsAndRestoresOnANewViewModel()
+    {
+        var store = new FakePlanStore();
+        var vm = CreateViewModel(new FakeSync(), store);
+
+        Assert.Equal(SettingsTab.Startup, vm.SettingsTab);
+
+        vm.SettingsTab = SettingsTab.Export;
+
+        Assert.Equal(SettingsTab.Export, store.Settings.SettingsTab);
+
+        var reopened = CreateViewModel(new FakeSync(), store);
+
+        Assert.Equal(SettingsTab.Export, reopened.SettingsTab);
+    }
+
+    [Fact]
     public void TryBuildUsageSamplesCsv_WhenEmpty_ReturnsFalse()
     {
         var vm = CreateViewModel(signedIn: true);
@@ -1041,7 +1058,7 @@ public class MainViewModelTests
     }
 
     [Fact]
-    public void RawSampleMaxDays_DefaultsToFourAndChangesTheOpenChart()
+    public void RawSampleMaxDays_ChangedFromSettings_PreservesZoomedChart()
     {
         var calculator = new CycleCalculator();
         var start = new DateTime(2026, 8, 1);
@@ -1062,9 +1079,14 @@ public class MainViewModelTests
         Assert.Equal(4, vm.RawSampleMaxDays);
         Assert.True(vm.Chart.Document!.UsesIntradayAxis);
 
+        vm.ShowSettingsCommand.Execute(null);
         vm.RawSampleMaxDays = 2;
+        vm.HideSettingsCommand.Execute(null);
 
         Assert.Equal(2, store.Settings.RawSampleMaxDays);
+        Assert.False(vm.IsSettingsView);
+        Assert.NotNull(vm.Chart.CustomViewport);
+        Assert.True(vm.Chart.Document!.IsCustomViewport);
         Assert.False(vm.Chart.Document!.UsesIntradayAxis);
 
         vm.RawSampleMaxDays = 9;

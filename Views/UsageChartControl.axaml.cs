@@ -32,6 +32,7 @@ public partial class UsageChartControl : UserControl
         (-1, 1),  (0, 1),  (1, 1)
     ];
     private bool _rebuilding;
+    private bool _plotDirty;
     private bool _plotReady;
     private bool _selecting;
     private double _selectionOriginX;
@@ -109,13 +110,17 @@ public partial class UsageChartControl : UserControl
     {
         if (_rebuilding)
             return;
+        if (!CanDrawPlot())
+        {
+            MarkPlotDirty();
+            return;
+        }
+
         _rebuilding = true;
         try
         {
+        ClearPlotDirty();
         CancelSelection();
-        if (PlotCanvas == null || HoverCanvas == null || SelectionCanvas == null || HoverBox == null || LegendPanel == null || EmptyPlotText == null)
-            return;
-
         PlotCanvas.Children.Clear();
         HoverCanvas.Children.Clear();
         SelectionCanvas.Children.Clear();
@@ -127,7 +132,7 @@ public partial class UsageChartControl : UserControl
         var hostHeight = PlotSize.Height;
         var hasSeries = document != null && document.ExpectedUsage.Count >= 2;
         EmptyPlotText.IsVisible = document == null || !hasSeries;
-        if (document == null || !IsEffectivelyVisible || hostWidth < 80 || hostHeight < 60)
+        if (document == null)
             return;
 
         PlotCanvas.Width = hostWidth;
@@ -188,6 +193,37 @@ public partial class UsageChartControl : UserControl
             _rebuilding = false;
         }
     }
+
+    private bool CanDrawPlot()
+    {
+        if (PlotCanvas == null || HoverCanvas == null || SelectionCanvas == null || HoverBox == null || LegendPanel == null || EmptyPlotText == null)
+            return false;
+        if (!IsEffectivelyVisible)
+            return false;
+
+        var size = PlotSize;
+        return size.Width >= 80 && size.Height >= 60;
+    }
+
+    private void MarkPlotDirty()
+    {
+        if (_plotDirty)
+            return;
+
+        _plotDirty = true;
+        LayoutUpdated += OnPlotLayoutUpdated;
+    }
+
+    private void ClearPlotDirty()
+    {
+        if (!_plotDirty)
+            return;
+
+        _plotDirty = false;
+        LayoutUpdated -= OnPlotLayoutUpdated;
+    }
+
+    private void OnPlotLayoutUpdated(object? sender, EventArgs e) => RebuildPlot();
 
     private void OnRangeClick(object? sender, RoutedEventArgs e)
     {

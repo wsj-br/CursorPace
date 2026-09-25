@@ -2,7 +2,7 @@ namespace CursorPace.Models;
 
 public static class SampleDetail
 {
-    public const int DefaultDays = 4;
+    public const int DefaultDays = 14;
 
     public static readonly int[] AllowedDays = [2, 4, 7, 14];
 

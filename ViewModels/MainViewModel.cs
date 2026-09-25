@@ -205,6 +205,19 @@ public sealed class MainViewModel : ViewModelBase
 
     public IReadOnlyList<UiThemeMode> ThemeModeOptions => UiTheme.AllowedModes;
 
+    public SettingsTab SettingsTab
+    {
+        get => SettingsTabIds.Clamp(_settings.SettingsTab);
+        set
+        {
+            var tab = SettingsTabIds.Clamp(value);
+            if (_settings.SettingsTab == tab) return;
+            _settings.SettingsTab = tab;
+            OnPropertyChanged();
+            _store.Save(_settings);
+        }
+    }
+
     public int RawSampleMaxDays
     {
         get => SampleDetail.Clamp(_settings.RawSampleMaxDays);
@@ -1078,6 +1091,7 @@ public sealed class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(RunAtStartup));
         OnPropertyChanged(nameof(StartInNotificationTray));
         OnPropertyChanged(nameof(ThemeMode));
+        OnPropertyChanged(nameof(SettingsTab));
         OnPropertyChanged(nameof(RawSampleMaxDays));
         OnPropertyChanged(nameof(AutoSyncEnabled));
         OnPropertyChanged(nameof(SyncIntervalHours));
