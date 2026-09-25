@@ -92,7 +92,14 @@ public class UsageChartRangeTests
             SampleAt(previousDay, 3m, 4m)
         };
 
-        var document = _builder.Build(cycle, _calculator, samples, UsageChartRange.SevenDays, now, true);
+        var document = _builder.Build(
+            cycle,
+            _calculator,
+            samples,
+            UsageChartRange.SevenDays,
+            now,
+            true,
+            rawSampleMaxDays: 4);
 
         Assert.False(document.UsesIntradayAxis);
         Assert.Equal(2, document.CursorUsage.Count);
@@ -212,7 +219,7 @@ public class UsageChartRangeTests
     }
 
     [Fact]
-    public void CustomViewport_LongerThanFourDays_KeepsLastSamplePerDay()
+    public void CustomViewport_LongerThanFourteenDays_KeepsLastSamplePerDay()
     {
         var cycle = MidnightCycle();
         var start = cycle.CycleStart.AddDays(2);
@@ -227,7 +234,7 @@ public class UsageChartRangeTests
         };
         var viewport = new UsageChartViewport(
             UsageChartSeriesBuilder.ToAxisX(cycle, start),
-            UsageChartSeriesBuilder.ToAxisX(cycle, start.AddDays(4).AddSeconds(1)));
+            UsageChartSeriesBuilder.ToAxisX(cycle, start.AddDays(14).AddSeconds(1)));
 
         var document = _builder.Build(cycle, _calculator, samples, viewport: viewport);
 
@@ -304,6 +311,30 @@ public class UsageChartRangeTests
     }
 
     [Fact]
+    public void TwoWeeks_PlotsEverySample_WithDefaultCutoff()
+    {
+        var cycle = MidnightCycle();
+        var now = cycle.CycleStart.AddDays(16);
+        var morning = now.AddDays(-2).AddHours(8);
+        var evening = now.AddDays(-2).AddHours(20);
+        var previousDay = now.AddDays(-3).AddHours(12);
+        var samples = new List<UsageSample>
+        {
+            SampleAt(morning, 5m, 6m),
+            SampleAt(evening, 8m, 9m),
+            SampleAt(previousDay, 3m, 4m)
+        };
+
+        var twoWeeks = _builder.Build(cycle, _calculator, samples, UsageChartRange.TwoWeeks, now, true);
+        var month = _builder.Build(cycle, _calculator, samples, UsageChartRange.OneMonth, now, true);
+
+        Assert.True(twoWeeks.UsesIntradayAxis);
+        Assert.Equal([3m, 5m, 8m], twoWeeks.CursorUsage.Select(point => point.Y));
+        Assert.False(month.UsesIntradayAxis);
+        Assert.Equal([3m, 8m], month.CursorUsage.Select(point => point.Y));
+    }
+
+    [Fact]
     public void SevenDays_StaysDailyWhenTheVisibleWindowIsUnderTwoDays()
     {
         var cycle = MidnightCycle();
@@ -315,7 +346,14 @@ public class UsageChartRangeTests
             SampleAt(cycle.CycleStart.AddHours(15), 11m, 12m)
         };
 
-        var preset = _builder.Build(cycle, _calculator, samples, UsageChartRange.SevenDays, now, true);
+        var preset = _builder.Build(
+            cycle,
+            _calculator,
+            samples,
+            UsageChartRange.SevenDays,
+            now,
+            true,
+            rawSampleMaxDays: 4);
         var zoom = _builder.Build(
             cycle,
             _calculator,
@@ -323,7 +361,8 @@ public class UsageChartRangeTests
             UsageChartRange.SevenDays,
             now,
             true,
-            new UsageChartViewport(0m, UsageChartSeriesBuilder.ToAxisX(cycle, now)));
+            new UsageChartViewport(0m, UsageChartSeriesBuilder.ToAxisX(cycle, now)),
+            rawSampleMaxDays: 4);
 
         Assert.False(preset.IsCustomViewport);
         Assert.False(preset.UsesIntradayAxis);

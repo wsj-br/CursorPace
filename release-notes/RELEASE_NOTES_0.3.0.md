@@ -4,7 +4,7 @@
 
 - The main window is the usage chart. The calendar view and calendar/chart toggle are gone. Cycle day rows remain in CSV export and the tray tooltip.
 - Range buttons cover **1D**, **2D**, **7D**, **1W**, **2W**, and **1M** (the displayed cycle). Drag across the plot to zoom; right-click returns to **1M**. Hover shows Cursor, Other Models, and Expected usage at that time, and a zoom also shows the start values and the change from that start.
-- Short ranges and short zooms can plot every sample, with a small circle on each measured point. **Settings** → **Startup & Display** → **Every sample up to** chooses **2D**, **4D**, or **7D** (default **4D**). Longer ranges keep the last sample of each local day.
+- Short ranges and short zooms can plot every sample, with a small circle on each measured point. **Settings** → **Startup & Display** → **Every sample up to** chooses **2D**, **4D**, **7D**, or **14D** (default **14D**). **1M** keeps the last sample of each local day.
 - Cycle start and next renewal share one card. The two run-out times share another. A last-measure card shows the newest in-cycle sample time, Cursor %, Other %, and linear Expected usage %.
 - Settings tabs are **Startup & Display**, **Cursor account**, **Sync Server**, **Export & Backup**, and **About**. A new install opens on **Startup & Display**. The last tab is restored the next time Settings opens, including after a restart.
 - When a sync server is configured, the status line under the cycle heading shows **Sync server** and the last successful sync time. Click the Cursor time or the sync-server status to open that Settings tab. A red dot marks a failed Cursor refresh, a signed-out account, or a failed server sync.

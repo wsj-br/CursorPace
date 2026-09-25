@@ -211,13 +211,13 @@ public class JsonPlanStoreTests : IDisposable
     }
 
     [Fact]
-    public void Load_MissingOrUnknownRawSampleMaxDays_DefaultsToFour()
+    public void Load_MissingOrUnknownRawSampleMaxDays_DefaultsToFourteen()
     {
         File.WriteAllText(_settingsPath, """{ "version": 2 }""");
-        Assert.Equal(4, _store.Load().RawSampleMaxDays);
+        Assert.Equal(14, _store.Load().RawSampleMaxDays);
 
         File.WriteAllText(_settingsPath, """{ "version": 2, "rawSampleMaxDays": 3 }""");
-        Assert.Equal(4, _store.Load().RawSampleMaxDays);
+        Assert.Equal(14, _store.Load().RawSampleMaxDays);
     }
 
     [Fact]

@@ -1215,7 +1215,7 @@ public class MainViewModelTests
             UsageChartSeriesBuilder.ToAxisX(cycle, zoomStart),
             UsageChartSeriesBuilder.ToAxisX(cycle, zoomEnd));
 
-        Assert.Equal(4, vm.RawSampleMaxDays);
+        Assert.Equal(14, vm.RawSampleMaxDays);
         Assert.True(vm.Chart.Document!.UsesIntradayAxis);
 
         vm.ShowSettingsCommand.Execute(null);
@@ -1230,8 +1230,8 @@ public class MainViewModelTests
 
         vm.RawSampleMaxDays = 9;
 
-        Assert.Equal(4, vm.RawSampleMaxDays);
-        Assert.Equal(4, store.Settings.RawSampleMaxDays);
+        Assert.Equal(14, vm.RawSampleMaxDays);
+        Assert.Equal(14, store.Settings.RawSampleMaxDays);
         Assert.True(vm.Chart.Document!.UsesIntradayAxis);
 
         vm.Chart.SelectedRange = UsageChartRange.SevenDays;
