@@ -8,6 +8,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Fixed**: sync - automatic refresh posts the Cursor fetch after the timer tick returns, so an open main window no longer freezes when the interval fires. On Linux, cookie persistence runs inline when it is already on the UI thread.
+
 ## [0.2.7] - 2026-09-22
 
 - **Changed**: settings - group Settings into **Account & Usage**, **Sync Server**, **App**, **Data**, and **About** tabs instead of one long scrolling page.

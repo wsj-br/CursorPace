@@ -153,7 +153,7 @@ public sealed class UsageSyncService : IUsageSyncService
         _timer.Tick -= OnTimerTick;
     }
 
-    private async void OnTimerTick(object? sender, EventArgs args)
+    private void OnTimerTick(object? sender, EventArgs args)
     {
         try
         {
@@ -170,6 +170,27 @@ public sealed class UsageSyncService : IUsageSyncService
                 return;
             }
 
+            // Leave the dispatcher tick before showing the WebView. A fetch that
+            // starts on this stack deadlocks the open main window: navigation and
+            // script callbacks need the same UI loop the timer still occupies.
+            _timer.Stop();
+            _dispatcher.Post(() => _ = RunTimerFetchAsync());
+        }
+        catch (Exception ex)
+        {
+            SetStatus(
+                SyncStatus.Error,
+                string.IsNullOrWhiteSpace(ex.Message)
+                    ? "Could not update usage."
+                    : ex.Message);
+            ResetTimer();
+        }
+    }
+
+    private async Task RunTimerFetchAsync()
+    {
+        try
+        {
             await RunFetchAsync(allowInteractiveLogin: false);
         }
         catch (Exception ex)

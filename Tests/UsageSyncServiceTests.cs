@@ -135,6 +135,38 @@ public class UsageSyncServiceTests
         Assert.Equal(1, appended);
     }
 
+    [Fact]
+    public async Task TimerTick_DoesNotFetchUntilPostedTurnRuns()
+    {
+        var client = new FakeUsageClient();
+        var dispatcher = new QueuingUiDispatcher();
+        var sync = new UsageSyncService(
+            dispatcher,
+            client,
+            new FakeUsageSampleStore(),
+            new FixedClock(new DateTime(2026, 8, 18, 12, 0, 0)),
+            new FakeUsagePlanStore
+            {
+                Settings = new AppSettings
+                {
+                    CursorAccountConnected = true,
+                    LastUsageSyncUtc = new DateTimeOffset(new DateTime(2026, 8, 18, 11, 50, 0))
+                }
+            });
+
+        await sync.StartAsync(autoSyncEnabled: true, intervalHours: 1);
+        Assert.Equal(0, client.FetchCount);
+
+        dispatcher.Timer.RaiseTick();
+
+        Assert.Equal(0, client.FetchCount);
+        Assert.Equal(1, dispatcher.PendingPosts);
+
+        dispatcher.RunNext();
+
+        Assert.Equal(1, client.FetchCount);
+    }
+
     private static UsageSyncService CreateService(AppSettings settings) =>
         CreateService(settings, new FakeUsageClient());
 
@@ -174,8 +206,13 @@ public class UsageSyncServiceTests
             null,
             200);
 
-        public Task<UsageFetchResult> FetchAsync(bool allowInteractiveLogin, CancellationToken cancellationToken = default) =>
-            Task.FromResult(FetchResult);
+        public int FetchCount { get; private set; }
+
+        public Task<UsageFetchResult> FetchAsync(bool allowInteractiveLogin, CancellationToken cancellationToken = default)
+        {
+            FetchCount++;
+            return Task.FromResult(FetchResult);
+        }
 
         public Task DisconnectAsync() => Task.CompletedTask;
     }
@@ -210,6 +247,40 @@ public class UsageSyncServiceTests
         public void Stop()
         {
         }
+    }
+
+    private sealed class QueuingUiDispatcher : IUiDispatcher
+    {
+        private readonly Queue<Action> _posted = new();
+
+        public ControllableTimer Timer { get; } = new();
+
+        public int PendingPosts => _posted.Count;
+
+        public bool CheckAccess() => true;
+
+        public void Post(Action action) => _posted.Enqueue(action);
+
+        public IUiTimer CreateTimer() => Timer;
+
+        public void RunNext() => _posted.Dequeue().Invoke();
+    }
+
+    private sealed class ControllableTimer : IUiTimer
+    {
+        public TimeSpan Interval { get; set; }
+        public bool IsRepeating { get; set; }
+        public event EventHandler? Tick;
+
+        public void Start()
+        {
+        }
+
+        public void Stop()
+        {
+        }
+
+        public void RaiseTick() => Tick?.Invoke(this, EventArgs.Empty);
     }
 }
 

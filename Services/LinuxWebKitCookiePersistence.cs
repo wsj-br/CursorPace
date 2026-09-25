@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Avalonia.Controls;
 using Avalonia.Platform;
+using Avalonia.Threading;
 
 namespace CursorPace.Services;
 
@@ -75,7 +76,9 @@ public static class LinuxWebKitCookiePersistence
 
     private static Task ApplyOnGLibThreadAsync(IntPtr webView)
     {
-        if (_idleAdd == null)
+        // Already on the GLib main loop. Scheduling an idle and waiting for it
+        // cannot run until this dispatcher turn returns.
+        if (Dispatcher.UIThread.CheckAccess() || _idleAdd == null)
         {
             Apply(webView);
             return Task.CompletedTask;
