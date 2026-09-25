@@ -1,8 +1,8 @@
 namespace CursorPace.Models;
 
 /// <summary>
-/// One axis slot delimited by local midnights. Slots are labelled with the day of
-/// the month, so the axis reads as a calendar rather than as a second numbering.
+/// One axis slot. Day ranges are delimited by local midnights and labelled with the
+/// day of the month. Intraday ranges are delimited by hours and keep the slot time.
 /// </summary>
 public sealed class UsageChartSlot
 {

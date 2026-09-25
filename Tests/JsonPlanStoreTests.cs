@@ -88,6 +88,25 @@ public class JsonPlanStoreTests : IDisposable
     }
 
     [Fact]
+    public void Load_IgnoresRemovedShowChartView()
+    {
+        File.WriteAllText(_settingsPath, """
+            {
+              "version": 2,
+              "showChartView": true,
+              "syncIntervalHours": 4
+            }
+            """);
+
+        var loaded = _store.Load();
+        _store.Save(loaded);
+        var json = File.ReadAllText(_settingsPath);
+
+        Assert.Equal(4, loaded.SyncIntervalHours);
+        Assert.DoesNotContain("showChartView", json, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void Load_MissingRemoteSyncFields_DefaultsToDisabled()
     {
         File.WriteAllText(_settingsPath, """{ "version": 2 }""");
@@ -123,6 +142,27 @@ public class JsonPlanStoreTests : IDisposable
         var loaded = _store.Load();
 
         Assert.Equal(UiThemeMode.System, loaded.ThemeMode);
+    }
+
+    [Fact]
+    public void SaveAndLoad_RoundTripsRawSampleMaxDays()
+    {
+        _store.Save(new AppSettings { RawSampleMaxDays = 7 });
+
+        var loaded = _store.Load();
+
+        Assert.Equal(7, loaded.RawSampleMaxDays);
+        Assert.Contains("\"rawSampleMaxDays\": 7", File.ReadAllText(_settingsPath), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Load_MissingOrUnknownRawSampleMaxDays_DefaultsToFour()
+    {
+        File.WriteAllText(_settingsPath, """{ "version": 2 }""");
+        Assert.Equal(4, _store.Load().RawSampleMaxDays);
+
+        File.WriteAllText(_settingsPath, """{ "version": 2, "rawSampleMaxDays": 3 }""");
+        Assert.Equal(4, _store.Load().RawSampleMaxDays);
     }
 
     [Fact]

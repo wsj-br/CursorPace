@@ -105,7 +105,7 @@ Keep the compatibility assemblies aligned with the Avalonia version in
 | Tests                            | `dotnet test .\Tests\CursorPace.Tests.csproj` | `dotnet test ./Tests/CursorPace.Tests.csproj`             |
 | Run (window)                     | `.\scripts\dev.ps1`                           | `./scripts/dev.sh`                                        |
 | Run (tray only)                  | `.\scripts\dev.ps1 -Background`               | `./scripts/dev.sh --background`                           |
-| Run (force window)               | `.\scripts\dev.ps1 -Show`                     | `./scripts/dev.sh --show`                                 |
+| Run (normal startup visibility)  | `.\scripts\dev.ps1 -NoShow`                   | `./scripts/dev.sh --no-show`                              |
 | Run (Release)                    | `.\scripts\dev.ps1 -Configuration Release`    | `./scripts/dev.sh --configuration Release`                |
 | Tests via script                 | `.\scripts\dev.ps1 -Test`                     | `./scripts/dev.sh --test`                                 |
 | Publish + installer              | `.\scripts\build.ps1`                         | `./scripts/build.sh` (Linux AppImage or macOS app bundle) |
@@ -130,7 +130,7 @@ dotnet run --project ./CursorPace.csproj -- --background
 dotnet run --project ./CursorPace.csproj -- --show
 ```
 
-`--background` starts the tray icon without showing the main window. **Start in notification tray** does the same for a normal launch; Windows Run, the macOS Launch Agent fallback (`open -a` of the `.app`), and Linux XDG autostart also pass `--background` when that setting is on. On macOS 13+, a properly signed bundle uses `SMAppService.mainApp`, which launches the app at login without an extra executable or argument. Do not exec `Contents/MacOS/CursorPace` from launchd. `--show` forces the window open and wins over both. On macOS, a hidden or minimized main window uses `NSApplicationActivationPolicyAccessory` so the Dock icon is removed; tray **Open**, `--show`, and a second interactive launch restore `Regular` before showing the window.
+`--background` starts the tray icon without showing the main window. **Start in notification tray** does the same for a normal launch; Windows Run, the macOS Launch Agent fallback (`open -a` of the `.app`), and Linux XDG autostart also pass `--background` when that setting is on. On macOS 13+, a properly signed bundle uses `SMAppService.mainApp`, which launches the app at login without an extra executable or argument. Do not exec `Contents/MacOS/CursorPace` from launchd. `--show` forces the window open and wins over both. The maintainer scripts pass `--show` by default; `-NoShow` / `--no-show` omit that forced flag and use the app's normal startup visibility. On macOS, a hidden or minimized main window uses `NSApplicationActivationPolicyAccessory` so the Dock icon is removed; tray **Open**, `--show`, and a second interactive launch restore `Regular` before showing the window.
 
 Maintainer scripts ship as PowerShell (`.ps1`) and bash (`.sh`) with the same behavior. Use `.ps1` on Windows PowerShell and `.sh` on Linux/macOS (no PowerShell install required).
 
@@ -144,7 +144,7 @@ CursorPace/
 ├── CursorPace.slnx
 ├── Models/
 ├── Services/                    # cycle math, JSON stores, NativeWebView client, sync
-├── ViewModels/                  # MainViewModel, calendar, UsageChartViewModel
+├── ViewModels/                  # MainViewModel, UsageChartViewModel
 ├── Views/                       # MainWindow, SettingsView, chart, WebView host
 ├── Converters/
 ├── Assets/                      # cursor_pace.ico / .png
@@ -196,14 +196,14 @@ Keep the usage HTTP call inside `NativeWebView` (`fetch` with credentials). Do n
 | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `CycleCalculatorTests.cs`                                                                                     | Cycle bounds, `ExpectedPercentAt`, Theil-Sen, run-out                                                                                                                 |
 | `SampleEstimationTests.cs`                                                                                    | Sample-driven expected percents, burn, and run-out                                                                                                                    |
-| `UsageChartSeriesBuilderTests.cs`                                                                             | Chart seconds mapping, linear Expected usage, last-of-day usage polylines, midnight slots                                                                             |
+| `UsageChartSeriesBuilderTests.cs` / `UsageChartRangeTests.cs` / `UsageChartViewModelTests.cs`                 | Chart seconds mapping, linear Expected usage, range windows, drag zoom, raw and daily samples, hover interpolation and range deltas, 10% Y axis |
 | `SyncScheduleTests.cs`                                                                                        | Launch skip window and clock-aligned intervals                                                                                                                        |
 | `UsageSummaryParserTests.cs`                                                                                  | `usage-summary` JSON shape                                                                                                                                            |
 | `WebView2ScriptResultParserTests.cs`                                                                          | Object vs JSON-string script results                                                                                                                                  |
 | `JsonPlanStoreTests.cs` / `UsageSampleStoreTests.cs` / `UsageSampleAppenderTests.cs` / `CycleHistoryTests.cs` | Settings/sample file load, corruption vs I/O errors, cycle rollover, `cycleHistory`                                                                                   |
 | `UsageSyncServiceTests.cs`                                                                                    | Sign-in state on startup, launch/interval refresh skip rules, `StateChanged` / `SnapshotReceived`                                                                     |
 | `CycleCsvBuilderTests.cs` / `UsageSamplesCsvBuilderTests.cs`                                                  | CSV columns                                                                                                                                                           |
-| `MainViewModelTests.cs` / `DayRowViewModelTests.cs` / `CalendarMonthViewModelTests.cs`                        | Initialization, connected-account persistence, exports, calendar heading, Previous/Next cycle, settings page, backup restore                                          |
+| `MainViewModelTests.cs`                                                                                       | Initialization, connected-account persistence, exports, cycle heading, last-measure card, chart range, Previous/Next cycle, settings page, backup restore |
 | `DataBackupArchiveTests.cs`                                                                                   | Zip backup format, missing entries, restore into stores                                                                                                               |
 | `WindowPlacementTests.cs`                                                                                     | Restore clamped to the work area                                                                                                                                      |
 | `WebViewHostLayoutTests.cs`                                                                                   | Sign-in host off-screen position, finite `NativeWebView` slot, and Linux vs macOS/Windows silent-host policy                                                          |
@@ -343,7 +343,7 @@ Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so 
 | `themeMode`                    | `System` (default), `Light`, or `Dark`; sets Avalonia `RequestedThemeVariant`           |
 | `autoSyncEnabled`              | Default `true`                                                                          |
 | `syncIntervalHours`            | 1, 2, 4, 6, or 12; other values clamp to 1                                              |
-| `showChartView`                | Last main-window body (calendar vs chart)                                               |
+| `showChartView`                | Removed. Older files may still contain it; load ignores it and the next save omits it  |
 | `cursorAccountConnected`       | Last known signed-in state for launch skip                                              |
 | `lastUsageSyncUtc`             | Last successful usage fetch                                                             |
 | `windowX` / `windowY`          | Last window position                                                                    |

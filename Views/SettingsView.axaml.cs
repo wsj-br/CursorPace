@@ -45,6 +45,7 @@ public partial class SettingsView : UserControl
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
         SyncIntervalBox();
         SyncThemeBox();
+        SyncSampleDetailBox();
     }
 
     private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -53,12 +54,15 @@ public partial class SettingsView : UserControl
             SyncIntervalBox();
         else if (e.PropertyName == nameof(MainViewModel.ThemeMode))
             SyncThemeBox();
+        else if (e.PropertyName == nameof(MainViewModel.RawSampleMaxDays))
+            SyncSampleDetailBox();
     }
 
     private void OnSettingsTabChanged(object? sender, SelectionChangedEventArgs e)
     {
         SyncIntervalBox();
         SyncThemeBox();
+        SyncSampleDetailBox();
     }
 
     private void SyncIntervalBox()
@@ -77,6 +81,16 @@ public partial class SettingsView : UserControl
 
         ThemeBox.ItemsSource = _viewModel.ThemeModeOptions;
         ThemeBox.SelectedItem = _viewModel.ThemeMode;
+    }
+
+    private void SyncSampleDetailBox()
+    {
+        if (_viewModel == null || SampleDetailBox == null)
+            return;
+
+        SampleDetailBox.ItemsSource = _viewModel.SampleDetailOptions;
+        SampleDetailBox.SelectedItem = _viewModel.SampleDetailOptions
+            .First(option => option.Days == _viewModel.RawSampleMaxDays);
     }
 
     private async void OnExportCsvClick(object? sender, RoutedEventArgs e)
@@ -342,6 +356,12 @@ public partial class SettingsView : UserControl
     {
         if (_viewModel != null && ThemeBox.SelectedItem is UiThemeMode mode)
             _viewModel.ThemeMode = mode;
+    }
+
+    private void OnSampleDetailChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (_viewModel != null && SampleDetailBox.SelectedItem is SampleDetailChoice choice)
+            _viewModel.RawSampleMaxDays = choice.Days;
     }
 
     private async void OnDisconnectClick(object? sender, RoutedEventArgs e)

@@ -168,8 +168,8 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="App"
-                     AutomationProperties.Name="App">
+            <TabItem Header="Startup and Appearance"
+                     AutomationProperties.Name="Startup and Appearance">
                 <ScrollViewer>
                     <StackPanel Spacing="12" Margin="0,8,0,0">
                         <Border Background="{DynamicResource CardBackgroundBrush}"
@@ -225,12 +225,36 @@
                                 </StackPanel>
                             </StackPanel>
                         </Border>
+
+                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                                BorderBrush="{DynamicResource CardStrokeBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="16">
+                            <StackPanel Spacing="12">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Chart" FontSize="16" FontWeight="SemiBold"/>
+                                    <SelectableTextBlock Text="Plot every sample for intervals up to this length. Longer intervals keep the last sample of each day."
+                                                         TextWrapping="Wrap"
+                                                         Opacity="0.7"
+                                                         FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Every sample up to" Opacity="0.8" FontSize="12"/>
+                                    <ComboBox x:Name="SampleDetailBox"
+                                              MinWidth="160"
+                                              HorizontalAlignment="Left"
+                                              SelectionChanged="OnSampleDetailChanged"
+                                              AutomationProperties.Name="Every sample up to"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Data"
-                     AutomationProperties.Name="Data">
+            <TabItem Header="Export &amp; Backup"
+                     AutomationProperties.Name="Export &amp; Backup">
                 <ScrollViewer>
                     <StackPanel Spacing="12" Margin="0,8,0,0">
                         <Border Background="{DynamicResource CardBackgroundBrush}"

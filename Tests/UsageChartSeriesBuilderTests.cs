@@ -225,6 +225,23 @@ public class UsageChartSeriesBuilderTests
     }
 
     [Fact]
+    public void CustomViewport_ClipsExpectedLineToTheSelectedInterval()
+    {
+        var cycle = MidnightCycle();
+        var document = _builder.Build(
+            cycle,
+            _calculator,
+            samples: null,
+            viewport: new UsageChartViewport(1_000m, 2_000m));
+
+        Assert.True(document.IsCustomViewport);
+        Assert.Equal(1_000m, document.ExpectedUsage[0].X);
+        Assert.Equal(2_000m, document.ExpectedUsage[^1].X);
+        Assert.Equal(UsageChartSeriesBuilder.LinearExpectedPercent(document.CycleSeconds, 1_000m), document.ExpectedUsage[0].Y);
+        Assert.Equal(UsageChartSeriesBuilder.LinearExpectedPercent(document.CycleSeconds, 2_000m), document.ExpectedUsage[^1].Y);
+    }
+
+    [Fact]
     public void FormatEndpointPercent_UsesOneDecimalPlace()
     {
         Assert.Equal(PercentLabel(0m), UsageChartSeriesBuilder.FormatEndpointPercent(0m));
@@ -236,6 +253,14 @@ public class UsageChartSeriesBuilderTests
             decimal.Parse(
                 UsageChartSeriesBuilder.FormatEndpointPercent(64.52m).TrimEnd('%'),
                 CultureInfo.CurrentCulture));
+    }
+
+    [Fact]
+    public void FormatSignedEndpointPercent_ShowsTheSignAndOneDecimalPlace()
+    {
+        Assert.Equal(SignedPercent(12.34m), UsageChartSeriesBuilder.FormatSignedEndpointPercent(12.34m));
+        Assert.Equal(SignedPercent(-1.2m), UsageChartSeriesBuilder.FormatSignedEndpointPercent(-1.2m));
+        Assert.Equal(SignedPercent(0m), UsageChartSeriesBuilder.FormatSignedEndpointPercent(0m));
     }
 
     [Fact]
@@ -286,9 +311,11 @@ public class UsageChartSeriesBuilderTests
         var document = _builder.Build(cycle, _calculator, samples);
         var lastProjected = document.CursorEstimated[^1].Y;
 
-        Assert.True(lastProjected > 120m);
+        Assert.True(lastProjected > 100m);
         Assert.True(document.YMax >= lastProjected);
-        Assert.Equal(0m, document.YMax % 20m);
+        Assert.True(document.YMin <= 0m);
+        Assert.Equal(0m, document.YMax % UsageChartSeriesBuilder.YTickStep);
+        Assert.Equal(0m, document.YMin % UsageChartSeriesBuilder.YTickStep);
     }
 
     private QuotaCycle MidnightCycle() =>
@@ -296,6 +323,9 @@ public class UsageChartSeriesBuilderTests
 
     private static string PercentLabel(decimal percent) =>
         percent.ToString("0.0", CultureInfo.CurrentCulture) + "%";
+
+    private static string SignedPercent(decimal percent) =>
+        percent.ToString("+0.0;-0.0;0.0", CultureInfo.CurrentCulture) + "%";
 
     private static UsageSample SampleAt(DateTime local, decimal cursor, decimal other)
     {

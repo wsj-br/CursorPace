@@ -4,9 +4,9 @@
   <img src="Assets/cursor_pace.png" alt="Cursor Pace" width="180">
 </p>
 
-Desktop app for Windows, Linux, and macOS that tracks Cursor model quota across a billing cycle. Sign in with your Cursor account to pull usage automatically. The calendar and chart show two independent percentages: **Cursor Models** and **Other Models**.
+Desktop app for Windows, Linux, and macOS that tracks Cursor model quota across a billing cycle. Sign in with your Cursor account to pull usage automatically. The chart shows two independent percentages: **Cursor Models** and **Other Models**.
 
-Expected percents on the calendar and in CSV follow each usage sample in time, then pace remaining quota to 100% at the next renewal. The chart's dashed **Expected usage** line is a straight linear pace from 0% at cycle start to 100% at next renewal. Thick solid Cursor and Other Models paths follow the last reading of each local day (no sample dots). A separate Theil-Sen estimate projects daily burn and run-out.
+CSV expected percents follow each usage sample in time, then pace remaining quota to 100% at the next renewal. The chart's dashed **Expected usage** line is a straight linear pace from 0% at cycle start to 100% at next renewal. Thick solid Cursor and Other Models paths follow the last reading of each local day, or every sample on the 1-day and 2-day ranges. A separate Theil-Sen estimate projects daily burn and run-out.
 
 Sign in uses an embedded native WebView (WebView2 on Windows, WKWebView on macOS, WebKitGTK or WPE on Linux) and your Cursor dashboard session. There is no official personal-plan API and no Team API key.
 
@@ -29,20 +29,20 @@ Sign in uses an embedded native WebView (WebView2 on Windows, WKWebView on macOS
 4. **macOS**: unzip the archive, move `CursorPace.app` to Applications, then open it. If Gatekeeper blocks the unsigned app, attempt to open it once and then choose **Open Anyway** in **System Settings → Privacy & Security**.
 5. Sign in to Cursor. If **Start in notification tray** is on (the default), open the window from the tray icon first, or launch with `--show`.
 
-See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, the calendar and chart, tray behavior, and troubleshooting.
+See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, the usage chart, tray behavior, and troubleshooting.
 
 ## Features
 
 - Sign in to Cursor from the empty state or Settings; optional automatic updates on clock-aligned 1, 2, 4, 6, or 12 hour intervals
 - Billing cycle start and next renewal come from Cursor
-- Calendar or chart for the current cycle, with today, renewal, and projected run-out days highlighted. Both views show the cycle-start month and last-updated time, with Previous/Next controls to open stored earlier cycles. Calendar left is the day's last sample when one exists, otherwise the interpolated expected percent; estimated on the right appears only after the last sample date (green ≤100%, red >100%). The chart shows a linear Expected usage line, thick solid Cursor/Other paths through the last reading per day, and thinner estimated lines from the last sample. The last measured Cursor and Other Models values are labelled to the right of those points (`xx.x%`, in the series color). A dotted vertical guide at that same time rises from the X axis to the Expected usage line and labels the linear expected percent there.
+- Usage chart for the current cycle, with Previous/Next controls to open stored earlier cycles. Summary cards show cycle start and next renewal, both run-out times, and the latest Cursor, Other Models, and Expected usage readings
 - Separate **Cursor Models** and **Other Models** percentages
-- Chart axis runs from cycle start to next renewal in elapsed seconds; midnight ticks are day markers, and labels use the day of the month (the truncated first slot is unlabeled)
+- Chart ranges are **1D**, **2D**, **7D**, **1W**, **2W**, and **1M**. **1M** is the whole displayed cycle. Shorter ranges end at the current time on the live cycle and at renewal on an earlier cycle, and never start before the cycle start. Drag across the plot to zoom to that interval; right-click returns to **1M**, and choosing a range button shows that range. The Y axis fits the values in view, rounded out to 10% steps. **Settings** → **Startup and Appearance** → **Every sample up to** chooses **2D**, **4D**, or **7D** (default **4D**). Intervals up to that length, including a drag zoom, mark each measured Cursor and Other Models sample, and the hour grid widens so the time labels do not overlap. Moving the pointer draws a vertical guide and shows Cursor, Other Models, and Expected usage for that time. While a drag zoom is active, the readout also shows each value at the start of that zoom and the change from there
 - Custom title bar shows the app name on the left and keeps Refresh, Settings, Minimize, Maximize, and Close in separate, right-aligned controls. **Refresh** runs the same Cursor fetch as Settings **Refresh now**
 - System tray: closing the window hides it; **Quit** on the tray menu exits. The tooltip shows today's expected percent and the projected percent at renewal. On macOS the Dock icon is removed after the window hides and while it is minimized; open the window from the tray icon, `--show`, or a second launch
 - Optional launch at login (Windows Run key, macOS `SMAppService` / attributed Launch Agent fallback, Linux XDG autostart)
 - Single-instance: a second launch brings the existing window forward
-- Settings uses top tabs: **Account & Usage** (Cursor account and refresh interval), **Sync Server** (URL, API token, machine name, **Re-sync now**), **App** (startup and theme), **Data** (CSV export, backup or restore of settings plus usage samples as a zip file, **Open Folder** after local saves), and **About** (version, UTC build date and time, copyright, MIT license, and a GitHub link)
+- Settings uses top tabs: **Account & Usage** (Cursor account and refresh interval), **Sync Server** (URL, API token, machine name, **Re-sync now**), **Startup and Appearance** (startup, theme, and how long the chart plots every sample), **Export & Backup** (CSV export, backup or restore of settings plus usage samples as a zip file, **Open Folder** after local saves), and **About** (version, UTC build date and time, copyright, MIT license, and a GitHub link)
 - Remembers window size, position, and maximized state; informational labels can be selected and copied
 - Theme: follow the system, or force light or dark
 
@@ -57,7 +57,7 @@ dotnet test ./Tests/CursorPace.Tests.csproj
 dotnet run --project ./CursorPace.csproj
 ```
 
-Or use the maintainer scripts: `.\scripts\dev.ps1` / `./scripts/dev.sh`.
+Or use the maintainer scripts: `.\scripts\dev.ps1` / `./scripts/dev.sh`. These scripts show the window by default; use `.\scripts\dev.ps1 -NoShow` or `./scripts/dev.sh --no-show` to use the app's normal startup visibility.
 
 Self-contained publish (keep `PublishSingleFile=false`):
 

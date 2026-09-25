@@ -1,10 +1,8 @@
-using System.ComponentModel;
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Media;
 using Avalonia.Threading;
 using CursorPace.Services;
 using CursorPace.ViewModels;
@@ -47,9 +45,6 @@ public partial class MainWindow : Window
         InitializeComponent();
         _titleBarDrag = new TitleBarDrag(this, TitleBarContent);
         _resizeDrag = new WindowResizeDrag(this);
-        UpdateViewModeIcons();
-
-        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
 
         SetupWindow();
         ApplySavedWindowPlacement();
@@ -109,37 +104,6 @@ public partial class MainWindow : Window
         Topmost = true;
         Topmost = false;
         _viewModel.CheckForNewDay();
-    }
-
-    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName is nameof(MainViewModel.IsChartView) or nameof(MainViewModel.IsCalendarView))
-            UpdateViewModeIcons();
-    }
-
-    private void OnCalendarViewClick(object? sender, RoutedEventArgs e) =>
-        _viewModel.IsChartView = false;
-
-    private void OnChartViewClick(object? sender, RoutedEventArgs e) =>
-        _viewModel.IsChartView = true;
-
-    private void UpdateViewModeIcons()
-    {
-        var accent = ThemeBrush("ThemeAccentBrush", Color.FromArgb(255, 0, 120, 212));
-        var dimmed = ThemeBrush("ThemeForegroundLowBrush", Color.FromArgb(255, 138, 138, 138));
-        CalendarViewIcon.Foreground = _viewModel.IsCalendarView ? accent : dimmed;
-        ChartViewIcon.Foreground = _viewModel.IsChartView ? accent : dimmed;
-    }
-
-    private IBrush ThemeBrush(string key, Color fallback)
-    {
-        if (Application.Current?.TryGetResource(key, ActualThemeVariant, out var value) == true
-            && value is IBrush brush)
-        {
-            return brush;
-        }
-
-        return new SolidColorBrush(fallback);
     }
 
     private void OnWindowClosing(object? sender, WindowClosingEventArgs e)

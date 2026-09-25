@@ -27,11 +27,11 @@ End-user guide for Cursor Pace. For building from source, see [dev/DEVELOPMENT.m
 
 ## First run
 
-**Start in notification tray** is on by default, so the first launch may show only the tray icon. Open the window from that icon, turn the setting off, or launch with `--show`. The window starts with an empty state until you sign in:
+**Start in notification tray** is on by default, so the first launch may show only the tray icon. Open the window from that icon, turn the setting off, or launch with `--show`. When running from source, `dev.ps1` and `dev.sh` show the window by default; use `-NoShow` or `--no-show` to use the app's normal startup visibility. The window starts with an empty state until you sign in:
 
 1. Choose **Sign in**.
 2. Complete Google, GitHub, or two-factor sign-in in the embedded window. The window closes when Cursor accepts the session. If you already see your account, choose **Continue**.
-3. After a successful update, the billing cycle and usage appear on the calendar and chart. A last-updated time appears under the month heading on both views.
+3. After a successful update, the billing cycle and usage appear on the chart. A last-updated time appears under the month heading.
 
 You can also sign in later from **Settings**.
 
@@ -66,19 +66,21 @@ Launch never refreshes when the last successful update is under 20 minutes old. 
 
 ## Main window
 
-The body is a month calendar or a usage chart for the displayed billing cycle. Switch with the calendar and chart icons on the right of the info cards (selected is accent color, the other is dimmed). Both views show the cycle-start month and year, with Previous/Next chevrons to move through stored cycles (disabled on the oldest cycle and on the current one) and the last-updated time under that heading. The calendar highlights today and the renewal day, and includes the renewal date when the cycle still has time left that day. A projected run-out day has a subtle yellow background.
+The body is a usage chart for the displayed billing cycle. Three cards sit above it: cycle start and next renewal, Cursor Models and Other Models run-out times, and the latest reading with its time, Cursor %, Other %, and Expected usage %. The heading shows the cycle-start month and year, with Previous/Next chevrons to move through stored cycles (disabled on the oldest cycle and on the current one) and the last-updated time under that heading.
 
-Each calendar day shows two percents. On the left, a day with a synced sample shows that day's last reading (teal day number); a day without a sample shows the expected (renewal-paced) value at that day's midnight. The estimated burn value on the right appears only on days after the last sample for that quota (green when ≤100%, red when >100%).
+The chart has range buttons: **1D**, **2D**, **7D**, **1W**, **2W**, and **1M**. **1D** is the last 24 hours and **2D** the last 48 hours; both plot every sample in that window. **7D** and **1W** are the last seven days, and **2W** is the last 14 days. Those longer ranges connect the last sample of each local day. **1M** shows the whole displayed cycle. On the current cycle a short range ends at the current time. On an earlier cycle it ends at that cycle's renewal. A range never starts before the cycle start, so early in a cycle **7D**, **1W**, and **2W** show only the days that have happened. Choosing a range fits the vertical axis to the values on screen, rounded outward to the next 10% step.
 
-The chart is read-only: a dashed **Expected usage** line runs linearly from 0% at cycle start to 100% at next renewal. Thick solid **Cursor** and **Other Models** paths connect the last in-cycle sample of each local day (no sample dots). Each path shows that last measured percent to the right of the point (`xx.x%`, in the series color). A dotted vertical guide at that same time rises from the X axis to the Expected usage line and labels the linear expected percent there. Thinner estimated lines run from the last sample to next renewal, and a gray line marks 100%. The left and right edges are the cycle start and next renewal instants. Vertical gridlines sit at midnight. Axis labels are the day of the month: the truncated slot before the first midnight is unlabeled, and every other slot (including the renewal-date slot) is labelled.
+Click and drag across the plot to select an interval. Releasing the pointer zooms to that interval and clears the range-button highlight. **Settings** → **Startup and Appearance** → **Every sample up to** chooses **2D**, **4D**, or **7D**. The default is **4D**. A preset or zoom up to that length plots every sample; a longer interval keeps the last sample of each local day. **1M** and **2W** always keep one sample per day. Right-click the plot to return to **1M**. Choosing **1D**, **2D**, **7D**, **1W**, **2W**, or **1M** leaves the zoom and shows that range, including the button that was already selected.
+
+A dashed **Expected usage** line runs linearly from 0% at cycle start to 100% at next renewal. Thick solid **Cursor** and **Other Models** paths follow the samples. Intervals up to the **Every sample up to** setting draw a small circle on each measured sample, in that series color. The expected line and the estimated lines have no circles. Each path shows its last measured percent inside the selected range to the right of that point (`xx.x%`, in the series color). A dotted vertical guide at that same time rises from the X axis to the Expected usage line and labels the linear expected percent there. Thinner estimated lines run from the last sample toward next renewal, clipped to the selected range, and a gray line marks 100% when that level is inside the axis. Moving the pointer across the plot draws a vertical guide and shows that time's Cursor, Other Models, and Expected usage at the top left. While a drag zoom is active, each metric also shows its value at the start of that zoom and the change from that start to the pointer (`start 20.0%, +24.4%`). A preset range hides those start rows. A value with no surrounding measurement is shown as a dash, and its change stays blank when either side is missing. Multi-day ranges label the day of the month. Intervals that plot every sample label the time of day, and the hour grid widens so those times do not overlap.
 
 Title bar actions:
 
 | Control | Action |
 | --- | --- |
 | **Refresh** | Fetch Cursor usage immediately (same as Settings **Refresh now**). Hidden on the Settings page |
-| **Settings** | Open Settings in this window (Account & Usage, Sync Server, App, Data, About) |
-| **Back** | On the Settings page, the chevron or the **Settings** heading returns to the calendar or chart |
+| **Settings** | Open Settings in this window (Account & Usage, Sync Server, Startup and Appearance, Export & Backup, About) |
+| **Back** | On the Settings page, the chevron or the **Settings** heading returns to the chart |
 | **Minimize** | Minimize the window; the app stays in the tray |
 | **Maximize** | Maximize or restore the window |
 | Window close (X) | Hide the window; the app stays in the tray |
@@ -89,16 +91,16 @@ The window is resizable and can be maximized. It restores its last size, positio
 
 ## Expected vs estimated
 
-- **Expected usage** (chart dashed): a straight line from 0% at cycle start to 100% at the next renewal. It does not pass through samples.
-- **Usage** (chart thick solid): Cursor and Other Models paths through the last in-cycle sample of each local day. Omitted until at least two local dates have samples.
-- **Expected** (calendar left on days without a sample; CSV expected columns): a continuous line from 0% at cycle start through each sample's timestamp, then remaining quota paced to 100% at the next renewal. Days before the first sample rise toward that sample. On the calendar, a day with a synced sample shows that day's last reading on the left instead of this interpolated value.
-- **Estimated** (calendar right, chart thin solid): Theil-Sen daily burn from samples. It can exceed 100% before renewal. On the chart it is a straight line from the last sample to next renewal. The calendar shows it only after the last-update date.
+- **Expected usage** (chart dashed): a straight line from 0% at cycle start to 100% at the next renewal. It does not pass through samples. The hover readout uses this line at the pointer time.
+- **Usage** (chart thick solid): Cursor and Other Models paths. Intervals up to the **Every sample up to** setting use every sample in the window and mark each measured sample. Longer ranges use the last in-cycle sample of each local day, draw no sample circles, and are omitted until at least two local dates have samples.
+- **Expected** (CSV expected columns): a continuous line from 0% at cycle start through each sample's timestamp, then remaining quota paced to 100% at the next renewal. Days before the first sample rise toward that sample.
+- **Estimated** (chart thin solid): Theil-Sen daily burn from samples. It can exceed 100% before renewal. On the chart it is a straight line from the last sample to next renewal, clipped to the selected range.
 
 Each quota is independent.
 
 ## Settings
 
-Open **Settings** from the title bar. Settings replace the calendar or chart in the main window. A **Back** control and a **Settings** heading sit below the title bar; either one returns to the calendar or chart. Settings are grouped into **Account & Usage**, **Sync Server**, **App**, **Data**, and **About** tabs.
+Open **Settings** from the title bar. Settings replace the chart in the main window. A **Back** control and a **Settings** heading sit below the title bar; either one returns to the chart. Settings are grouped into **Account & Usage**, **Sync Server**, **Startup and Appearance**, **Export & Backup**, and **About** tabs.
 
 | Tab | Setting | Effect |
 | --- | --- | --- |
@@ -112,13 +114,14 @@ Open **Settings** from the title bar. Settings replace the calendar or chart in 
 | Sync Server | **API token** | Token from the **Tokens** page of your CursorPace Sync server. The eye control shows or hides the value |
 | Sync Server | **Machine name** | Label shown on the server. Defaults to this computer's hostname |
 | Sync Server | **Re-sync now** | Push local data, then pull the merged canonical state |
-| App | **Launch at login** | Starts the app at OS login (Windows Run key, macOS `SMAppService` / attributed Launch Agent fallback, or Linux XDG autostart) |
-| App | **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same. `--show` forces the window open |
-| App | **Theme** | System (default), Light, or Dark. Overrides the Fluent theme variant for the app |
-| Data | **Export Cycle CSV** | Writes each day of the cycle currently shown on the calendar or chart: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
-| Data | **Export Usage** | Writes all retained sample timestamps and percents across stored cycles (shown while signed in). The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
-| Data | **Backup** | Writes `manifest.json`, `settings.json`, and `usage-samples.json` as one `.zip` file (suggested name `cursor-pace-backup-yyyy-MM-dd-HH_mm_ss`) |
-| Data | **Restore** | Replaces local settings and samples from a backup zip. The Cursor sign-in session is not changed |
+| Startup and Appearance | **Launch at login** | Starts the app at OS login (Windows Run key, macOS `SMAppService` / attributed Launch Agent fallback, or Linux XDG autostart) |
+| Startup and Appearance | **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same. `--show` forces the window open |
+| Startup and Appearance | **Theme** | System (default), Light, or Dark. Overrides the Fluent theme variant for the app |
+| Startup and Appearance | **Every sample up to** | **2D**, **4D** (default), or **7D**. Chart intervals up to that length plot every sample and mark each measured point. Longer intervals keep the last sample of each day. **2W** and **1M** always keep one sample per day |
+| Export & Backup | **Export Cycle CSV** | Writes each day of the cycle currently shown on the chart: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
+| Export & Backup | **Export Usage** | Writes all retained sample timestamps and percents across stored cycles (shown while signed in). The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
+| Export & Backup | **Backup** | Writes `manifest.json`, `settings.json`, and `usage-samples.json` as one `.zip` file (suggested name `cursor-pace-backup-yyyy-MM-dd-HH_mm_ss`) |
+| Export & Backup | **Restore** | Replaces local settings and samples from a backup zip. The Cursor sign-in session is not changed |
 | About | **About** | Version from the build, UTC compile date and time (`dd-MMM-yyyy HH:mm:ss UTC`), copyright, MIT license, and a link to the GitHub repository |
 
 After a local export or backup completes, choose **Open Folder** on the left side of the completion dialog to open its destination folder, or choose **OK** on the right to close it.
@@ -166,7 +169,7 @@ On Windows, uninstalling via the Inno installer removes this folder. On Linux an
 
 ## Renewal
 
-The next successful fetch that reports a new billing-cycle start archives the previous cycle bounds and keeps its samples. Previous/Next on the month heading opens those stored cycles. If the local date reaches the stored next renewal before that fetch, the app requests a refresh.
+The next successful fetch that reports a new billing-cycle start archives the previous cycle bounds and keeps its samples. Previous/Next on the month heading opens those stored cycles. Short chart ranges on an earlier cycle end at that cycle's renewal. If the local date reaches the stored next renewal before that fetch, the app requests a refresh.
 
 The window does not need to stay visible, but the process must be running for midnight checks and for automatic usage updates.
 
@@ -194,7 +197,7 @@ The window does not need to stay visible, but the process must be running for mi
 **Usage does not update**
 
 - Confirm **Cursor account (connected)** in Settings and that **Update usage automatically** is on, or choose title-bar **Refresh** / Settings **Refresh now**.
-- Confirm system date, time, and time zone. The app uses local time for the calendar, chart, and clock-aligned intervals.
+- Confirm system date, time, and time zone. The app uses local time for the chart and clock-aligned intervals.
 - If Cursor rate-limits the request, the app waits until the next interval.
 
 **Tray icon disappeared**
@@ -233,5 +236,5 @@ The window does not need to stay visible, but the process must be running for mi
 
 ## Tips
 
-- Info-card dates use dd-MMM HH:mm; calendar dates use the system format.
-- The UI theme defaults to the system light or dark setting. Override it under **Settings** → **App** → **Theme** (System, Light, or Dark).
+- Info-card dates use dd-MMM HH:mm. Chart day labels use the day of the month, and the 1-day and 2-day ranges use the local time.
+- The UI theme defaults to the system light or dark setting. Override it under **Settings** → **Startup and Appearance** → **Theme** (System, Light, or Dark).

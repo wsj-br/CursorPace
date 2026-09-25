@@ -5,8 +5,8 @@
 .PARAMETER Background
   Launch in tray-only mode (--background).
 
-.PARAMETER Show
-  Force the main window open (--show). Wins over -Background.
+.PARAMETER NoShow
+  Use the app's normal startup visibility instead of the default --show.
 
 .PARAMETER Configuration
   Build configuration. Debug (default) or Release.
@@ -17,8 +17,7 @@
 [CmdletBinding()]
 param(
     [switch]$Background,
-
-    [switch]$Show,
+    [switch]$NoShow,
 
     [ValidateSet('Debug', 'Release')]
     [string]$Configuration = 'Debug',
@@ -42,11 +41,11 @@ $runArgs = @(
     '--project', '.\CursorPace.csproj',
     '-c', $Configuration
 )
-if ($Show) {
-    $runArgs += '--', '--show'
-}
-elseif ($Background) {
+if ($Background) {
     $runArgs += '--', '--background'
+}
+elseif (-not $NoShow) {
+    $runArgs += '--', '--show'
 }
 
 dotnet @runArgs

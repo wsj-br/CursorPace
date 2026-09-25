@@ -4,7 +4,7 @@
 # Usage:
 #   ./scripts/dev.sh
 #   ./scripts/dev.sh --background
-#   ./scripts/dev.sh --show
+#   ./scripts/dev.sh --no-show
 #   ./scripts/dev.sh --configuration Release
 #   ./scripts/dev.sh --test
 set -euo pipefail
@@ -13,7 +13,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 BACKGROUND=0
-SHOW=0
+NO_SHOW=0
 CONFIGURATION=Debug
 TEST=0
 
@@ -22,7 +22,7 @@ usage() {
 Usage: ./scripts/dev.sh [options]
 
   --background, -b          Launch in tray-only mode (--background).
-  --show, -s                Force the main window open (--show). Wins over --background.
+  --no-show                 Use the app's normal startup visibility instead of the default --show.
   --configuration, -c NAME  Build configuration: Debug (default) or Release.
   --test, -t                Run unit tests instead of launching the app.
   -h, --help                Show this help.
@@ -35,8 +35,8 @@ while [[ $# -gt 0 ]]; do
       BACKGROUND=1
       shift
       ;;
-    --show|-s)
-      SHOW=1
+    --no-show)
+      NO_SHOW=1
       shift
       ;;
     --configuration|-c)
@@ -78,10 +78,10 @@ fi
 
 echo "Starting Cursor Pace ($CONFIGURATION)..."
 run_args=(run --project ./CursorPace.csproj -c "$CONFIGURATION")
-if [[ "$SHOW" -eq 1 ]]; then
-  run_args+=(-- --show)
-elif [[ "$BACKGROUND" -eq 1 ]]; then
+if [[ "$BACKGROUND" -eq 1 ]]; then
   run_args+=(-- --background)
+elif [[ "$NO_SHOW" -eq 0 ]]; then
+  run_args+=(-- --show)
 fi
 
 exec dotnet "${run_args[@]}"

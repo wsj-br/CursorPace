@@ -13,7 +13,7 @@ public class MainViewModelTests
         var vm = CreateViewModel(signedIn: false);
 
         Assert.False(vm.IsInitialized);
-        Assert.Empty(vm.Days);
+        Assert.Null(vm.Chart.Document);
     }
 
     [Fact]
@@ -22,7 +22,7 @@ public class MainViewModelTests
         var vm = CreateInitializedViewModel(signedIn: true);
 
         Assert.True(vm.IsInitialized);
-        Assert.NotEmpty(vm.Days);
+        Assert.NotNull(vm.Chart.Document);
     }
 
     [Fact]
@@ -309,36 +309,6 @@ public class MainViewModelTests
     }
 
     [Fact]
-    public void RefreshCycle_HidesEstimatedPercentOnAndBeforeLastUpdateDay()
-    {
-        var calculator = new CycleCalculator();
-        var cycle = calculator.GenerateCycleFromBounds(new DateTime(2026, 8, 1), new DateTime(2026, 9, 1));
-        var lastLocal = new DateTime(2026, 8, 18, 20, 0, 0);
-        var samples = new List<UsageSample>
-        {
-            SampleAt(cycle.CycleStart, 0m, 0m),
-            SampleAt(lastLocal, 75m, 70m)
-        };
-        var store = new FakePlanStore
-        {
-            Settings = new AppSettings { ActiveCycle = cycle }
-        };
-        var vm = CreateViewModel(
-            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok, Samples = samples },
-            store);
-
-        var earlier = vm.Days.Single(d => d.Date == new DateTime(2026, 8, 17));
-        var lastUpdate = vm.Days.Single(d => d.Date == lastLocal.Date);
-        var next = vm.Days.Single(d => d.Date == new DateTime(2026, 8, 19));
-
-        Assert.False(earlier.HasCursorProjection);
-        Assert.False(lastUpdate.HasCursorProjection);
-        Assert.False(lastUpdate.HasOtherProjection);
-        Assert.True(next.HasCursorProjection);
-        Assert.True(next.HasOtherProjection);
-    }
-
-    [Fact]
     public void InfoCards_IncludeTimeOfDay()
     {
         var calculator = new CycleCalculator();
@@ -367,7 +337,33 @@ public class MainViewModelTests
     }
 
     [Fact]
-    public void TimedCycle_RenewalDateHasPercentsAndMonthHeading()
+    public void LastMeasureCard_UsesNewestInCycleSample()
+    {
+        var calculator = new CycleCalculator();
+        var start = new DateTime(2026, 8, 1);
+        var end = new DateTime(2026, 9, 1);
+        var cycle = calculator.GenerateCycleFromBounds(start, end);
+        var latest = new DateTime(2026, 8, 18, 9, 0, 0);
+        var samples = new List<UsageSample>
+        {
+            SampleAt(new DateTime(2026, 8, 10, 10, 0, 0), 20m, 30m),
+            SampleAt(latest, 44.4m, 52.2m)
+        };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok, Samples = samples },
+            new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } });
+
+        var elapsed = CycleCalculator.AxisSeconds(cycle, latest);
+        var expected = UsageChartSeriesBuilder.LinearExpectedPercent(CycleCalculator.CycleSeconds(cycle), elapsed);
+
+        Assert.Equal(latest.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.LastMeasureTimeText);
+        Assert.Equal(UsageChartSeriesBuilder.FormatEndpointPercent(44.4m), vm.LastMeasureCursorText);
+        Assert.Equal(UsageChartSeriesBuilder.FormatEndpointPercent(52.2m), vm.LastMeasureOtherText);
+        Assert.Equal(UsageChartSeriesBuilder.FormatEndpointPercent(expected), vm.LastMeasureExpectedText);
+    }
+
+    [Fact]
+    public void TimedCycle_ShowsCycleHeading()
     {
         var calculator = new CycleCalculator();
         var start = new DateTime(2026, 8, 2, 22, 19, 47);
@@ -381,18 +377,10 @@ public class MainViewModelTests
             new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok },
             store);
 
-        Assert.Equal(32, vm.Days.Count);
-        var last = Assert.Single(vm.Days, d => d.Date == new DateTime(2026, 9, 2));
-        Assert.True(last.ShownExpectedCursor < 100);
-
-        var cell = vm.Calendar.GetCellForDate(new DateTime(2026, 9, 2));
-        Assert.NotNull(cell);
-        Assert.True(cell.HasData);
-        Assert.True(cell.IsRenewalDay);
-        Assert.False(string.IsNullOrEmpty(cell.ExpectedCursorText));
-        Assert.Equal(
-            CalendarMonthViewModel.FormatMonthHeading(start.Date),
-            vm.Calendar.MonthHeading);
+        Assert.Equal(start.ToString("MMMM yyyy", CultureInfo.CurrentCulture), vm.CycleHeading);
+        Assert.Equal(start, vm.Chart.Document!.CycleStart);
+        Assert.Equal(end, vm.Chart.Document.NextRenewal);
+        Assert.Equal(UsageChartRange.OneMonth, vm.Chart.Document.Range);
     }
 
     [Fact]
@@ -521,8 +509,8 @@ public class MainViewModelTests
         var archived = Assert.Single(store.Settings.CycleHistory);
         Assert.Equal(previous.CycleStart, archived.CycleStart);
         Assert.Equal(
-            CalendarMonthViewModel.FormatMonthHeading(new DateTime(2026, 8, 1)),
-            vm.Calendar.MonthHeading);
+            new DateTime(2026, 8, 1).ToString("MMMM yyyy", CultureInfo.CurrentCulture),
+            vm.CycleHeading);
         Assert.True(vm.CanGoToPreviousCycle);
         Assert.False(vm.CanGoToNextCycle);
         Assert.False(vm.GoToNextCycleCommand.CanExecute(null));
@@ -554,22 +542,20 @@ public class MainViewModelTests
             new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok, Samples = samples },
             store);
 
-        Assert.Equal(CalendarMonthViewModel.FormatMonthHeading(liveStart.Date), vm.Calendar.MonthHeading);
+        Assert.Equal(liveStart.ToString("MMMM yyyy", CultureInfo.CurrentCulture), vm.CycleHeading);
         Assert.Equal(liveStart, vm.Chart.Document!.CycleStart);
 
         vm.GoToPreviousCycleCommand.Execute(null);
 
-        Assert.Equal(CalendarMonthViewModel.FormatMonthHeading(previousStart.Date), vm.Calendar.MonthHeading);
+        Assert.Equal(previousStart.ToString("MMMM yyyy", CultureInfo.CurrentCulture), vm.CycleHeading);
         Assert.Equal(previousStart.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CycleStartText);
-        Assert.DoesNotContain(vm.Days, d => d.Date == liveStart.Date.AddDays(1));
-        Assert.Contains(vm.Days, d => d.Date == previousStart.Date.AddDays(1) && d.IsActual);
         Assert.Equal(previousStart, vm.Chart.Document!.CycleStart);
         Assert.False(vm.CanGoToPreviousCycle);
         Assert.True(vm.CanGoToNextCycle);
 
         vm.GoToNextCycleCommand.Execute(null);
 
-        Assert.Equal(CalendarMonthViewModel.FormatMonthHeading(liveStart.Date), vm.Calendar.MonthHeading);
+        Assert.Equal(liveStart.ToString("MMMM yyyy", CultureInfo.CurrentCulture), vm.CycleHeading);
         Assert.Equal(liveStart, vm.Chart.Document!.CycleStart);
         Assert.True(vm.CanGoToPreviousCycle);
         Assert.False(vm.CanGoToNextCycle);
@@ -596,7 +582,7 @@ public class MainViewModelTests
         var sync = new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok };
         var vm = CreateViewModel(sync, store);
         vm.GoToPreviousCycleCommand.Execute(null);
-        var heading = vm.Calendar.MonthHeading;
+        var heading = vm.CycleHeading;
 
         sync.RaiseSnapshotReceived(SnapshotFor(
             new DateTime(2026, 8, 1, 8, 0, 0),
@@ -604,7 +590,7 @@ public class MainViewModelTests
             12m,
             14m));
 
-        Assert.Equal(heading, vm.Calendar.MonthHeading);
+        Assert.Equal(heading, vm.CycleHeading);
         Assert.Equal(previous.CycleStart.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CycleStartText);
         Assert.Equal(live.CycleStart, store.Settings.ActiveCycle!.CycleStart);
     }
@@ -638,7 +624,7 @@ public class MainViewModelTests
         clock.Now = new DateTime(2026, 9, 1, 12, 0, 0);
         vm.CheckForNewDay();
         Assert.Equal(1, sync.RefreshNowCount);
-        Assert.Equal(CalendarMonthViewModel.FormatMonthHeading(previous.CycleStart.Date), vm.Calendar.MonthHeading);
+        Assert.Equal(previous.CycleStart.ToString("MMMM yyyy", CultureInfo.CurrentCulture), vm.CycleHeading);
     }
 
     [Fact]
@@ -674,12 +660,12 @@ public class MainViewModelTests
         var vm = CreateViewModel(
             new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok },
             destStore);
-        Assert.Equal(CalendarMonthViewModel.FormatMonthHeading(destCycle.CycleStart.Date), vm.Calendar.MonthHeading);
+        Assert.Equal(destCycle.CycleStart.ToString("MMMM yyyy", CultureInfo.CurrentCulture), vm.CycleHeading);
 
         archive.Position = 0;
         Assert.True(vm.TryRestoreBackup(archive, out var error));
         Assert.Null(error);
-        Assert.Equal(CalendarMonthViewModel.FormatMonthHeading(live.CycleStart.Date), vm.Calendar.MonthHeading);
+        Assert.Equal(live.CycleStart.ToString("MMMM yyyy", CultureInfo.CurrentCulture), vm.CycleHeading);
         Assert.Equal(live.CycleStart, destStore.Settings.ActiveCycle!.CycleStart);
         Assert.True(vm.CanGoToPreviousCycle);
         Assert.False(vm.CanGoToNextCycle);
@@ -903,6 +889,197 @@ public class MainViewModelTests
         vm.RemoteSyncEnabled = false;
 
         Assert.False(dispatcher.Timer.IsStarted);
+    }
+
+    [Fact]
+    public void ChartRange_LiveWindowIsCappedAtCycleStart()
+    {
+        var calculator = new CycleCalculator();
+        var start = new DateTime(2026, 8, 1);
+        var cycle = calculator.GenerateCycleFromBounds(start, new DateTime(2026, 9, 1));
+        var clock = new FakeClock { Now = new DateTime(2026, 8, 5, 15, 0, 0) };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok },
+            new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } },
+            new FakeStartup(),
+            clock);
+
+        vm.Chart.SelectedRange = UsageChartRange.SevenDays;
+        Assert.Equal(start, vm.Chart.Document!.VisibleStart);
+        Assert.Equal(clock.Now, vm.Chart.Document.VisibleEnd);
+
+        vm.Chart.SelectedRange = UsageChartRange.OneWeek;
+        Assert.Equal(start, vm.Chart.Document.VisibleStart);
+        Assert.Equal(clock.Now, vm.Chart.Document.VisibleEnd);
+
+        vm.Chart.SelectedRange = UsageChartRange.TwoDays;
+        Assert.Equal(clock.Now.AddDays(-2), vm.Chart.Document.VisibleStart);
+        Assert.Equal(clock.Now, vm.Chart.Document.VisibleEnd);
+
+        vm.Chart.SelectedRange = UsageChartRange.OneMonth;
+        Assert.Equal(start, vm.Chart.Document.VisibleStart);
+        Assert.Equal(cycle.NextRenewal, vm.Chart.Document.VisibleEnd);
+    }
+
+    [Fact]
+    public void ChartRange_ArchivedCycleEndsAtRenewal()
+    {
+        var calculator = new CycleCalculator();
+        var previous = calculator.GenerateCycleFromBounds(new DateTime(2026, 7, 1), new DateTime(2026, 8, 1));
+        var live = calculator.GenerateCycleFromBounds(new DateTime(2026, 8, 1), new DateTime(2026, 9, 1));
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok },
+            new FakePlanStore
+            {
+                Settings = new AppSettings { ActiveCycle = live, CycleHistory = [previous] }
+            });
+
+        vm.GoToPreviousCycleCommand.Execute(null);
+        vm.Chart.SelectedRange = UsageChartRange.TwoWeeks;
+
+        Assert.Equal(previous.NextRenewal, vm.Chart.Document!.VisibleEnd);
+        Assert.Equal(previous.NextRenewal.AddDays(-14), vm.Chart.Document.VisibleStart);
+    }
+
+    [Fact]
+    public void ChartZoom_RetainsViewportWhenTheSameCycleRefreshes()
+    {
+        var calculator = new CycleCalculator();
+        var start = new DateTime(2026, 8, 1);
+        var end = new DateTime(2026, 9, 1);
+        var cycle = calculator.GenerateCycleFromBounds(start, end);
+        var sync = new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok };
+        var clock = new FakeClock { Now = new DateTime(2026, 8, 18, 12, 0, 0) };
+        var vm = CreateViewModel(
+            sync,
+            new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } },
+            new FakeStartup(),
+            clock);
+        var zoomStart = start.AddDays(3);
+        var zoomEnd = start.AddDays(5);
+        vm.Chart.SelectedRange = UsageChartRange.SevenDays;
+        vm.Chart.CustomViewport = new UsageChartViewport(
+            UsageChartSeriesBuilder.ToAxisX(cycle, zoomStart),
+            UsageChartSeriesBuilder.ToAxisX(cycle, zoomEnd));
+
+        clock.Now = clock.Now.AddHours(6);
+        vm.CheckForNewDay();
+        sync.RaiseSnapshotReceived(SnapshotFor(start, end, 22m, 24m));
+
+        Assert.NotNull(vm.Chart.CustomViewport);
+        Assert.True(vm.Chart.Document!.IsCustomViewport);
+        Assert.Equal(zoomStart, vm.Chart.Document.VisibleStart);
+        Assert.Equal(zoomEnd, vm.Chart.Document.VisibleEnd);
+    }
+
+    [Fact]
+    public void ChartZoom_ClearsWhenTheDisplayedCycleChanges()
+    {
+        var calculator = new CycleCalculator();
+        var previous = calculator.GenerateCycleFromBounds(new DateTime(2026, 7, 1), new DateTime(2026, 8, 1));
+        var live = calculator.GenerateCycleFromBounds(new DateTime(2026, 8, 1), new DateTime(2026, 9, 1));
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok },
+            new FakePlanStore
+            {
+                Settings = new AppSettings { ActiveCycle = live, CycleHistory = [previous] }
+            });
+        vm.Chart.CustomViewport = new UsageChartViewport(
+            UsageChartSeriesBuilder.ToAxisX(live, live.CycleStart.AddDays(2)),
+            UsageChartSeriesBuilder.ToAxisX(live, live.CycleStart.AddDays(4)));
+
+        vm.GoToPreviousCycleCommand.Execute(null);
+
+        Assert.Null(vm.Chart.CustomViewport);
+        Assert.False(vm.Chart.Document!.IsCustomViewport);
+        Assert.Equal(previous.CycleStart, vm.Chart.Document.VisibleStart);
+        Assert.Equal(previous.NextRenewal, vm.Chart.Document.VisibleEnd);
+    }
+
+    [Fact]
+    public void ChartRange_ClearsCustomViewportAndShowsThePreset()
+    {
+        var calculator = new CycleCalculator();
+        var start = new DateTime(2026, 8, 1);
+        var cycle = calculator.GenerateCycleFromBounds(start, new DateTime(2026, 9, 1));
+        var clock = new FakeClock { Now = new DateTime(2026, 8, 18, 15, 0, 0) };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok },
+            new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } },
+            new FakeStartup(),
+            clock);
+        vm.Chart.CustomViewport = new UsageChartViewport(
+            UsageChartSeriesBuilder.ToAxisX(cycle, start.AddDays(2)),
+            UsageChartSeriesBuilder.ToAxisX(cycle, start.AddDays(3)));
+
+        vm.Chart.SelectedRange = UsageChartRange.TwoDays;
+
+        Assert.Null(vm.Chart.CustomViewport);
+        Assert.False(vm.Chart.Document!.IsCustomViewport);
+        Assert.Equal(clock.Now.AddDays(-2), vm.Chart.Document.VisibleStart);
+        Assert.Equal(clock.Now, vm.Chart.Document.VisibleEnd);
+
+        vm.Chart.CustomViewport = new UsageChartViewport(
+            UsageChartSeriesBuilder.ToAxisX(cycle, start.AddDays(4)),
+            UsageChartSeriesBuilder.ToAxisX(cycle, start.AddDays(6)));
+        vm.Chart.SelectedRange = UsageChartRange.TwoDays;
+
+        Assert.Null(vm.Chart.CustomViewport);
+        Assert.Equal(UsageChartRange.TwoDays, vm.Chart.SelectedRange);
+        Assert.Equal(clock.Now.AddDays(-2), vm.Chart.Document!.VisibleStart);
+        Assert.Equal(clock.Now, vm.Chart.Document.VisibleEnd);
+
+        vm.Chart.CustomViewport = new UsageChartViewport(
+            UsageChartSeriesBuilder.ToAxisX(cycle, start.AddDays(1)),
+            UsageChartSeriesBuilder.ToAxisX(cycle, start.AddDays(2)));
+        vm.Chart.SelectedRange = UsageChartRange.OneMonth;
+
+        Assert.Null(vm.Chart.CustomViewport);
+        Assert.Equal(UsageChartRange.OneMonth, vm.Chart.SelectedRange);
+        Assert.Equal(cycle.CycleStart, vm.Chart.Document!.VisibleStart);
+        Assert.Equal(cycle.NextRenewal, vm.Chart.Document.VisibleEnd);
+    }
+
+    [Fact]
+    public void RawSampleMaxDays_DefaultsToFourAndChangesTheOpenChart()
+    {
+        var calculator = new CycleCalculator();
+        var start = new DateTime(2026, 8, 1);
+        var cycle = calculator.GenerateCycleFromBounds(start, new DateTime(2026, 9, 1));
+        var clock = new FakeClock { Now = new DateTime(2026, 8, 20, 12, 0, 0) };
+        var store = new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok },
+            store,
+            new FakeStartup(),
+            clock);
+        var zoomStart = start.AddDays(2);
+        var zoomEnd = start.AddDays(6);
+        vm.Chart.CustomViewport = new UsageChartViewport(
+            UsageChartSeriesBuilder.ToAxisX(cycle, zoomStart),
+            UsageChartSeriesBuilder.ToAxisX(cycle, zoomEnd));
+
+        Assert.Equal(4, vm.RawSampleMaxDays);
+        Assert.True(vm.Chart.Document!.UsesIntradayAxis);
+
+        vm.RawSampleMaxDays = 2;
+
+        Assert.Equal(2, store.Settings.RawSampleMaxDays);
+        Assert.False(vm.Chart.Document!.UsesIntradayAxis);
+
+        vm.RawSampleMaxDays = 9;
+
+        Assert.Equal(4, vm.RawSampleMaxDays);
+        Assert.Equal(4, store.Settings.RawSampleMaxDays);
+        Assert.True(vm.Chart.Document!.UsesIntradayAxis);
+
+        vm.Chart.SelectedRange = UsageChartRange.SevenDays;
+        vm.RawSampleMaxDays = 7;
+
+        Assert.Equal(7, store.Settings.RawSampleMaxDays);
+        Assert.Equal(UsageChartRange.SevenDays, vm.Chart.Document!.Range);
+        Assert.False(vm.Chart.Document.IsCustomViewport);
+        Assert.True(vm.Chart.Document.UsesIntradayAxis);
     }
 
     private static FakePlanStore ConfiguredRemoteStore() =>

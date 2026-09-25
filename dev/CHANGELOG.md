@@ -7,7 +7,25 @@ Use conventional types (**Added**, **Changed**, **Fixed**, **Removed**), a short
 Add new entries in the `## [Unreleased]` section. When releasing, move those entries to `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`.
 
 ## [Unreleased]
+- **Changed**: settings - renamed the **App** tab to **Startup and Appearance**.
+- **Changed**: settings - renamed the **Data** tab to **Export & Backup**.
 
+- **Fixed**: chart - an intraday range uses a wider hour interval for vertical grid lines and time labels so the times do not overlap.
+- **Added**: chart - drag across the plot to zoom to that interval. Right-click returns to **1M**. Choosing a range button, including the selected one, leaves the zoom and shows that range. A zoom up to the **Every sample up to** setting plots every sample; a longer zoom keeps the last sample of each local day.
+- **Changed**: chart - while a drag zoom is active, the hover readout shows each metric's value at the start of that zoom and the change from that start to the pointer. Preset ranges hide those rows.
+- **Added**: chart - intervals up to the **Every sample up to** setting draw a small circle on each measured Cursor and Other Models sample. The expected line has no circles.
+- **Added**: settings - **Settings** → **Startup and Appearance** → **Every sample up to** chooses **2D**, **4D**, or **7D**. The default is **4D**. **7D** and **1W** plot every sample when the choice is **7D**. **2W** and **1M** keep the last sample of each day.
+- **Changed**: scripts - development scripts now show the main window by default; `-NoShow` / `--no-show` uses the app's normal startup visibility.
+- **Changed**: chart - the hover readout sits at the top-left corner of the plot, below the date labels.
+- **Changed**: chart - the legend sits beside the range selectors, right-aligned to the plot, with estimated series on a second row.
+- **Changed**: dashboard - the last-measure time is on the same line as its label, in the same type.
+- **Removed**: calendar - the main window no longer has a calendar view or calendar/chart toggle. Cycle day rows remain for CSV export and the tray tooltip.
+- **Changed**: dashboard - cycle start and next renewal share one card, and the Cursor Models and Other Models run-out times share another.
+- **Added**: dashboard - a last-measure card shows the newest in-cycle sample time, Cursor %, Other %, and linear Expected usage %.
+- **Added**: chart - range buttons **1D**, **2D**, **7D**, **1W**, **2W**, and **1M**. **1M** is the displayed cycle. Shorter ranges end at the current time on the live cycle and at renewal on an earlier cycle, and the start is capped at cycle start. **1D** and **2D** plot every sample; longer ranges keep the last sample of each local day.
+- **Added**: chart - moving the pointer draws a vertical guide and shows Cursor, Other Models, and Expected usage for that time.
+- **Changed**: chart - the Y axis fits the values in the selected range, rounded outward to 10% steps.
+- **Removed**: settings - `showChartView` is no longer stored. Existing settings files keep their other values.
 - **Fixed**: sync - automatic refresh posts the Cursor fetch after the timer tick returns, so an open main window no longer freezes when the interval fires. On Linux, cookie persistence runs inline when it is already on the UI thread.
 - **Fixed**: sync - a refresh due at launch no longer starts before the dispatcher loop, so the main window and tray icon can appear.
 

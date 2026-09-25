@@ -125,9 +125,9 @@ public sealed class JsonPlanStore : IPlanStore
             RunAtStartup = stored.RunAtStartup,
             StartInNotificationTray = stored.StartInNotificationTray,
             ThemeMode = UiTheme.Clamp(stored.ThemeMode),
+            RawSampleMaxDays = SampleDetail.Clamp(stored.RawSampleMaxDays),
             AutoSyncEnabled = stored.AutoSyncEnabled,
             SyncIntervalHours = SyncInterval.Clamp(stored.SyncIntervalHours),
-            ShowChartView = stored.ShowChartView,
             CursorAccountConnected = stored.CursorAccountConnected,
             LastUsageSyncUtc = stored.LastUsageSyncUtc,
             WindowX = stored.WindowX,
@@ -153,9 +153,9 @@ public sealed class JsonPlanStore : IPlanStore
             RunAtStartup = settings.RunAtStartup,
             StartInNotificationTray = settings.StartInNotificationTray,
             ThemeMode = UiTheme.Clamp(settings.ThemeMode),
+            RawSampleMaxDays = SampleDetail.Clamp(settings.RawSampleMaxDays),
             AutoSyncEnabled = settings.AutoSyncEnabled,
             SyncIntervalHours = SyncInterval.Clamp(settings.SyncIntervalHours),
-            ShowChartView = settings.ShowChartView,
             CursorAccountConnected = settings.CursorAccountConnected,
             LastUsageSyncUtc = settings.LastUsageSyncUtc,
             WindowX = settings.WindowX,
@@ -237,9 +237,9 @@ public sealed class JsonPlanStore : IPlanStore
         public bool RunAtStartup { get; set; }
         public bool StartInNotificationTray { get; set; } = true;
         public UiThemeMode ThemeMode { get; set; } = UiThemeMode.System;
+        public int RawSampleMaxDays { get; set; } = SampleDetail.DefaultDays;
         public bool AutoSyncEnabled { get; set; } = true;
         public int SyncIntervalHours { get; set; } = 1;
-        public bool ShowChartView { get; set; }
         public bool CursorAccountConnected { get; set; }
         public DateTimeOffset? LastUsageSyncUtc { get; set; }
         public int? WindowX { get; set; }

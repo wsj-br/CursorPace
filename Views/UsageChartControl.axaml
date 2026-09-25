@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="using:CursorPace.Models"
              x:Class="CursorPace.Views.UsageChartControl">
 
     <Grid RowDefinitions="*,Auto">
@@ -10,24 +11,122 @@
                 MinHeight="200"
                 ClipToBounds="True"
                 SizeChanged="OnPlotSizeChanged"
+                PointerPressed="OnPlotPointerPressed"
+                PointerMoved="OnPlotPointerMoved"
+                PointerReleased="OnPlotPointerReleased"
+                PointerCaptureLost="OnPlotPointerCaptureLost"
+                PointerExited="OnPlotPointerExited"
+                ContextRequested="OnPlotContextRequested"
                 Background="Transparent">
             <Grid>
-            <Canvas x:Name="PlotCanvas"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    Background="Transparent"/>
-            <SelectableTextBlock x:Name="EmptyPlotText"
-                       Text="Not enough data yet"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       Opacity="0.65"
-                       IsVisible="False"/>
+                <Canvas x:Name="PlotCanvas"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Background="Transparent"/>
+                <Canvas x:Name="SelectionCanvas"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        IsHitTestVisible="False"
+                        Background="Transparent"/>
+                <Canvas x:Name="HoverCanvas"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        IsHitTestVisible="False"
+                        Background="Transparent"/>
+                <Border x:Name="HoverBox"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Margin="46,28,0,0"
+                        Padding="8,6"
+                        CornerRadius="6"
+                        BorderThickness="1"
+                        IsVisible="False"
+                        IsHitTestVisible="False"
+                        Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardStrokeBrush}">
+                    <StackPanel Spacing="2">
+                        <TextBlock x:Name="HoverTimeText" FontSize="11" Opacity="0.7"/>
+                        <TextBlock x:Name="HoverCursorText" FontSize="12" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="HoverCursorDeltaText" FontSize="11"/>
+                        <TextBlock x:Name="HoverOtherText" FontSize="12" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="HoverOtherDeltaText" FontSize="11"/>
+                        <TextBlock x:Name="HoverExpectedText" FontSize="12"/>
+                        <TextBlock x:Name="HoverExpectedDeltaText" FontSize="11"/>
+                    </StackPanel>
+                </Border>
+                <SelectableTextBlock x:Name="EmptyPlotText"
+                                     Text="Not enough data yet"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     Opacity="0.65"
+                                     IsVisible="False"/>
             </Grid>
         </Border>
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="38,10,8,0">
+        <Border HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Padding="4"
+                CornerRadius="8"
+                BorderThickness="1"
+                Background="{DynamicResource CardBackgroundBrush}"
+                BorderBrush="{DynamicResource CardStrokeBrush}">
+            <StackPanel x:Name="RangeButtons" Orientation="Horizontal" Spacing="2">
+                <Button Content="1D"
+                        Padding="10,4"
+                        MinWidth="40"
+                        BorderThickness="0"
+                        CornerRadius="6"
+                        Tag="{x:Static models:UsageChartRange.OneDay}"
+                        Click="OnRangeClick"
+                        AutomationProperties.Name="1 day"/>
+                <Button Content="2D"
+                        Padding="10,4"
+                        MinWidth="40"
+                        BorderThickness="0"
+                        CornerRadius="6"
+                        Tag="{x:Static models:UsageChartRange.TwoDays}"
+                        Click="OnRangeClick"
+                        AutomationProperties.Name="2 days"/>
+                <Button Content="7D"
+                        Padding="10,4"
+                        MinWidth="40"
+                        BorderThickness="0"
+                        CornerRadius="6"
+                        Tag="{x:Static models:UsageChartRange.SevenDays}"
+                        Click="OnRangeClick"
+                        AutomationProperties.Name="7 days"/>
+                <Button Content="1W"
+                        Padding="10,4"
+                        MinWidth="40"
+                        BorderThickness="0"
+                        CornerRadius="6"
+                        Tag="{x:Static models:UsageChartRange.OneWeek}"
+                        Click="OnRangeClick"
+                        AutomationProperties.Name="1 week"/>
+                <Button Content="2W"
+                        Padding="10,4"
+                        MinWidth="40"
+                        BorderThickness="0"
+                        CornerRadius="6"
+                        Tag="{x:Static models:UsageChartRange.TwoWeeks}"
+                        Click="OnRangeClick"
+                        AutomationProperties.Name="2 weeks"/>
+                <Button Content="1M"
+                        Padding="10,4"
+                        MinWidth="40"
+                        BorderThickness="0"
+                        CornerRadius="6"
+                        Tag="{x:Static models:UsageChartRange.OneMonth}"
+                        Click="OnRangeClick"
+                        AutomationProperties.Name="1 month"/>
+            </StackPanel>
+        </Border>
         <StackPanel x:Name="LegendPanel"
-                    Grid.Row="1"
+                    Grid.Column="1"
                     Orientation="Vertical"
-                    Spacing="4"
-                    Margin="36,8,8,0"/>
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Spacing="2"/>
+        </Grid>
     </Grid>
 </UserControl>
