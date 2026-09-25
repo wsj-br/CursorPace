@@ -7,6 +7,9 @@ Use conventional types (**Added**, **Changed**, **Fixed**, **Removed**), a short
 Add new entries in the `## [Unreleased]` section. When releasing, move those entries to `## [x.y.z] - YYYY-MM-DD` using `dev/release-new-version-prompt.md`.
 
 ## [Unreleased]
+
+## [0.3.0] - 2026-09-25
+
 - **Added**: settings - **Sync Server** shows install instructions when the server is not configured, and the GitHub repository link when it is.
 - **Changed**: main-window - the Cursor refresh time uses `dd-MMM HH:mm`, the same format as the sync-server time.
 - **Added**: main-window - when a sync server is configured, the status line under the cycle heading shows **Sync server** and the last successful sync time, with a red dot after a failed attempt. The Cursor time gets a red dot when the account is signed out or the latest refresh failed. Clicking the Cursor time opens **Cursor account**. Clicking the sync-server status opens **Sync Server**.
