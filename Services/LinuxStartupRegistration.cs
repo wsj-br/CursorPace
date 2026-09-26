@@ -22,6 +22,79 @@ public sealed class LinuxStartupRegistration : IStartupRegistration
         File.WriteAllText(DesktopPath, BuildDesktopEntry(exePath, startInTray));
     }
 
+    // A second AppImage (upgrade) loses the single-instance lock and exits
+    // before MainViewModel can Register(). Retarget an existing login entry
+    // to this image so the next session does not keep the old path.
+    public static void RefreshCurrentAutostart()
+    {
+        if (!OperatingSystem.IsLinux())
+            return;
+
+        try
+        {
+            new LinuxStartupRegistration().RefreshRegisteredExecutable();
+        }
+        catch
+        {
+        }
+    }
+
+    internal void RefreshRegisteredExecutable()
+    {
+        if (!File.Exists(DesktopPath))
+            return;
+
+        var existing = File.ReadAllText(DesktopPath);
+        var exePath = ResolveExecutablePath(
+            Environment.GetEnvironmentVariable("APPIMAGE"),
+            Environment.ProcessPath,
+            File.Exists);
+        if (!TryRefreshDesktop(existing, exePath, out var updated))
+            return;
+
+        File.WriteAllText(DesktopPath, updated);
+    }
+
+    internal static bool TryRefreshDesktop(string existingText, string exePath, out string updatedText)
+    {
+        updatedText = string.Empty;
+        if (string.IsNullOrWhiteSpace(existingText) || string.IsNullOrWhiteSpace(exePath))
+            return false;
+        if (!IsAppImagePath(exePath))
+            return false;
+        if (!NeedsRefresh(existingText, exePath))
+            return false;
+
+        updatedText = BuildDesktopEntry(exePath, HasBackgroundArgument(existingText));
+        return true;
+    }
+
+    internal static bool NeedsRefresh(string existingText, string exePath)
+    {
+        var registered = TryGetRegisteredExecutable(existingText);
+        return !string.Equals(registered, exePath, StringComparison.Ordinal);
+    }
+
+    internal static bool HasBackgroundArgument(string desktopText) =>
+        desktopText.Contains("--background", StringComparison.Ordinal);
+
+    internal static bool IsAppImagePath(string path) =>
+        path.EndsWith(".AppImage", StringComparison.OrdinalIgnoreCase);
+
+    internal static string? TryGetRegisteredExecutable(string desktopText)
+    {
+        const string prefix = "TryExec=";
+        using var reader = new StringReader(desktopText);
+        string? line;
+        while ((line = reader.ReadLine()) != null)
+        {
+            if (line.StartsWith(prefix, StringComparison.Ordinal))
+                return line[prefix.Length..].Trim();
+        }
+
+        return null;
+    }
+
     public void Unregister()
     {
         if (File.Exists(DesktopPath))

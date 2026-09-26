@@ -188,6 +188,7 @@ The window does not need to stay visible, but the process must be running for mi
 
 - End any `CursorPace` process, then launch again.
 - If it still fails on Windows, check Event Viewer for the application error. On Linux try `journalctl --user -xe`; on macOS check Console.app.
+- Linux: if the process sits at 100% CPU with no window or tray, or `~/.local/share/CursorPace/crash.log` says `Could not create glyphTypeface` for `$Default`, fontconfig is handing Avalonia a `.woff` (common on Zorin with OpenDyslexic). Current builds reject WOFF system fonts and use bundled Inter. Rebuild or install a newer release than 0.3.0. If **Launch at login** still points at a deleted AppImage, run the new AppImage once so autostart is rewritten.
 - macOS Console `Invalid view geometry: y is NaN` from `WKWebView` was caused by both early host layout and an ABI mismatch in the released Avalonia WebView macOS interop. Current builds use a compatible local WebView build and attach it only after finite arrange. Rebuild from this tree if you still see that report.
 - Linux **Refresh** should not open a full-size sign-in window. If it does, you are on a build that still maps the macOS-style off-screen host on Linux; rebuild from this tree.
 
@@ -227,7 +228,7 @@ The window does not need to stay visible, but the process must be running for mi
 - Confirm **Launch at login** is on in Settings.
 - Windows registry (current user): `Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorPace`. With **Start in notification tray** the command includes `--background`.
 - macOS 13+: a signed bundle appears under System Settings → General → Login Items → **Open at Login** as `CursorPace`. Unsigned builds use `~/Library/LaunchAgents/com.cursorpace.app.plist` as a compatibility fallback; its `AssociatedBundleIdentifiers` must contain `com.cursorpace.app` and its `ProgramArguments` must start `/usr/bin/open -a` on the `.app` bundle, not `Contents/MacOS/CursorPace`. Launch the app once after updating, or turn **Launch at login** off and on, to rewrite the registration.
-- Linux: `~/.config/autostart/cursor-pace.desktop`. For an AppImage, `Exec` must be the `.AppImage` file, not a path under `/tmp/.mount_*`. Launch the app once after updating, or turn **Launch at login** off and on, to rewrite the file.
+- Linux: `~/.config/autostart/cursor-pace.desktop`. For an AppImage, `Exec` must be the `.AppImage` file, not a path under `/tmp/.mount_*`. Launching a new AppImage rewrites that file to the running image when **Launch at login** is already on, even if another copy is still open. You can also turn **Launch at login** off and on.
 
 **Two tray icons or a crash at login**
 

@@ -8,6 +8,11 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-09-26
+
+- **Fixed**: linux - startup no longer hangs at 100% CPU or crash with `Could not create glyphTypeface` when fontconfig picks OpenDyslexic `.woff` as `$Default`. The app rejects WOFF system fonts and uses bundled Inter.
+- **Fixed**: install - launching a newer AppImage retargets **Launch at login** to that file, including when the previous version is still running and this process exits as the second instance.
+
 ## [0.3.0] - 2026-09-25
 
 - **Added**: settings - **Sync Server** shows install instructions when the server is not configured, and the GitHub repository link when it is.

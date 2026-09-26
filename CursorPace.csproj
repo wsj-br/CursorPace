@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <StartupObject>CursorPace.Startup</StartupObject>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Assets\cursor_pace.ico</ApplicationIcon>
-    <Version>0.3.0</Version>
+    <Version>0.3.1</Version>
     <Company>https://github.com/wsj-br/CursorPace</Company>
     <Product>Cursor Pace</Product>
     <Copyright>Copyright © 2026 Waldemar Scudeller Jr.</Copyright>

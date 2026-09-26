@@ -67,4 +67,74 @@ public class LinuxStartupRegistrationTests
         Assert.Contains("Exec=env APPIMAGELAUNCHER_DISABLE=1 \"/opt/CursorPace/CursorPace\"", text);
         Assert.DoesNotContain("--background", text);
     }
+
+    [Fact]
+    public void TryGetRegisteredExecutable_ReadsTryExec()
+    {
+        var text = LinuxStartupRegistration.BuildDesktopEntry(
+            "/home/user/Applications/CursorPace-0.3.0-linux-x64.AppImage",
+            startInTray: true);
+
+        Assert.Equal(
+            "/home/user/Applications/CursorPace-0.3.0-linux-x64.AppImage",
+            LinuxStartupRegistration.TryGetRegisteredExecutable(text));
+    }
+
+    [Fact]
+    public void TryRefreshDesktop_WhenAppImagePathChanged_RewritesAndKeepsBackground()
+    {
+        var existing = LinuxStartupRegistration.BuildDesktopEntry(
+            "/home/user/Applications/CursorPace-0.3.0-linux-x64.AppImage",
+            startInTray: true);
+        var next = "/home/user/Applications/CursorPace-0.3.1-linux-x64.AppImage";
+
+        Assert.True(LinuxStartupRegistration.TryRefreshDesktop(existing, next, out var updated));
+        Assert.Equal(next, LinuxStartupRegistration.TryGetRegisteredExecutable(updated));
+        Assert.Contains($"Exec=env APPIMAGELAUNCHER_DISABLE=1 \"{next}\" --background", updated);
+    }
+
+    [Fact]
+    public void TryRefreshDesktop_WhenAppImagePathChanged_KeepsForegroundLaunch()
+    {
+        var existing = LinuxStartupRegistration.BuildDesktopEntry(
+            "/old/CursorPace-0.3.0-linux-x64.AppImage",
+            startInTray: false);
+
+        Assert.True(LinuxStartupRegistration.TryRefreshDesktop(
+            existing,
+            "/new/CursorPace-0.3.1-linux-x64.AppImage",
+            out var updated));
+        Assert.False(LinuxStartupRegistration.HasBackgroundArgument(updated));
+    }
+
+    [Fact]
+    public void TryRefreshDesktop_WhenPathUnchanged_ReturnsFalse()
+    {
+        var path = "/home/user/Applications/CursorPace.AppImage";
+        var existing = LinuxStartupRegistration.BuildDesktopEntry(path, startInTray: true);
+
+        Assert.False(LinuxStartupRegistration.TryRefreshDesktop(existing, path, out _));
+    }
+
+    [Fact]
+    public void TryRefreshDesktop_WhenCurrentExeIsNotAppImage_LeavesAutostart()
+    {
+        var existing = LinuxStartupRegistration.BuildDesktopEntry(
+            "/home/user/Applications/CursorPace.AppImage",
+            startInTray: true);
+
+        Assert.False(LinuxStartupRegistration.TryRefreshDesktop(
+            existing,
+            "/usr/lib/dotnet/dotnet",
+            out _));
+    }
+
+    [Fact]
+    public void TryRefreshDesktop_WhenAutostartMissing_ReturnsFalse()
+    {
+        Assert.False(LinuxStartupRegistration.TryRefreshDesktop(
+            "",
+            "/home/user/Applications/CursorPace.AppImage",
+            out _));
+    }
 }

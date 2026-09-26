@@ -6,8 +6,7 @@ namespace CursorPace;
 
 internal static class Program
 {
-    [STAThread]
-    public static void Main(string[] args)
+    public static void Run(string[] args)
     {
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
             TryLog("UnhandledException", e.ExceptionObject);
@@ -16,6 +15,8 @@ internal static class Program
             TryLog("UnobservedTaskException", e.Exception);
             e.SetObserved();
         };
+
+        LinuxStartupRegistration.RefreshCurrentAutostart();
 
         var singleInstance = SingleInstance.Create();
         if (!singleInstance.TryAcquire())
@@ -43,6 +44,7 @@ internal static class Program
             .UsePlatformDetect()
             .With(new X11PlatformOptions { WmClass = "CursorPace" })
             .WithInterFont()
+            .With(AppFonts.ManagerOptions)
             .LogToTrace();
 
     private static void TryLog(string kind, object? exception)

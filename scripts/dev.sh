@@ -77,6 +77,9 @@ if [[ "$TEST" -eq 1 ]]; then
 fi
 
 echo "Starting Cursor Pace ($CONFIGURATION)..."
+# Cursor/Chromium export FC_FONTATIONS=1. Combined with Zorin OpenDyslexic
+# WOFF fonts that hang Avalonia/Skia before the window or tray appear.
+export FC_FONTATIONS=0
 run_args=(run --project ./CursorPace.csproj -c "$CONFIGURATION")
 if [[ "$BACKGROUND" -eq 1 ]]; then
   run_args+=(-- --background)
