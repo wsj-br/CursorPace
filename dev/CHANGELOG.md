@@ -8,6 +8,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-10-03
+
 - **Changed**: chart - the Y axis never exceeds 120%, so a steep early-cycle estimate no longer stretches the scale to 1000% or more.
 
 ## [0.3.1] - 2026-09-26
