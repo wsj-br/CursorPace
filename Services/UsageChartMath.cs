@@ -5,6 +5,7 @@ namespace CursorPace.Services;
 public static class UsageChartMath
 {
     public const decimal YTickStep = 10m;
+    public const decimal YMaxPercent = 120m;
 
     public static bool UsesRawSamples(UsageChartRange range, decimal maxSeconds) =>
         range switch
@@ -117,6 +118,11 @@ public static class UsageChartMath
         var yMax = decimal.Ceiling(max / YTickStep) * YTickStep;
         if (yMax <= yMin)
             yMax = yMin + YTickStep;
+        if (yMax > YMaxPercent)
+            yMax = YMaxPercent;
+        if (yMax <= yMin)
+            yMin = yMax - YTickStep;
+
         return (yMin, yMax);
     }
 
@@ -153,6 +159,32 @@ public static class UsageChartMath
                 AddPoint(result, right);
             else if (right.X > xMax && left.X <= xMax)
                 AddPoint(result, new UsageChartPoint { X = xMax, Y = Lerp(left, right, xMax) });
+        }
+
+        return result;
+    }
+
+    public static List<UsageChartPoint> ClipToYRange(
+        IReadOnlyList<UsageChartPoint> points,
+        decimal yMin,
+        decimal yMax)
+    {
+        if (points.Count == 0 || yMax < yMin)
+            return [];
+
+        var sorted = points.OrderBy(point => point.X).ToList();
+        if (sorted.Count == 1)
+        {
+            return InYRange(sorted[0].Y, yMin, yMax)
+                ? [sorted[0]]
+                : [];
+        }
+
+        var result = new List<UsageChartPoint>();
+        for (var i = 0; i < sorted.Count - 1; i++)
+        {
+            foreach (var point in ClipSegmentY(sorted[i], sorted[i + 1], yMin, yMax))
+                AddPoint(result, point);
         }
 
         return result;
@@ -269,6 +301,63 @@ public static class UsageChartMath
             return right.Y;
         return left.Y + (x - left.X) * (right.Y - left.Y) / span;
     }
+
+    private static IEnumerable<UsageChartPoint> ClipSegmentY(
+        UsageChartPoint left,
+        UsageChartPoint right,
+        decimal yMin,
+        decimal yMax)
+    {
+        var ySpan = right.Y - left.Y;
+        if (ySpan == 0)
+        {
+            if (InYRange(left.Y, yMin, yMax))
+            {
+                yield return left;
+                yield return right;
+            }
+
+            yield break;
+        }
+
+        var tAtMin = (yMin - left.Y) / ySpan;
+        var tAtMax = (yMax - left.Y) / ySpan;
+        var tEnter = tAtMin < tAtMax ? tAtMin : tAtMax;
+        var tExit = tAtMin < tAtMax ? tAtMax : tAtMin;
+
+        var t0 = tEnter < 0m ? 0m : tEnter;
+        var t1 = tExit > 1m ? 1m : tExit;
+        if (t0 > t1)
+            yield break;
+
+        yield return PointAt(left, right, t0, tAtMin, tAtMax, yMin, yMax);
+        yield return PointAt(left, right, t1, tAtMin, tAtMax, yMin, yMax);
+    }
+
+    private static UsageChartPoint PointAt(
+        UsageChartPoint left,
+        UsageChartPoint right,
+        decimal t,
+        decimal tAtMin,
+        decimal tAtMax,
+        decimal yMin,
+        decimal yMax)
+    {
+        if (t <= 0m)
+            return left;
+        if (t >= 1m)
+            return right;
+
+        var y = t == tAtMin ? yMin : t == tAtMax ? yMax : left.Y + t * (right.Y - left.Y);
+        return new UsageChartPoint
+        {
+            X = left.X + t * (right.X - left.X),
+            Y = y
+        };
+    }
+
+    private static bool InYRange(decimal y, decimal yMin, decimal yMax) =>
+        y >= yMin && y <= yMax;
 
     private static void AddPoint(List<UsageChartPoint> points, UsageChartPoint point)
     {

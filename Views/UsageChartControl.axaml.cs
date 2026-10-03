@@ -707,7 +707,8 @@ public partial class UsageChartControl : UserControl
         bool dashed,
         double strokeThickness)
     {
-        if (points.Count < 2)
+        var clipped = UsageChartMath.ClipToYRange(points, yMin, yMax);
+        if (clipped.Count < 2)
             return;
 
         var polyline = new Polyline
@@ -720,7 +721,7 @@ public partial class UsageChartControl : UserControl
         if (dashed)
             polyline.StrokeDashArray = new AvaloniaList<double> { 5, 3 };
 
-        foreach (var point in points)
+        foreach (var point in clipped)
         {
             polyline.Points.Add(new Point(
                 MapX(point.X, plot, xMin, xMax),
@@ -975,6 +976,10 @@ public partial class UsageChartControl : UserControl
         if (span <= 0)
             return plot.Bottom;
         var t = (double)((y - yMin) / span);
+        if (t < 0)
+            t = 0;
+        else if (t > 1)
+            t = 1;
         return plot.Bottom - t * plot.Height;
     }
 

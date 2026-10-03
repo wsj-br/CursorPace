@@ -6,6 +6,7 @@ namespace CursorPace.Services;
 public sealed class UsageChartSeriesBuilder
 {
     public const decimal YTickStep = UsageChartMath.YTickStep;
+    public const decimal YMaxPercent = UsageChartMath.YMaxPercent;
     public const decimal UsageLimitPercent = 100m;
 
     public UsageChartDocument Build(

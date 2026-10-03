@@ -299,7 +299,7 @@ public class UsageChartSeriesBuilderTests
     }
 
     [Fact]
-    public void YMax_ExtendsPast120WhenEstimatedExceeds()
+    public void YMax_CapsAt120WhenEstimatedExceeds()
     {
         var cycle = MidnightCycle();
         var samples = new List<UsageSample>
@@ -311,8 +311,8 @@ public class UsageChartSeriesBuilderTests
         var document = _builder.Build(cycle, _calculator, samples);
         var lastProjected = document.CursorEstimated[^1].Y;
 
-        Assert.True(lastProjected > 100m);
-        Assert.True(document.YMax >= lastProjected);
+        Assert.True(lastProjected > UsageChartSeriesBuilder.YMaxPercent);
+        Assert.Equal(UsageChartSeriesBuilder.YMaxPercent, document.YMax);
         Assert.True(document.YMin <= 0m);
         Assert.Equal(0m, document.YMax % UsageChartSeriesBuilder.YTickStep);
         Assert.Equal(0m, document.YMin % UsageChartSeriesBuilder.YTickStep);

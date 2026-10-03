@@ -171,7 +171,9 @@ public class UsageChartRangeTests
     [InlineData("100.1", "100", "110")]
     [InlineData("109.9", "100", "110")]
     [InlineData("110", "110", "120")]
-    [InlineData("121", "120", "130")]
+    [InlineData("120", "110", "120")]
+    [InlineData("121", "110", "120")]
+    [InlineData("1200", "110", "120")]
     public void YBounds_RoundToTenPercentAndKeepValuesInside(string valueText, string expectedMin, string expectedMax)
     {
         var value = decimal.Parse(valueText, CultureInfo.InvariantCulture);
@@ -179,9 +181,63 @@ public class UsageChartRangeTests
 
         Assert.Equal(decimal.Parse(expectedMin, CultureInfo.InvariantCulture), bounds.Min);
         Assert.Equal(decimal.Parse(expectedMax, CultureInfo.InvariantCulture), bounds.Max);
-        Assert.True(bounds.Min <= value);
-        Assert.True(bounds.Max >= value);
+        Assert.True(bounds.Max <= UsageChartMath.YMaxPercent);
         Assert.True(bounds.Max > bounds.Min);
+    }
+
+    [Fact]
+    public void YBounds_CapsMaxAt120()
+    {
+        var bounds = UsageChartMath.YBounds([0m, 80m, 1200m]);
+
+        Assert.Equal(0m, bounds.Min);
+        Assert.Equal(UsageChartMath.YMaxPercent, bounds.Max);
+    }
+
+    [Fact]
+    public void ClipToYRange_CutsASteepEstimateAtTheCap()
+    {
+        var points = new List<UsageChartPoint>
+        {
+            new() { X = 0m, Y = 80m },
+            new() { X = 10m, Y = 1280m }
+        };
+
+        var clipped = UsageChartMath.ClipToYRange(points, 0m, UsageChartMath.YMaxPercent);
+
+        Assert.Equal(2, clipped.Count);
+        Assert.Equal(0m, clipped[0].X);
+        Assert.Equal(80m, clipped[0].Y);
+        Assert.Equal(UsageChartMath.YMaxPercent, clipped[1].Y);
+        Assert.InRange(clipped[1].X, 0.3m, 0.4m);
+    }
+
+    [Fact]
+    public void ClipToYRange_KeepsASegmentInsideTheAxis()
+    {
+        var points = new List<UsageChartPoint>
+        {
+            new() { X = 1m, Y = 10m },
+            new() { X = 2m, Y = 40m }
+        };
+
+        var clipped = UsageChartMath.ClipToYRange(points, 0m, UsageChartMath.YMaxPercent);
+
+        Assert.Equal(2, clipped.Count);
+        Assert.Equal(10m, clipped[0].Y);
+        Assert.Equal(40m, clipped[1].Y);
+    }
+
+    [Fact]
+    public void ClipToYRange_DropsASegmentAboveTheCap()
+    {
+        var points = new List<UsageChartPoint>
+        {
+            new() { X = 1m, Y = 200m },
+            new() { X = 2m, Y = 400m }
+        };
+
+        Assert.Empty(UsageChartMath.ClipToYRange(points, 0m, UsageChartMath.YMaxPercent));
     }
 
     [Fact]
@@ -491,10 +547,11 @@ public class UsageChartRangeTests
             .Concat(document.OtherEstimated)
             .Select(point => point.Y);
 
+        Assert.True(document.YMax <= UsageChartMath.YMaxPercent);
         Assert.All(values, value =>
         {
             Assert.True(value >= document.YMin);
-            Assert.True(value <= document.YMax);
+            Assert.True(value <= document.YMax || document.YMax == UsageChartMath.YMaxPercent);
         });
         Assert.Equal(0m, document.YMin % 10m);
         Assert.Equal(0m, document.YMax % 10m);
