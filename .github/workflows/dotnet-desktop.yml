@@ -142,13 +142,15 @@ jobs:
     - name: Publish and build AppImage
       run: ./scripts/build.sh --skip-tests --rid "${{ matrix.rid }}"
 
-    - name: Upload Linux AppImage artifact
+    - name: Upload Linux AppImage and Debian artifacts
       uses: actions/upload-artifact@v7
       with:
         name: installer-linux-${{ matrix.rid }}
         path: |
           installer/*-${{ matrix.rid }}.AppImage
           installer/*-${{ matrix.rid }}.AppImage.sha256
+          installer/*-${{ matrix.rid }}.deb
+          installer/*-${{ matrix.rid }}.deb.sha256
         if-no-files-found: error
         compression-level: 0
         retention-days: 7
@@ -180,16 +182,16 @@ jobs:
           packages.lock.json
           Tests/packages.lock.json
 
-    - name: Publish and build app bundle
+    - name: Publish and build DMG
       run: ./scripts/build.sh --skip-tests --rid "${{ matrix.rid }}"
 
-    - name: Upload macOS app bundle artifact
+    - name: Upload macOS DMG artifact
       uses: actions/upload-artifact@v7
       with:
         name: installer-macos-${{ matrix.rid }}
         path: |
-          installer/*-${{ matrix.rid }}.zip
-          installer/*-${{ matrix.rid }}.zip.sha256
+          installer/*-${{ matrix.rid }}.dmg
+          installer/*-${{ matrix.rid }}.dmg.sha256
         if-no-files-found: error
         compression-level: 0
         retention-days: 7
@@ -233,12 +235,16 @@ jobs:
           "CursorPace-${version}-win-x64-setup.exe.sha256"
           "CursorPace-${version}-linux-x64.AppImage"
           "CursorPace-${version}-linux-x64.AppImage.sha256"
+          "CursorPace-${version}-linux-x64.deb"
+          "CursorPace-${version}-linux-x64.deb.sha256"
           "CursorPace-${version}-linux-arm64.AppImage"
           "CursorPace-${version}-linux-arm64.AppImage.sha256"
-          "CursorPace-${version}-osx-arm64.zip"
-          "CursorPace-${version}-osx-arm64.zip.sha256"
-          "CursorPace-${version}-osx-x64.zip"
-          "CursorPace-${version}-osx-x64.zip.sha256"
+          "CursorPace-${version}-linux-arm64.deb"
+          "CursorPace-${version}-linux-arm64.deb.sha256"
+          "CursorPace-${version}-osx-arm64.dmg"
+          "CursorPace-${version}-osx-arm64.dmg.sha256"
+          "CursorPace-${version}-osx-x64.dmg"
+          "CursorPace-${version}-osx-x64.dmg.sha256"
         )
         for asset in "${expected[@]}"; do
           test -f "installer/$asset"
@@ -262,12 +268,16 @@ jobs:
           "installer/CursorPace-${VERSION}-win-x64-setup.exe.sha256"
           "installer/CursorPace-${VERSION}-linux-x64.AppImage"
           "installer/CursorPace-${VERSION}-linux-x64.AppImage.sha256"
+          "installer/CursorPace-${VERSION}-linux-x64.deb"
+          "installer/CursorPace-${VERSION}-linux-x64.deb.sha256"
           "installer/CursorPace-${VERSION}-linux-arm64.AppImage"
           "installer/CursorPace-${VERSION}-linux-arm64.AppImage.sha256"
-          "installer/CursorPace-${VERSION}-osx-arm64.zip"
-          "installer/CursorPace-${VERSION}-osx-arm64.zip.sha256"
-          "installer/CursorPace-${VERSION}-osx-x64.zip"
-          "installer/CursorPace-${VERSION}-osx-x64.zip.sha256"
+          "installer/CursorPace-${VERSION}-linux-arm64.deb"
+          "installer/CursorPace-${VERSION}-linux-arm64.deb.sha256"
+          "installer/CursorPace-${VERSION}-osx-arm64.dmg"
+          "installer/CursorPace-${VERSION}-osx-arm64.dmg.sha256"
+          "installer/CursorPace-${VERSION}-osx-x64.dmg"
+          "installer/CursorPace-${VERSION}-osx-x64.dmg.sha256"
         )
         existing_draft="$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft 2>/dev/null || true)"
         if [[ "$existing_draft" == "true" ]]; then

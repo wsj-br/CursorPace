@@ -13,16 +13,24 @@ End-user guide for Cursor Pace. For building from source, see [dev/DEVELOPMENT.m
 
 ### Linux
 
+**AppImage** (most distros):
+
 1. Download `CursorPace-*-linux-x64.AppImage` (x86_64) or `*-linux-arm64.AppImage` (ARM64) from Releases.
 2. Make it executable: `chmod +x CursorPace-*.AppImage`
 3. Run the AppImage (double-click or from a terminal). The bundle includes GTK/WebKit dependencies from the build host; most recent distros work without extra packages.
-4. Google sign-in may be blocked in WebKit; use GitHub, email, or sign in on Windows if needed.
+
+**Debian / Ubuntu**:
+
+1. Download `CursorPace-*-linux-x64.deb` (amd64) or `*-linux-arm64.deb` (arm64) from Releases.
+2. Install with apt so GTK/WebKit dependencies are pulled in: `sudo apt install ./CursorPace-*.deb`
+
+Google sign-in may be blocked in WebKit; use GitHub, email, or sign in on Windows if needed.
 
 ### macOS
 
-1. Download `CursorPace-*-osx-arm64.zip` (Apple Silicon) or `*-osx-x64.zip` (Intel) from Releases.
-2. Unzip and move `CursorPace.app` to Applications (or run from the download folder).
-3. If Gatekeeper blocks the unsigned build, attempt to open it once, then open **System Settings → Privacy & Security** and choose **Open Anyway**.
+1. Download `CursorPace-*-osx-arm64.dmg` (Apple Silicon) or `*-osx-x64.dmg` (Intel) from Releases.
+2. Open the DMG and drag `CursorPace.app` to Applications (or run it from the volume).
+3. If Gatekeeper blocks the unsigned build, right-click **Open** once, then open **System Settings → Privacy & Security** and choose **Open Anyway**.
 4. Launch the app and sign in to Cursor.
 
 ## First run

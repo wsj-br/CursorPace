@@ -8,6 +8,10 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Added**: install - Linux Debian packages (`CursorPace-<version>-linux-x64.deb` and `*-linux-arm64.deb`) via `scripts/build-deb.sh`, published next to the AppImage.
+- **Changed**: install - macOS release archive is a DMG (`CursorPace-<version>-osx-arm64.dmg` / `*-osx-x64.dmg`) instead of a zip of `CursorPace.app`. The disk image opens with `CursorPace.app` on the left, an arrow, and Applications on the right.
+- **Fixed**: install - the macOS DMG uses the same light TIFF background as a standard drag-to-Applications disk image, so the arrow between `CursorPace.app` and Applications is visible. Finder was ignoring that picture and showing the system window color.
+
 ## [0.3.2] - 2026-10-03
 
 - **Changed**: chart - the Y axis never exceeds 120%, so a steep early-cycle estimate no longer stretches the scale to 1000% or more.

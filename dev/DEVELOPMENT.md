@@ -65,7 +65,7 @@ sudo pacman -S gtk3 webkit2gtk-4.1 libsoup3
 ```
 
 1. **GNOME tray** (optional): install the AppIndicator extension if the tray icon does not appear.
-2. **AppImage tooling** (optional, for `./scripts/build.sh`): WebKitGTK/GTK runtime libraries on the build host (`libgtk-3-0`, `libwebkit2gtk-4.1-0`, `libsoup-3.0-0`), plus ImageMagick (`imagemagick`) to resize the tray icon. `linuxdeploy` is downloaded on first run.
+2. **Linux packaging tooling** (optional, for `./scripts/build.sh`): WebKitGTK/GTK runtime libraries on the build host (`libgtk-3-0`, `libwebkit2gtk-4.1-0`, `libsoup-3.0-0`), plus ImageMagick (`imagemagick`) to resize the icon. `linuxdeploy` is downloaded on first run for the AppImage. The Debian package uses `dpkg-deb` (already on Debian/Ubuntu) and the same ImageMagick resize; it depends on those GTK/WebKit packages at install time instead of bundling them.
 
 
 
@@ -108,7 +108,7 @@ Keep the compatibility assemblies aligned with the Avalonia version in
 | Run (normal startup visibility)  | `.\scripts\dev.ps1 -NoShow`                   | `./scripts/dev.sh --no-show`                              |
 | Run (Release)                    | `.\scripts\dev.ps1 -Configuration Release`    | `./scripts/dev.sh --configuration Release`                |
 | Tests via script                 | `.\scripts\dev.ps1 -Test`                     | `./scripts/dev.sh --test`                                 |
-| Publish + installer              | `.\scripts\build.ps1`                         | `./scripts/build.sh` (Linux AppImage or macOS app bundle) |
+| Publish + installer              | `.\scripts\build.ps1`                         | `./scripts/build.sh` (Linux AppImage and `.deb`, or macOS DMG) |
 | Publish only                     | `.\scripts\build.ps1 -SkipInstaller`          | `./scripts/build.sh --skip-installer`                     |
 | Publish, skip tests              | `.\scripts\build.ps1 -SkipTests`              | `./scripts/build.sh --skip-tests`                         |
 | Clean artifacts                  | `.\scripts\clean.ps1`                         | `./scripts/clean.sh`                                      |
@@ -159,6 +159,7 @@ CursorPace/
 │   ├── build.ps1 / build.sh
 │   ├── build-appimage.sh
 │   ├── build-appbundle.sh
+│   ├── build-deb.sh
 │   ├── clean.ps1 / clean.sh
 │   ├── dev.ps1 / dev.sh
 │   ├── release.ps1 / release.sh
@@ -182,7 +183,7 @@ Open `CursorPace.slnx` in Visual Studio, or build the `.csproj` files directly.
 | Cursor session | `NativeWebView` host window + persistent profile under LocalApplicationData. On Linux, `LinuxWebKitCookiePersistence` points WebKit at `cookies.sqlite` in that profile; Avalonia's GTK adapter does not. macOS uses the ABI-fixed WebView build under `vendor/`. |
 | Tests          | xUnit, project under `Tests/`                                                                                                                                                                             |
 | Settings       | JSON under LocalApplicationData `CursorPace`                                                                                                                                                              |
-| Installer      | Inno Setup 6 (Windows), AppImage (Linux), zipped `.app` bundle (macOS)                                                                                                                                    |
+| Installer      | Inno Setup 6 (Windows), AppImage and `.deb` (Linux), DMG of the `.app` bundle (macOS)                                                                                                                     |
 
 
 Manual construction in `App.OnFrameworkInitializationCompleted` wires `IClock`, `ICycleCalculator`, `IPlanStore`, `IUsageSampleStore`, `ICursorUsageClient`, `IUsageSyncService`, `IDataBackupService`, `IStartupRegistration`, `ITrayService`, and `MainViewModel`. On Linux it also calls `LinuxDesktopIntegration.EnsureUserEntry()` before the window is created. On macOS it calls `MacDesktopIntegration.EnsureDockIcon()` so a `dotnet run` process does not keep the generic Unix `exec` Dock icon. `WebViewHostWindow` silent-fetch layout is platform-split (`WebViewHostLayout`): Linux maps a 1x1 transparent host with `NativeWebView` already in the tree; macOS and Windows map the login size off-screen and attach `NativeWebView` only after a finite arrange (macOS WKWebView aborts if `initWithFrame` gets NaN y). It then calls `LinuxWebKitCookiePersistence.EnsureAsync` after the adapter exists and before navigation. There is no DI container.
@@ -246,8 +247,8 @@ Add cases next to the existing facts when you change those areas. Do not commit 
 1. Runs tests (unless `--skip-tests`)
 2. Detects the host RID (`linux-x64`, `linux-arm64`, `osx-arm64`, or `osx-x64`) and publishes self-contained output
 3. Unless `--skip-installer`:
-  - **Linux**: `./scripts/build-appimage.sh` writes `installer/CursorPace-<version>-<rid>.AppImage` (+ `.sha256`) for `linux-x64` or `linux-arm64`. Needs WebKitGTK/GTK libraries on the build host matching the target architecture; [linuxdeploy](https://github.com/linuxdeploy/linuxdeploy) tooling is downloaded automatically for that architecture. AppImage packaging must run on a host whose architecture matches `--rid` because linuxdeploy bundles the host's native libraries.
-  - **macOS**: `./scripts/build-appbundle.sh` writes `installer/CursorPace-<version>-<rid>.zip` containing `CursorPace.app` (+ `.sha256`)
+  - **Linux**: `./scripts/build-appimage.sh` writes `installer/CursorPace-<version>-<rid>.AppImage` (+ `.sha256`) for `linux-x64` or `linux-arm64`. Needs WebKitGTK/GTK libraries on the build host matching the target architecture; [linuxdeploy](https://github.com/linuxdeploy/linuxdeploy) tooling is downloaded automatically for that architecture. AppImage packaging must run on a host whose architecture matches `--rid` because linuxdeploy bundles the host's native libraries. `./scripts/build-deb.sh` then writes `installer/CursorPace-<version>-<rid>.deb` (+ `.sha256`) from the same publish folder (`/opt/CursorPace`, with a `/usr/bin/CursorPace` symlink). The `.deb` depends on system `libgtk-3-0`, `libwebkit2gtk-4.1-0`, and `libsoup-3.0-0` (including the `t64` names on recent Debian/Ubuntu).
+  - **macOS**: `./scripts/build-appbundle.sh` writes `installer/CursorPace-<version>-<rid>.dmg` (+ `.sha256`). The window shows `CursorPace.app` on the left, an arrow, and Applications on the right. The first build installs `dmgbuild` 1.6.5 into `.appbundle-build/`.
 
 Publish output is under `bin/Release/net10.0/<rid>/publish/`. Trimming, ReadyToRun, and PublishSingleFile stay off.
 

@@ -12,7 +12,7 @@ Create a new release notes file `release-notes/RELEASE_NOTES_<version>.md` for C
      - `## Why this release matters` — One or two sentences on the main impact or reason for this release.
      - `## Detailed Changes` — Do not copy changelog bullets. Point to `dev/CHANGELOG.md` on `master` with a fragment for the version heading (for example `[0.2.0] - 2026-08-30` becomes `#020---2026-08-30`).
      - `---`
-     - `## Install` — List the unsigned Windows x64 installer, Linux x64 AppImage, and macOS ARM64/x64 zip files from the GitHub Release. Mention the relevant SmartScreen or Gatekeeper override and that **Sign in** on Windows needs the Microsoft Edge WebView2 Runtime.
+     - `## Install` — List the unsigned Windows x64 installer, Linux x64/ARM64 AppImage and Debian packages, and macOS ARM64/x64 DMG files from the GitHub Release. Mention the relevant SmartScreen or Gatekeeper override and that **Sign in** on Windows needs the Microsoft Edge WebView2 Runtime.
      - `---`
      - `## Documentation` — Link QUICKSTART, DEVELOPMENT, and README as in the example below. Use the `master` branch on `https://github.com/wsj-br/CursorPace`.
      - `---`

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Publish a self-contained Release build and package for the host platform:
-#   Linux  -> AppImage
-#   macOS  -> .app bundle (zipped)
+#   Linux  -> AppImage and .deb
+#   macOS  -> .app bundle in a DMG
 #
 # Windows packaging uses scripts/build.ps1 (Inno Setup).
 #
@@ -23,13 +23,13 @@ usage() {
 Usage: ./scripts/build.sh [options]
 
   --skip-tests       Skip unit tests.
-  --skip-installer   Publish only; skip AppImage or app bundle packaging.
+  --skip-installer   Publish only; skip AppImage, Debian, or DMG packaging.
   --rid RID          Override runtime: linux-x64, linux-arm64, osx-x64, or osx-arm64.
   -h, --help         Show this help.
 
 Detects the host OS and architecture:
-  Linux  -> linux-x64 or linux-arm64 + AppImage
-  macOS  -> osx-arm64 or osx-x64 + zipped .app bundle
+  Linux  -> linux-x64 or linux-arm64 + AppImage and .deb
+  macOS  -> osx-arm64 or osx-x64 + DMG of the .app bundle
 
 On Windows use scripts/build.ps1 instead.
 EOF
@@ -103,7 +103,7 @@ case "$RID" in
 esac
 
 if [[ "$RID" == linux-* && "$(uname -s)" != "Linux" ]]; then
-  echo "Error: AppImage packaging must run on Linux (got --rid $RID on $(uname -s))." >&2
+  echo "Error: Linux packaging must run on Linux (got --rid $RID on $(uname -s))." >&2
   exit 1
 fi
 
@@ -118,7 +118,7 @@ if [[ "$RID" == "linux-arm64" && "$(uname -m)" != "aarch64" && "$(uname -m)" != 
 fi
 
 if [[ "$RID" == osx-* && "$(uname -s)" != "Darwin" ]]; then
-  echo "Error: app bundle packaging must run on macOS (got --rid $RID on $(uname -s))." >&2
+  echo "Error: DMG packaging must run on macOS (got --rid $RID on $(uname -s))." >&2
   exit 1
 fi
 
@@ -168,6 +168,8 @@ case "$RID" in
   linux-x64|linux-arm64)
     chmod +x "$REPO_ROOT/scripts/build-appimage.sh"
     "$REPO_ROOT/scripts/build-appimage.sh" --version "$VERSION" --rid "$RID" --publish-dir "$PUBLISH_DIR"
+    chmod +x "$REPO_ROOT/scripts/build-deb.sh"
+    "$REPO_ROOT/scripts/build-deb.sh" --version "$VERSION" --rid "$RID" --publish-dir "$PUBLISH_DIR"
     ;;
   osx-x64|osx-arm64)
     chmod +x "$REPO_ROOT/scripts/build-appbundle.sh"
