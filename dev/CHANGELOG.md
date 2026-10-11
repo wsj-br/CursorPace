@@ -8,14 +8,14 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
-- **Added**: install - Linux Debian packages (`CursorPace-<version>-linux-x64.deb` and `*-linux-arm64.deb`) via `scripts/build-deb.sh`, published next to the AppImage.
-- **Changed**: install - macOS release archive is a DMG (`CursorPace-<version>-osx-arm64.dmg` / `*-osx-x64.dmg`) instead of a zip of `CursorPace.app`. The disk image opens with `CursorPace.app` on the left, an arrow, and Applications on the right.
-- **Fixed**: install - the macOS DMG uses the same light TIFF background as a standard drag-to-Applications disk image, so the arrow between `CursorPace.app` and Applications is visible. Finder was ignoring that picture and showing the system window color.
 
 ## [0.3.3] - 2026-10-11
 
 - **Fixed**: chart - place the last-sample percent labels above or below that point, with a short tick, so they stay off the curve when values are close or the point is at the right edge of a zoom.
 - **Changed**: chart - estimated Cursor and Other Models lines, and their legend swatches, are round dots instead of solid thin, distinct from the dashed Expected usage line.
+- **Added**: install - Linux Debian packages (`CursorPace-<version>-linux-x64.deb` and `*-linux-arm64.deb`) via `scripts/build-deb.sh`, published next to the AppImage.
+- **Changed**: install - macOS release archive is a DMG (`CursorPace-<version>-osx-arm64.dmg` / `*-osx-x64.dmg`) instead of a zip of `CursorPace.app`. The disk image opens with `CursorPace.app` on the left, an arrow, and Applications on the right.
+- **Fixed**: install - the macOS DMG uses the same light TIFF background as a standard drag-to-Applications disk image, so the arrow between `CursorPace.app` and Applications is visible. Finder was ignoring that picture and showing the system window color.
 
 ## [0.3.2] - 2026-10-03
 
