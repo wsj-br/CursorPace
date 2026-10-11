@@ -6,7 +6,7 @@
 
 Desktop app for Windows, Linux, and macOS that tracks Cursor model quota across a billing cycle. Sign in with your Cursor account to pull usage automatically. The chart shows two independent percentages: **Cursor Models** and **Other Models**.
 
-CSV expected percents follow each usage sample in time, then pace remaining quota to 100% at the next renewal. The chart's dashed **Expected usage** line is a straight linear pace from 0% at cycle start to 100% at next renewal. Thick solid Cursor and Other Models paths follow the last reading of each local day, or every sample on the 1-day and 2-day ranges. A separate Theil-Sen estimate projects daily burn and run-out.
+CSV expected percents follow each usage sample in time, then pace remaining quota to 100% at the next renewal. The chart's dashed **Expected usage** line is a straight linear pace from 0% at cycle start to 100% at next renewal. Thick solid Cursor and Other Models paths follow the last reading of each local day, or every sample on the 1-day and 2-day ranges. A separate Theil-Sen estimate, drawn as round dots, projects daily burn and run-out.
 
 Sign in uses an embedded native WebView (WebView2 on Windows, WKWebView on macOS, WebKitGTK or WPE on Linux) and your Cursor dashboard session. There is no official personal-plan API and no Team API key.
 

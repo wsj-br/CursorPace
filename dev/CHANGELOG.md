@@ -8,6 +8,11 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-10-11
+
+- **Fixed**: chart - place the last-sample percent labels above or below that point, with a short tick, so they stay off the curve when values are close or the point is at the right edge of a zoom.
+- **Changed**: chart - estimated Cursor and Other Models lines, and their legend swatches, are round dots instead of solid thin, distinct from the dashed Expected usage line.
+
 ## [0.3.2] - 2026-10-03
 
 - **Changed**: chart - the Y axis never exceeds 120%, so a steep early-cycle estimate no longer stretches the scale to 1000% or more.

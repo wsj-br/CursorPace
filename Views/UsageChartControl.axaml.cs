@@ -21,9 +21,14 @@ public partial class UsageChartControl : UserControl
     private const double PlotBottomPad = 28;
     private const double MinTickSpacing = 16;
     private const double EstimatedStrokeThickness = 2;
+    // Avalonia multiplies the dash array by stroke thickness. A zero-length dash with round caps is a circle.
+    private const double EstimatedDotGap = 2;
     private const double UsageStrokeThickness = 4;
     private const double SampleMarkerDiameter = 7;
     private const double EndpointLabelOffsetX = 6;
+    private const double EndpointLabelPadding = 4;
+    private const double EndpointLeaderThreshold = 1;
+    private const double EndpointLabelFontSize = 11;
     private const double MinZoomPixelSpan = 4;
     private static readonly (double X, double Y)[] HaloOffsets =
     [
@@ -174,9 +179,9 @@ public partial class UsageChartControl : UserControl
         if (document.HasOtherUsage)
             DrawPolyline(document.OtherUsage, plot, xMin, xMax, yMin, yMax, otherColor, dashed: false, UsageStrokeThickness);
         if (document.HasCursorEstimated)
-            DrawPolyline(document.CursorEstimated, plot, xMin, xMax, yMin, yMax, cursorColor, dashed: false, EstimatedStrokeThickness);
+            DrawPolyline(document.CursorEstimated, plot, xMin, xMax, yMin, yMax, cursorColor, dashed: false, EstimatedStrokeThickness, dotted: true);
         if (document.HasOtherEstimated)
-            DrawPolyline(document.OtherEstimated, plot, xMin, xMax, yMin, yMax, otherColor, dashed: false, EstimatedStrokeThickness);
+            DrawPolyline(document.OtherEstimated, plot, xMin, xMax, yMin, yMax, otherColor, dashed: false, EstimatedStrokeThickness, dotted: true);
         if (document.UsesIntradayAxis)
         {
             DrawSampleMarkers(document.CursorUsage, plot, xMin, xMax, yMin, yMax, cursorColor);
@@ -705,7 +710,8 @@ public partial class UsageChartControl : UserControl
         decimal yMax,
         Color color,
         bool dashed,
-        double strokeThickness)
+        double strokeThickness,
+        bool dotted = false)
     {
         var clipped = UsageChartMath.ClipToYRange(points, yMin, yMax);
         if (clipped.Count < 2)
@@ -718,8 +724,15 @@ public partial class UsageChartControl : UserControl
             StrokeJoin = PenLineJoin.Round,
             Fill = null
         };
-        if (dashed)
+        if (dotted)
+        {
+            polyline.StrokeDashArray = new AvaloniaList<double> { 0, EstimatedDotGap };
+            polyline.StrokeLineCap = PenLineCap.Round;
+        }
+        else if (dashed)
+        {
             polyline.StrokeDashArray = new AvaloniaList<double> { 5, 3 };
+        }
 
         foreach (var point in clipped)
         {
@@ -791,42 +804,109 @@ public partial class UsageChartControl : UserControl
             StrokeDashArray = new AvaloniaList<double> { 2, 2 }
         });
 
-        var labelX = px + EndpointLabelOffsetX;
+        var annotations = new List<EndpointAnnotation>();
         if (lastCursor is not null)
         {
-            AddLabel(
+            annotations.Add(new EndpointAnnotation(
                 UsageChartSeriesBuilder.FormatEndpointPercent(lastCursor.Y),
-                labelX,
                 MapY(lastCursor.Y, plot, yMin, yMax),
-                new SolidColorBrush(cursorColor),
-                11,
-                alignLeft: true,
-                centerVertically: true,
-                halo: true);
+                cursorColor));
         }
 
         if (lastOther is not null)
         {
-            AddLabel(
+            annotations.Add(new EndpointAnnotation(
                 UsageChartSeriesBuilder.FormatEndpointPercent(lastOther.Y),
-                labelX,
                 MapY(lastOther.Y, plot, yMin, yMax),
-                new SolidColorBrush(otherColor),
-                11,
-                alignLeft: true,
+                otherColor));
+        }
+
+        annotations.Add(new EndpointAnnotation(
+            UsageChartSeriesBuilder.FormatEndpointPercent(expectedY),
+            expectedPy,
+            expectedColor));
+
+        var labelHeight = 0d;
+        foreach (var annotation in annotations)
+            labelHeight = Math.Max(labelHeight, MeasureLabelHeight(annotation.Text, EndpointLabelFontSize));
+
+        var centers = UsageChartMath.ResolveVerticalEndpointLabels(
+            annotations.Select(annotation => annotation.AnchorY).ToArray(),
+            labelHeight,
+            EndpointLabelPadding,
+            plot.Top,
+            plot.Bottom);
+        var placements = new List<(EndpointAnnotation Annotation, double Center, double X, bool AlignRight, Rect Bounds)>(annotations.Count);
+        for (var i = 0; i < annotations.Count; i++)
+        {
+            var width = MeasureLabelWidth(annotations[i].Text, EndpointLabelFontSize);
+            var fitsRight = px + EndpointLabelOffsetX + width <= plot.Right;
+            var x = fitsRight ? px + EndpointLabelOffsetX : plot.Right;
+            var bounds = PredictLabelBounds(
+                annotations[i].Text,
+                x,
+                centers[i],
+                EndpointLabelFontSize,
+                alignLeft: fitsRight,
+                alignRight: !fitsRight,
+                centerVertically: true);
+            placements.Add((annotations[i], centers[i], x, !fitsRight, bounds));
+        }
+
+        foreach (var (annotation, _, _, _, bounds) in placements)
+        {
+            if (bounds.Top <= annotation.AnchorY && annotation.AnchorY <= bounds.Bottom)
+                continue;
+
+            DrawEndpointLeader(px, bounds, annotation.AnchorY, annotation.Color);
+        }
+
+        foreach (var (annotation, center, x, alignRight, _) in placements)
+        {
+            AddLabel(
+                annotation.Text,
+                x,
+                center,
+                new SolidColorBrush(annotation.Color),
+                EndpointLabelFontSize,
+                alignRight: alignRight,
+                alignLeft: !alignRight,
                 centerVertically: true,
                 halo: true);
         }
+    }
 
-        AddLabel(
-            UsageChartSeriesBuilder.FormatEndpointPercent(expectedY),
-            labelX,
-            expectedPy,
-            new SolidColorBrush(expectedColor),
-            11,
-            alignLeft: true,
-            centerVertically: true,
-            halo: true);
+    private void DrawEndpointLeader(double pointX, Rect bounds, double anchorY, Color color)
+    {
+        double targetX;
+        double targetY;
+        if (pointX >= bounds.Left && pointX <= bounds.Right)
+        {
+            targetX = pointX;
+            targetY = anchorY < bounds.Top ? bounds.Top : bounds.Bottom;
+        }
+        else if (pointX < bounds.Left)
+        {
+            targetX = bounds.Left;
+            targetY = Math.Clamp(anchorY, bounds.Top, bounds.Bottom);
+        }
+        else
+        {
+            targetX = bounds.Right;
+            targetY = Math.Clamp(anchorY, bounds.Top, bounds.Bottom);
+        }
+
+        if (Math.Abs(targetX - pointX) <= EndpointLeaderThreshold
+            && Math.Abs(targetY - anchorY) <= EndpointLeaderThreshold)
+            return;
+
+        PlotCanvas.Children.Add(new Line
+        {
+            StartPoint = new Point(pointX, anchorY),
+            EndPoint = new Point(targetX, targetY),
+            Stroke = new SolidColorBrush(color),
+            StrokeThickness = 1
+        });
     }
 
     private void DrawLegend(UsageChartDocument document, IBrush mutedBrush)
@@ -839,9 +919,9 @@ public partial class UsageChartControl : UserControl
         if (document.HasOtherUsage)
             AddLegendItem(primary, mutedBrush, "Other Models", ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor), dashed: false, thin: false);
         if (document.HasCursorEstimated)
-            AddLegendItem(estimated, mutedBrush, "Cursor (estimated)", ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor), dashed: false, thin: true);
+            AddLegendItem(estimated, mutedBrush, "Cursor (estimated)", ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor), dashed: false, thin: true, dotted: true);
         if (document.HasOtherEstimated)
-            AddLegendItem(estimated, mutedBrush, "Other Models (estimated)", ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor), dashed: false, thin: true);
+            AddLegendItem(estimated, mutedBrush, "Other Models (estimated)", ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor), dashed: false, thin: true, dotted: true);
 
         LegendPanel.Children.Add(primary);
         if (estimated.Children.Count > 0)
@@ -855,7 +935,14 @@ public partial class UsageChartControl : UserControl
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right
         };
 
-    private static void AddLegendItem(Panel row, IBrush mutedBrush, string label, Color color, bool dashed, bool thin)
+    private static void AddLegendItem(
+        Panel row,
+        IBrush mutedBrush,
+        string label,
+        Color color,
+        bool dashed,
+        bool thin,
+        bool dotted = false)
     {
         var entry = new StackPanel
         {
@@ -864,19 +951,37 @@ public partial class UsageChartControl : UserControl
             Margin = new Thickness(16, 2, 0, 2),
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
         };
-        var line = new Rectangle
+        if (dotted)
         {
-            Width = 18,
-            Height = thin ? 2 : 4,
-            Fill = dashed ? null : new SolidColorBrush(color),
-            Stroke = new SolidColorBrush(color),
-            StrokeThickness = dashed ? 1.5 : 0,
-            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
-        };
-        if (dashed)
-            line.StrokeDashArray = new AvaloniaList<double> { 3, 2 };
+            entry.Children.Add(new Line
+            {
+                StartPoint = new Point(0, 1),
+                EndPoint = new Point(18, 1),
+                Width = 18,
+                Height = 2,
+                Stroke = new SolidColorBrush(color),
+                StrokeThickness = 2,
+                StrokeDashArray = new AvaloniaList<double> { 0, EstimatedDotGap },
+                StrokeLineCap = PenLineCap.Round,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            });
+        }
+        else
+        {
+            var line = new Rectangle
+            {
+                Width = 18,
+                Height = thin ? 2 : 4,
+                Fill = dashed ? null : new SolidColorBrush(color),
+                Stroke = new SolidColorBrush(color),
+                StrokeThickness = dashed ? 1.5 : 0,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+            if (dashed)
+                line.StrokeDashArray = new AvaloniaList<double> { 3, 2 };
 
-        entry.Children.Add(line);
+            entry.Children.Add(line);
+        }
         entry.Children.Add(new SelectableTextBlock
         {
             Text = label,
@@ -904,6 +1009,56 @@ public partial class UsageChartControl : UserControl
             FontSize = fontSize,
             Foreground = brush
         };
+        var bounds = LayoutLabel(block, x, y, alignRight, alignLeft, centerVertically);
+        if (halo)
+            AddLabelHalo(text, fontSize, bounds.Left, bounds.Top);
+        Canvas.SetLeft(block, bounds.Left);
+        Canvas.SetTop(block, bounds.Top);
+        PlotCanvas.Children.Add(block);
+    }
+
+    private Rect PredictLabelBounds(
+        string text,
+        double x,
+        double y,
+        double fontSize,
+        bool alignLeft,
+        bool alignRight,
+        bool centerVertically)
+    {
+        var block = new SelectableTextBlock
+        {
+            Text = text,
+            FontSize = fontSize
+        };
+        return LayoutLabel(block, x, y, alignRight, alignLeft, centerVertically);
+    }
+
+    private static double MeasureLabelHeight(string text, double fontSize) =>
+        MeasureLabel(text, fontSize).Height;
+
+    private static double MeasureLabelWidth(string text, double fontSize) =>
+        MeasureLabel(text, fontSize).Width;
+
+    private static Size MeasureLabel(string text, double fontSize)
+    {
+        var block = new SelectableTextBlock
+        {
+            Text = text,
+            FontSize = fontSize
+        };
+        block.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        return block.DesiredSize;
+    }
+
+    private Rect LayoutLabel(
+        Control block,
+        double x,
+        double y,
+        bool alignRight,
+        bool alignLeft,
+        bool centerVertically)
+    {
         block.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var width = block.DesiredSize.Width;
         var height = block.DesiredSize.Height;
@@ -915,11 +1070,7 @@ public partial class UsageChartControl : UserControl
             left = Math.Clamp(left, 0, Math.Max(0, canvasWidth - width));
         if (centerVertically && canvasHeight > 0 && height > 0)
             top = Math.Clamp(top, 0, Math.Max(0, canvasHeight - height));
-        if (halo)
-            AddLabelHalo(text, fontSize, left, top);
-        Canvas.SetLeft(block, left);
-        Canvas.SetTop(block, top);
-        PlotCanvas.Children.Add(block);
+        return new Rect(left, top, width, height);
     }
 
     private void AddLabelHalo(string text, double fontSize, double left, double top)
@@ -1006,4 +1157,6 @@ public partial class UsageChartControl : UserControl
             _ => fallback
         };
     }
+
+    private readonly record struct EndpointAnnotation(string Text, double AnchorY, Color Color);
 }

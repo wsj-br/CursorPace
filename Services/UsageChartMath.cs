@@ -6,6 +6,7 @@ public static class UsageChartMath
 {
     public const decimal YTickStep = 10m;
     public const decimal YMaxPercent = 120m;
+    private const double LabelGapEpsilon = 1e-6;
 
     public static bool UsesRawSamples(UsageChartRange range, decimal maxSeconds) =>
         range switch
@@ -238,6 +239,146 @@ public static class UsageChartMath
         return ClampViewport(new UsageChartViewport(originX, currentX), minX, maxX);
     }
 
+    /// <summary>
+    /// Spreads endpoint-label centers so later labels stay at least <paramref name="minimumGap"/> below earlier ones.
+    /// <paramref name="minimumGap"/> is center spacing (label height plus padding). Results stay inside the plot, inset by half <paramref name="labelHeight"/>.
+    /// </summary>
+    public static double[] ResolveEndpointLabelOffsets(
+        IReadOnlyList<double> anchorYs,
+        double labelHeight,
+        double minimumGap,
+        double plotTop,
+        double plotBottom)
+    {
+        ArgumentNullException.ThrowIfNull(anchorYs);
+
+        var count = anchorYs.Count;
+        var result = new double[count];
+        if (count == 0)
+            return result;
+
+        var height = labelHeight > 0 ? labelHeight : 0;
+        var gap = minimumGap > 0 ? minimumGap : 0;
+        if (plotBottom < plotTop)
+            (plotTop, plotBottom) = (plotBottom, plotTop);
+
+        var half = height / 2;
+        var minCenter = plotTop + half;
+        var maxCenter = plotBottom - half;
+        if (maxCenter < minCenter)
+        {
+            var mid = (plotTop + plotBottom) / 2;
+            minCenter = mid;
+            maxCenter = mid;
+        }
+
+        var order = new int[count];
+        for (var i = 0; i < count; i++)
+            order[i] = i;
+        Array.Sort(order, (a, b) =>
+        {
+            var compare = anchorYs[a].CompareTo(anchorYs[b]);
+            return compare != 0 ? compare : a.CompareTo(b);
+        });
+
+        var sorted = new double[count];
+        for (var i = 0; i < count; i++)
+            sorted[i] = anchorYs[order[i]];
+
+        var ranges = new List<(int Start, int End)>();
+        var clusterStart = 0;
+        for (var i = 1; i <= count; i++)
+        {
+            var split = i == count || sorted[i] - sorted[i - 1] >= gap - LabelGapEpsilon;
+            if (!split)
+                continue;
+
+            ranges.Add((clusterStart, i - 1));
+            clusterStart = i;
+        }
+
+        var placed = new double[count];
+        var guard = 0;
+        var merged = true;
+        while (merged && guard++ <= count)
+        {
+            merged = false;
+            foreach (var (start, end) in ranges)
+                PlaceEndpointCluster(sorted, placed, start, end, gap, minCenter, maxCenter);
+
+            for (var i = 0; i < ranges.Count - 1; i++)
+            {
+                var left = ranges[i];
+                var right = ranges[i + 1];
+                if (placed[right.Start] - placed[left.End] >= gap - LabelGapEpsilon)
+                    continue;
+
+                ranges[i] = (left.Start, right.End);
+                ranges.RemoveAt(i + 1);
+                merged = true;
+                break;
+            }
+        }
+
+        for (var i = 0; i < count; i++)
+            result[order[i]] = placed[i];
+        return result;
+    }
+
+    /// <summary>
+    /// Places endpoint-label centers just above each anchor, or just below when the plot has no room above.
+    /// Close labels stay in top-to-bottom order and keep at least <paramref name="labelHeight"/> + <paramref name="padding"/> between centers.
+    /// </summary>
+    public static double[] ResolveVerticalEndpointLabels(
+        IReadOnlyList<double> anchorYs,
+        double labelHeight,
+        double padding,
+        double plotTop,
+        double plotBottom)
+    {
+        ArgumentNullException.ThrowIfNull(anchorYs);
+
+        var count = anchorYs.Count;
+        var result = new double[count];
+        if (count == 0)
+            return result;
+
+        var height = labelHeight > 0 ? labelHeight : 0;
+        var pad = padding > 0 ? padding : 0;
+        if (plotBottom < plotTop)
+            (plotTop, plotBottom) = (plotBottom, plotTop);
+
+        var half = height / 2;
+        var minCenter = plotTop + half;
+        var maxCenter = plotBottom - half;
+        if (maxCenter < minCenter)
+        {
+            var mid = (plotTop + plotBottom) / 2;
+            minCenter = mid;
+            maxCenter = mid;
+        }
+
+        var clearance = half + pad;
+        var minimumGap = Math.Max(height + pad, clearance);
+        var order = new int[count];
+        for (var i = 0; i < count; i++)
+            order[i] = i;
+        Array.Sort(order, (a, b) =>
+        {
+            var compare = anchorYs[a].CompareTo(anchorYs[b]);
+            return compare != 0 ? compare : a.CompareTo(b);
+        });
+
+        var sorted = new double[count];
+        for (var i = 0; i < count; i++)
+            sorted[i] = anchorYs[order[i]];
+
+        var placed = PlaceVerticalEndpointCenters(sorted, clearance, minimumGap, minCenter, maxCenter);
+        for (var i = 0; i < count; i++)
+            result[order[i]] = placed[i];
+        return result;
+    }
+
     public static UsageChartHoverReadout Read(UsageChartDocument document, decimal x)
     {
         var clamped = x < document.VisibleStartX
@@ -262,6 +403,216 @@ public static class UsageChartMath
             Delta(cursor, cursorStart),
             Delta(other, otherStart),
             expected - expectedStart);
+    }
+
+    private static void PlaceEndpointCluster(
+        double[] anchors,
+        double[] placed,
+        int start,
+        int end,
+        double gap,
+        double minCenter,
+        double maxCenter)
+    {
+        var count = end - start + 1;
+        if (count == 1)
+        {
+            placed[start] = ClampDouble(anchors[start], minCenter, maxCenter);
+            return;
+        }
+
+        double sum = 0;
+        for (var i = start; i <= end; i++)
+            sum += anchors[i];
+        var centroid = sum / count;
+        var span = (count - 1) * gap;
+        var available = maxCenter - minCenter;
+        if (span > available)
+        {
+            var step = available / (count - 1);
+            for (var i = 0; i < count; i++)
+                placed[start + i] = minCenter + i * step;
+            return;
+        }
+
+        var first = centroid - span / 2;
+        if (first < minCenter)
+            first = minCenter;
+        else if (first + span > maxCenter)
+            first = maxCenter - span;
+
+        for (var i = 0; i < count; i++)
+            placed[start + i] = first + i * gap;
+    }
+
+    private static double[] PlaceVerticalEndpointCenters(
+        double[] anchors,
+        double clearance,
+        double minimumGap,
+        double minCenter,
+        double maxCenter)
+    {
+        var count = anchors.Length;
+        var centers = new double[count];
+        for (var i = 0; i < count; i++)
+        {
+            var above = anchors[i] - clearance;
+            var below = anchors[i] + clearance;
+            if (above >= minCenter - LabelGapEpsilon)
+                centers[i] = above;
+            else if (below <= maxCenter + LabelGapEpsilon)
+                centers[i] = below;
+            else
+                centers[i] = ClampDouble(anchors[i], minCenter, maxCenter);
+        }
+
+        PushEndpointGapsDown(centers, minimumGap);
+        PullEndpointGapsUp(centers, minimumGap, minCenter, maxCenter);
+
+        for (var pass = 0; pass < count * 2; pass++)
+        {
+            var moved = false;
+            for (var i = 0; i < count; i++)
+            {
+                if (ClearsEndpointAnchor(centers[i], anchors[i], clearance))
+                    continue;
+                if (!TryNearestClearEndpointCenter(
+                        anchors[i],
+                        centers[i],
+                        clearance,
+                        minCenter,
+                        maxCenter,
+                        out var clear))
+                    continue;
+                if (Math.Abs(clear - centers[i]) <= LabelGapEpsilon)
+                    continue;
+
+                centers[i] = clear;
+                PullEarlierEndpointLabels(centers, i, minimumGap, minCenter);
+                PushLaterEndpointLabels(centers, i, minimumGap, maxCenter);
+                moved = true;
+            }
+
+            if (!moved)
+                break;
+        }
+
+        for (var i = 0; i < count; i++)
+            centers[i] = ClampDouble(centers[i], minCenter, maxCenter);
+        return centers;
+    }
+
+    private static void PushEndpointGapsDown(double[] centers, double minimumGap)
+    {
+        for (var i = 1; i < centers.Length; i++)
+        {
+            var minY = centers[i - 1] + minimumGap;
+            if (centers[i] < minY)
+                centers[i] = minY;
+        }
+    }
+
+    private static void PullEndpointGapsUp(
+        double[] centers,
+        double minimumGap,
+        double minCenter,
+        double maxCenter)
+    {
+        if (centers.Length == 0)
+            return;
+
+        if (centers[^1] > maxCenter)
+            centers[^1] = maxCenter;
+
+        for (var i = centers.Length - 2; i >= 0; i--)
+        {
+            var maxY = centers[i + 1] - minimumGap;
+            if (centers[i] > maxY)
+                centers[i] = maxY;
+            if (centers[i] < minCenter)
+                centers[i] = minCenter;
+        }
+    }
+
+    private static void PullEarlierEndpointLabels(
+        double[] centers,
+        int index,
+        double minimumGap,
+        double minCenter)
+    {
+        for (var i = index - 1; i >= 0; i--)
+        {
+            var maxY = centers[i + 1] - minimumGap;
+            if (centers[i] <= maxY + LabelGapEpsilon)
+                break;
+
+            centers[i] = Math.Max(minCenter, maxY);
+        }
+    }
+
+    private static void PushLaterEndpointLabels(
+        double[] centers,
+        int index,
+        double minimumGap,
+        double maxCenter)
+    {
+        for (var i = index + 1; i < centers.Length; i++)
+        {
+            var minY = centers[i - 1] + minimumGap;
+            if (centers[i] >= minY - LabelGapEpsilon)
+                break;
+
+            centers[i] = Math.Min(maxCenter, minY);
+        }
+    }
+
+    private static bool TryNearestClearEndpointCenter(
+        double anchor,
+        double current,
+        double clearance,
+        double minCenter,
+        double maxCenter,
+        out double center)
+    {
+        center = current;
+        double? best = null;
+        var bestDistance = double.MaxValue;
+        Consider(anchor - clearance);
+        Consider(anchor + clearance);
+        if (best is not double chosen)
+            return false;
+
+        center = chosen;
+        return true;
+
+        void Consider(double candidate)
+        {
+            if (candidate < minCenter - LabelGapEpsilon || candidate > maxCenter + LabelGapEpsilon)
+                return;
+
+            var distance = Math.Abs(candidate - current);
+            var closer = distance < bestDistance - LabelGapEpsilon;
+            var tiePreferAbove = Math.Abs(distance - bestDistance) <= LabelGapEpsilon
+                && best is double existing
+                && candidate < existing;
+            if (best is null || closer || tiePreferAbove)
+            {
+                best = candidate;
+                bestDistance = distance;
+            }
+        }
+    }
+
+    private static bool ClearsEndpointAnchor(double center, double anchor, double clearance) =>
+        Math.Abs(center - anchor) >= clearance - LabelGapEpsilon;
+
+    private static double ClampDouble(double value, double min, double max)
+    {
+        if (value < min)
+            return min;
+        if (value > max)
+            return max;
+        return value;
     }
 
     private static decimal ExpectedAt(UsageChartDocument document, decimal x) =>
