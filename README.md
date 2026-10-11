@@ -22,11 +22,11 @@ Sign in uses an embedded native WebView (WebView2 on Windows, WKWebView on macOS
 
 1. Download the build for your platform from this repository's Releases page:
    - **Windows**: `CursorPace-*-win-x64-setup.exe`
-   - **Linux**: `CursorPace-*-linux-x64.AppImage` (x86_64) or `*-linux-arm64.AppImage` (ARM64)
-   - **macOS**: `CursorPace-*-osx-arm64.zip` (Apple Silicon) or `*-osx-x64.zip` (Intel)
+   - **Linux**: `CursorPace-*-linux-x64.AppImage` or `*-linux-x64.deb` (x86_64), or the matching `linux-arm64` files (ARM64)
+   - **macOS**: `CursorPace-*-osx-arm64.dmg` (Apple Silicon) or `*-osx-x64.dmg` (Intel)
 2. **Windows**: run the installer. If SmartScreen warns that the app is unsigned, choose **More info**, then **Run anyway**. If WebView2 Runtime is missing, open the download page the installer offers.
-3. **Linux**: make the AppImage executable (`chmod +x`), then run it. First launch may take a moment while the bundle extracts.
-4. **macOS**: unzip the archive, move `CursorPace.app` to Applications, then open it. If Gatekeeper blocks the unsigned app, attempt to open it once and then choose **Open Anyway** in **System Settings → Privacy & Security**.
+3. **Linux**: make the AppImage executable (`chmod +x`), then run it. First launch may take a moment while the bundle extracts. On Debian or Ubuntu, `sudo apt install ./CursorPace-*.deb` installs the package and pulls GTK/WebKit dependencies.
+4. **macOS**: open the DMG, drag `CursorPace.app` to Applications, then open it. If Gatekeeper blocks the unsigned app, right-click **Open** once, then choose **Open Anyway** in **System Settings → Privacy & Security**.
 5. Sign in to Cursor. If **Start in notification tray** is on (the default), open the window from the tray icon first, or launch with `--show`.
 
 See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, the usage chart, tray behavior, and troubleshooting.
@@ -84,7 +84,7 @@ Release packaging:
 ```
 
 ```bash
-./scripts/build.sh             # Linux: AppImage; macOS: zipped .app bundle
+./scripts/build.sh             # Linux: AppImage and .deb; macOS: DMG
 ```
 
 Publish only (skip packaging): add `--skip-installer` / `-SkipInstaller`.

@@ -108,7 +108,7 @@ dotnet run --project .\CursorPace.csproj
 ./scripts/dev.sh --show
 .\scripts\build.ps1                # Windows: publish + Inno Setup installer
 .\scripts\build.ps1 -SkipInstaller # Windows: publish only
-./scripts/build.sh                 # Linux/macOS: publish + AppImage or app bundle
+./scripts/build.sh                 # Linux/macOS: publish + AppImage and .deb, or DMG
 ./scripts/build.sh --skip-installer
 .\scripts\version.ps1              # Print current app version
 .\scripts\version.ps1 0.2.4        # Set version in CursorPace.csproj and setup.iss

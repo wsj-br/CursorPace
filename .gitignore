@@ -34,6 +34,7 @@ publish/
 installer/
 .appimage-build/
 .appbundle-build/
+.deb-build/
 *.AppImage
 AppPackages/
 BundleArtifacts/

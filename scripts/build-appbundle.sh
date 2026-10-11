@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build a macOS .app bundle (zipped) from a self-contained publish folder.
+# Build a macOS .app bundle and wrap it in a DMG from a self-contained publish folder.
 #
 # Usage:
 #   ./scripts/build-appbundle.sh --version 0.x.y --rid osx-arm64 --publish-dir bin/Release/net10.0/osx-arm64/publish
@@ -21,7 +21,9 @@ Usage: ./scripts/build-appbundle.sh --version VERSION --rid RID --publish-dir PA
   --publish-dir   Self-contained publish output directory.
   -h, --help      Show this help.
 
-Must run on macOS. Writes installer/CursorPace-<version>-<rid>.zip and a .sha256 file.
+Must run on macOS. Writes installer/CursorPace-<version>-<rid>.dmg and a .sha256 file.
+The disk image opens with CursorPace.app on the left, an arrow, and Applications on the right.
+The first run installs dmgbuild into .appbundle-build/ (no Finder automation).
 EOF
 }
 
@@ -152,13 +154,84 @@ cat >"$BUNDLE_DIR/Contents/Info.plist" <<EOF
 </plist>
 EOF
 
-ARCHIVE_NAME="CursorPace-$VERSION-$RID.zip"
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "Error: python3 is required to lay out the macOS DMG." >&2
+  exit 1
+fi
+
+VOLUME_NAME="CursorPace"
+# Finder draws a disk-image background only from a TIFF. This is the 540x380
+# arrow used by the default electron-builder DMG (the Transrewrt layout):
+# 80px icons, app at (130, 220), Applications at (410, 220).
+BACKGROUND_TIFF="$REPO_ROOT/packaging/dmg-background.tiff"
+if [[ ! -f "$BACKGROUND_TIFF" ]]; then
+  echo "Error: DMG background not found: $BACKGROUND_TIFF" >&2
+  exit 1
+fi
+
+if [[ -d "/Volumes/$VOLUME_NAME" ]]; then
+  echo "Error: /Volumes/$VOLUME_NAME is already mounted. Unmount it and retry." >&2
+  exit 1
+fi
+
+DMGBUILD_VERSION="1.6.5"
+PY_TARGET="$BUILD_DIR/py"
+if ! PYTHONPATH="$PY_TARGET" python3 -c 'import dmgbuild' >/dev/null 2>&1; then
+  echo "Installing dmgbuild $DMGBUILD_VERSION ..."
+  pip_args=(install --disable-pip-version-check --target "$PY_TARGET" "dmgbuild==$DMGBUILD_VERSION")
+  if python3 -m pip install --help 2>/dev/null | grep -q -- '--break-system-packages'; then
+    pip_args+=(--break-system-packages)
+  fi
+  python3 -m pip "${pip_args[@]}"
+fi
+
+SETTINGS="$BUILD_DIR/dmg-settings.py"
+python3 - "$SETTINGS" "$BUNDLE_DIR" "$BACKGROUND_TIFF" <<'PY'
+import sys
+
+settings_path, app_path, background_path = sys.argv[1:]
+with open(settings_path, "w", encoding="utf-8") as handle:
+    handle.write(
+        "files = [(%r, 'CursorPace.app')]\n"
+        "symlinks = {'Applications': '/Applications'}\n"
+        "icon_locations = {\n"
+        "    'CursorPace.app': (130, 220),\n"
+        "    'Applications': (410, 220),\n"
+        "}\n"
+        "background = %r\n"
+        "window_rect = ((200, 120), (540, 380))\n"
+        "icon_size = 80\n"
+        "text_size = 12\n"
+        "format = 'UDZO'\n"
+        "filesystem = 'HFS+'\n" % (app_path, background_path)
+    )
+PY
+
+ARCHIVE_NAME="CursorPace-$VERSION-$RID.dmg"
 ARCHIVE_PATH="$REPO_ROOT/installer/$ARCHIVE_NAME"
 rm -f "$ARCHIVE_PATH"
-(
-  cd "$BUILD_DIR"
-  ditto -c -k --sequesterRsrc --keepParent "$BUNDLE_NAME" "$ARCHIVE_PATH"
-)
+# dmgbuild 1.6 also writes a pBBk bookmark. Finder on this macOS then ignores
+# the background picture (the arrow) and shows the system window color instead.
+# Skip that record so only the alias remains, matching a working Transrewrt DMG.
+PYTHONPATH="$PY_TARGET${PYTHONPATH:+:$PYTHONPATH}" python3 - "$SETTINGS" "$VOLUME_NAME" "$ARCHIVE_PATH" <<'PY'
+import sys
+
+import dmgbuild
+import ds_store.store as store
+
+settings_path, volume_name, output_path = sys.argv[1:]
+original = store.DSStore.Partial.__setitem__
+
+
+def skip_background_bookmark(self, code, value):
+    if code in ("pBBk", b"pBBk"):
+        return
+    original(self, code, value)
+
+
+store.DSStore.Partial.__setitem__ = skip_background_bookmark
+dmgbuild.build_dmg(output_path, volume_name, settings_path, lookForHiDPI=False)
+PY
 
 if command -v shasum >/dev/null 2>&1; then
   HASH="$(shasum -a 256 "$ARCHIVE_PATH" | awk '{print toupper($1)}')"
@@ -173,6 +246,6 @@ HASH_PATH="$ARCHIVE_PATH.sha256"
 printf '%s  %s\n' "$HASH" "$ARCHIVE_NAME" >"$HASH_PATH"
 
 echo "App bundle: $BUNDLE_DIR"
-echo "Archive:    $ARCHIVE_PATH"
+echo "DMG:        $ARCHIVE_PATH"
 echo "SHA256:     $HASH"
 echo "Checksum:   $HASH_PATH"
