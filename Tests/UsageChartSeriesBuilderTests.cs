@@ -264,6 +264,51 @@ public class UsageChartSeriesBuilderTests
     }
 
     [Fact]
+    public void ClassifyUsagePace_RoundsToTheDisplayedDecimalBeforeSigning()
+    {
+        Assert.Equal(UsagePace.OnPace, UsageChartSeriesBuilder.ClassifyUsagePace(0m));
+        Assert.Equal(UsagePace.OnPace, UsageChartSeriesBuilder.ClassifyUsagePace(0.04m));
+        Assert.Equal(UsagePace.OnPace, UsageChartSeriesBuilder.ClassifyUsagePace(-0.04m));
+        Assert.Equal(UsagePace.Over, UsageChartSeriesBuilder.ClassifyUsagePace(0.05m));
+        Assert.Equal(UsagePace.Under, UsageChartSeriesBuilder.ClassifyUsagePace(-0.05m));
+        Assert.Equal(SignedPercent(0m), UsageChartSeriesBuilder.FormatPaceDelta(0.04m));
+        Assert.Equal(SignedPercent(0.1m), UsageChartSeriesBuilder.FormatPaceDelta(0.05m));
+        Assert.Equal(SignedPercent(-0.1m), UsageChartSeriesBuilder.FormatPaceDelta(-0.05m));
+        Assert.Equal("on expected usage", UsageChartSeriesBuilder.FormatPaceHint(0.04m));
+        Assert.Equal(PercentLabel(0.1m) + " over expected", UsageChartSeriesBuilder.FormatPaceHint(0.05m));
+        Assert.Equal(PercentLabel(0.1m) + " under expected", UsageChartSeriesBuilder.FormatPaceHint(-0.05m));
+    }
+
+    [Fact]
+    public void InstantAtLinearExpectedPercent_UsesTheDisplayedPercentOnTheStraightLine()
+    {
+        var cycle = MidnightCycle();
+        var cycleSeconds = CycleCalculator.CycleSeconds(cycle);
+
+        Assert.Equal(cycle.CycleStart, UsageChartSeriesBuilder.InstantAtLinearExpectedPercent(cycle, 0m));
+        Assert.Equal(cycle.NextRenewal, UsageChartSeriesBuilder.InstantAtLinearExpectedPercent(cycle, 100m));
+        Assert.Equal(cycle.NextRenewal, UsageChartSeriesBuilder.InstantAtLinearExpectedPercent(cycle, 100.04m));
+
+        var at45 = UsageChartSeriesBuilder.InstantAtLinearExpectedPercent(cycle, 45.04m);
+        var elapsed = CycleCalculator.AxisSeconds(cycle, at45);
+        Assert.Equal(45m, decimal.Round(100m * elapsed / cycleSeconds, 1, MidpointRounding.AwayFromZero));
+    }
+
+    [Fact]
+    public void FormatPaceWait_DropsMinutesOnceADayIsShowing()
+    {
+        Assert.Equal("now", UsageChartSeriesBuilder.FormatPaceWait(TimeSpan.Zero));
+        Assert.Equal("now", UsageChartSeriesBuilder.FormatPaceWait(TimeSpan.FromSeconds(-5)));
+        Assert.Equal("now", UsageChartSeriesBuilder.FormatPaceWait(TimeSpan.FromSeconds(30)));
+        Assert.Equal("47m", UsageChartSeriesBuilder.FormatPaceWait(TimeSpan.FromMinutes(47)));
+        Assert.Equal("7h 47m", UsageChartSeriesBuilder.FormatPaceWait(TimeSpan.FromHours(7) + TimeSpan.FromMinutes(47)));
+        Assert.Equal("1d", UsageChartSeriesBuilder.FormatPaceWait(TimeSpan.FromDays(1)));
+        Assert.Equal(
+            "4d 7h",
+            UsageChartSeriesBuilder.FormatPaceWait(TimeSpan.FromDays(4) + TimeSpan.FromHours(7) + TimeSpan.FromMinutes(47)));
+    }
+
+    [Fact]
     public void LastUsagePoint_SharesXAndLinearExpectedAtThatInstant()
     {
         var cycle = MidnightCycle();

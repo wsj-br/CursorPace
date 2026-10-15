@@ -46,6 +46,7 @@ public partial class UsageChartControl : UserControl
     private Rect _plot;
     private decimal _xMin;
     private decimal _xMax;
+    private decimal? _hoverSnapX;
 
     private static readonly Color ExpectedUsageColor = Color.FromArgb(255, 100, 116, 139);
     private static readonly Color CursorEstimatedColor = Color.FromArgb(255, 21, 128, 61);
@@ -355,7 +356,15 @@ public partial class UsageChartControl : UserControl
             return;
         }
 
-        var x = AxisXFromPlot(position.X);
+        var pointerX = AxisXFromPlot(position.X);
+        List<decimal> measured = document.UsesIntradayAxis ? MeasuredHoverXs(document) : [];
+        var x = UsageChartMath.ResolveHoverX(
+            pointerX,
+            _hoverSnapX,
+            measured,
+            _xMax - _xMin,
+            _plot.Width);
+        _hoverSnapX = measured.Contains(x) ? x : null;
         var readout = UsageChartMath.Read(document, x);
         var px = MapX(x, _plot, _xMin, _xMax);
 
@@ -373,16 +382,22 @@ public partial class UsageChartControl : UserControl
         var expectedBrush = new SolidColorBrush(ThemeColor("ChartExpectedUsageColor", ExpectedUsageColor));
         var showZoomChange = document.IsCustomViewport;
         HoverTimeText.Text = readout.LocalTime.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture);
-        HoverCursorText.Text = "Cursor " + FormatHoverPercent(readout.CursorPercent);
-        HoverOtherText.Text = "Other " + FormatHoverPercent(readout.OtherPercent);
+        HoverCursorText.Text = FormatHoverSeries("Cursor", readout.CursorPercent, readout.CursorIsEstimated);
+        HoverOtherText.Text = FormatHoverSeries("Other", readout.OtherPercent, readout.OtherIsEstimated);
         HoverExpectedText.Text = "Expected usage " + UsageChartSeriesBuilder.FormatEndpointPercent(readout.ExpectedPercent);
         HoverCursorDeltaText.IsVisible = showZoomChange;
         HoverOtherDeltaText.IsVisible = showZoomChange;
         HoverExpectedDeltaText.IsVisible = showZoomChange;
         if (showZoomChange)
         {
-            HoverCursorDeltaText.Text = FormatRangeChange(readout.CursorStartPercent, readout.CursorDelta);
-            HoverOtherDeltaText.Text = FormatRangeChange(readout.OtherStartPercent, readout.OtherDelta);
+            HoverCursorDeltaText.Text = FormatRangeChange(
+                readout.CursorStartPercent,
+                readout.CursorDelta,
+                readout.CursorStartIsEstimated);
+            HoverOtherDeltaText.Text = FormatRangeChange(
+                readout.OtherStartPercent,
+                readout.OtherDelta,
+                readout.OtherStartIsEstimated);
             HoverExpectedDeltaText.Text = FormatRangeChange(readout.ExpectedStartPercent, readout.ExpectedDelta);
         }
         HoverCursorText.Foreground = cursorBrush;
@@ -398,21 +413,48 @@ public partial class UsageChartControl : UserControl
 
     private void HideHover()
     {
+        _hoverSnapX = null;
         if (HoverCanvas == null || HoverBox == null)
             return;
         HoverCanvas.Children.Clear();
         HoverBox.IsVisible = false;
     }
 
+    private static List<decimal> MeasuredHoverXs(UsageChartDocument document)
+    {
+        var xs = new List<decimal>();
+        AddMeasuredXs(document.CursorUsage, xs);
+        AddMeasuredXs(document.OtherUsage, xs);
+        return xs;
+    }
+
+    private static void AddMeasuredXs(IReadOnlyList<UsageChartPoint> points, List<decimal> xs)
+    {
+        foreach (var point in points)
+        {
+            if (point.IsMeasured && !xs.Contains(point.X))
+                xs.Add(point.X);
+        }
+    }
+
+    private static string FormatHoverSeries(string name, decimal? percent, bool estimated)
+    {
+        var text = name + " " + FormatHoverPercent(percent);
+        return estimated ? text + " estimated" : text;
+    }
+
     private static string FormatHoverPercent(decimal? percent) =>
         percent.HasValue ? UsageChartSeriesBuilder.FormatEndpointPercent(percent.Value) : "—";
 
-    private static string FormatRangeChange(decimal? start, decimal? delta)
+    private static string FormatRangeChange(decimal? start, decimal? delta, bool startEstimated)
     {
         var change = delta.HasValue
             ? UsageChartSeriesBuilder.FormatSignedEndpointPercent(delta.Value)
             : "—";
-        return "start " + FormatHoverPercent(start) + ", " + change;
+        var startText = FormatHoverPercent(start);
+        if (startEstimated)
+            startText += " estimated";
+        return "start " + startText + ", " + change;
     }
 
     private static string FormatRangeChange(decimal start, decimal delta) =>

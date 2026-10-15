@@ -350,7 +350,10 @@ public class MainViewModelTests
 
         var runOut = calculator.EstimateRunOutInstant(cycle, QuotaKind.CursorModels, samples);
         Assert.NotNull(runOut);
-        Assert.Equal(runOut.Value.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CursorModelsRunOutText);
+        Assert.Equal("Cursor Models run out", vm.CursorForecastLabel);
+        Assert.Equal(runOut.Value.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CursorForecastText);
+        Assert.True(vm.CursorForecastIsRunOut);
+        Assert.False(vm.CursorForecastHasWait);
     }
 
     [Fact]
@@ -377,6 +380,184 @@ public class MainViewModelTests
         Assert.Equal(UsageChartSeriesBuilder.FormatEndpointPercent(44.4m), vm.LastMeasureCursorText);
         Assert.Equal(UsageChartSeriesBuilder.FormatEndpointPercent(52.2m), vm.LastMeasureOtherText);
         Assert.Equal(UsageChartSeriesBuilder.FormatEndpointPercent(expected), vm.LastMeasureExpectedText);
+        AssertLastMeasurePace(vm, 44.4m - expected, 52.2m - expected);
+        Assert.Equal(UsagePace.Under, vm.LastMeasureCursorPace);
+        Assert.Equal(UsagePace.Under, vm.LastMeasureOtherPace);
+    }
+
+    [Fact]
+    public void LastMeasureCard_MarksOnPaceAndOverAgainstLinearExpected()
+    {
+        var calculator = new CycleCalculator();
+        var start = new DateTime(2026, 8, 1);
+        var end = new DateTime(2026, 9, 1);
+        var cycle = calculator.GenerateCycleFromBounds(start, end);
+        var latest = new DateTime(2026, 8, 18, 9, 0, 0);
+        var elapsed = CycleCalculator.AxisSeconds(cycle, latest);
+        var expected = UsageChartSeriesBuilder.LinearExpectedPercent(CycleCalculator.CycleSeconds(cycle), elapsed);
+        var vm = CreateViewModel(
+            new FakeSync
+            {
+                IsSignedIn = true,
+                Status = SyncStatus.Ok,
+                Samples = [SampleAt(latest, expected, expected + 6.4m)]
+            },
+            new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } });
+
+        AssertLastMeasurePace(vm, 0m, 6.4m);
+        Assert.Equal(UsagePace.OnPace, vm.LastMeasureCursorPace);
+        Assert.Equal(UsagePace.Over, vm.LastMeasureOtherPace);
+        Assert.Equal("on expected usage", vm.LastMeasureCursorPaceHint);
+        Assert.Equal(
+            UsageChartSeriesBuilder.FormatEndpointPercent(6.4m) + " over expected",
+            vm.LastMeasureOtherPaceHint);
+    }
+
+    [Fact]
+    public void LastMeasureCard_WithoutSample_HidesPaceDelta()
+    {
+        var vm = CreateInitializedViewModel(signedIn: true);
+
+        Assert.Equal("—", vm.LastMeasureCursorText);
+        Assert.Equal("—", vm.LastMeasureOtherText);
+        Assert.Equal("—", vm.LastMeasureExpectedText);
+        Assert.False(vm.LastMeasureHasSample);
+        Assert.Equal(string.Empty, vm.LastMeasureCursorDeltaText);
+        Assert.Equal(string.Empty, vm.LastMeasureOtherDeltaText);
+        Assert.Null(vm.LastMeasureCursorPace);
+        Assert.Null(vm.LastMeasureOtherPace);
+        Assert.False(vm.LastMeasureCursorIsUnder);
+        Assert.False(vm.LastMeasureCursorIsOver);
+        Assert.False(vm.LastMeasureCursorIsOnPace);
+        Assert.False(vm.LastMeasureOtherIsUnder);
+        Assert.False(vm.LastMeasureOtherIsOver);
+        Assert.False(vm.LastMeasureOtherIsOnPace);
+        Assert.Equal(string.Empty, vm.LastMeasureCursorPaceHint);
+        Assert.Equal(string.Empty, vm.LastMeasureOtherPaceHint);
+        Assert.Equal("Cursor Models run out", vm.CursorForecastLabel);
+        Assert.Equal("Other Models run out", vm.OtherForecastLabel);
+        Assert.Equal("—", vm.CursorForecastText);
+        Assert.Equal("—", vm.OtherForecastText);
+        Assert.False(vm.CursorForecastHasWait);
+        Assert.False(vm.OtherForecastHasWait);
+    }
+
+    [Fact]
+    public void ForecastCard_WhenAboveExpected_ShowsWhenTheLineCatchesTheReading()
+    {
+        var calculator = new CycleCalculator();
+        var start = new DateTime(2026, 8, 1);
+        var end = new DateTime(2026, 9, 1);
+        var cycle = calculator.GenerateCycleFromBounds(start, end);
+        var latest = start.AddDays(9);
+        var samples = new List<UsageSample>
+        {
+            SampleAt(start, 40m, 5m),
+            SampleAt(latest, 40m, 5m)
+        };
+        var clock = new FakeClock { Now = latest };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok, Samples = samples },
+            new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } },
+            new FakeStartup(),
+            clock);
+
+        var caught = UsageChartSeriesBuilder.InstantAtLinearExpectedPercent(cycle, 40m);
+        var shown = UsageChartSeriesBuilder.FormatEndpointPercent(40m);
+        Assert.Null(calculator.EstimateRunOutInstant(cycle, QuotaKind.CursorModels, samples));
+        Assert.Equal("Cursor back on pace", vm.CursorForecastLabel);
+        Assert.Equal(caught.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CursorForecastText);
+        Assert.Equal("in " + UsageChartSeriesBuilder.FormatPaceWait(caught - latest), vm.CursorForecastWait);
+        Assert.True(vm.CursorForecastHasWait);
+        Assert.True(vm.CursorForecastIsBackOnPace);
+        Assert.Equal(
+            $"Expected usage reaches {shown} then, if this reading stays at {shown}.",
+            vm.CursorForecastHint);
+
+        var projected = calculator.ProjectedPercentAt(cycle, QuotaKind.OtherModels, end, samples);
+        Assert.Equal("Other Models at renewal", vm.OtherForecastLabel);
+        Assert.Equal(UsageChartSeriesBuilder.FormatEndpointPercent(projected!.Value), vm.OtherForecastText);
+        Assert.True(vm.OtherForecastIsAtRenewal);
+        Assert.False(vm.OtherForecastHasWait);
+    }
+
+    [Fact]
+    public void ForecastCard_OnPaceAfterRounding_ShowsRenewalProjection()
+    {
+        var calculator = new CycleCalculator();
+        var start = new DateTime(2026, 8, 1);
+        var cycle = calculator.GenerateCycleFromBounds(start, new DateTime(2026, 9, 1));
+        var vm = CreateViewModel(
+            new FakeSync
+            {
+                IsSignedIn = true,
+                Status = SyncStatus.Ok,
+                Samples = [SampleAt(start, 0.04m, 0m)]
+            },
+            new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } });
+
+        Assert.Equal(UsagePace.OnPace, vm.LastMeasureCursorPace);
+        Assert.Equal("Cursor Models at renewal", vm.CursorForecastLabel);
+        Assert.Equal("—", vm.CursorForecastText);
+        Assert.True(vm.CursorForecastIsAtRenewal);
+        Assert.False(vm.CursorForecastIsBackOnPace);
+    }
+
+    [Fact]
+    public void ForecastCard_RunOutWinsWhenTheEstimateHits100InsideTheCycle()
+    {
+        var calculator = new CycleCalculator();
+        var start = new DateTime(2026, 8, 2);
+        var end = start.AddDays(31);
+        var cycle = calculator.GenerateCycleFromBounds(start, end);
+        var samples = new List<UsageSample>
+        {
+            SampleAt(start, 0m, 0m),
+            SampleAt(start.AddDays(10), 50m, 10m)
+        };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok, Samples = samples },
+            new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } });
+
+        var runOut = calculator.EstimateRunOutInstant(cycle, QuotaKind.CursorModels, samples);
+        Assert.NotNull(runOut);
+        Assert.Equal("Cursor Models run out", vm.CursorForecastLabel);
+        Assert.Equal(runOut.Value.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CursorForecastText);
+        Assert.True(vm.CursorForecastIsRunOut);
+        Assert.Equal("Other Models at renewal", vm.OtherForecastLabel);
+        Assert.True(vm.OtherForecastIsAtRenewal);
+    }
+
+    [Fact]
+    public void ForecastCard_ArchivedCycle_ShowsTheCatchUpDateWithoutAWait()
+    {
+        var calculator = new CycleCalculator();
+        var previous = calculator.GenerateCycleFromBounds(new DateTime(2026, 7, 1), new DateTime(2026, 8, 1));
+        var live = calculator.GenerateCycleFromBounds(new DateTime(2026, 8, 1), new DateTime(2026, 9, 1));
+        var latest = new DateTime(2026, 7, 10);
+        var vm = CreateViewModel(
+            new FakeSync
+            {
+                IsSignedIn = true,
+                Status = SyncStatus.Ok,
+                Samples =
+                [
+                    SampleAt(previous.CycleStart, 40m, 5m),
+                    SampleAt(latest, 40m, 5m)
+                ]
+            },
+            new FakePlanStore
+            {
+                Settings = new AppSettings { ActiveCycle = live, CycleHistory = [previous] }
+            });
+
+        vm.GoToPreviousCycleCommand.Execute(null);
+
+        var caught = UsageChartSeriesBuilder.InstantAtLinearExpectedPercent(previous, 40m);
+        Assert.Equal("Cursor back on pace", vm.CursorForecastLabel);
+        Assert.Equal(caught.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CursorForecastText);
+        Assert.False(vm.CursorForecastHasWait);
+        Assert.Equal(string.Empty, vm.CursorForecastWait);
     }
 
     [Fact]
@@ -1308,6 +1489,21 @@ public class MainViewModelTests
             IsSignedIn = signedIn,
             Status = signedIn ? SyncStatus.Ok : SyncStatus.SignedOut
         }, store);
+    }
+
+    private static void AssertLastMeasurePace(MainViewModel vm, decimal cursorDelta, decimal otherDelta)
+    {
+        Assert.True(vm.LastMeasureHasSample);
+        Assert.Equal(UsageChartSeriesBuilder.FormatPaceDelta(cursorDelta), vm.LastMeasureCursorDeltaText);
+        Assert.Equal(UsageChartSeriesBuilder.FormatPaceDelta(otherDelta), vm.LastMeasureOtherDeltaText);
+        Assert.Equal(UsageChartSeriesBuilder.FormatPaceHint(cursorDelta), vm.LastMeasureCursorPaceHint);
+        Assert.Equal(UsageChartSeriesBuilder.FormatPaceHint(otherDelta), vm.LastMeasureOtherPaceHint);
+        Assert.Equal(vm.LastMeasureCursorPace == UsagePace.Under, vm.LastMeasureCursorIsUnder);
+        Assert.Equal(vm.LastMeasureCursorPace == UsagePace.Over, vm.LastMeasureCursorIsOver);
+        Assert.Equal(vm.LastMeasureCursorPace == UsagePace.OnPace, vm.LastMeasureCursorIsOnPace);
+        Assert.Equal(vm.LastMeasureOtherPace == UsagePace.Under, vm.LastMeasureOtherIsUnder);
+        Assert.Equal(vm.LastMeasureOtherPace == UsagePace.Over, vm.LastMeasureOtherIsOver);
+        Assert.Equal(vm.LastMeasureOtherPace == UsagePace.OnPace, vm.LastMeasureOtherIsOnPace);
     }
 
     private static UsageSample SampleAt(DateTime local, decimal cursor, decimal other)

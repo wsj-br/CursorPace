@@ -112,6 +112,66 @@ public sealed class UsageChartSeriesBuilder
     public static string FormatSignedEndpointPercent(decimal percent) =>
         percent.ToString("+0.0;-0.0;0.0", CultureInfo.CurrentCulture) + "%";
 
+    public static UsagePace ClassifyUsagePace(decimal delta)
+    {
+        var rounded = RoundDisplayedDelta(delta);
+        if (rounded > 0m)
+            return UsagePace.Over;
+        if (rounded < 0m)
+            return UsagePace.Under;
+        return UsagePace.OnPace;
+    }
+
+    public static string FormatPaceDelta(decimal delta) =>
+        FormatSignedEndpointPercent(RoundDisplayedDelta(delta));
+
+    public static string FormatPaceHint(decimal delta)
+    {
+        var rounded = RoundDisplayedDelta(delta);
+        return ClassifyUsagePace(delta) switch
+        {
+            UsagePace.Under => FormatEndpointPercent(-rounded) + " under expected",
+            UsagePace.Over => FormatEndpointPercent(rounded) + " over expected",
+            UsagePace.OnPace => "on expected usage",
+            _ => throw new ArgumentOutOfRangeException(nameof(delta), delta, null)
+        };
+    }
+
+    public static DateTime InstantAtLinearExpectedPercent(QuotaCycle cycle, decimal percent)
+    {
+        var cycleSeconds = CycleCalculator.CycleSeconds(cycle);
+        var shown = RoundDisplayedDelta(percent);
+        if (cycleSeconds <= 0m || shown <= 0m)
+            return cycle.CycleStart;
+        if (shown >= 100m)
+            return cycle.NextRenewal;
+
+        var elapsed = cycleSeconds * shown / 100m;
+        return cycle.CycleStart.AddTicks(UsageChartMath.SecondsToTicks(elapsed));
+    }
+
+    public static string FormatPaceWait(TimeSpan wait)
+    {
+        if (wait <= TimeSpan.Zero)
+            return "now";
+
+        var totalMinutes = wait.Ticks / TimeSpan.TicksPerMinute;
+        if (totalMinutes < 1)
+            return "now";
+
+        var days = totalMinutes / (24 * 60);
+        var hours = totalMinutes % (24 * 60) / 60;
+        var minutes = totalMinutes % 60;
+        if (days > 0)
+            return hours > 0 ? $"{days}d {hours}h" : $"{days}d";
+        if (hours > 0)
+            return minutes > 0 ? $"{hours}h {minutes}m" : $"{hours}h";
+        return $"{minutes}m";
+    }
+
+    private static decimal RoundDisplayedDelta(decimal delta) =>
+        decimal.Round(delta, 1, MidpointRounding.AwayFromZero);
+
     private static List<UsageChartPoint> BuildExpected(QuotaCycle cycle) =>
     [
         new() { X = 0m, Y = 0m },

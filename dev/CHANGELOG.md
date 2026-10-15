@@ -8,6 +8,12 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-10-15
+
+- **Changed**: chart - while sample circles are shown, the hover guide snaps to a nearby sample time and stays there until the pointer moves clear of it.
+- **Changed**: chart - past the last measured sample, the hover readout shows the estimated Cursor and Other percents, labelled `estimated`, instead of a dash.
+- **Changed**: dashboard - when a model will not run out this cycle, its card shows when the dashed expected line catches a reading that is above that line, with the wait beside that date, or the projected percent at renewal when the reading is on or below it. A run-out date inside the cycle stays the headline.
+- **Added**: dashboard - the last-measure card shows how far Cursor and Other are from linear Expected usage, with an arrow and a signed percent.
 
 ## [0.3.3] - 2026-10-11
 

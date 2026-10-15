@@ -6,6 +6,8 @@ public static class UsageChartMath
 {
     public const decimal YTickStep = 10m;
     public const decimal YMaxPercent = 120m;
+    public const double HoverSnapAcquirePixels = 14;
+    public const double HoverSnapReleasePixels = 20;
     private const double LabelGapEpsilon = 1e-6;
 
     public static bool UsesRawSamples(UsageChartRange range, decimal maxSeconds) =>
@@ -379,6 +381,36 @@ public static class UsageChartMath
         return result;
     }
 
+    /// <summary>
+    /// Snaps <paramref name="pointerX"/> to a nearby measured sample. A snap stays until the pointer
+    /// moves past <see cref="HoverSnapReleasePixels"/>, unless a closer sample is inside
+    /// <see cref="HoverSnapAcquirePixels"/>.
+    /// </summary>
+    public static decimal ResolveHoverX(
+        decimal pointerX,
+        decimal? heldX,
+        IReadOnlyList<decimal> measuredXs,
+        decimal visibleSpan,
+        double plotWidth)
+    {
+        if (measuredXs.Count == 0 || plotWidth <= 0 || visibleSpan <= 0)
+            return pointerX;
+
+        var secondsPerPixel = visibleSpan / (decimal)plotWidth;
+        var acquire = secondsPerPixel * (decimal)HoverSnapAcquirePixels;
+        var release = secondsPerPixel * (decimal)HoverSnapReleasePixels;
+        var (nearest, nearestDistance) = NearestX(measuredXs, pointerX);
+        if (heldX is decimal held && ContainsX(measuredXs, held))
+        {
+            var heldDistance = Abs(pointerX - held);
+            var nearerAcquire = nearestDistance < heldDistance && nearestDistance <= acquire;
+            if (!nearerAcquire && heldDistance <= release)
+                return held;
+        }
+
+        return nearestDistance <= acquire ? nearest : pointerX;
+    }
+
     public static UsageChartHoverReadout Read(UsageChartDocument document, decimal x)
     {
         var clamped = x < document.VisibleStartX
@@ -386,11 +418,17 @@ public static class UsageChartMath
             : x > document.VisibleEndX
                 ? document.VisibleEndX
                 : x;
-        var cursor = InterpolateY(document.CursorUsage, clamped);
-        var other = InterpolateY(document.OtherUsage, clamped);
+        var (cursor, cursorEstimated) = ObservedOrEstimated(document.CursorUsage, document.CursorEstimated, clamped);
+        var (other, otherEstimated) = ObservedOrEstimated(document.OtherUsage, document.OtherEstimated, clamped);
         var expected = ExpectedAt(document, clamped);
-        var cursorStart = InterpolateY(document.CursorUsage, document.VisibleStartX);
-        var otherStart = InterpolateY(document.OtherUsage, document.VisibleStartX);
+        var (cursorStart, cursorStartEstimated) = ObservedOrEstimated(
+            document.CursorUsage,
+            document.CursorEstimated,
+            document.VisibleStartX);
+        var (otherStart, otherStartEstimated) = ObservedOrEstimated(
+            document.OtherUsage,
+            document.OtherEstimated,
+            document.VisibleStartX);
         var expectedStart = ExpectedAt(document, document.VisibleStartX);
         return new UsageChartHoverReadout(
             document.CycleStart.AddTicks(SecondsToTicks(clamped)),
@@ -402,8 +440,55 @@ public static class UsageChartMath
             expectedStart,
             Delta(cursor, cursorStart),
             Delta(other, otherStart),
-            expected - expectedStart);
+            expected - expectedStart,
+            cursorEstimated,
+            otherEstimated,
+            cursorStartEstimated,
+            otherStartEstimated);
     }
+
+    private static (decimal? Value, bool IsEstimated) ObservedOrEstimated(
+        IReadOnlyList<UsageChartPoint> observed,
+        IReadOnlyList<UsageChartPoint> estimated,
+        decimal x)
+    {
+        var measured = InterpolateY(observed, x);
+        if (measured.HasValue)
+            return (measured, false);
+
+        var forecast = InterpolateY(estimated, x);
+        return (forecast, forecast.HasValue);
+    }
+
+    private static (decimal X, decimal Distance) NearestX(IReadOnlyList<decimal> xs, decimal pointerX)
+    {
+        var nearest = xs[0];
+        var nearestDistance = Abs(pointerX - nearest);
+        for (var i = 1; i < xs.Count; i++)
+        {
+            var distance = Abs(pointerX - xs[i]);
+            if (distance < nearestDistance || (distance == nearestDistance && xs[i] < nearest))
+            {
+                nearest = xs[i];
+                nearestDistance = distance;
+            }
+        }
+
+        return (nearest, nearestDistance);
+    }
+
+    private static bool ContainsX(IReadOnlyList<decimal> xs, decimal x)
+    {
+        foreach (var candidate in xs)
+        {
+            if (candidate == x)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static decimal Abs(decimal value) => value < 0 ? -value : value;
 
     private static void PlaceEndpointCluster(
         double[] anchors,
@@ -728,4 +813,8 @@ public readonly record struct UsageChartHoverReadout(
     decimal ExpectedStartPercent,
     decimal? CursorDelta,
     decimal? OtherDelta,
-    decimal ExpectedDelta);
+    decimal ExpectedDelta,
+    bool CursorIsEstimated,
+    bool OtherIsEstimated,
+    bool CursorStartIsEstimated,
+    bool OtherStartIsEstimated);

@@ -121,9 +121,41 @@ public sealed class MainViewModel : ViewModelBase
         ? _displayedCycle.NextRenewal.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
         : string.Empty;
 
-    public string CursorModelsRunOutText => FormatRunOutDate(QuotaKind.CursorModels);
+    public string CursorForecastLabel => Forecast(QuotaKind.CursorModels).Label;
 
-    public string OtherModelsRunOutText => FormatRunOutDate(QuotaKind.OtherModels);
+    public string OtherForecastLabel => Forecast(QuotaKind.OtherModels).Label;
+
+    public string CursorForecastText => Forecast(QuotaKind.CursorModels).Value;
+
+    public string OtherForecastText => Forecast(QuotaKind.OtherModels).Value;
+
+    public string CursorForecastWait => Forecast(QuotaKind.CursorModels).Wait;
+
+    public string OtherForecastWait => Forecast(QuotaKind.OtherModels).Wait;
+
+    public bool CursorForecastHasWait => CursorForecastWait.Length > 0;
+
+    public bool OtherForecastHasWait => OtherForecastWait.Length > 0;
+
+    public string CursorForecastHint => Forecast(QuotaKind.CursorModels).Hint;
+
+    public string OtherForecastHint => Forecast(QuotaKind.OtherModels).Hint;
+
+    public bool CursorForecastIsRunOut => Forecast(QuotaKind.CursorModels).Kind == QuotaForecastKind.RunOut;
+
+    public bool OtherForecastIsRunOut => Forecast(QuotaKind.OtherModels).Kind == QuotaForecastKind.RunOut;
+
+    public bool CursorForecastIsBackOnPace => Forecast(QuotaKind.CursorModels).Kind == QuotaForecastKind.BackOnPace;
+
+    public bool OtherForecastIsBackOnPace => Forecast(QuotaKind.OtherModels).Kind == QuotaForecastKind.BackOnPace;
+
+    public bool CursorForecastIsAtRenewal => Forecast(QuotaKind.CursorModels).Kind == QuotaForecastKind.AtRenewal;
+
+    public bool OtherForecastIsAtRenewal => Forecast(QuotaKind.OtherModels).Kind == QuotaForecastKind.AtRenewal;
+
+    public bool CursorForecastIsUnknown => Forecast(QuotaKind.CursorModels).Kind == QuotaForecastKind.Unknown;
+
+    public bool OtherForecastIsUnknown => Forecast(QuotaKind.OtherModels).Kind == QuotaForecastKind.Unknown;
 
     public string LastMeasureTimeText => FormatLastMeasure(sample =>
         sample.TimestampUtc.LocalDateTime.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture));
@@ -134,18 +166,36 @@ public sealed class MainViewModel : ViewModelBase
     public string LastMeasureOtherText => FormatLastMeasure(sample =>
         UsageChartSeriesBuilder.FormatEndpointPercent(sample.OtherModelsPercent));
 
-    public string LastMeasureExpectedText
-    {
-        get
-        {
-            if (_displayedCycle == null || LatestDisplayedSample() is not { } sample)
-                return "—";
+    public string LastMeasureExpectedText =>
+        GetLastMeasure() is { } measure
+            ? UsageChartSeriesBuilder.FormatEndpointPercent(measure.Expected)
+            : "—";
 
-            var elapsed = CycleCalculator.AxisSeconds(_displayedCycle, sample.TimestampUtc.LocalDateTime);
-            return UsageChartSeriesBuilder.FormatEndpointPercent(
-                UsageChartSeriesBuilder.LinearExpectedPercent(CycleCalculator.CycleSeconds(_displayedCycle), elapsed));
-        }
-    }
+    public bool LastMeasureHasSample => GetLastMeasure() != null;
+
+    public string LastMeasureCursorDeltaText => FormatLastMeasureDelta(sample => sample.CursorModelsPercent);
+
+    public string LastMeasureOtherDeltaText => FormatLastMeasureDelta(sample => sample.OtherModelsPercent);
+
+    public UsagePace? LastMeasureCursorPace => ClassifyLastMeasure(sample => sample.CursorModelsPercent);
+
+    public UsagePace? LastMeasureOtherPace => ClassifyLastMeasure(sample => sample.OtherModelsPercent);
+
+    public bool LastMeasureCursorIsUnder => LastMeasureCursorPace == UsagePace.Under;
+
+    public bool LastMeasureCursorIsOver => LastMeasureCursorPace == UsagePace.Over;
+
+    public bool LastMeasureCursorIsOnPace => LastMeasureCursorPace == UsagePace.OnPace;
+
+    public bool LastMeasureOtherIsUnder => LastMeasureOtherPace == UsagePace.Under;
+
+    public bool LastMeasureOtherIsOver => LastMeasureOtherPace == UsagePace.Over;
+
+    public bool LastMeasureOtherIsOnPace => LastMeasureOtherPace == UsagePace.OnPace;
+
+    public string LastMeasureCursorPaceHint => FormatLastMeasureHint(sample => sample.CursorModelsPercent);
+
+    public string LastMeasureOtherPaceHint => FormatLastMeasureHint(sample => sample.OtherModelsPercent);
 
     public string TrayToolTipText
     {
@@ -555,12 +605,41 @@ public sealed class MainViewModel : ViewModelBase
 
     private void NotifyTodayQuotaTexts()
     {
-        OnPropertyChanged(nameof(CursorModelsRunOutText));
-        OnPropertyChanged(nameof(OtherModelsRunOutText));
+        OnPropertyChanged(nameof(CursorForecastLabel));
+        OnPropertyChanged(nameof(OtherForecastLabel));
+        OnPropertyChanged(nameof(CursorForecastText));
+        OnPropertyChanged(nameof(OtherForecastText));
+        OnPropertyChanged(nameof(CursorForecastWait));
+        OnPropertyChanged(nameof(OtherForecastWait));
+        OnPropertyChanged(nameof(CursorForecastHasWait));
+        OnPropertyChanged(nameof(OtherForecastHasWait));
+        OnPropertyChanged(nameof(CursorForecastHint));
+        OnPropertyChanged(nameof(OtherForecastHint));
+        OnPropertyChanged(nameof(CursorForecastIsRunOut));
+        OnPropertyChanged(nameof(OtherForecastIsRunOut));
+        OnPropertyChanged(nameof(CursorForecastIsBackOnPace));
+        OnPropertyChanged(nameof(OtherForecastIsBackOnPace));
+        OnPropertyChanged(nameof(CursorForecastIsAtRenewal));
+        OnPropertyChanged(nameof(OtherForecastIsAtRenewal));
+        OnPropertyChanged(nameof(CursorForecastIsUnknown));
+        OnPropertyChanged(nameof(OtherForecastIsUnknown));
         OnPropertyChanged(nameof(LastMeasureTimeText));
         OnPropertyChanged(nameof(LastMeasureCursorText));
         OnPropertyChanged(nameof(LastMeasureOtherText));
         OnPropertyChanged(nameof(LastMeasureExpectedText));
+        OnPropertyChanged(nameof(LastMeasureHasSample));
+        OnPropertyChanged(nameof(LastMeasureCursorDeltaText));
+        OnPropertyChanged(nameof(LastMeasureOtherDeltaText));
+        OnPropertyChanged(nameof(LastMeasureCursorPace));
+        OnPropertyChanged(nameof(LastMeasureOtherPace));
+        OnPropertyChanged(nameof(LastMeasureCursorIsUnder));
+        OnPropertyChanged(nameof(LastMeasureCursorIsOver));
+        OnPropertyChanged(nameof(LastMeasureCursorIsOnPace));
+        OnPropertyChanged(nameof(LastMeasureOtherIsUnder));
+        OnPropertyChanged(nameof(LastMeasureOtherIsOver));
+        OnPropertyChanged(nameof(LastMeasureOtherIsOnPace));
+        OnPropertyChanged(nameof(LastMeasureCursorPaceHint));
+        OnPropertyChanged(nameof(LastMeasureOtherPaceHint));
         OnPropertyChanged(nameof(TrayToolTipText));
     }
 
@@ -568,6 +647,32 @@ public sealed class MainViewModel : ViewModelBase
     {
         var sample = LatestDisplayedSample();
         return sample == null ? "—" : format(sample);
+    }
+
+    private string FormatLastMeasureDelta(Func<UsageSample, decimal> percent) =>
+        GetLastMeasure() is { } measure
+            ? UsageChartSeriesBuilder.FormatPaceDelta(percent(measure.Sample) - measure.Expected)
+            : string.Empty;
+
+    private UsagePace? ClassifyLastMeasure(Func<UsageSample, decimal> percent) =>
+        GetLastMeasure() is { } measure
+            ? UsageChartSeriesBuilder.ClassifyUsagePace(percent(measure.Sample) - measure.Expected)
+            : null;
+
+    private string FormatLastMeasureHint(Func<UsageSample, decimal> percent) =>
+        GetLastMeasure() is { } measure
+            ? UsageChartSeriesBuilder.FormatPaceHint(percent(measure.Sample) - measure.Expected)
+            : string.Empty;
+
+    private (UsageSample Sample, decimal Expected)? GetLastMeasure()
+    {
+        if (_displayedCycle == null || LatestDisplayedSample() is not { } sample)
+            return null;
+
+        var elapsed = CycleCalculator.AxisSeconds(_displayedCycle, sample.TimestampUtc.LocalDateTime);
+        var expected = UsageChartSeriesBuilder.LinearExpectedPercent(
+            CycleCalculator.CycleSeconds(_displayedCycle), elapsed);
+        return (sample, expected);
     }
 
     private UsageSample? LatestDisplayedSample()
@@ -588,16 +693,88 @@ public sealed class MainViewModel : ViewModelBase
         return latest;
     }
 
-    private string FormatRunOutDate(QuotaKind kind)
+    private readonly record struct QuotaForecast(QuotaForecastKind Kind, string Label, string Value, string Wait, string Hint);
+
+    private QuotaForecast Forecast(QuotaKind kind)
     {
         if (_displayedCycle == null)
-            return "—";
+            return new QuotaForecast(QuotaForecastKind.Unknown, RunOutLabel(kind), "—", string.Empty, string.Empty);
 
-        var instant = _calculator.EstimateRunOutInstant(_displayedCycle, kind, _sync.Samples);
-        return instant.HasValue
-            ? instant.Value.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
-            : "—";
+        var runOut = _calculator.EstimateRunOutInstant(_displayedCycle, kind, _sync.Samples);
+        if (runOut.HasValue)
+        {
+            return new QuotaForecast(
+                QuotaForecastKind.RunOut,
+                RunOutLabel(kind),
+                runOut.Value.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture),
+                string.Empty,
+                string.Empty);
+        }
+
+        if (GetLastMeasure() is not { } measure)
+            return new QuotaForecast(QuotaForecastKind.Unknown, RunOutLabel(kind), "—", string.Empty, string.Empty);
+
+        var percent = measure.Sample.GetPercent(kind);
+        var pace = UsageChartSeriesBuilder.ClassifyUsagePace(percent - measure.Expected);
+        if (pace == UsagePace.Over)
+        {
+            var instant = UsageChartSeriesBuilder.InstantAtLinearExpectedPercent(_displayedCycle, percent);
+            var shown = UsageChartSeriesBuilder.FormatEndpointPercent(percent);
+            var wait = IsViewingLiveCycle
+                ? FormatReturnWait(instant - _clock.Now)
+                : string.Empty;
+            return new QuotaForecast(
+                QuotaForecastKind.BackOnPace,
+                BackOnPaceLabel(kind),
+                instant.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture),
+                wait,
+                $"Expected usage reaches {shown} then, if this reading stays at {shown}.");
+        }
+
+        var projected = _calculator.ProjectedPercentAt(
+            _displayedCycle,
+            kind,
+            _displayedCycle.NextRenewal,
+            _sync.Samples);
+        return new QuotaForecast(
+            QuotaForecastKind.AtRenewal,
+            AtRenewalLabel(kind),
+            projected.HasValue
+                ? UsageChartSeriesBuilder.FormatEndpointPercent(projected.Value)
+                : "—",
+            string.Empty,
+            string.Empty);
     }
+
+    private static string FormatReturnWait(TimeSpan wait)
+    {
+        var duration = UsageChartSeriesBuilder.FormatPaceWait(wait);
+        return duration == "now" ? "now" : "in " + duration;
+    }
+
+    private static string RunOutLabel(QuotaKind kind) =>
+        kind switch
+        {
+            QuotaKind.CursorModels => "Cursor Models run out",
+            QuotaKind.OtherModels => "Other Models run out",
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
+        };
+
+    private static string BackOnPaceLabel(QuotaKind kind) =>
+        kind switch
+        {
+            QuotaKind.CursorModels => "Cursor back on pace",
+            QuotaKind.OtherModels => "Other back on pace",
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
+        };
+
+    private static string AtRenewalLabel(QuotaKind kind) =>
+        kind switch
+        {
+            QuotaKind.CursorModels => "Cursor Models at renewal",
+            QuotaKind.OtherModels => "Other Models at renewal",
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
+        };
 
     private bool TryGetLiveTodayDay(out QuotaDayEntry day)
     {

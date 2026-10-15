@@ -159,10 +159,148 @@ public class UsageChartRangeTests
 
         Assert.Equal(30m, midpoint.CursorPercent);
         Assert.Equal(60m, midpoint.OtherPercent);
+        Assert.False(midpoint.CursorIsEstimated);
+        Assert.False(midpoint.OtherIsEstimated);
         Assert.Equal(UsageChartSeriesBuilder.LinearExpectedPercent(document.CycleSeconds, midX), midpoint.ExpectedPercent);
         Assert.Null(gap.CursorPercent);
         Assert.Null(gap.OtherPercent);
+        Assert.False(gap.CursorIsEstimated);
+        Assert.False(gap.OtherIsEstimated);
         Assert.Equal(UsageChartSeriesBuilder.LinearExpectedPercent(document.CycleSeconds, before), gap.ExpectedPercent);
+    }
+
+    [Fact]
+    public void Hover_AfterLastSample_UsesEstimatedPolyline()
+    {
+        var cycle = MidnightCycle();
+        var last = cycle.CycleStart.AddDays(1);
+        var samples = new List<UsageSample>
+        {
+            SampleAt(cycle.CycleStart, 0m, 0m),
+            SampleAt(last, 80m, 40m)
+        };
+        var document = _builder.Build(cycle, _calculator, samples);
+        var x = UsageChartSeriesBuilder.ToAxisX(cycle, cycle.CycleStart.AddDays(10));
+
+        var readout = UsageChartMath.Read(document, x);
+
+        Assert.Equal(UsageChartMath.InterpolateY(document.CursorEstimated, x), readout.CursorPercent);
+        Assert.Equal(UsageChartMath.InterpolateY(document.OtherEstimated, x), readout.OtherPercent);
+        Assert.True(readout.CursorPercent > UsageChartMath.YMaxPercent);
+        Assert.True(readout.CursorIsEstimated);
+        Assert.True(readout.OtherIsEstimated);
+    }
+
+    [Fact]
+    public void Hover_OnLastSample_StaysMeasured()
+    {
+        var cycle = MidnightCycle();
+        var last = cycle.CycleStart.AddDays(10);
+        var samples = new List<UsageSample>
+        {
+            SampleAt(cycle.CycleStart, 0m, 0m),
+            SampleAt(last, 40m, 20m)
+        };
+        var document = _builder.Build(cycle, _calculator, samples);
+
+        var readout = UsageChartMath.Read(document, UsageChartSeriesBuilder.ToAxisX(cycle, last));
+
+        Assert.Equal(40m, readout.CursorPercent);
+        Assert.Equal(20m, readout.OtherPercent);
+        Assert.False(readout.CursorIsEstimated);
+        Assert.False(readout.OtherIsEstimated);
+    }
+
+    [Fact]
+    public void Hover_WithoutEstimate_StaysBlankAfterTheOnlySample()
+    {
+        var cycle = MidnightCycle();
+        var now = cycle.CycleStart.AddHours(12);
+        var sample = cycle.CycleStart.AddHours(6);
+        var document = _builder.Build(
+            cycle,
+            _calculator,
+            [SampleAt(sample, 10m, 4m)],
+            UsageChartRange.OneDay,
+            now,
+            isLiveCycle: true);
+
+        var readout = UsageChartMath.Read(document, UsageChartSeriesBuilder.ToAxisX(cycle, sample.AddHours(2)));
+
+        Assert.Null(readout.CursorPercent);
+        Assert.Null(readout.OtherPercent);
+        Assert.False(readout.CursorIsEstimated);
+        Assert.False(readout.OtherIsEstimated);
+    }
+
+    [Fact]
+    public void Hover_FutureZoomStart_UsesEstimatedDelta()
+    {
+        var cycle = MidnightCycle();
+        var last = cycle.CycleStart.AddDays(5);
+        var samples = new List<UsageSample>
+        {
+            SampleAt(cycle.CycleStart, 0m, 0m),
+            SampleAt(last, 20m, 10m)
+        };
+        var viewport = new UsageChartViewport(
+            UsageChartSeriesBuilder.ToAxisX(cycle, cycle.CycleStart.AddDays(10)),
+            UsageChartSeriesBuilder.ToAxisX(cycle, cycle.CycleStart.AddDays(20)));
+        var document = _builder.Build(cycle, _calculator, samples, viewport: viewport);
+
+        var readout = UsageChartMath.Read(document, viewport.EndX);
+
+        Assert.True(readout.CursorStartIsEstimated);
+        Assert.True(readout.OtherStartIsEstimated);
+        Assert.True(readout.CursorIsEstimated);
+        Assert.True(readout.OtherIsEstimated);
+        Assert.Equal(
+            UsageChartMath.InterpolateY(document.CursorEstimated, document.VisibleStartX),
+            readout.CursorStartPercent);
+        Assert.Equal(
+            UsageChartMath.InterpolateY(document.CursorEstimated, document.VisibleEndX),
+            readout.CursorPercent);
+        Assert.Equal(readout.CursorPercent - readout.CursorStartPercent, readout.CursorDelta);
+        Assert.Equal(readout.OtherPercent - readout.OtherStartPercent, readout.OtherDelta);
+    }
+
+    [Fact]
+    public void ResolveHoverX_AcquiresTheNearestSampleInside14px()
+    {
+        var sample = 100m;
+        var pointer = sample + SnapPixels(UsageChartMath.HoverSnapAcquirePixels);
+
+        Assert.Equal(sample, Resolve(pointer, held: null, sample, 400m));
+    }
+
+    [Fact]
+    public void ResolveHoverX_HoldsUntilThePointerMovesPast20px()
+    {
+        var held = 100m;
+        var inside = held + SnapPixels(UsageChartMath.HoverSnapReleasePixels);
+        var outside = held + SnapPixels(UsageChartMath.HoverSnapReleasePixels + 1);
+
+        Assert.Equal(held, Resolve(inside, held, held, 400m));
+        Assert.Equal(outside, Resolve(outside, held, held, 400m));
+    }
+
+    [Fact]
+    public void ResolveHoverX_SwitchesWhenACloserSampleIsInsideTheAcquireRadius()
+    {
+        var held = 0m;
+        var other = 30m;
+        var pointer = 16m;
+
+        Assert.Equal(other, Resolve(pointer, held, held, other));
+        Assert.Equal(held, Resolve(19m, held, held, 36m));
+    }
+
+    [Fact]
+    public void ResolveHoverX_FollowsThePointerWhenNothingIsClose()
+    {
+        Assert.Equal(50m, Resolve(50m, held: 10m));
+        Assert.Equal(50m, Resolve(50m, held: null, plotWidth: 0, 40m));
+        Assert.Equal(50m, Resolve(50m, held: 10m, 200m));
     }
 
     [Theory]
@@ -566,6 +704,21 @@ public class UsageChartRangeTests
 
     private QuotaCycle MidnightCycle() =>
         _calculator.GenerateCycleFromBounds(new DateTime(2026, 1, 1), new DateTime(2026, 2, 1));
+
+    private static decimal Resolve(
+        decimal pointerX,
+        decimal? held,
+        params decimal[] measured) =>
+        Resolve(pointerX, held, plotWidth: 1000, measured);
+
+    private static decimal Resolve(
+        decimal pointerX,
+        decimal? held,
+        double plotWidth,
+        params decimal[] measured) =>
+        UsageChartMath.ResolveHoverX(pointerX, held, measured, visibleSpan: 1000m, plotWidth);
+
+    private static decimal SnapPixels(double pixels) => (decimal)pixels;
 
     private static UsageSample SampleAt(DateTime local, decimal cursor, decimal other)
     {
