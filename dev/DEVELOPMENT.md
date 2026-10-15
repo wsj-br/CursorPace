@@ -306,7 +306,7 @@ What the scripts do:
 1. List what is behind (`--list` / `-List`). That is `dotnet list ./CursorPace.slnx package --outdated` (or `--vulnerable` when that flag is also set).
 2. Rewrite `PackageReference` versions, one project at a time. With no package list it takes every direct reference in that project to the highest version on the configured sources. Named packages are updated only in the project that references them. `--vulnerable` / `-Vulnerable` only lifts packages that NuGet Audit reports, and only to the lowest safe version.
 
-Keep `Avalonia`, `Avalonia.Desktop`, `Avalonia.Themes.Fluent`, and `Avalonia.Fonts.Inter` on the same version. The scripts fail if those four differ after an app-project update; pin with `@` as above if nuget.org published them out of lockstep. Keep `Avalonia.Controls.WebView` on the newest published version that matches that Avalonia line; it may lag (today Avalonia 12.1.2 with WebView 12.1.0), so do not force it to a version that is not on nuget.org. Do not mix Avalonia 11 and 12 packages.
+Keep `Avalonia`, `Avalonia.Desktop`, `Avalonia.Themes.Fluent`, and `Avalonia.Fonts.Inter` on the same version. The scripts fail if those four differ after an app-project update; pin with `@` as above if nuget.org published them out of lockstep. Keep `Avalonia.Controls.WebView` on the newest published version that matches that Avalonia line; it may lag (today Avalonia 12.1.4 with WebView 12.1.1), so do not force it to a version that is not on nuget.org. Do not mix Avalonia 11 and 12 packages.
 
 1. Refresh both lock files with `dotnet restore ./CursorPace.slnx --force-evaluate`.
 

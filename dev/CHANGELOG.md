@@ -8,6 +8,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Changed**: install - `Avalonia.Controls.WebView` 12.1.0 to 12.1.1. macOS keeps the local ABI-fixed 12.1.0 assemblies, because 12.1.1 still declares `CGRect` and `CGSize` with `float` fields.
+
 ## [0.3.4] - 2026-10-15
 
 - **Changed**: chart - while sample circles are shown, the hover guide snaps to a nearby sample time and stays there until the pointer moves clear of it.
