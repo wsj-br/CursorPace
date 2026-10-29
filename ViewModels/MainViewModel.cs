@@ -121,6 +121,13 @@ public sealed class MainViewModel : ViewModelBase
         ? _displayedCycle.NextRenewal.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
         : string.Empty;
 
+    public string NextRenewalWait =>
+        _displayedCycle != null && IsViewingLiveCycle
+            ? FormatReturnWait(_displayedCycle.NextRenewal - _clock.Now)
+            : string.Empty;
+
+    public bool NextRenewalHasWait => NextRenewalWait.Length > 0;
+
     public string CursorForecastLabel => Forecast(QuotaKind.CursorModels).Label;
 
     public string OtherForecastLabel => Forecast(QuotaKind.OtherModels).Label;
@@ -605,6 +612,8 @@ public sealed class MainViewModel : ViewModelBase
 
     private void NotifyTodayQuotaTexts()
     {
+        OnPropertyChanged(nameof(NextRenewalWait));
+        OnPropertyChanged(nameof(NextRenewalHasWait));
         OnPropertyChanged(nameof(CursorForecastLabel));
         OnPropertyChanged(nameof(OtherForecastLabel));
         OnPropertyChanged(nameof(CursorForecastText));

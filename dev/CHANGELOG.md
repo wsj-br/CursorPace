@@ -8,6 +8,9 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-10-29
+
+- **Added**: dashboard - the next renewal card shows how long until that instant on the live cycle, in the same form as the back-on-pace wait.
 - **Changed**: install - `Avalonia.Controls.WebView` 12.1.0 to 12.1.1. macOS keeps the local ABI-fixed 12.1.0 assemblies, because 12.1.1 still declares `CGRect` and `CGSize` with `float` fields.
 
 ## [0.3.4] - 2026-10-15

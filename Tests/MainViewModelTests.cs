@@ -357,6 +357,67 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void NextRenewalWait_LiveCycleShowsRemainingTime()
+    {
+        var calculator = new CycleCalculator();
+        var start = new DateTime(2026, 8, 1, 8, 0, 0);
+        var end = new DateTime(2026, 9, 1, 8, 0, 0);
+        var cycle = calculator.GenerateCycleFromBounds(start, end);
+        var clock = new FakeClock { Now = new DateTime(2026, 8, 18, 12, 0, 0) };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok },
+            new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } },
+            new FakeStartup(),
+            clock);
+
+        Assert.Equal(end.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.NextRenewalText);
+        Assert.Equal("in " + UsageChartSeriesBuilder.FormatPaceWait(end - clock.Now), vm.NextRenewalWait);
+        Assert.True(vm.NextRenewalHasWait);
+
+        clock.Now = end.AddHours(-7).AddMinutes(-47);
+        vm.CheckForNewDay();
+
+        Assert.Equal("in " + UsageChartSeriesBuilder.FormatPaceWait(end - clock.Now), vm.NextRenewalWait);
+        Assert.True(vm.NextRenewalHasWait);
+    }
+
+    [Fact]
+    public void NextRenewalWait_ArchivedCycleHidesRemainingTime()
+    {
+        var calculator = new CycleCalculator();
+        var previousStart = new DateTime(2026, 7, 1, 8, 0, 0);
+        var liveStart = new DateTime(2026, 8, 1, 8, 0, 0);
+        var previous = calculator.GenerateCycleFromBounds(previousStart, liveStart);
+        var live = calculator.GenerateCycleFromBounds(liveStart, new DateTime(2026, 9, 1, 8, 0, 0));
+        var clock = new FakeClock { Now = new DateTime(2026, 8, 18, 12, 0, 0) };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok },
+            new FakePlanStore
+            {
+                Settings = new AppSettings
+                {
+                    ActiveCycle = live,
+                    CycleHistory = [previous]
+                }
+            },
+            new FakeStartup(),
+            clock);
+
+        Assert.True(vm.NextRenewalHasWait);
+
+        vm.GoToPreviousCycleCommand.Execute(null);
+
+        Assert.Equal(liveStart.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.NextRenewalText);
+        Assert.Equal(string.Empty, vm.NextRenewalWait);
+        Assert.False(vm.NextRenewalHasWait);
+
+        vm.GoToNextCycleCommand.Execute(null);
+
+        Assert.Equal("in " + UsageChartSeriesBuilder.FormatPaceWait(live.NextRenewal - clock.Now), vm.NextRenewalWait);
+        Assert.True(vm.NextRenewalHasWait);
+    }
+
+    [Fact]
     public void LastMeasureCard_UsesNewestInCycleSample()
     {
         var calculator = new CycleCalculator();
