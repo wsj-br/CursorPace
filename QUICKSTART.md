@@ -4,159 +4,97 @@ End-user guide for Cursor Pace. For building from source, see [dev/DEVELOPMENT.m
 
 ## Install
 
-### Windows
+Download a build from this repository's Releases page.
 
-1. Download `CursorPace-*-win-x64-setup.exe` from this repository's Releases page.
-2. Run the installer. If SmartScreen warns that the app is unsigned, choose **More info**, then **Run anyway**.
-3. If the installer reports that Microsoft Edge WebView2 Runtime is missing, open the download page it offers. **Sign in** on Windows needs the runtime.
-4. Finish the wizard. The app launches when setup completes.
+**Windows.** Run `CursorPace-*-win-x64-setup.exe`. If SmartScreen warns that the app is unsigned, choose **More info**, then **Run anyway**. **Sign in** needs the [Microsoft Edge WebView2 Runtime](https://go.microsoft.com/fwlink/p/?LinkId=2124703). The installer offers the download page when it is missing.
 
-### Linux
+**Linux.** For most distros, `chmod +x CursorPace-*-linux-x64.AppImage` (or the `linux-arm64` file) and run it. On Debian or Ubuntu, `sudo apt install ./CursorPace-*-linux-x64.deb` (or `linux-arm64`) pulls in GTK and WebKit. Google sign-in may be blocked in WebKit; use GitHub, email, or sign in on Windows.
 
-**AppImage** (most distros):
-
-1. Download `CursorPace-*-linux-x64.AppImage` (x86_64) or `*-linux-arm64.AppImage` (ARM64) from Releases.
-2. Make it executable: `chmod +x CursorPace-*.AppImage`
-3. Run the AppImage (double-click or from a terminal). The bundle includes GTK/WebKit dependencies from the build host; most recent distros work without extra packages.
-
-**Debian / Ubuntu**:
-
-1. Download `CursorPace-*-linux-x64.deb` (amd64) or `*-linux-arm64.deb` (arm64) from Releases.
-2. Install with apt so GTK/WebKit dependencies are pulled in: `sudo apt install ./CursorPace-*.deb`
-
-Google sign-in may be blocked in WebKit; use GitHub, email, or sign in on Windows if needed.
-
-### macOS
-
-1. Download `CursorPace-*-osx-arm64.dmg` (Apple Silicon) or `*-osx-x64.dmg` (Intel) from Releases.
-2. Open the DMG and drag `CursorPace.app` to Applications (or run it from the volume).
-3. If Gatekeeper blocks the unsigned build, right-click **Open** once, then open **System Settings → Privacy & Security** and choose **Open Anyway**.
-4. Launch the app and sign in to Cursor.
+**macOS.** Open `CursorPace-*-osx-arm64.dmg` (Apple Silicon) or `*-osx-x64.dmg` (Intel) and drag `CursorPace.app` to Applications. If Gatekeeper blocks the unsigned app, right-click **Open** once, then choose **Open Anyway** in **System Settings → Privacy & Security**.
 
 ## First run
 
-**Start in notification tray** is on by default, so the first launch may show only the tray icon. Open the window from that icon, turn the setting off, or launch with `--show`. When running from source, `dev.ps1` and `dev.sh` show the window by default; use `-NoShow` or `--no-show` to use the app's normal startup visibility. The window starts with an empty state until you sign in:
+**Start in notification tray** is on by default, so the first launch may show only the tray icon. Open the window from that icon, or launch with `--show`.
 
 1. Choose **Sign in**.
-2. Complete Google, GitHub, or two-factor sign-in in the embedded window. The window closes when Cursor accepts the session. If you already see your account, choose **Continue**.
-3. After a successful update, the billing cycle and usage appear on the chart. A last-updated time appears under the month heading.
+2. Finish Google, GitHub, or two-factor sign-in in the embedded window. It closes when Cursor accepts the session. If you already see your account, choose **Continue**.
+3. The billing cycle and usage appear on the chart.
 
-You can also sign in later from **Settings**.
+You can sign in later from **Settings** → **Cursor account**. After a successful update that heading reads **Cursor account (connected)**. **Refresh** in the title bar, or **Refresh now** in Settings, fetches immediately.
 
-## Sign in to Cursor
+**Sign out** clears the Cursor session. On Windows and macOS a saved Google or GitHub login can remain, so the next sign-in may skip that password. On Linux, **Sign out** clears the whole browser profile. Usage samples stay on disk.
 
-Open **Settings** from the title bar if you are not already signed in.
-
-1. Under **Cursor account (disconnected)**, choose **Sign in**.
-2. Complete sign-in in the embedded window as above.
-3. After a successful update, the heading shows **Cursor account (connected)**.
-
-While signed in:
-
-- Usage samples are stored locally and plotted on the chart.
-- The billing cycle start and next renewal come from Cursor.
-- **Export Usage** appears next to **Export Cycle CSV**.
-
-Choose title-bar **Refresh** or Settings **Refresh now** to fetch immediately. On Linux that fetch uses a 1x1 transparent host and should not flash the sign-in window; the sign-in window still appears when the session needs it. **Sign out** clears the saved Cursor session. On Windows and macOS this keeps a Google or GitHub session stored in the app's private browser profile when possible, so signing in again may not ask for that password; on Linux the embedded WebKitGTK browser has no way to clear only the Cursor session, so **Sign out** clears the whole browser profile there, including Google/GitHub. Samples stay on disk until you delete `usage-samples.json` or uninstall.
-
-### Automatic updates
-
-With **Update usage automatically** on, refreshes run on the clock hour aligned to the interval:
-
-| Interval | Local times |
-| --- | --- |
-| 1h | 00:00, 01:00, 02:00, … |
-| 2h | 00:00, 02:00, 04:00, … |
-| 4h | 00:00, 04:00, 08:00, … |
-| 6h / 12h | same pattern from midnight |
-
-Launch never refreshes when the last successful update is under 20 minutes old. After that, a launch refresh runs only if a clock-aligned slot was missed or the last update is already older than the interval; otherwise the next refresh waits for the aligned timer.
+With **Update usage automatically** on, refreshes fall on a 1, 2, 4, 6, or 12 hour mark from local midnight. On launch, a refresh runs only after the last success is at least 20 minutes old and a scheduled slot was missed or the full interval has already elapsed.
 
 ## Main window
 
-The body is a usage chart for the displayed billing cycle. Three cards sit above it: cycle start and next renewal, with the time remaining until renewal beside that date on the live cycle, a forecast for each model, and the latest reading with its time, Cursor %, Other %, and Expected usage %. The forecast shows the run-out time when that estimate falls inside the cycle, with the time remaining until that instant beside the date on the live cycle. Otherwise a reading above the dashed expected line shows when that line reaches the current percent, and how long from now on the live cycle. A reading on or below the line shows the projected percent at renewal. Cursor and Other each show a signed difference from that expected pace: above it, below it, or on it. The heading shows the cycle-start month and year, with Previous/Next chevrons to move through stored cycles (disabled on the oldest cycle and on the current one) and the last-updated time under that heading.
+Three cards sit above the chart:
 
-The chart has range buttons: **1D**, **2D**, **7D**, **1W**, **2W**, and **1M**. **1D** is the last 24 hours and **2D** the last 48 hours. **7D** and **1W** are the last seven days, and **2W** is the last 14 days. At the default **14D** cutoff those ranges plot every sample in the window. **1M** shows the whole displayed cycle and keeps the last sample of each local day. On the current cycle a short range ends at the current time. On an earlier cycle it ends at that cycle's renewal. A range never starts before the cycle start, so early in a cycle **7D**, **1W**, and **2W** show only the days that have happened. Choosing a range fits the vertical axis to the values on screen, rounded outward to the next 10% step, and never above 120%.
+- **Cycle start** and **Next renewal**. On the live cycle, the time remaining sits beside the renewal date.
+- A forecast for each model. Inside the cycle this is the run-out time. Above the dashed expected line it is when that line catches the reading. On or below the line it is the projected percent at renewal. On the live cycle, a date includes the wait beside it.
+- **Last measure**: the newest sample in this cycle, with Cursor %, Other %, Expected usage %, and how far each series is from that pace.
 
-Click and drag across the plot to select an interval. Releasing the pointer zooms to that interval and clears the range-button highlight. **Settings** → **Startup & Display** → **Every sample up to** chooses **2D**, **4D**, **7D**, or **14D**. The default is **14D**. Changing this setting preserves an active zoom when you return to the chart. A preset or zoom up to that length plots every sample; a longer interval keeps the last sample of each local day. **1M** always keeps one sample per day. Right-click the plot to return to **1M**. Choosing **1D**, **2D**, **7D**, **1W**, **2W**, or **1M** leaves the zoom and shows that range, including the button that was already selected.
+Previous and Next on the month heading move through stored cycles. Under that heading, `Cursor dd-MMM HH:mm` is the latest refresh. A red dot means the account is signed out or the refresh failed. Click it to open **Cursor account**. When a sync server is configured, **Sync server** and its last success time appear there too. A red dot means the last attempt failed. Click it to open **Sync Server**.
 
-A dashed **Expected usage** line runs linearly from 0% at cycle start to 100% at next renewal. Thick solid **Cursor** and **Other Models** paths follow the samples. Intervals up to the **Every sample up to** setting draw a small circle on each measured sample, in that series color. The expected line and the estimated lines have no circles. Each path shows its last measured percent inside the selected range (`xx.x%`, in the series color) just above that point, or just below when the plot has no room above. A short tick ties the label to the point. Labels that would still overlap spread further apart. A dotted vertical guide at that same time rises from the X axis to the Expected usage line and labels the linear expected percent there. Thinner round-dotted estimated lines run from the last sample toward next renewal, clipped to the selected range and to 120%, and a gray line marks 100% when that level is inside the axis. Moving the pointer across the plot draws a vertical guide and shows that time's Cursor, Other Models, and Expected usage at the top left. On a plot that draws sample circles, the guide sticks to a sample time when the pointer is within 14px of it, and follows the pointer again once it moves more than 20px away, unless a closer sample is inside that 14px. Between samples it interpolates. Past the last measured sample, Cursor and Other show the estimated percent and the word `estimated` (the number can pass 120% even though the line is clipped). Before the first sample, or when there is no estimate, those values stay a dash. While a drag zoom is active, each metric also shows its value at the start of that zoom and the change from that start to the pointer (`start 20.0%, +24.4%`). A preset range hides those start rows. A change stays blank when either side is missing. A zoom start that falls on the estimate is labelled `estimated` as well. Multi-day ranges label the day of the month. Intervals that plot every sample label the time of day, and the hour grid widens so those times do not overlap.
+| Range | What it shows |
+| --- | --- |
+| **1D** / **2D** | The last 24 or 48 hours |
+| **7D** / **1W** | The last seven days |
+| **2W** | The last 14 days |
+| **1M** | The whole displayed cycle, one sample per local day |
 
-Title bar actions:
+On the live cycle a short range ends at the current time. On an earlier cycle it ends at that cycle's renewal. The start stays at the cycle start when the window would otherwise begin earlier.
+
+Drag across the plot to zoom. Right-click returns to **1M**. Choosing a range button, including the one already selected, leaves the zoom and shows that range. **Every sample up to** (**2D**, **4D**, **7D**, or **14D**, default **14D**) sets how far the chart plots every sample and labels the local time. Longer ranges keep the last sample of each day and label the day of the month. The vertical axis fits the values on screen, up to 120%.
+
+Move the pointer to read Cursor, Other Models, and Expected usage at that time. Past the last sample, Cursor and Other show the estimate, marked `estimated`. During a zoom, the readout also shows each value at the zoom start and the change from there.
 
 | Control | Action |
 | --- | --- |
-| **Refresh** | Fetch Cursor usage immediately (same as Settings **Refresh now**). Hidden on the Settings page |
-| **Settings** | Open Settings in this window (Startup & Display, Cursor account, Sync Server, Export & Backup, About) |
-| **Back** | On the Settings page, the chevron or the **Settings** heading returns to the chart |
-| **Minimize** | Minimize the window; the app stays in the tray |
-| **Maximize** | Maximize or restore the window |
-| Window close (X) | Hide the window; the app stays in the tray |
+| **Refresh** | Fetch Cursor usage now. Hidden on the Settings page |
+| **Settings** | Open Settings in this window |
+| **Back** | Return to the chart |
+| **Minimize** / **Maximize** | Standard window controls. The app stays in the tray |
+| Close | Hide the window. The app stays in the tray |
 
-Refresh and Settings are separated from the Minimize, Maximize, and Close controls by a small gap.
+The window remembers its size, position, and maximized state. Informational labels can be selected and copied.
 
-Under the cycle heading, a short status line shows the latest Cursor refresh as `Cursor dd-MMM HH:mm`. A red dot appears beside it when the account is signed out or the latest refresh failed. Clicking that time opens **Settings** on **Cursor account**. When **Sync with server** is on and a URL and API token are set, that line also shows **Sync server** and the last successful sync time in the same `dd-MMM HH:mm` format. A red dot appears beside it after a failed attempt. Clicking it opens **Settings** on **Sync Server**.
+## Expected and estimated
 
-The window is resizable and can be maximized. It restores its last size, position, and maximized state on show and launch. Informational labels can be selected and copied.
+- **Expected usage** on the chart is the dashed line from 0% at cycle start to 100% at the next renewal. Hover uses this line.
+- **Cursor** and **Other Models** are the measured samples.
+- **Expected** in a cycle CSV follows each sample, then paces the remaining quota to 100% at renewal.
+- **Estimated** is the round-dotted projection from the last sample toward renewal. Past the last sample, hover uses this line.
 
-## Expected vs estimated
-
-- **Expected usage** (chart dashed): a straight line from 0% at cycle start to 100% at the next renewal. It does not pass through samples. The hover readout uses this line at the pointer time.
-- **Usage** (chart thick solid): Cursor and Other Models paths. Intervals up to the **Every sample up to** setting use every sample in the window and mark each measured sample. Longer ranges use the last in-cycle sample of each local day, draw no sample circles, and are omitted until at least two local dates have samples.
-- **Expected** (CSV expected columns): a continuous line from 0% at cycle start through each sample's timestamp, then remaining quota paced to 100% at the next renewal. Days before the first sample rise toward that sample.
-- **Estimated** (chart thin round dots): Theil-Sen daily burn from samples. It can exceed 100% before renewal. On the chart it is a straight dotted line from the last sample to next renewal, clipped to the selected range and to the 120% Y-axis cap. Past the last sample, the hover readout uses this line and labels the value `estimated`. The number can exceed the 120% cap.
-
-Each quota is independent.
+Cursor Models and Other Models stay independent.
 
 ## Settings
 
-Open **Settings** from the title bar. Settings replace the chart in the main window. A **Back** control and a **Settings** heading sit below the title bar; either one returns to the chart. Settings are grouped into **Startup & Display**, **Cursor account**, **Sync Server**, **Export & Backup**, and **About** tabs. The last tab opens again the next time you enter Settings, including after you quit and start the app.
+Settings replace the chart. **Back**, or the **Settings** heading, returns to it. The last tab opens again next time, including after a restart.
 
-| Tab | Setting | Effect |
-| --- | --- | --- |
-| Startup & Display | **Launch at login** | Starts the app at OS login (Windows Run key, macOS `SMAppService` / attributed Launch Agent fallback, or Linux XDG autostart) |
-| Startup & Display | **Start in notification tray** | Start with only the tray icon. Off opens the window. `--background` does the same. `--show` forces the window open |
-| Startup & Display | **Theme** | System (default), Light, or Dark. Overrides the Fluent theme variant for the app |
-| Startup & Display | **Every sample up to** | **2D**, **4D**, **7D**, or **14D** (default). Chart intervals up to that length plot every sample and mark each measured point. Longer intervals keep the last sample of each day. **1M** always keeps one sample per day |
-| Cursor account | **Sign in** | Open the Cursor session window (disabled while already signed in) |
-| Cursor account | **Refresh now** | Fetch usage immediately (same action as title-bar **Refresh**) |
-| Cursor account | **Sign out** | Clear the saved Cursor session (keeps a Google/GitHub session in the browser profile on Windows/macOS when possible; clears the whole profile on Linux) |
-| Cursor account | **Update usage automatically** | Clock-aligned refreshes at the interval below |
-| Cursor account | **Refresh interval (hours)** | 1, 2, 4, 6, or 12 |
-| Sync Server | **Sync with server** | Optional. Share usage samples and billing-cycle bounds with other machines through a CursorPace sync server. Syncs on launch, after each new Cursor sample, every 10 minutes, and when you click **Re-sync now** |
-| Sync Server | **Server URL** | Sync server origin, for example `http://127.0.0.1:8000` |
-| Sync Server | **API token** | Token from the **Tokens** page of your CursorPace Sync server. The eye control shows or hides the value |
-| Sync Server | **Machine name** | Label shown on the server. Defaults to this computer's hostname |
-| Sync Server | **Re-sync now** | Push local data, then pull the merged canonical state |
-| Sync Server | **Repository** | When the server URL and API token are not set, points at the [CursorPace Sync Server](https://github.com/wsj-br/CursorPace-SyncServer) install instructions. After those fields are set, the same card shows that repository link |
-| Export & Backup | **Export Cycle CSV** | Writes each day of the cycle currently shown on the chart: expected and estimated percents, and whether the day is a data point. The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
-| Export & Backup | **Export Usage** | Writes all retained sample timestamps and percents across stored cycles (shown while signed in). The suggested name includes the current date and time (`yyyy-MM-dd-HH_mm_ss`) |
-| Export & Backup | **Backup** | Writes `manifest.json`, `settings.json`, and `usage-samples.json` as one `.zip` file (suggested name `cursor-pace-backup-yyyy-MM-dd-HH_mm_ss`) |
-| Export & Backup | **Restore** | Replaces local settings and samples from a backup zip. The Cursor sign-in session is not changed |
-| About | **About** | Version from the build, UTC compile date and time (`dd-MMM-yyyy HH:mm:ss UTC`), copyright, MIT license, and a link to the GitHub repository |
+**Sync Server** is optional. [CursorPace Sync Server](https://github.com/wsj-br/CursorPace-SyncServer) shares usage samples and billing-cycle bounds across machines on a local network, so a Mac, a Windows PC, and a Linux machine in the same development environment show the same chart. Install and run the server from that repository. Theme, window placement, and startup options stay on each computer.
 
-After a local export or backup completes, choose **Open Folder** on the left side of the completion dialog to open its destination folder, or choose **OK** on the right to close it.
+| Tab | What you can set |
+| --- | --- |
+| Startup & Display | **Launch at login**, **Start in notification tray**, theme (System, Light, or Dark), and **Every sample up to** |
+| Cursor account | **Sign in** (hidden while connected), **Refresh now**, **Sign out**, and automatic refresh at 1, 2, 4, 6, or 12 hours |
+| Sync Server | **Sync with server**, server URL, API token, machine name (the hostname by default), and **Re-sync now**. The link opens the sync server repository |
+| Export & Backup | **Export Cycle CSV** for the cycle on screen, **Export Usage** for every stored sample while signed in, and **Backup** / **Restore** of settings and samples as one zip. **Open Folder** opens the destination |
+| About | Version, UTC build date and time, copyright, MIT license, and the GitHub repository |
 
-## System tray
+Backup and Restore leave the Cursor sign-in on this machine.
 
-While the process is running, an icon stays in the notification area.
+## Tray
 
-- **Left-click** or **Open**: show the window
-- **Quit** (tray menu): exit
+Click the icon, or choose **Open**, to show the window. **Quit** exits. The tooltip shows today's percent and, once there is enough data, the projected percent at renewal.
 
-Hover over the tray icon to see today's expected percentage and the projected percent at the next renewal for Cursor and Other Models. The renewal projection is omitted until enough data exists.
+On macOS, a click opens the tray menu, and the Dock icon is hidden while the window is hidden or minimized. Show the window from the tray, with `--show`, or by launching the app again.
 
-If the icon is missing, expand the overflow chevron (`^`). On Linux, GNOME may need the AppIndicator extension. On macOS, left-click opens the tray menu; choose **Open** from that menu. macOS also removes the Dock icon after the main window hides and while it is minimized; restore the window from the tray, `--show`, or a second launch of the app.
+If the icon is missing, open the notification overflow. On GNOME, the AppIndicator extension may be required.
 
-## Startup and single instance
-
-- With **Launch at login** on, a new OS login session starts the app. **Start in notification tray** (on by default) keeps the window hidden; turn that off to open the window. Click the tray icon to open the window. On macOS that hidden state also removes the Dock icon until the window is shown.
-- From the Start menu or app launcher, the window opens unless **Start in notification tray** is on. Pass `--show` to force the window open regardless of that setting or `--background`.
-- Only one process runs. Launching again activates the existing window.
+A second launch shows the window that is already running. A second `--background` launch leaves it hidden. `--show` forces the window open. **Launch at login** follows **Start in notification tray**.
 
 ## Data
-
-Files live under the OS local app-data folder:
 
 ```text
 Windows: %LocalAppData%\CursorPace\
@@ -164,89 +102,30 @@ Linux:   ~/.local/share/CursorPace/
 macOS:   ~/Library/Application Support/CursorPace/
 ```
 
-| Path | Contents |
-| --- | --- |
-| `settings.json` | Startup, theme, last Settings tab, Cursor refresh interval, last window position and size, connection flag, last successful Cursor sync time, optional sync-server URL/key/machine name, the current cycle bounds, and previous cycle bounds (`cycleHistory`) |
-| `usage-samples.json` | Collected usage samples for stored Cursor billing cycles |
-| `WebView2\` | Windows embedded browser profile (Cursor session cookies) |
-| `WebView\` | Linux and macOS embedded browser profile |
-| `WebView-AppImage\` | Linux only: used instead of `WebView\` when running from an AppImage, so its bundled WebKit never shares a cookie store with a non-AppImage run |
+`settings.json` holds preferences, window placement, and cycle bounds. `usage-samples.json` holds the samples. The Cursor sign-in lives in `WebView2` on Windows, `WebView` on Linux and macOS, or `WebView-AppImage` when running a Linux AppImage. A file that cannot be parsed is copied to `*.corrupt.json` and replaced with a blank one. A locked or unreadable file is left as it is.
 
-**Backup** in Settings writes `settings.json` and `usage-samples.json` as one zip. It does not include the WebView profile, so Restore does not sign you in on another machine. Copy the whole folder to back up the Cursor session as well. Delete the folder to start over (the next launch asks you to sign in).
-
-If `settings.json` cannot be parsed, the app copies it to `settings.corrupt.json` and writes a blank settings file. A locked or unreadable file is left in place so a transient I/O error cannot wipe settings. The same backup naming is used for `usage-samples.json`.
-
-On Windows, uninstalling via the Inno installer removes this folder. On Linux and macOS, delete the folder yourself if you want a clean start. Back it up first if you want to keep samples.
+Delete the folder to start over. On Windows, uninstalling the app removes it. On Linux and macOS, delete it yourself.
 
 ## Renewal
 
-The next successful fetch that reports a new billing-cycle start archives the previous cycle bounds and keeps its samples. Previous/Next on the month heading opens those stored cycles. Short chart ranges on an earlier cycle end at that cycle's renewal. If the local date reaches the stored next renewal before that fetch, the app requests a refresh.
-
-The window does not need to stay visible, but the process must be running for midnight checks and for automatic usage updates.
+A fetch that reports a new cycle start archives the previous cycle and keeps its samples. Previous and Next open those cycles. The app also refreshes when the local date reaches the stored renewal. The window can stay hidden. The process has to be running for that check and for automatic updates.
 
 ## Uninstall
 
-1. Quit from the tray menu.
-2. Windows: Settings, **Apps**, **Installed apps**, **Cursor Pace**, **Uninstall**. That removes the app and the data folder.
-3. Linux/macOS: delete the published folder (or app bundle) and, if you want a clean start, the data folder listed above.
+Quit from the tray menu. On Windows, uninstall **Cursor Pace** from **Installed apps**. On Linux and macOS, delete the app and, for a clean start, the data folder above.
 
 ## Troubleshooting
 
-**App will not start**
+**The app will not start.** End any `CursorPace` process and launch again. On Windows, check Event Viewer. On Linux, try `journalctl --user -xe`. On macOS, check Console.app. If Linux sits at 100% CPU, or `crash.log` says `Could not create glyphTypeface`, install a release newer than 0.3.0. If **Launch at login** still points at a deleted AppImage, run the new AppImage once.
 
-- End any `CursorPace` process, then launch again.
-- If it still fails on Windows, check Event Viewer for the application error. On Linux try `journalctl --user -xe`; on macOS check Console.app.
-- Linux: if the process sits at 100% CPU with no window or tray, or `~/.local/share/CursorPace/crash.log` says `Could not create glyphTypeface` for `$Default`, fontconfig is handing Avalonia a `.woff` (common on Zorin with OpenDyslexic). Current builds reject WOFF system fonts and use bundled Inter. Rebuild or install a newer release than 0.3.0. If **Launch at login** still points at a deleted AppImage, run the new AppImage once so autostart is rewritten.
-- macOS Console `Invalid view geometry: y is NaN` from `WKWebView` was caused by both early host layout and an ABI mismatch in the released Avalonia WebView macOS interop. Current builds use a compatible local WebView build and attach it only after finite arrange. Rebuild from this tree if you still see that report.
-- Linux **Refresh** should not open a full-size sign-in window. If it does, you are on a build that still maps the macOS-style off-screen host on Linux; rebuild from this tree.
+**Sign-in fails, or "The specified module could not be found".** On Windows, install the [WebView2 Runtime](https://go.microsoft.com/fwlink/p/?LinkId=2124703) (Evergreen x64). On Linux, install `libwebkit2gtk-4.1-0`. If Google blocks the embedded browser, use GitHub or email. Choose **Continue** when your Cursor account is already on screen.
 
-**Sign in fails or "The specified module could not be found"**
+**Usage does not update.** Confirm **Cursor account (connected)** and automatic updates, or choose **Refresh**. Check the system date, time, and time zone. After a Cursor rate limit, the app waits for the next interval.
 
-- Windows: install the [Microsoft Edge WebView2 Runtime](https://go.microsoft.com/fwlink/p/?LinkId=2124703) (Evergreen x64).
-- Linux: install WebKitGTK 4.1 (`libwebkit2gtk-4.1-0`). Google may block embedded WebKit login; use GitHub or email, or sign in on Windows.
-- Retry **Sign in**. The window should close when Cursor accepts the session; use **Continue** if you already see your account.
+**The tray or taskbar icon is missing.** Open the notification overflow. On Linux, restart the app so it can write `~/.local/share/applications/CursorPace.desktop`. If the taskbar icon is still a generic gear, log out once, or on X11 press Alt+F2, type `r`, and press Enter.
 
-**Usage does not update**
+**Settings are not saving, or today's percent looks wrong.** Confirm you can write the data folder. If `settings.corrupt.json` exists, delete it and `settings.json` to reset. Then check the clock and choose **Refresh**.
 
-- Confirm **Cursor account (connected)** in Settings and that **Update usage automatically** is on, or choose title-bar **Refresh** / Settings **Refresh now**.
-- Confirm system date, time, and time zone. The app uses local time for the chart and clock-aligned intervals.
-- If Cursor rate-limits the request, the app waits until the next interval.
+**Launch at login does nothing.** Confirm the setting is on. Windows stores `CursorPace` in the current user's Run key, and adds `--background` when tray start is on. A signed macOS app appears under **Open at Login**. An unsigned build uses `~/Library/LaunchAgents/com.cursorpace.app.plist` and starts the `.app` with `/usr/bin/open`. Linux uses `~/.config/autostart/cursor-pace.desktop`. An AppImage entry has to point at the `.AppImage` file. Turn the setting off and on, or launch the new AppImage once, to rewrite it.
 
-**Tray icon disappeared**
-
-- Expand the notification overflow (`^`).
-- On Windows, lock and unlock the session, or restart the app. On Linux/macOS, restart the app or the desktop session.
-
-**Taskbar icon missing (Linux)**
-
-- Restart the app. A launch writes `~/.local/share/applications/CursorPace.desktop` so GNOME can match the open window to the app icon. The window stays in the taskbar while it is open; closing it hides to the tray. If the icon is still the generic gear, log out of the desktop session once, or press Alt+F2, type `r`, and Enter (X11 sessions).
-
-**Settings not saving**
-
-- Confirm write access to the data folder for your OS (`%LocalAppData%\CursorPace`, `~/.local/share/CursorPace`, or `~/Library/Application Support/CursorPace`).
-- If `settings.corrupt.json` exists, the previous file was unreadable. Delete both files to reset.
-
-**Wrong percentage for today**
-
-- Confirm system date, time, and time zone.
-- Check the last-updated caption and title-bar **Refresh** or Settings **Refresh now**.
-
-**Auto-start not working**
-
-- Confirm **Launch at login** is on in Settings.
-- Windows registry (current user): `Software\Microsoft\Windows\CurrentVersion\Run`, value `CursorPace`. With **Start in notification tray** the command includes `--background`.
-- macOS 13+: a signed bundle appears under System Settings → General → Login Items → **Open at Login** as `CursorPace`. Unsigned builds use `~/Library/LaunchAgents/com.cursorpace.app.plist` as a compatibility fallback; its `AssociatedBundleIdentifiers` must contain `com.cursorpace.app` and its `ProgramArguments` must start `/usr/bin/open -a` on the `.app` bundle, not `Contents/MacOS/CursorPace`. Launch the app once after updating, or turn **Launch at login** off and on, to rewrite the registration.
-- Linux: `~/.config/autostart/cursor-pace.desktop`. For an AppImage, `Exec` must be the `.AppImage` file, not a path under `/tmp/.mount_*`. Launching a new AppImage rewrites that file to the running image when **Launch at login** is already on, even if another copy is still open. You can also turn **Launch at login** off and on.
-
-**Two tray icons or a crash at login**
-
-- The session started two copies (login autostart plus a restored session, or an AppImage helper). Current builds keep the first process and exit the second before creating another tray icon. Quit from the tray menu, then start the app once.
-
-**Signed out after a Linux reboot**
-
-- Sign in once more on a build that persists WebKit cookies (`cookies.sqlite` under `WebView/` or `WebView-AppImage/`). WebView2 on Windows already keeps the session across reboots.
-
-## Tips
-
-- Info-card dates use dd-MMM HH:mm. Chart day labels use the day of the month, and the 1-day and 2-day ranges use the local time.
-- The UI theme defaults to the system light or dark setting. Override it under **Settings** → **Startup & Display** → **Theme** (System, Light, or Dark).
+**Two tray icons, or signed out after a Linux reboot.** Quit from the tray and start the app once. On Linux, sign in again on a current build so the session is stored in `cookies.sqlite`.
