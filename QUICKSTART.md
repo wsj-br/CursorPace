@@ -28,6 +28,11 @@ With **Update usage automatically** on, refreshes fall on a 1, 2, 4, 6, or 12 ho
 
 ## Main window
 
+<p align="center">
+  <img src="Assets/cursor_pace_screenshot.png" alt="Cursor Pace" width="600">
+</p>
+
+
 Three cards sit above the chart:
 
 - **Cycle start** and **Next renewal**. On the live cycle, the time remaining sits beside the renewal date.
