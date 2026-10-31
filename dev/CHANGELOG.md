@@ -8,6 +8,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Changed**: tests - `Microsoft.NET.Test.Sdk` 18.10.1 to 18.11.0.
+
 ## [0.3.5] - 2026-10-29
 
 - **Added**: dashboard - the next renewal card shows how long until that instant on the live cycle, in the same form as the back-on-pace wait.
