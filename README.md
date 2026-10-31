@@ -1,6 +1,8 @@
 # Cursor Pace
 
-![Cursor Pace](Assets/cursor_pace.png)
+<p align="center">
+  <img src="Assets/cursor_pace.png" alt="Cursor Pace" width="120">
+</p>
 
 Desktop app for Windows, Linux, and macOS that tracks Cursor model quota across a billing cycle. Sign in with your Cursor account to pull usage automatically. The chart shows two independent percentages: **Cursor Models** and **Other Models**.
 
