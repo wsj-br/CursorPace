@@ -712,11 +712,14 @@ public sealed class MainViewModel : ViewModelBase
         var runOut = _calculator.EstimateRunOutInstant(_displayedCycle, kind, _sync.Samples);
         if (runOut.HasValue)
         {
+            var wait = IsViewingLiveCycle
+                ? FormatReturnWait(runOut.Value - _clock.Now)
+                : string.Empty;
             return new QuotaForecast(
                 QuotaForecastKind.RunOut,
                 RunOutLabel(kind),
                 runOut.Value.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture),
-                string.Empty,
+                wait,
                 string.Empty);
         }
 

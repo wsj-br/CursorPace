@@ -337,13 +337,16 @@ public class MainViewModelTests
             SampleAt(start, 0m, 0m),
             SampleAt(start.AddDays(30), 97m, 97m)
         };
+        var clock = new FakeClock();
         var store = new FakePlanStore
         {
             Settings = new AppSettings { ActiveCycle = cycle }
         };
         var vm = CreateViewModel(
             new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok, Samples = samples },
-            store);
+            store,
+            new FakeStartup(),
+            clock);
 
         Assert.Equal(start.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CycleStartText);
         Assert.Equal(end.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.NextRenewalText);
@@ -353,7 +356,13 @@ public class MainViewModelTests
         Assert.Equal("Cursor Models run out", vm.CursorForecastLabel);
         Assert.Equal(runOut.Value.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CursorForecastText);
         Assert.True(vm.CursorForecastIsRunOut);
-        Assert.False(vm.CursorForecastHasWait);
+        Assert.Equal("in " + UsageChartSeriesBuilder.FormatPaceWait(runOut.Value - clock.Now), vm.CursorForecastWait);
+        Assert.True(vm.CursorForecastHasWait);
+
+        var otherRunOut = calculator.EstimateRunOutInstant(cycle, QuotaKind.OtherModels, samples);
+        Assert.NotNull(otherRunOut);
+        Assert.Equal("in " + UsageChartSeriesBuilder.FormatPaceWait(otherRunOut.Value - clock.Now), vm.OtherForecastWait);
+        Assert.True(vm.OtherForecastHasWait);
     }
 
     [Fact]
@@ -576,17 +585,52 @@ public class MainViewModelTests
             SampleAt(start, 0m, 0m),
             SampleAt(start.AddDays(10), 50m, 10m)
         };
+        var clock = new FakeClock { Now = start.AddDays(10) };
         var vm = CreateViewModel(
             new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok, Samples = samples },
-            new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } });
+            new FakePlanStore { Settings = new AppSettings { ActiveCycle = cycle } },
+            new FakeStartup(),
+            clock);
 
         var runOut = calculator.EstimateRunOutInstant(cycle, QuotaKind.CursorModels, samples);
         Assert.NotNull(runOut);
         Assert.Equal("Cursor Models run out", vm.CursorForecastLabel);
         Assert.Equal(runOut.Value.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CursorForecastText);
         Assert.True(vm.CursorForecastIsRunOut);
+        Assert.Equal("in " + UsageChartSeriesBuilder.FormatPaceWait(runOut.Value - clock.Now), vm.CursorForecastWait);
+        Assert.True(vm.CursorForecastHasWait);
         Assert.Equal("Other Models at renewal", vm.OtherForecastLabel);
         Assert.True(vm.OtherForecastIsAtRenewal);
+        Assert.False(vm.OtherForecastHasWait);
+    }
+
+    [Fact]
+    public void ForecastCard_ArchivedCycle_HidesTheRunOutWait()
+    {
+        var calculator = new CycleCalculator();
+        var previous = calculator.GenerateCycleFromBounds(new DateTime(2026, 7, 1), new DateTime(2026, 8, 1));
+        var live = calculator.GenerateCycleFromBounds(new DateTime(2026, 8, 1), new DateTime(2026, 9, 1));
+        var samples = new List<UsageSample>
+        {
+            SampleAt(previous.CycleStart, 0m, 0m),
+            SampleAt(previous.CycleStart.AddDays(10), 50m, 10m)
+        };
+        var vm = CreateViewModel(
+            new FakeSync { IsSignedIn = true, Status = SyncStatus.Ok, Samples = samples },
+            new FakePlanStore
+            {
+                Settings = new AppSettings { ActiveCycle = live, CycleHistory = [previous] }
+            });
+
+        vm.GoToPreviousCycleCommand.Execute(null);
+
+        var runOut = calculator.EstimateRunOutInstant(previous, QuotaKind.CursorModels, samples);
+        Assert.NotNull(runOut);
+        Assert.Equal("Cursor Models run out", vm.CursorForecastLabel);
+        Assert.Equal(runOut.Value.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture), vm.CursorForecastText);
+        Assert.True(vm.CursorForecastIsRunOut);
+        Assert.False(vm.CursorForecastHasWait);
+        Assert.Equal(string.Empty, vm.CursorForecastWait);
     }
 
     [Fact]
