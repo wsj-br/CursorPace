@@ -84,7 +84,7 @@ La Configuración reemplaza el gráfico. **Atrás**, o el encabezado **Configura
 
 | Pestaña | Lo que puedes configurar |
 | --- | --- |
-| Inicio y pantalla | **Iniciar al iniciar sesión**, **Iniciar en la bandeja de notificaciones**, tema (Sistema, Claro u Oscuro), **Idioma** (las configuraciones regionales en `locales/ui-languages.json`, o inglés cuando ese archivo falta), y **Cada muestra hasta** |
+| Inicio y pantalla | **Iniciar al iniciar sesión**, **Iniciar en la bandeja de notificaciones**, tema (Sistema, Claro u Oscuro), **Idioma** (las configuraciones regionales en el `locales/ui-languages.json` incrustado, o inglés cuando no se pueda leer ese manifiesto), y **Cada muestra hasta** |
 | Cuenta de Cursor | **Iniciar sesión** (oculto mientras está Conectado), **Actualizar ahora**, **Cerrar sesión**, y actualización automática cada 1, 2, 4, 6 o 12 horas |
 | Servidor de sincronización | **Sincronizar con el servidor**, URL del servidor, token de API, nombre de la máquina (el nombre de host por defecto) y **Volver a sincronizar ahora**. El enlace abre el repositorio del servidor de sincronización |
 | Exportar y copia de seguridad | **Exportar ciclo CSV** para el ciclo en pantalla, **Exportar uso** para cada muestra almacenada mientras se ha iniciado sesión, y **Copia de seguridad** / **Restaurar** de la configuración y las muestras como un solo archivo zip. **Abrir carpeta** abre el destino |

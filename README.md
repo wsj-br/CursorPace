@@ -42,7 +42,7 @@ See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, 
 - Summary cards for the cycle dates, each model's forecast, and the latest reading versus the expected pace
 - Chart ranges **1D**, **2D**, **7D**, **1W**, **2W**, and **1M**, with drag-to-zoom and a pointer readout
 - Closes to the notification tray. Optional launch at login. A second launch opens the window that is already running
-- Light, dark, or system theme, and a language choice taken from `locales/ui-languages.json`. If that file is missing, the only choice is English. The window remembers its size, position, and maximized state
+- Light, dark, or system theme, and a language choice taken from the `locales/ui-languages.json` embedded in the application. English is the only choice when that manifest cannot be read. The window remembers its size, position, and maximized state
 - Export usage as CSV, and back up or restore settings and samples
 - **Optional.** [CursorPace Sync Server](https://github.com/wsj-br/CursorPace-SyncServer) keeps CursorPace installs on a local network synchronized. It shares usage samples and billing-cycle bounds, so a Mac, a Windows PC, and a Linux machine in the same development environment show the same chart. Install and run the server from that repository.
 

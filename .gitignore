@@ -112,12 +112,12 @@ Desktop.ini
 # Debug screenshots dumped at repo root
 /screenshot.png
 
+# exclude the benchmark-scores.json
+benchmark-scores.json
+
 
 # AI agents temp files
 .kilo/
-
-# Local translation cache. Commit translated-docs/, not this database.
-.translation-cache/
 
 # Secrets
 .env*

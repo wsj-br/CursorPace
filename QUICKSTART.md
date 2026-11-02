@@ -85,7 +85,7 @@ Settings replace the chart. **Back**, or the **Settings** heading, returns to it
 
 | Tab | What you can set |
 | --- | --- |
-| Startup & Display | **Launch at login**, **Start in notification tray**, theme (System, Light, or Dark), **Language** (the locales in `locales/ui-languages.json`, or English when that file is missing), and **Every sample up to** |
+| Startup & Display | **Launch at login**, **Start in notification tray**, theme (System, Light, or Dark), **Language** (the locales in the embedded `locales/ui-languages.json`, or English when that manifest cannot be read), and **Every sample up to** |
 | Cursor account | **Sign in** (hidden while connected), **Refresh now**, **Sign out**, and automatic refresh at 1, 2, 4, 6, or 12 hours |
 | Sync Server | **Sync with server**, server URL, API token, machine name (the hostname by default), and **Re-sync now**. The link opens the sync server repository |
 | Export & Backup | **Export Cycle CSV** for the cycle on screen, **Export Usage** for every stored sample while signed in, and **Backup** / **Restore** of settings and samples as one zip. **Open Folder** opens the destination |

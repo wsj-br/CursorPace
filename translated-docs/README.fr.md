@@ -41,10 +41,10 @@ Consultez [QUICKSTART.md](QUICKSTART.fr.md) pour la configuration initiale, la c
 - Le début du cycle de facturation et le prochain renouvellement proviennent de Cursor. Précédent et Suivant ouvrent les cycles stockés précédemment
 - Cartes récapitulatives pour les dates du cycle, la prévision de chaque modèle et la dernière lecture par rapport au rythme prévu
 - Plages de graphique **1J**, **2J**, **7J**, **1S**, **2S** et **1M**, avec zoom par glisser-déposer et lecture au pointeur
-- Se ferme dans la zone de notification. Lancement optionnel à la connexion. Un deuxième lancement ouvre la fenêtre déjà en cours d'exécution
-- Thème clair, sombre ou système, et un choix de langue tiré de `locales/ui-languages.json`. Si ce fichier est manquant, le seul choix est l'anglais. La fenêtre mémorise sa taille, sa position et son état maximisé
-- Exporter l'utilisation au format CSV, et sauvegarder ou restaurer les paramètres et les échantillons
-- **Facultatif.** Le [Serveur de synchronisation CursorPace](https://github.com/wsj-br/CursorPace-SyncServer) maintient les installations CursorPace sur un réseau local synchronisées. Il partage les échantillons d'utilisation et les limites du cycle de facturation, de sorte qu'un Mac, un PC Windows et une machine Linux dans le même environnement de développement affichent le même graphique. Installez et exécutez le serveur à partir de ce dépôt.
+- Se réduit dans la barre de notification. Lancement facultatif à la connexion. Un second lancement ouvre la fenêtre déjà en cours d'exécution.
+- Thème clair, sombre ou système, et un choix de langue tiré du `locales/ui-languages.json` intégré à l'application. L'anglais est le seul choix lorsque ce manifeste ne peut pas être lu. La fenêtre mémorise sa taille, sa position et son état maximisé.
+- Exporter l'utilisation au format CSV, et sauvegarder ou restaurer les paramètres et les échantillons.
+- **Facultatif.** Le [Serveur de synchronisation CursorPace](https://github.com/wsj-br/CursorPace-SyncServer) maintient les installations de CursorPace sur un réseau local synchronisées. Il partage les échantillons d'utilisation et les limites de cycle de facturation, afin qu'un Mac, un PC Windows et une machine Linux dans le même environnement de développement affichent le même graphique. Installez et exécutez le serveur à partir de ce dépôt.
 
 ## Compiler à partir des sources
 

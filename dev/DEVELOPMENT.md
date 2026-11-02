@@ -342,7 +342,7 @@ Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so 
 | `runAtStartup`                 | Launch at login (Windows Run key, macOS `SMAppService` / attributed Launch Agent fallback, Linux XDG autostart) |
 | `startInNotificationTray`      | Default `true`; hide the window on launch; startup registration includes `--background` |
 | `themeMode`                    | `System` (default), `Light`, or `Dark`; sets Avalonia `RequestedThemeVariant`           |
-| `uiLocale`                     | A code from `locales/ui-languages.json` (source locale when omitted). A missing manifest leaves English as the only choice. Unknown codes load as omitted. Not sent to the sync server |
+| `uiLocale`                     | A code from the embedded `locales/ui-languages.json` (source locale when omitted). A loose `locales/ui-languages.json` found above the app directory overrides it. English is the only choice when neither can be read. Unknown codes load as omitted. Not sent to the sync server |
 | `settingsTab`                  | Last Settings tab: `Startup` (default), `Account`, `SyncServer`, `Export`, or `About`. Unknown values stay on Startup & Display |
 | `autoSyncEnabled`              | Default `true`                                                                          |
 | `syncIntervalHours`            | 1, 2, 4, 6, or 12; other values clamp to 1                                              |

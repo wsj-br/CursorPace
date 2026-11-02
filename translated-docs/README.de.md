@@ -42,9 +42,9 @@ Siehe [QUICKSTART.md](QUICKSTART.de.md) für die Ersteinrichtung, die Anmeldung 
 - Übersichts-Karten für die Zyklusdaten, die Prognose jedes Modells und den neuesten Wert im Vergleich zum erwarteten Tempo
 - Diagrammbereiche **1T**, **2T**, **7T**, **1W**, **2W** und **1M**, mit Drag-to-Zoom und einer Zeigeranzeige
 - Schließt in den Infobereich. Optionaler Start beim Anmelden. Ein zweiter Start öffnet das bereits laufende Fenster
-- Helles, dunkles oder System-Design und eine Sprachauswahl, die von `locales/ui-languages.json` übernommen wird. Wenn diese Datei fehlt, ist die einzige Wahl Englisch. Das Fenster merkt sich seine Größe, Position und den maximierten Zustand
-- Nutzung als CSV exportieren und Einstellungen und Stichproben sichern oder wiederherstellen
-- **Optional.** [CursorPace-Sync-Server](https://github.com/wsj-br/CursorPace-SyncServer) hält CursorPace-Installationen in einem lokalen Netzwerk synchron. Er teilt Nutzungsdaten und Abrechnungszyklusgrenzen, sodass ein Mac, ein Windows-PC und eine Linux-Maschine in derselben Entwicklungsumgebung dasselbe Diagramm anzeigen. Installieren und führen Sie den Server aus diesem Repository aus.
+- Helles, dunkles oder System-Design und eine Sprachauswahl, die aus dem in der Anwendung eingebetteten `locales/ui-languages.json` entnommen wird. Englisch ist die einzige Wahl, wenn dieses Manifest nicht gelesen werden kann. Das Fenster merkt sich seine Größe, Position und seinen maximierten Zustand
+- Nutzung als CSV exportieren und Einstellungen und Beispiele sichern oder wiederherstellen
+- **Optional.** [CursorPace-Sync-Server](https://github.com/wsj-br/CursorPace-SyncServer) hält CursorPace-Installationen in einem lokalen Netzwerk synchron. Er teilt Nutzungsbeispiele und Abrechnungszyklusgrenzen, sodass ein Mac, ein Windows-PC und eine Linux-Maschine in derselben Entwicklungsumgebung dasselbe Diagramm anzeigen. Installieren und führen Sie den Server von diesem Repository aus.
 
 ## Aus dem Quellcode erstellen
 

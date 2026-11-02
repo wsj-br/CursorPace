@@ -82,9 +82,9 @@ As Configurações substituem o Gráfico. **Voltar**, ou o cabeçalho **Configur
 
 O **Servidor de Sincronização** é opcional. O [Servidor de sincronização CursorPace](https://github.com/wsj-br/CursorPace-SyncServer) compartilha amostras de uso e limites de ciclo de faturamento entre máquinas em uma rede local, para que um Mac, um PC com Windows e uma máquina Linux no mesmo ambiente de desenvolvimento mostrem o mesmo Gráfico. Instale e execute o servidor a partir desse repositório. Tema, Idioma, posicionamento da janela e opções de Inicialização permanecem em cada computador.
 
-| Guia | O que você pode definir |
+| Tab | O que você pode definir |
 | --- | --- |
-| Inicialização e Exibição | **Iniciar ao fazer login**, **Iniciar na bandeja de notificação**, tema (Sistema, Claro ou Escuro), **Idioma** (os locais em `locales/ui-languages.json`, ou Inglês quando esse arquivo estiver faltando) e **Cada amostra até** |
+| Inicialização e Exibição | **Iniciar ao fazer login**, **Iniciar na bandeja de notificação**, tema (Sistema, Claro ou Escuro), **Idioma** (os locais no `locales/ui-languages.json` incorporado, ou inglês quando esse manifesto não puder ser lido), e **Cada amostra até** |
 | Conta Cursor | **Fazer login** (oculto enquanto Conectado), **Atualizar agora**, **Sair** e atualização automática a cada 1, 2, 4, 6 ou 12 horas |
 | Servidor de Sincronização | **Sincronizar com o servidor**, URL do servidor, Token de API, Nome da máquina (o nome do host por padrão) e **Sincronizar novamente agora**. O link abre o repositório do servidor de sincronização |
 | Exportar e Backup | **Exportar CSV do Ciclo** para o ciclo na tela, **Exportar Uso** para cada amostra armazenada enquanto conectado, e **Backup** / **Restaurar** de configurações e amostras como um único zip. **Abrir Pasta** abre o destino |

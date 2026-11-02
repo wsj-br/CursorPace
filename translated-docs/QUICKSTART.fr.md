@@ -84,7 +84,7 @@ Le **Serveur de synchronisation** est facultatif. Le [Serveur de synchronisation
 
 | Onglet | Ce que vous pouvez définir |
 | --- | --- |
-| Démarrage et affichage | **Lancer à la connexion**, **Démarrer dans la zone de notification**, thème (Système, Clair ou Sombre), **Langue** (les paramètres régionaux dans `locales/ui-languages.json`, ou l'anglais si ce fichier est manquant), et **Chaque échantillon jusqu'à** |
+| Démarrage et affichage | **Lancer à la connexion**, **Démarrer dans la zone de notification**, thème (Système, Clair ou Sombre), **Langue** (les paramètres régionaux dans le `locales/ui-languages.json` intégré, ou l'anglais lorsque ce manifeste ne peut pas être lu), et **Chaque échantillon jusqu'à** |
 | Compte Cursor | **Se connecter** (masqué lorsque Connecté), **Actualiser maintenant**, **Se déconnecter**, et actualisation automatique toutes les 1, 2, 4, 6 ou 12 heures |
 | Serveur de synchronisation | **Synchroniser avec le serveur**, URL du serveur, jeton API, nom de la machine (le nom d'hôte par défaut) et **Resynchroniser maintenant**. Le lien ouvre le dépôt du serveur de synchronisation |
 | Exporter et sauvegarder | **Exporter le CSV du cycle** pour le cycle affiché à l'écran, **Exporter l'utilisation** pour chaque échantillon stocké pendant que vous êtes connecté, et **Sauvegarde** / **Restaurer** des paramètres et des échantillons sous forme d'un fichier zip. **Ouvrir le dossier** ouvre la destination |

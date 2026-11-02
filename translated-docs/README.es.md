@@ -41,10 +41,10 @@ Consulte [QUICKSTART.md](QUICKSTART.es.md) para la configuración inicial, el in
 - El inicio del ciclo de facturación y la próxima renovación se obtienen de Cursor. Anterior y Siguiente abren ciclos almacenados anteriormente
 - Tarjetas de resumen para las fechas del ciclo, el pronóstico de cada modelo y la lectura más reciente frente al ritmo esperado
 - Rangos del Gráfico **1D**, **2D**, **7D**, **1W**, **2W** y **1M**, con zoom por arrastre y una lectura del cursor
-- Se cierra a la bandeja de notificaciones. Inicio opcional al iniciar sesión. Un segundo inicio abre la ventana que ya se está ejecutando.
-- Tema claro, oscuro o del sistema, y una elección de idioma tomada de `locales/ui-languages.json`. Si ese archivo falta, la única opción es el inglés. La ventana recuerda su tamaño, posición y estado maximizado.
-- Exportar uso como CSV, y hacer una copia de seguridad o restaurar la configuración y las muestras.
-- **Opcional.** [Servidor de sincronización de CursorPace](https://github.com/wsj-br/CursorPace-SyncServer) mantiene las instalaciones de CursorPace en una red local sincronizadas. Comparte muestras de uso y límites del ciclo de facturación, para que un Mac, un PC con Windows y una máquina Linux en el mismo entorno de desarrollo muestren el mismo gráfico. Instale y ejecute el servidor desde ese repositorio.
+- Se cierra a la bandeja de notificaciones. Inicio opcional al iniciar sesión. Un segundo inicio abre la ventana que ya está en ejecución
+- Tema claro, oscuro o del sistema, y una elección de idioma tomada del `locales/ui-languages.json` incrustado en la aplicación. El inglés es la única opción cuando ese manifiesto no se puede leer. La ventana recuerda su tamaño, posición y estado maximizado
+- Exportar uso como CSV, y hacer una copia de seguridad o restaurar la configuración y las muestras
+- **Opcional.** El [Servidor de sincronización de CursorPace](https://github.com/wsj-br/CursorPace-SyncServer) mantiene las instalaciones de CursorPace en una red local sincronizadas. Comparte muestras de uso y límites de ciclo de facturación, para que un Mac, un PC con Windows y una máquina Linux en el mismo entorno de desarrollo muestren el mismo gráfico. Instale y ejecute el servidor desde ese repositorio.
 
 ## Compilar desde el código fuente
 

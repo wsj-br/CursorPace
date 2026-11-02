@@ -41,10 +41,10 @@ Consulte [QUICKSTART.md](QUICKSTART.pt-BR.md) para configuração inicial, login
 - O início do ciclo de faturamento e a próxima renovação vêm do Cursor. Anterior e Próximo abrem ciclos armazenados anteriores
 - Cartões de resumo para as datas do ciclo, a previsão de cada modelo e a leitura mais recente versus o ritmo esperado
 - Intervalos do gráfico **1D**, **2D**, **7D**, **1W**, **2W** e **1M**, com arrastar para zoom e leitura do ponteiro
-- Fecha para a bandeja de notificação. Lançamento opcional ao fazer login. Um segundo lançamento abre a janela que já está em execução
-- Tema claro, escuro ou do sistema, e uma escolha de idioma retirada de `locales/ui-languages.json`. Se esse arquivo estiver faltando, a única escolha é o inglês. A janela lembra seu tamanho, posição e estado maximizado
-- Exporte o uso como CSV e faça backup ou restaure as configurações e amostras
-- **Opcional.** [Servidor de sincronização CursorPace](https://github.com/wsj-br/CursorPace-SyncServer) mantém as instalações do CursorPace em uma rede local sincronizadas. Ele compartilha amostras de uso e limites do ciclo de faturamento, para que um Mac, um PC com Windows e uma máquina Linux no mesmo ambiente de desenvolvimento mostrem o mesmo gráfico. Instale e execute o servidor a partir desse repositório.
+- Fecha para a bandeja de notificação. Início opcional ao fazer login. Um segundo lançamento abre a janela que já está em execução
+- Tema claro, escuro ou do sistema, e uma escolha de idioma tirada do `locales/ui-languages.json` incorporado no aplicativo. O inglês é a única opção quando esse manifesto não pode ser lido. A janela lembra seu tamanho, posição e estado maximizado
+- Exportar uso como CSV, e fazer backup ou restaurar configurações e amostras
+- **Opcional.** [Servidor de sincronização CursorPace](https://github.com/wsj-br/CursorPace-SyncServer) mantém as instalações do CursorPace sincronizadas em uma rede local. Ele compartilha amostras de uso e limites de ciclo de faturamento, para que um Mac, um PC com Windows e uma máquina Linux no mesmo ambiente de desenvolvimento mostrem o mesmo gráfico. Instale e execute o servidor a partir desse repositório.
 
 ## Compilar a partir do código-fonte
 

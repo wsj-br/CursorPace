@@ -8,6 +8,10 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+## [0.3.8] - 2026-11-02
+
+- **Fixed**: settings - **Language** on an installed build lists every locale. The menu reads the `locales/ui-languages.json` already embedded in the assembly.
+
 ## [0.3.7] - 2026-11-02
 
 - **Added**: docs - `README.md` and `QUICKSTART.md` have machine translations under `translated-docs/`, linked from a language list on each English page.

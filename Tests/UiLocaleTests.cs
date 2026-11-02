@@ -69,6 +69,67 @@ public sealed class UiLocaleTests : IDisposable
         Assert.DoesNotContain("Claro", json, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void InstallLayout_FindsManifestBesideTheApp()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "cursorpace-locales-" + Guid.NewGuid().ToString("N"));
+        var locales = Path.Combine(root, "locales");
+        Directory.CreateDirectory(locales);
+        var manifest = Path.Combine(locales, "ui-languages.json");
+        File.WriteAllText(manifest, """
+            [
+              {"code":"en","label":"English","englishName":"English"},
+              {"code":"ja","label":"日本語","englishName":"Japanese"}
+            ]
+            """);
+        try
+        {
+            Assert.Equal(manifest, UiLocales.FindManifest(root));
+            var before = I18n.SupportedLocales.ToArray();
+            try
+            {
+                Assert.True(UiLocales.TryApplyManifest(manifest));
+                Assert.Equal(["en", "ja"], I18n.SupportedLocales.Select(locale => locale.Code).ToArray());
+            }
+            finally
+            {
+                I18n.Configure(new I18nOptions { Locales = before });
+            }
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void MissingLooseManifest_UsesEmbeddedLanguageList()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "cursorpace-empty-" + Guid.NewGuid().ToString("N"), "app");
+        Directory.CreateDirectory(root);
+        try
+        {
+            Assert.Null(UiLocales.FindManifest(root));
+            var before = I18n.SupportedLocales.ToArray();
+            try
+            {
+                Assert.True(UiLocales.TryApplyManifest(null));
+                var codes = I18n.SupportedLocales.Select(locale => locale.Code).ToArray();
+                Assert.Equal(
+                    ["en", "pt-BR", "de", "es", "fr", "hi", "ja", "ko", "zh-Hans", "zh-Hant"],
+                    codes);
+            }
+            finally
+            {
+                I18n.Configure(new I18nOptions { Locales = before });
+            }
+        }
+        finally
+        {
+            Directory.Delete(Directory.GetParent(root)!.FullName, recursive: true);
+        }
+    }
+
     public void Dispose()
     {
         CultureInfo.CurrentCulture = _culture;

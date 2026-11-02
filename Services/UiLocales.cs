@@ -34,31 +34,43 @@ public static class UiLocales
     {
         var path = FindManifest(AppContext.BaseDirectory)
             ?? FindManifest(Directory.GetCurrentDirectory());
-        if (path == null)
+        return TryApplyManifest(path);
+    }
+
+    internal static bool TryApplyManifest(string? path)
+    {
+        if (path != null)
         {
-            Apply(new[] { SourceLanguage() });
-            return false;
+            try
+            {
+                var locales = Parse(File.ReadAllText(path));
+                if (locales == null)
+                    return false;
+
+                Apply(locales);
+                return true;
+            }
+            catch (IOException)
+            {
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
         }
 
-        LocaleInfo[]? locales;
-        try
+        var embedded = ReadEmbeddedManifest();
+        if (embedded != null)
         {
-            locales = Parse(File.ReadAllText(path));
-        }
-        catch (IOException)
-        {
-            locales = null;
-        }
-        catch (UnauthorizedAccessException)
-        {
-            locales = null;
+            var locales = Parse(embedded);
+            if (locales != null)
+            {
+                Apply(locales);
+                return true;
+            }
         }
 
-        if (locales == null)
-            return false;
-
-        Apply(locales);
-        return true;
+        Apply(new[] { SourceLanguage() });
+        return false;
     }
 
     private static void Apply(LocaleInfo[] locales)
@@ -82,7 +94,8 @@ public static class UiLocales
     }
 
     // bin/Debug/net10.0 is three levels down from the repo, and the test output is four.
-    private static string? FindManifest(string? startDirectory)
+    // A published install has no repo parent and reads the embedded manifest instead.
+    internal static string? FindManifest(string? startDirectory)
     {
         if (string.IsNullOrWhiteSpace(startDirectory))
             return null;
@@ -102,6 +115,25 @@ public static class UiLocales
             var candidate = Path.Combine(dir.FullName, "locales", "ui-languages.json");
             if (File.Exists(candidate))
                 return candidate;
+        }
+
+        return null;
+    }
+
+    private static string? ReadEmbeddedManifest()
+    {
+        var assembly = typeof(UiLocales).Assembly;
+        foreach (var name in assembly.GetManifestResourceNames())
+        {
+            if (!name.EndsWith("ui-languages.json", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            using var stream = assembly.GetManifestResourceStream(name);
+            if (stream == null)
+                return null;
+
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
         }
 
         return null;

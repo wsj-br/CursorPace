@@ -84,7 +84,7 @@ Die Einstellungen ersetzen das Diagramm. **Zurück** oder die Überschrift **Ein
 
 | Registerkarte | Was Sie einstellen können |
 | --- | --- |
-| Start & Anzeige | **Beim Anmelden starten**, **Im Infobereich starten**, Design (System, Hell oder Dunkel), **Sprache** (die Gebietsschemas in `locales/ui-languages.json`, oder Englisch, wenn diese Datei fehlt), und **Jede Stichprobe bis zu** |
+| Start & Anzeige | **Beim Anmelden starten**, **Im Infobereich starten**, Design (System, Hell oder Dunkel), **Sprache** (die Gebietsschemas im eingebetteten `locales/ui-languages.json` oder Englisch, wenn dieses Manifest nicht gelesen werden kann), und **Jede Stichprobe bis zu** |
 | Cursor Konto | **Anmelden** (ausgeblendet, während verbunden), **Jetzt aktualisieren**, **Abmelden**, und automatische Aktualisierung alle 1, 2, 4, 6 oder 12 Stunden |
 | Sync-Server | **Mit Server synchronisieren**, Server-URL, API-Token, Computername (standardmäßig der Hostname) und **Jetzt erneut synchronisieren**. Der Link öffnet das Sync-Server-Repository |
 | Export & Sicherung | **Zyklus-CSV exportieren** für den angezeigten Zyklus, **Nutzung exportieren** für jede gespeicherte Stichprobe, während Sie angemeldet sind, und **Sicherung** / **Wiederherstellen** von Einstellungen und Stichproben als eine Zip-Datei. **Ordner öffnen** öffnet das Ziel |
