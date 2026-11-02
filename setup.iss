@@ -3,7 +3,7 @@
 
 #define MyAppName "CursorPace"
 #ifndef MyAppVersion
-#define MyAppVersion "0.3.6"
+#define MyAppVersion "0.3.7"
 #endif
 #define MyAppPublisher "CursorPace"
 #define MyAppExeName "CursorPace.exe"

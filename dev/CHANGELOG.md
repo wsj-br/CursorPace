@@ -8,6 +8,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+## [0.3.7] - 2026-11-02
+
 - **Added**: docs - `README.md` and `QUICKSTART.md` have machine translations under `translated-docs/`, linked from a language list on each English page.
 - **Fixed**: docs - the source build steps start with `dotnet restore` again.
 - **Added**: settings - **Language** on Startup & Display, stored as `uiLocale`. The choices come from `locales/ui-languages.json`. When that file is missing, the menu offers English only.
