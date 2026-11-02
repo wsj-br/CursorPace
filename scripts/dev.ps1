@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Run Cursor Pace for local development.
+  Run CursorPace for local development.
 
 .PARAMETER Background
   Launch in tray-only mode (--background).
@@ -35,7 +35,7 @@ if ($Test) {
     exit $LASTEXITCODE
 }
 
-Write-Host "Starting Cursor Pace ($Configuration)..."
+Write-Host "Starting CursorPace ($Configuration)..."
 $runArgs = @(
     'run',
     '--project', '.\CursorPace.csproj',

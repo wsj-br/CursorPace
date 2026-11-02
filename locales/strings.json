@@ -1,0 +1,6501 @@
+{
+  "39958403": {
+    "source": "MIT License",
+    "translated": {
+      "pt-BR": "Licença MIT",
+      "es": "Licencia MIT",
+      "de": "MIT-Lizenz",
+      "fr": "Licence MIT",
+      "zh-Hans": "MIT 许可证",
+      "hi": "MIT लाइसेंस",
+      "ko": "MIT 라이선스",
+      "ja": "MITライセンス",
+      "zh-Hant": "MIT 授權條款"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 553
+      }
+    ]
+  },
+  "45501486": {
+    "source": "{0} UTC",
+    "translated": {
+      "pt-BR": "{0} UTC",
+      "es": "{0} UTC",
+      "de": "{0} UTC",
+      "fr": "{0} UTC",
+      "zh-Hans": "{0} UTC",
+      "hi": "{0} UTC",
+      "ko": "{0} UTC",
+      "ja": "{0} UTC",
+      "zh-Hant": "{0} UTC"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 547
+      }
+    ]
+  },
+  "68726363": {
+    "source": "Sync server is off.",
+    "translated": {
+      "pt-BR": "Servidor de sincronização está desativado.",
+      "es": "El servidor de sincronización está desactivado.",
+      "de": "Sync-Server ist offline.",
+      "fr": "Le serveur de synchronisation est désactivé.",
+      "zh-Hans": "同步服务器已关闭。",
+      "hi": "सिंक सर्वर बंद है।",
+      "ko": "동기화 서버가 꺼져 있습니다.",
+      "ja": "同期サーバーはオフです。",
+      "zh-Hant": "同步伺服器已關閉。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 465
+      }
+    ]
+  },
+  "88970941": {
+    "source": "Could not read the backup file.",
+    "translated": {
+      "pt-BR": "Não foi possível ler o arquivo de backup.",
+      "es": "No se pudo leer el archivo de copia de seguridad.",
+      "de": "Sicherungsdatei konnte nicht gelesen werden.",
+      "fr": "Impossible de lire le fichier de sauvegarde.",
+      "zh-Hans": "无法读取备份文件。",
+      "hi": "बैकअप फ़ाइल पढ़ नहीं सका।",
+      "ko": "백업 파일을 읽을 수 없습니다.",
+      "ja": "バックアップファイルを読み取れませんでした。",
+      "zh-Hant": "無法讀取備份檔案。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 40
+      }
+    ]
+  },
+  "7bb65bce": {
+    "source": "CursorPace",
+    "translated": {
+      "fr": "CursorPace",
+      "de": "CursorPace",
+      "pt-BR": "CursorPace",
+      "es": "CursorPace",
+      "ko": "CursorPace",
+      "ja": "CursorPace",
+      "hi": "CursorPace",
+      "zh-Hans": "CursorPace",
+      "zh-Hant": "CursorPace"
+    },
+    "models": {
+      "fr": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "App.axaml",
+        "line": 70
+      },
+      {
+        "file": "Services/TrayService.cs",
+        "line": 68
+      },
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 223
+      },
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 228
+      },
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 9
+      },
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 39
+      },
+      {
+        "file": "Views/MainWindow.axaml.cs",
+        "line": 78
+      },
+      {
+        "file": "Views/MainWindow.axaml.cs",
+        "line": 379
+      }
+    ]
+  },
+  "22748a9c": {
+    "source": "day number,date,Cursor (expected),Other Models (expected),Cursor (estimated),Other Models (estimated),IsDataPoint",
+    "translated": {
+      "pt-BR": "número do dia,data,Cursor (esperado),Outros Modelos (esperado),Cursor (estimado),Outros Modelos (estimado),ÉPontoDeDados",
+      "es": "número de día,fecha,Cursor (esperado),Otros modelos (esperado),Cursor (estimado),Otros modelos (estimado),EsPuntoDeDatos",
+      "de": "Tag-Nummer,Datum,Cursor (erwartet),Andere Modelle (erwartet),Cursor (geschätzt),Andere Modelle (geschätzt),IstDatenpunkt",
+      "fr": "numéro du jour,date,Cursor (prévu),Autres modèles (prévu),Cursor (estimé),Autres modèles (estimé),EstPointDeDonnée",
+      "zh-Hans": "天数,日期,Cursor (预期),其他模型 (预期),Cursor (估计),其他模型 (估计),IsDataPoint",
+      "hi": "दिन संख्या,दिनांक,Cursor (अपेक्षित),अन्य मॉडल (अपेक्षित),Cursor (अनुमानित),अन्य मॉडल (अनुमानित),डेटापॉइंट है",
+      "ko": "일 번호,날짜,Cursor (예상),다른 모델 (예상),Cursor (예상치),다른 모델 (예상치),데이터 포인트 여부",
+      "ja": "日番号,日付,Cursor (予想),その他モデル (予想),Cursor (推定),その他モデル (推定),IsDataPoint",
+      "zh-Hant": "日期編號,日期,Cursor (預期),其他模型 (預期),Cursor (估計),其他模型 (估計),IsDataPoint"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/CycleCsvBuilder.cs",
+        "line": 16
+      }
+    ]
+  },
+  "13502a30": {
+    "source": "Finish signing in until you see your Cursor account, then click Continue.",
+    "translated": {
+      "pt-BR": "Conclua o login até ver sua conta Cursor, depois clique em Continuar.",
+      "es": "Termina de iniciar sesión hasta que veas tu cuenta de Cursor, luego haz clic en Continuar.",
+      "de": "Melden Sie sich an, bis Sie Ihr Cursor-Konto sehen, und klicken Sie dann auf Weiter.",
+      "fr": "Terminez la connexion jusqu'à ce que vous voyiez votre compte Cursor, puis cliquez sur Continuer.",
+      "zh-Hans": "完成登录，直到您看到您的 Cursor 账户，然后点击“继续”。",
+      "hi": "साइन इन करना पूरा करें जब तक आपको अपना Cursor खाता न दिख जाए, फिर जारी रखें पर क्लिक करें।",
+      "ko": "Cursor 계정이 보일 때까지 로그인한 다음, 계속을 클릭하세요.",
+      "ja": "Cursorアカウントが表示されるまでサインインを完了し、「続行」をクリックしてください。",
+      "zh-Hant": "請完成登入，直到您看到您的 Cursor 帳戶，然後按一下「繼續」。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/NativeWebViewCursorUsageClient.cs",
+        "line": 240
+      }
+    ]
+  },
+  "8c5c258c": {
+    "source": "Checking Cursor session…",
+    "translated": {
+      "pt-BR": "Verificando sessão Cursor…",
+      "es": "Comprobando sesión de Cursor…",
+      "de": "Cursor-Sitzung wird geprüft…",
+      "fr": "Vérification de la session Cursor…",
+      "zh-Hans": "正在检查 Cursor 会话…",
+      "hi": "Cursor सेशन की जाँच हो रही है…",
+      "ko": "Cursor 세션 확인 중…",
+      "ja": "Cursorセッションを確認中…",
+      "zh-Hant": "正在檢查 Cursor 工作階段…"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/NativeWebViewCursorUsageClient.cs",
+        "line": 247
+      }
+    ]
+  },
+  "045c2c25": {
+    "source": "Cursor has not accepted the session yet. Stay on cursor.com after signing in, then click Continue.",
+    "translated": {
+      "pt-BR": "Cursor ainda não aceitou a sessão. Permaneça em Cursor.com após fazer login e depois clique em Continuar.",
+      "es": "Cursor aún no ha aceptado la sesión. Permanece en Cursor.com después de iniciar sesión, luego haz clic en Continuar.",
+      "de": "Cursor hat die Sitzung noch nicht akzeptiert. Bleiben Sie nach der Anmeldung auf Cursor.com und klicken Sie dann auf Weiter.",
+      "fr": "Cursor n'a pas encore accepté la session. Restez sur Cursor.com après vous être connecté, puis cliquez sur Continuer.",
+      "zh-Hans": "Cursor 尚未接受会话。登录后请留在 Cursor.com，然后点击“继续”。",
+      "hi": "Cursor ने अभी तक सेशन स्वीकार नहीं किया है। साइन इन करने के बाद Cursor.com पर बने रहें, फिर जारी रखें पर क्लिक करें।",
+      "ko": "Cursor이(가) 아직 세션을 수락하지 않았습니다. 로그인 후 Cursor.com에 머무른 다음, 계속을 클릭하세요.",
+      "ja": "Cursorがセッションを受け入れていません。サインイン後もCursor.comにとどまり、「続行」をクリックしてください。",
+      "zh-Hant": "Cursor 尚未接受工作階段。登入後請停留在 Cursor.com，然後按一下「繼續」。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/NativeWebViewCursorUsageClient.cs",
+        "line": 260
+      }
+    ]
+  },
+  "9ff4115f": {
+    "source": "The usage request timed out.",
+    "translated": {
+      "pt-BR": "A solicitação de uso expirou.",
+      "es": "La solicitud de uso ha agotado el tiempo de espera.",
+      "de": "Die Nutzungsanfrage ist abgelaufen.",
+      "fr": "La requête d'utilisation a expiré.",
+      "zh-Hans": "使用情况请求已超时。",
+      "hi": "उपयोग अनुरोध की समय-सीमा समाप्त हो गई।",
+      "ko": "사용량 요청 시간이 초과되었습니다.",
+      "ja": "使用状況リクエストがタイムアウトしました。",
+      "zh-Hant": "用量請求已逾時。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/NativeWebViewCursorUsageClient.cs",
+        "line": 427
+      }
+    ]
+  },
+  "62fdadcf": {
+    "source": "Unable to parse the usage request result.",
+    "translated": {
+      "pt-BR": "Não foi possível analisar o resultado da solicitação de uso.",
+      "es": "No se pudo analizar el resultado de la solicitud de uso.",
+      "de": "Ergebnis der Nutzungsanfrage konnte nicht analysiert werden.",
+      "fr": "Impossible d'analyser le résultat de la requête d'utilisation.",
+      "zh-Hans": "无法解析使用情况请求结果。",
+      "hi": "उपयोग अनुरोध परिणाम को पार्स करने में असमर्थ।",
+      "ko": "사용량 요청 결과를 구문 분석할 수 없습니다.",
+      "ja": "使用状況リクエストの結果を解析できません。",
+      "zh-Hant": "無法解析用量請求結果。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/NativeWebViewCursorUsageClient.cs",
+        "line": 439
+      }
+    ]
+  },
+  "ab7cc7c5": {
+    "source": "Open",
+    "context": "tray",
+    "translated": {
+      "pt-BR": "Abrir",
+      "es": "Abrir",
+      "de": "Öffnen",
+      "fr": "Ouvrir",
+      "zh-Hans": "打开",
+      "hi": "खोलें",
+      "ko": "열기",
+      "ja": "開く",
+      "zh-Hant": "開啟"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/TrayService.cs",
+        "line": 55
+      }
+    ]
+  },
+  "9b7be8c7": {
+    "source": "Quit",
+    "context": "tray",
+    "translated": {
+      "pt-BR": "Sair",
+      "es": "Salir",
+      "de": "Beenden",
+      "fr": "Quitter",
+      "zh-Hans": "退出",
+      "hi": "छोड़ें",
+      "ko": "종료",
+      "ja": "終了",
+      "zh-Hant": "結束"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/TrayService.cs",
+        "line": 57
+      }
+    ]
+  },
+  "aeacc454": {
+    "source": "Could not sync with the server.",
+    "translated": {
+      "pt-BR": "Não foi possível sincronizar com o servidor.",
+      "es": "No se pudo sincronizar con el servidor.",
+      "de": "Synchronisierung mit dem Server fehlgeschlagen.",
+      "fr": "Impossible de synchroniser avec le serveur.",
+      "zh-Hans": "无法与服务器同步。",
+      "hi": "सर्वर के साथ सिंक नहीं कर सका।",
+      "ko": "서버와 동기화할 수 없습니다.",
+      "ja": "サーバーと同期できませんでした。",
+      "zh-Hant": "無法與伺服器同步。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 18
+      }
+    ]
+  },
+  "ca55d03e": {
+    "source": "Could not reach the sync server.",
+    "translated": {
+      "pt-BR": "Não foi possível alcançar o servidor de sincronização.",
+      "es": "No se pudo conectar con el servidor de sincronización.",
+      "de": "Sync-Server konnte nicht erreicht werden.",
+      "fr": "Impossible d'atteindre le serveur de synchronisation.",
+      "zh-Hans": "无法连接到同步服务器。",
+      "hi": "सिंक सर्वर तक पहुँच नहीं सका।",
+      "ko": "동기화 서버에 연결할 수 없습니다.",
+      "ja": "同期サーバーに到達できませんでした。",
+      "zh-Hant": "無法連線到同步伺服器。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 19
+      }
+    ]
+  },
+  "9da0f8af": {
+    "source": "The sync server did not answer in time.",
+    "translated": {
+      "pt-BR": "O servidor de sincronização não respondeu a tempo.",
+      "es": "El servidor de sincronización no respondió a tiempo.",
+      "de": "Der Sync-Server hat nicht rechtzeitig geantwortet.",
+      "fr": "Le serveur de synchronisation n'a pas répondu à temps.",
+      "zh-Hans": "同步服务器未及时响应。",
+      "hi": "सिंक सर्वर ने समय पर जवाब नहीं दिया।",
+      "ko": "동기화 서버가 제때 응답하지 않았습니다.",
+      "ja": "同期サーバーが時間内に応答しませんでした。",
+      "zh-Hant": "同步伺服器未及時回應。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 20
+      }
+    ]
+  },
+  "f06e8596": {
+    "source": "The sync server rejected the API token.",
+    "translated": {
+      "pt-BR": "O servidor de sincronização rejeitou o token da API.",
+      "es": "El servidor de sincronización rechazó el token de API.",
+      "de": "Der Sync-Server hat den API-Token abgelehnt.",
+      "fr": "Le serveur de synchronisation a rejeté le jeton API.",
+      "zh-Hans": "同步服务器拒绝了 API 令牌。",
+      "hi": "सिंक सर्वर ने API टोकन अस्वीकृत कर दिया।",
+      "ko": "동기화 서버가 API 토큰을 거부했습니다.",
+      "ja": "同期サーバーがAPIトークンを拒否しました。",
+      "zh-Hant": "同步伺服器拒絕了 API 權杖。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 21
+      }
+    ]
+  },
+  "38f99158": {
+    "source": "The sync server returned an unreadable response.",
+    "translated": {
+      "pt-BR": "O servidor de sincronização retornou uma resposta ilegível.",
+      "es": "El servidor de sincronización devolvió una respuesta ilegible.",
+      "de": "Der Sync-Server hat eine unlesbare Antwort zurückgegeben.",
+      "fr": "Le serveur de synchronisation a renvoyé une réponse illisible.",
+      "zh-Hans": "同步服务器返回了无法读取的响应。",
+      "hi": "सिंक सर्वर ने एक अपठनीय प्रतिक्रिया वापस भेजी।",
+      "ko": "동기화 서버가 읽을 수 없는 응답을 반환했습니다.",
+      "ja": "同期サーバーから読み取れない応答が返されました。",
+      "zh-Hant": "同步伺服器傳回了無法讀取的響應。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 22
+      }
+    ]
+  },
+  "dcc40b17": {
+    "source": "The sync server returned an empty response.",
+    "translated": {
+      "pt-BR": "O servidor de sincronização retornou uma resposta vazia.",
+      "es": "El servidor de sincronización devolvió una respuesta vacía.",
+      "de": "Der Sync-Server hat eine leere Antwort zurückgegeben.",
+      "fr": "Le serveur de synchronisation a renvoyé une réponse vide.",
+      "zh-Hans": "同步服务器返回了空响应。",
+      "hi": "सिंक सर्वर ने एक खाली प्रतिक्रिया वापस भेजी।",
+      "ko": "동기화 서버가 빈 응답을 반환했습니다.",
+      "ja": "同期サーバーから空の応答が返されました。",
+      "zh-Hant": "同步伺服器傳回了空響應。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 23
+      }
+    ]
+  },
+  "1e86c2a7": {
+    "source": "Set the sync server URL first.",
+    "translated": {
+      "pt-BR": "Defina a URL do servidor de sincronização primeiro.",
+      "es": "Establece primero la URL del servidor de sincronización.",
+      "de": "Legen Sie zuerst die Sync-Server-URL fest.",
+      "fr": "Définissez d'abord l'URL du serveur de synchronisation.",
+      "zh-Hans": "请先设置同步服务器 URL。",
+      "hi": "पहले सिंक सर्वर URL सेट करें।",
+      "ko": "먼저 동기화 서버 URL을 설정하세요.",
+      "ja": "最初に同期サーバーのURLを設定してください。",
+      "zh-Hant": "請先設定同步伺服器 URL。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 24
+      }
+    ]
+  },
+  "e4e2bc4a": {
+    "source": "The sync server URL must start with http:// or https://.",
+    "translated": {
+      "pt-BR": "A URL do servidor de sincronização deve começar com http:// ou https://.",
+      "es": "La URL del servidor de sincronización debe comenzar con http:// o https://.",
+      "de": "Die Sync-Server-URL muss mit http:// oder https:// beginnen.",
+      "fr": "L'URL du serveur de synchronisation doit commencer par http:// ou https://.",
+      "zh-Hans": "同步服务器 URL 必须以 http:// 或 https:// 开头。",
+      "hi": "सिंक सर्वर URL http:// या https:// से शुरू होना चाहिए।",
+      "ko": "동기화 서버 URL은 http:// 또는 https://로 시작해야 합니다.",
+      "ja": "同期サーバーのURLはhttp://またはhttps://で始まる必要があります。",
+      "zh-Hant": "同步伺服器 URL 必須以 http:// 或 https:// 開頭。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 25
+      }
+    ]
+  },
+  "0a759828": {
+    "source": "Sign in to Cursor to sync usage.",
+    "translated": {
+      "pt-BR": "Faça login no Cursor para sincronizar o uso.",
+      "es": "Inicia sesión en Cursor para sincronizar el uso.",
+      "de": "Melden Sie sich bei Cursor an, um die Nutzung zu synchronisieren.",
+      "fr": "Connectez-vous à Cursor pour synchroniser l'utilisation.",
+      "zh-Hans": "登录 Cursor 以同步使用情况。",
+      "hi": "उपयोग सिंक करने के लिए Cursor में साइन इन करें।",
+      "ko": "사용량 동기화를 위해 Cursor에 로그인하세요.",
+      "ja": "Cursorにサインインして使用状況を同期してください。",
+      "zh-Hant": "登入 Cursor 以同步用量。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 26
+      }
+    ]
+  },
+  "8abba140": {
+    "source": "Sign in was cancelled.",
+    "translated": {
+      "pt-BR": "O login foi cancelado.",
+      "es": "El inicio de sesión fue cancelado.",
+      "de": "Anmeldung wurde abgebrochen.",
+      "fr": "La connexion a été annulée.",
+      "zh-Hans": "登录已取消。",
+      "hi": "साइन इन रद्द कर दिया गया था।",
+      "ko": "로그인이 취소되었습니다.",
+      "ja": "サインインがキャンセルされました。",
+      "zh-Hant": "登入已取消。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 27
+      }
+    ]
+  },
+  "f9ed5338": {
+    "source": "Cursor rate-limited the request. Will retry later.",
+    "translated": {
+      "pt-BR": "Cursor limitou a taxa da solicitação. Tentaremos novamente mais tarde.",
+      "es": "Cursor limitó la frecuencia de la solicitud. Se reintentará más tarde.",
+      "de": "Cursor hat die Anfrage ratenbegrenzt. Wird später erneut versucht.",
+      "fr": "Cursor a limité la requête. Réessayera plus tard.",
+      "zh-Hans": "Cursor 限制了请求速率。稍后将重试。",
+      "hi": "Cursor ने अनुरोध को दर-सीमित कर दिया। बाद में पुनः प्रयास करेगा।",
+      "ko": "Cursor이(가) 요청에 대한 속도 제한을 적용했습니다. 나중에 다시 시도합니다.",
+      "ja": "Cursorがリクエストをレート制限しました。後で再試行します。",
+      "zh-Hant": "Cursor 限制了請求速率。將稍後重試。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 28
+      }
+    ]
+  },
+  "4012e047": {
+    "source": "Could not update usage.",
+    "translated": {
+      "pt-BR": "Não foi possível atualizar o uso.",
+      "es": "No se pudo actualizar el uso.",
+      "de": "Nutzung konnte nicht aktualisiert werden.",
+      "fr": "Impossible de mettre à jour l'utilisation.",
+      "zh-Hans": "无法更新使用情况。",
+      "hi": "उपयोग अपडेट नहीं कर सका।",
+      "ko": "사용량을 업데이트할 수 없습니다.",
+      "ja": "使用状況を更新できませんでした。",
+      "zh-Hant": "無法更新用量。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 29
+      }
+    ]
+  },
+  "5df70593": {
+    "source": "The Cursor usage response could not be parsed.",
+    "translated": {
+      "pt-BR": "Não foi possível analisar a resposta de uso de Cursor.",
+      "es": "No se pudo analizar la respuesta de uso de Cursor.",
+      "de": "Die Cursor-Nutzungsantwort konnte nicht analysiert werden.",
+      "fr": "La réponse d'utilisation de Cursor n'a pas pu être analysée.",
+      "zh-Hans": "无法解析 Cursor 使用情况响应。",
+      "hi": "Cursor उपयोग प्रतिक्रिया पार्स नहीं की जा सकी।",
+      "ko": "Cursor 사용량 응답을 구문 분석할 수 없습니다.",
+      "ja": "Cursorの使用状況応答を解析できませんでした。",
+      "zh-Hant": "無法解析 Cursor 用量響應。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 30
+      }
+    ]
+  },
+  "29bcee84": {
+    "source": "Could not start the embedded browser. Install WebKitGTK 4.1 (and WPE WebKit if your distribution requires it).",
+    "translated": {
+      "pt-BR": "Não foi possível iniciar o navegador incorporado. Instale o WebKitGTK 4.1 (e o WPE WebKit se sua distribuição exigir).",
+      "es": "No se pudo iniciar el navegador incrustado. Instala WebKitGTK 4.1 (y WPE WebKit si tu distribución lo requiere).",
+      "de": "Der eingebettete Browser konnte nicht gestartet werden. Installieren Sie WebKitGTK 4.1 (und WPE WebKit, falls Ihre Distribution dies erfordert).",
+      "fr": "Impossible de démarrer le navigateur intégré. Installez WebKitGTK 4.1 (et WPE WebKit si votre distribution l'exige).",
+      "zh-Hans": "无法启动嵌入式浏览器。请安装 WebKitGTK 4.1（如果您的发行版需要，请安装 WPE WebKit）。",
+      "hi": "एम्बेडेड ब्राउज़र शुरू नहीं कर सका। WebKitGTK 4.1 इंस्टॉल करें (और WPE WebKit यदि आपके वितरण को इसकी आवश्यकता है)।",
+      "ko": "내장 브라우저를 시작할 수 없습니다. WebKitGTK 4.1을 설치하세요 (배포판에 필요한 경우 WPE WebKit도 설치하세요).",
+      "ja": "組み込みブラウザーを起動できませんでした。WebKitGTK 4.1（および必要に応じてWPE WebKit）をインストールしてください。",
+      "zh-Hant": "無法啟動內嵌瀏覽器。請安裝 WebKitGTK 4.1 (如果您的發行版需要，也請安裝 WPE WebKit)。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 32
+      }
+    ]
+  },
+  "f3182311": {
+    "source": "Could not start the embedded browser used to sign in to Cursor.",
+    "translated": {
+      "pt-BR": "Não foi possível iniciar o navegador incorporado usado para fazer login no Cursor.",
+      "es": "No se pudo iniciar el navegador incrustado utilizado para iniciar sesión en Cursor.",
+      "de": "Der eingebettete Browser zum Anmelden bei Cursor konnte nicht gestartet werden.",
+      "fr": "Impossible de démarrer le navigateur intégré utilisé pour se connecter à Cursor.",
+      "zh-Hans": "无法启动用于登录 Cursor 的嵌入式浏览器。",
+      "hi": "Cursor में साइन इन करने के लिए उपयोग किया जाने वाला एम्बेडेड ब्राउज़र शुरू नहीं कर सका।",
+      "ko": "Cursor에 로그인하는 데 사용되는 내장 브라우저를 시작할 수 없습니다.",
+      "ja": "Cursorにサインインするための組み込みブラウザーを起動できませんでした。",
+      "zh-Hant": "無法啟動用於登入 Cursor 的內嵌瀏覽器。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 34
+      }
+    ]
+  },
+  "06617d8b": {
+    "source": "The usage request was cancelled.",
+    "translated": {
+      "pt-BR": "A solicitação de uso foi cancelada.",
+      "es": "La solicitud de uso fue cancelada.",
+      "de": "Die Nutzungsanfrage wurde abgebrochen.",
+      "fr": "La requête d'utilisation a été annulée.",
+      "zh-Hans": "使用情况请求已取消。",
+      "hi": "उपयोग अनुरोध रद्द कर दिया गया था।",
+      "ko": "사용량 요청이 취소되었습니다.",
+      "ja": "使用状況リクエストがキャンセルされました。",
+      "zh-Hant": "用量請求已取消。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 35
+      }
+    ]
+  },
+  "7d350e33": {
+    "source": "The backup file does not contain settings.json.",
+    "translated": {
+      "pt-BR": "O arquivo de backup não contém settings.json.",
+      "es": "El archivo de copia de seguridad no contiene settings.json.",
+      "de": "Die Sicherungsdatei enthält keine settings.json.",
+      "fr": "Le fichier de sauvegarde ne contient pas settings.json.",
+      "zh-Hans": "备份文件不包含 settings.json。",
+      "hi": "बैकअप फ़ाइल में settings.json शामिल नहीं है।",
+      "ko": "백업 파일에 settings.json이 포함되어 있지 않습니다.",
+      "ja": "バックアップファイルにsettings.jsonが含まれていません。",
+      "zh-Hant": "備份檔案不包含 settings.json。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 36
+      }
+    ]
+  },
+  "a8dab7bf": {
+    "source": "This backup was created by a newer app version.",
+    "translated": {
+      "pt-BR": "Este backup foi criado por uma versão mais recente do aplicativo.",
+      "es": "Esta copia de seguridad fue creada por una versión más reciente de la aplicación.",
+      "de": "Diese Sicherung wurde mit einer neueren App-Version erstellt.",
+      "fr": "Cette sauvegarde a été créée par une version plus récente de l'application.",
+      "zh-Hans": "此备份是由较新版本的应用程序创建的。",
+      "hi": "यह बैकअप एक नए ऐप संस्करण द्वारा बनाया गया था।",
+      "ko": "이 백업은 최신 앱 버전으로 생성되었습니다.",
+      "ja": "このバックアップは新しいバージョンのアプリで作成されました。",
+      "zh-Hant": "此備份是由較新版本的應用程式建立的。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 37
+      }
+    ]
+  },
+  "fc29cfd0": {
+    "source": "This file is not a CursorPace backup.",
+    "translated": {
+      "fr": "Ce fichier n'est pas une sauvegarde CursorPace.",
+      "de": "Diese Datei ist keine CursorPace-Sicherung.",
+      "pt-BR": "Este arquivo não é um backup de CursorPace.",
+      "es": "Este archivo no es una copia de seguridad de CursorPace.",
+      "ko": "이 파일은 CursorPace 백업이 아닙니다.",
+      "ja": "このファイルはCursorPaceのバックアップではありません。",
+      "hi": "यह फ़ाइल एक CursorPace बैकअप नहीं है।",
+      "zh-Hans": "此文件不是 CursorPace 备份。",
+      "zh-Hant": "此檔案不是 CursorPace 備份。"
+    },
+    "models": {
+      "fr": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 38
+      }
+    ]
+  },
+  "5ea32ad5": {
+    "source": "This file is not a valid backup archive.",
+    "translated": {
+      "pt-BR": "Este arquivo não é um arquivo de backup válido.",
+      "es": "Este archivo no es un archivo de copia de seguridad válido.",
+      "de": "Diese Datei ist kein gültiges Sicherungsarchiv.",
+      "fr": "Ce fichier n'est pas une archive de sauvegarde valide.",
+      "zh-Hans": "此文件不是有效的备份存档。",
+      "hi": "यह फ़ाइल एक वैध बैकअप संग्रह नहीं है।",
+      "ko": "이 파일은 유효한 백업 아카이브가 아닙니다.",
+      "ja": "このファイルは有効なバックアップアーカイブではありません。",
+      "zh-Hant": "此檔案不是有效的備份封存。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 39
+      }
+    ]
+  },
+  "a32ca801": {
+    "source": "The backup settings.json is not valid.",
+    "translated": {
+      "pt-BR": "O settings.json do backup não é válido.",
+      "es": "El archivo settings.json de la copia de seguridad no es válido.",
+      "de": "Die Sicherung settings.json ist ungültig.",
+      "fr": "Le fichier settings.json de la sauvegarde n'est pas valide.",
+      "zh-Hans": "备份 settings.json 无效。",
+      "hi": "बैकअप settings.json मान्य नहीं है।",
+      "ko": "백업 settings.json이 유효하지 않습니다.",
+      "ja": "バックアップのsettings.jsonが無効です。",
+      "zh-Hant": "備份 settings.json 無效。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 41
+      }
+    ]
+  },
+  "9c8ce478": {
+    "source": "The backup usage-samples.json is not valid.",
+    "translated": {
+      "pt-BR": "O usage-samples.json do backup não é válido.",
+      "es": "El archivo usage-samples.json de la copia de seguridad no es válido.",
+      "de": "Die Sicherung usage-samples.json ist ungültig.",
+      "fr": "Le fichier usage-samples.json de la sauvegarde n'est pas valide.",
+      "zh-Hans": "备份 usage-samples.json 无效。",
+      "hi": "बैकअप usage-samples.json मान्य नहीं है।",
+      "ko": "백업 usage-samples.json이 유효하지 않습니다.",
+      "ja": "バックアップのusage-samples.jsonが無効です。",
+      "zh-Hant": "備份 usage-samples.json 無效。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 42
+      }
+    ]
+  },
+  "8330e8cd": {
+    "source": "Could not restore usage samples.",
+    "translated": {
+      "pt-BR": "Não foi possível restaurar as amostras de uso.",
+      "es": "No se pudieron restaurar las muestras de uso.",
+      "de": "Nutzungsbeispiele konnten nicht wiederhergestellt werden.",
+      "fr": "Impossible de restaurer les échantillons d'utilisation.",
+      "zh-Hans": "无法恢复使用情况样本。",
+      "hi": "उपयोग नमूने पुनर्स्थापित नहीं कर सका।",
+      "ko": "사용량 샘플을 복원할 수 없습니다.",
+      "ja": "使用状況サンプルを復元できませんでした。",
+      "zh-Hant": "無法還原用量樣本。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 43
+      }
+    ]
+  },
+  "8eb19817": {
+    "source": "Could not restore the backup file.",
+    "translated": {
+      "pt-BR": "Não foi possível restaurar o arquivo de backup.",
+      "es": "No se pudo restaurar el archivo de copia de seguridad.",
+      "de": "Sicherungsdatei konnte nicht wiederhergestellt werden.",
+      "fr": "Impossible de restaurer le fichier de sauvegarde.",
+      "zh-Hans": "无法恢复备份文件。",
+      "hi": "बैकअप फ़ाइल पुनर्स्थापित नहीं कर सका।",
+      "ko": "백업 파일을 복원할 수 없습니다.",
+      "ja": "バックアップファイルを復元できませんでした。",
+      "zh-Hant": "無法還原備份檔案。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 44
+      }
+    ]
+  },
+  "b172d115": {
+    "source": "Could not write the backup file.",
+    "translated": {
+      "pt-BR": "Não foi possível gravar o arquivo de backup.",
+      "es": "No se pudo escribir el archivo de copia de seguridad.",
+      "de": "Sicherungsdatei konnte nicht geschrieben werden.",
+      "fr": "Impossible d'écrire le fichier de sauvegarde.",
+      "zh-Hans": "无法写入备份文件。",
+      "hi": "बैकअप फ़ाइल लिख नहीं सका।",
+      "ko": "백업 파일을 쓸 수 없습니다.",
+      "ja": "バックアップファイルを書き込めませんでした。",
+      "zh-Hant": "無法寫入備份檔案。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 45
+      }
+    ]
+  },
+  "d61ebf27": {
+    "source": "Could not determine the destination folder.",
+    "translated": {
+      "pt-BR": "Não foi possível determinar a pasta de destino.",
+      "es": "No se pudo determinar la carpeta de destino.",
+      "de": "Zielordner konnte nicht ermittelt werden.",
+      "fr": "Impossible de déterminer le dossier de destination.",
+      "zh-Hans": "无法确定目标文件夹。",
+      "hi": "गंतव्य फ़ोल्डर निर्धारित नहीं कर सका।",
+      "ko": "대상 폴더를 확인할 수 없습니다.",
+      "ja": "保存先フォルダーを特定できませんでした。",
+      "zh-Hant": "無法確定目標資料夾。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 46
+      }
+    ]
+  },
+  "7df9c798": {
+    "source": "Could not open the destination folder.",
+    "translated": {
+      "pt-BR": "Não foi possível abrir a pasta de destino.",
+      "es": "No se pudo abrir la carpeta de destino.",
+      "de": "Zielordner konnte nicht geöffnet werden.",
+      "fr": "Impossible d'ouvrir le dossier de destination.",
+      "zh-Hans": "无法打开目标文件夹。",
+      "hi": "गंतव्य फ़ोल्डर खोल नहीं सका।",
+      "ko": "대상 폴더를 열 수 없습니다.",
+      "ja": "保存先フォルダーを開けませんでした。",
+      "zh-Hant": "無法開啟目標資料夾。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 47
+      }
+    ]
+  },
+  "a19ee8d9": {
+    "source": "The sync server returned {0} for push.",
+    "translated": {
+      "pt-BR": "O servidor de sincronização retornou {0} para push.",
+      "es": "El servidor de sincronización devolvió {0} para la subida.",
+      "de": "Der Sync-Server hat {0} für Push zurückgegeben.",
+      "fr": "Le serveur de synchronisation a renvoyé {0} pour le push.",
+      "zh-Hans": "同步服务器为推送返回 {0}。",
+      "hi": "सिंक सर्वर ने पुश के लिए {0} वापस किया।",
+      "ko": "동기화 서버가 푸시에 대해 {0}을(를) 반환했습니다.",
+      "ja": "同期サーバーがプッシュに対して{0}を返しました。",
+      "zh-Hant": "同步伺服器針對推送傳回 {0}。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 71
+      }
+    ]
+  },
+  "868144b5": {
+    "source": "The sync server returned {0} for pull.",
+    "translated": {
+      "pt-BR": "O servidor de sincronização retornou {0} para pull.",
+      "es": "El servidor de sincronización devolvió {0} para la descarga.",
+      "de": "Der Sync-Server hat {0} für Pull zurückgegeben.",
+      "fr": "Le serveur de synchronisation a renvoyé {0} pour le pull.",
+      "zh-Hans": "同步服务器为拉取返回 {0}。",
+      "hi": "सिंक सर्वर ने पुल के लिए {0} वापस किया।",
+      "ko": "동기화 서버가 풀에 대해 {0}을(를) 반환했습니다.",
+      "ja": "同期サーバーがプルに対して{0}を返しました。",
+      "zh-Hant": "同步伺服器針對拉取傳回 {0}。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 72
+      }
+    ]
+  },
+  "480aec46": {
+    "source": "The sync server returned {0} for {1}.",
+    "translated": {
+      "pt-BR": "O servidor de sincronização retornou {0} para {1}.",
+      "es": "El servidor de sincronización devolvió {0} para {1}.",
+      "de": "Der Sync-Server hat {0} für {1} zurückgegeben.",
+      "fr": "Le serveur de synchronisation a renvoyé {0} pour {1}.",
+      "zh-Hans": "同步服务器为 {1} 返回 {0}。",
+      "hi": "सिंक सर्वर ने {1} के लिए {0} वापस किया।",
+      "ko": "동기화 서버가 {1}에 대해 {0}을(를) 반환했습니다.",
+      "ja": "同期サーバーが{1}に対して{0}を返しました。",
+      "zh-Hant": "同步伺服器針對 {1} 傳回 {0}。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UiText.cs",
+        "line": 73
+      }
+    ]
+  },
+  "a4f38b36": {
+    "source": "{0} under expected",
+    "translated": {
+      "pt-BR": "{0} abaixo do esperado",
+      "es": "{0} por debajo de lo esperado",
+      "de": "{0} unter Erwartung",
+      "fr": "{0} sous les prévisions",
+      "zh-Hans": "低于预期 {0}",
+      "hi": "{0} अपेक्षित से कम",
+      "ko": "예상치보다 {0} 낮음",
+      "ja": "予想を{0}下回る",
+      "zh-Hant": "比預期少 {0}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UsageChartSeriesBuilder.cs",
+        "line": 133
+      }
+    ]
+  },
+  "453e0b7f": {
+    "source": "{0} over expected",
+    "translated": {
+      "pt-BR": "{0} acima do esperado",
+      "es": "{0} por encima de lo esperado",
+      "de": "{0} über Erwartung",
+      "fr": "{0} au-dessus des prévisions",
+      "zh-Hans": "高于预期 {0}",
+      "hi": "{0} अपेक्षित से अधिक",
+      "ko": "예상치보다 {0} 높음",
+      "ja": "予想を{0}上回る",
+      "zh-Hant": "比預期多 {0}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UsageChartSeriesBuilder.cs",
+        "line": 134
+      }
+    ]
+  },
+  "708acf4e": {
+    "source": "on expected usage",
+    "translated": {
+      "pt-BR": "no uso esperado",
+      "es": "en el uso esperado",
+      "de": "bei erwarteter Nutzung",
+      "fr": "selon l'utilisation prévue",
+      "zh-Hans": "符合预期使用情况",
+      "hi": "अपेक्षित उपयोग पर",
+      "ko": "예상 사용량",
+      "ja": "予想通りの使用量",
+      "zh-Hant": "符合預期用量"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UsageChartSeriesBuilder.cs",
+        "line": 135
+      }
+    ]
+  },
+  "3f192862": {
+    "source": "timestamp,Cursor,Other Models",
+    "translated": {
+      "pt-BR": "timestamp,Cursor,Outros Modelos",
+      "es": "marca de tiempo,Cursor,Otros modelos",
+      "de": "Zeitstempel,Cursor,Andere Modelle",
+      "fr": "horodatage,Cursor,Autres modèles",
+      "zh-Hans": "时间戳,Cursor,其他模型",
+      "hi": "टाइमस्टैम्प,Cursor,अन्य मॉडल",
+      "ko": "타임스탬프,Cursor,다른 모델",
+      "ja": "タイムスタンプ,Cursor,その他モデル",
+      "zh-Hant": "時間戳記,Cursor,其他模型"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UsageSamplesCsvBuilder.cs",
+        "line": 12
+      }
+    ]
+  },
+  "2ec0d16e": {
+    "source": "Connected",
+    "translated": {
+      "pt-BR": "Conectado",
+      "es": "Conectado",
+      "de": "Verbunden",
+      "fr": "Connecté",
+      "zh-Hans": "已连接",
+      "hi": "कनेक्टेड",
+      "ko": "연결됨",
+      "ja": "接続済み",
+      "zh-Hant": "已連線"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UsageSyncService.cs",
+        "line": 53
+      },
+      {
+        "file": "Services/UsageSyncService.cs",
+        "line": 302
+      },
+      {
+        "file": "Services/UsageSyncService.cs",
+        "line": 330
+      }
+    ]
+  },
+  "99676b9a": {
+    "source": "Not signed in",
+    "translated": {
+      "pt-BR": "Não conectado",
+      "es": "Sesión no iniciada",
+      "de": "Nicht angemeldet",
+      "fr": "Non connecté",
+      "zh-Hans": "未登录",
+      "hi": "साइन इन नहीं किया गया",
+      "ko": "로그인되지 않음",
+      "ja": "未サインイン",
+      "zh-Hant": "未登入"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UsageSyncService.cs",
+        "line": 59
+      },
+      {
+        "file": "Services/UsageSyncService.cs",
+        "line": 301
+      }
+    ]
+  },
+  "805a5e56": {
+    "source": "Updating…",
+    "translated": {
+      "pt-BR": "Atualizando…",
+      "es": "Actualizando…",
+      "de": "Wird aktualisiert…",
+      "fr": "Mise à jour…",
+      "zh-Hans": "正在更新…",
+      "hi": "अपडेट हो रहा है…",
+      "ko": "업데이트 중…",
+      "ja": "更新中…",
+      "zh-Hant": "正在更新…"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "deepseek-v4-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UsageSyncService.cs",
+        "line": 300
+      }
+    ]
+  },
+  "cf026c39": {
+    "source": "Cursor {0}",
+    "translated": {
+      "pt-BR": "Cursor {0}",
+      "es": "Cursor {0}",
+      "de": "Cursor {0}",
+      "fr": "Cursor {0}",
+      "ko": "Cursor {0}",
+      "ja": "Cursor {0}",
+      "hi": "Cursor {0}",
+      "zh-Hans": "Cursor {0}",
+      "zh-Hant": "Cursor {0}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Services/UsageSyncService.cs",
+        "line": 333
+      },
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 185
+      },
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 447
+      }
+    ]
+  },
+  "f0d2fe96": {
+    "source": "Other {0}",
+    "translated": {
+      "pt-BR": "Outros {0}",
+      "es": "Otros {0}",
+      "de": "Andere {0}",
+      "fr": "Autre {0}",
+      "ko": "기타 {0}",
+      "ja": "その他 {0}",
+      "hi": "अन्य {0}",
+      "zh-Hans": "其他 {0}",
+      "zh-Hant": "其他 {0}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 187
+      },
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 453
+      }
+    ]
+  },
+  "356630e6": {
+    "source": "Expected usage {0}",
+    "translated": {
+      "pt-BR": "Uso esperado {0}",
+      "es": "Uso esperado {0}",
+      "de": "Erwarteter Verbrauch {0}",
+      "fr": "Utilisation prévue {0}",
+      "ko": "예상 사용량 {0}",
+      "ja": "予想使用量 {0}",
+      "hi": "अनुमानित उपयोग {0}",
+      "zh-Hans": "预期用量 {0}",
+      "zh-Hant": "預計用量 {0}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 189
+      },
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 391
+      }
+    ]
+  },
+  "9e0b6244": {
+    "source": "Cursor: {0} - projected at renewal {1}",
+    "translated": {
+      "pt-BR": "Cursor: {0} - projetado na renovação {1}",
+      "es": "Cursor: {0} - proyectado en la renovación {1}",
+      "de": "Cursor: {0} - prognostiziert bei Verlängerung {1}",
+      "fr": "Cursor : {0} - projeté au renouvellement {1}",
+      "ko": "Cursor: {0} - 갱신 시 예상 {1}",
+      "ja": "Cursor: {0} - 更新時の予測 {1}",
+      "hi": "Cursor: {0} - नवीनीकरण पर अनुमानित {1}",
+      "zh-Hans": "Cursor: {0} - 续订时预计 {1}",
+      "zh-Hant": "Cursor: {0} - 續訂時預計 {1}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 240
+      }
+    ]
+  },
+  "c1539998": {
+    "source": "Cursor: {0}",
+    "translated": {
+      "pt-BR": "Cursor: {0}",
+      "es": "Cursor: {0}",
+      "de": "Cursor: {0}",
+      "fr": "Cursor : {0}",
+      "ko": "Cursor: {0}",
+      "ja": "Cursor: {0}",
+      "hi": "Cursor: {0}",
+      "zh-Hans": "Cursor: {0}",
+      "zh-Hant": "Cursor: {0}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 241
+      }
+    ]
+  },
+  "0a4f4f9d": {
+    "source": "Other models: {0} - projected at renewal {1}",
+    "translated": {
+      "pt-BR": "Outros modelos: {0} - projetado na renovação {1}",
+      "es": "Otros modelos: {0} - proyectado en la renovación {1}",
+      "de": "Andere Modelle: {0} - prognostiziert bei Verlängerung {1}",
+      "fr": "Autres modèles : {0} - projeté au renouvellement {1}",
+      "ko": "기타 모델: {0} - 갱신 시 예상 {1}",
+      "ja": "その他のモデル: {0} - 更新時の予測 {1}",
+      "hi": "अन्य मॉडल: {0} - नवीनीकरण पर अनुमानित {1}",
+      "zh-Hans": "其他模型: {0} - 续订时预计 {1}",
+      "zh-Hant": "其他模型: {0} - 續訂時預計 {1}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 248
+      }
+    ]
+  },
+  "9cd5e7c3": {
+    "source": "Other models: {0}",
+    "translated": {
+      "pt-BR": "Outros modelos: {0}",
+      "es": "Otros modelos: {0}",
+      "de": "Andere Modelle: {0}",
+      "fr": "Autres modèles : {0}",
+      "ko": "기타 모델: {0}",
+      "ja": "その他のモデル: {0}",
+      "hi": "अन्य मॉडल: {0}",
+      "zh-Hans": "其他模型: {0}",
+      "zh-Hant": "其他模型: {0}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 249
+      }
+    ]
+  },
+  "436a4b45": {
+    "source": "Set the server URL and API token to sync.",
+    "translated": {
+      "pt-BR": "Defina a URL do servidor e o token da API para sincronizar.",
+      "es": "Establece la URL del servidor y el token de API para sincronizar.",
+      "de": "Server-URL und API-Token zum Synchronisieren einrichten.",
+      "fr": "Définissez l'URL du serveur et le jeton API pour synchroniser.",
+      "ko": "서버 URL 및 API 토큰을 설정하여 동기화하세요.",
+      "ja": "サーバーURLとAPIトークンを設定して同期します。",
+      "hi": "सिंक करने के लिए सर्वर URL और API टोकन सेट करें।",
+      "zh-Hans": "设置服务器 URL 和 API 令牌以进行同步。",
+      "zh-Hant": "設定伺服器 URL 和 API 權杖以同步。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 466
+      }
+    ]
+  },
+  "fcc603a3": {
+    "source": "Not synced yet.",
+    "translated": {
+      "pt-BR": "Ainda não sincronizado.",
+      "es": "Aún no sincronizado.",
+      "de": "Noch nicht synchronisiert.",
+      "fr": "Pas encore synchronisé.",
+      "ko": "아직 동기화되지 않음.",
+      "ja": "未同期です。",
+      "hi": "अभी तक सिंक नहीं हुआ है।",
+      "zh-Hans": "尚未同步。",
+      "zh-Hant": "尚未同步。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 467
+      }
+    ]
+  },
+  "2fb70d26": {
+    "source": "Syncing with the server…",
+    "translated": {
+      "pt-BR": "Sincronizando com o servidor…",
+      "es": "Sincronizando con el servidor…",
+      "de": "Synchronisierung mit dem Server läuft…",
+      "fr": "Synchronisation avec le serveur…",
+      "ko": "서버와 동기화 중…",
+      "ja": "サーバーと同期中…",
+      "hi": "सर्वर के साथ सिंक हो रहा है…",
+      "zh-Hans": "正在与服务器同步…",
+      "zh-Hant": "正在與伺服器同步…"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 468
+      }
+    ]
+  },
+  "b63df400": {
+    "source": "Last synced {0}",
+    "translated": {
+      "pt-BR": "Última sincronização {0}",
+      "es": "Última sincronización {0}",
+      "de": "Zuletzt synchronisiert {0}",
+      "fr": "Dernière synchronisation {0}",
+      "ko": "마지막 동기화 {0}",
+      "ja": "最終同期 {0}",
+      "hi": "पिछली बार सिंक किया गया {0}",
+      "zh-Hans": "上次同步 {0}",
+      "zh-Hant": "上次同步 {0}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 470
+      }
+    ]
+  },
+  "590f14b3": {
+    "plural": true,
+    "source": "Last synced {1} · 1 sample",
+    "pluralSource": "Last synced {1} · {0} samples",
+    "translated": {
+      "en": {
+        "one": "Last synced {1} · 1 sample",
+        "other": "Last synced {1} · {0} samples"
+      },
+      "pt-BR": {
+        "one": "Última sincronização {1} · 1 amostra",
+        "other": "Última sincronização {1} · {0} amostras"
+      },
+      "de": {
+        "one": "Zuletzt synchronisiert {1} · 1 Probe",
+        "other": "Zuletzt synchronisiert {1} · {0} Proben"
+      },
+      "es": {
+        "one": "Última sincronización {1} · 1 muestra",
+        "other": "Última sincronización {1} · {0} muestras"
+      },
+      "fr": {
+        "one": "Dernière synchronisation {1} · 1 échantillon",
+        "other": "Dernière synchronisation {1} · {0} échantillons"
+      },
+      "hi": {
+        "one": "पिछली बार सिंक किया गया {1} · 1 नमूना",
+        "other": "पिछली बार सिंक किया गया {1} · {0} नमूने"
+      },
+      "ko": {
+        "other": "최근 동기화: {1} · {0}개 샘플"
+      },
+      "zh-Hans": {
+        "other": "上次同步时间 {1} · {0} 个样本"
+      },
+      "ja": {
+        "other": "最終同期 {1} ・ {0}サンプル"
+      },
+      "zh-Hant": {
+        "other": "上次同步 {1} · {0} 個樣本"
+      }
+    },
+    "models": {
+      "en": "plural-source",
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 471
+      }
+    ]
+  },
+  "0f3b7a4a": {
+    "source": "Not synced yet",
+    "translated": {
+      "pt-BR": "Ainda não sincronizado",
+      "es": "Aún no sincronizado",
+      "de": "Noch nicht synchronisiert",
+      "fr": "Pas encore synchronisé",
+      "ko": "아직 동기화되지 않음",
+      "ja": "未同期",
+      "hi": "अभी तक सिंक नहीं हुआ",
+      "zh-Hans": "尚未同步",
+      "zh-Hant": "尚未同步"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 502
+      }
+    ]
+  },
+  "943bf71e": {
+    "source": "Connected — loading usage…",
+    "translated": {
+      "pt-BR": "Conectado — carregando uso…",
+      "es": "Conectado — cargando uso…",
+      "de": "Verbunden — Verbrauch wird geladen…",
+      "fr": "Connecté — chargement de l'utilisation…",
+      "ko": "연결됨 — 사용량 로드 중…",
+      "ja": "接続済み — 使用量を読み込み中…",
+      "hi": "कनेक्टेड — उपयोग लोड हो रहा है…",
+      "zh-Hans": "已连接 — 正在加载用量…",
+      "zh-Hant": "已連線 — 正在載入用量…"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 525
+      }
+    ]
+  },
+  "8579e5a4": {
+    "source": "Signing in…",
+    "translated": {
+      "pt-BR": "Fazendo login…",
+      "es": "Iniciando sesión…",
+      "de": "Anmelden…",
+      "fr": "Connexion en cours…",
+      "ko": "로그인 중…",
+      "ja": "サインイン中…",
+      "hi": "साइन इन हो रहा है…",
+      "zh-Hans": "正在登录…",
+      "zh-Hant": "正在登入…"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 527
+      }
+    ]
+  },
+  "ca64aa7f": {
+    "source": "Sign in to Cursor to load your billing cycle and usage.",
+    "translated": {
+      "pt-BR": "Faça login em Cursor para carregar seu ciclo de faturamento e uso.",
+      "es": "Inicia sesión en Cursor para cargar tu ciclo de facturación y uso.",
+      "de": "Melden Sie sich bei Cursor an, um Ihren Abrechnungszyklus und Verbrauch zu laden.",
+      "fr": "Connectez-vous à Cursor pour charger votre cycle de facturation et votre utilisation.",
+      "ko": "Cursor에 로그인하여 청구 주기 및 사용량을 로드하세요.",
+      "ja": "Cursorにサインインして、請求サイクルと使用量を読み込みます。",
+      "hi": "अपना बिलिंग चक्र और उपयोग लोड करने के लिए Cursor में साइन इन करें।",
+      "zh-Hans": "登录到 Cursor 以加载您的计费周期和用量。",
+      "zh-Hant": "登入 Cursor 以載入您的帳單週期和用量。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 528
+      }
+    ]
+  },
+  "26df4619": {
+    "source": "Cursor account (connected)",
+    "translated": {
+      "pt-BR": "Conta Cursor (conectado)",
+      "es": "Cuenta de Cursor (conectada)",
+      "de": "Cursor Konto (verbunden)",
+      "fr": "Compte Cursor (connecté)",
+      "ko": "Cursor 계정 (연결됨)",
+      "ja": "Cursorアカウント (接続済み)",
+      "hi": "Cursor खाता (कनेक्टेड)",
+      "zh-Hans": "Cursor 帐户 (已连接)",
+      "zh-Hant": "Cursor 帳戶 (已連線)"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 535
+      }
+    ]
+  },
+  "cfcfb30a": {
+    "source": "Cursor account (disconnected)",
+    "translated": {
+      "pt-BR": "Conta Cursor (desconectado)",
+      "es": "Cuenta de Cursor (desconectada)",
+      "de": "Cursor Konto (getrennt)",
+      "fr": "Compte Cursor (déconnecté)",
+      "ko": "Cursor 계정 (연결 끊김)",
+      "ja": "Cursorアカウント (未接続)",
+      "hi": "Cursor खाता (डिस्कनेक्टेड)",
+      "zh-Hans": "Cursor 帐户 (已断开连接)",
+      "zh-Hant": "Cursor 帳戶 (已中斷連線)"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 535
+      }
+    ]
+  },
+  "3bbd68b2": {
+    "source": "Copyright © 2026 Waldemar Scudeller Jr.",
+    "translated": {
+      "pt-BR": "Copyright © 2026 Waldemar Scudeller Jr.",
+      "es": "Copyright © 2026 Waldemar Scudeller Jr.",
+      "de": "Copyright © 2026 Waldemar Scudeller Jr.",
+      "fr": "Copyright © 2026 Waldemar Scudeller Jr.",
+      "ko": "Copyright © 2026 Waldemar Scudeller Jr.",
+      "ja": "Copyright © 2026 Waldemar Scudeller Jr.",
+      "hi": "कॉपीराइट © 2026 Waldemar Scudeller Jr.",
+      "zh-Hans": "版权所有 © 2026 Waldemar Scudeller Jr.",
+      "zh-Hant": "版權所有 © 2026 Waldemar Scudeller Jr."
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 551
+      }
+    ]
+  },
+  "e966a55d": {
+    "source": "Expected usage reaches {0} then, if this reading stays at {0}.",
+    "translated": {
+      "pt-BR": "O uso esperado atinge {0} então, se esta leitura permanecer em {0}.",
+      "es": "El uso esperado alcanza {0} entonces, si esta lectura se mantiene en {0}.",
+      "de": "Der erwartete Verbrauch erreicht dann {0}, wenn dieser Wert bei {0} bleibt.",
+      "fr": "L'utilisation prévue atteint {0} alors, si cette lecture reste à {0}.",
+      "ko": "이 수치가 {0}으로 유지되면 예상 사용량이 {0}에 도달합니다.",
+      "ja": "この読み取り値が{0}のままであれば、予想使用量はその時点で{0}に達します。",
+      "hi": "अनुमानित उपयोग तब {0} तक पहुँच जाता है, यदि यह रीडिंग {0} पर बनी रहती है।",
+      "zh-Hans": "预期用量届时将达到 {0}，如果此读数保持在 {0}。",
+      "zh-Hant": "如果此讀數維持在 {0}，則預計用量屆時將達到 {0}。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 854
+      }
+    ]
+  },
+  "97bc592b": {
+    "source": "now",
+    "translated": {
+      "pt-BR": "agora",
+      "es": "ahora",
+      "de": "jetzt",
+      "fr": "maintenant",
+      "ko": "지금",
+      "ja": "現在",
+      "hi": "अभी",
+      "zh-Hans": "现在",
+      "zh-Hant": "現在"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 875
+      }
+    ]
+  },
+  "bd89ac31": {
+    "source": "in {0}",
+    "translated": {
+      "pt-BR": "em {0}",
+      "es": "en {0}",
+      "de": "in {0}",
+      "fr": "dans {0}",
+      "ko": "{0} 후",
+      "ja": "{0}後",
+      "hi": "{0} में",
+      "zh-Hans": "在 {0} 内",
+      "zh-Hant": "在 {0}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 875
+      }
+    ]
+  },
+  "b9eb12b5": {
+    "source": "Cursor Models run out",
+    "translated": {
+      "pt-BR": "Modelos Cursor esgotam",
+      "es": "Modelos de Cursor se agotan",
+      "de": "Cursor Modelle laufen ab",
+      "fr": "Modèles Cursor épuisés",
+      "ko": "Cursor 모델 소진됨",
+      "ja": "Cursorモデルが尽きる",
+      "hi": "Cursor मॉडल खत्म हो जाते हैं",
+      "zh-Hans": "Cursor 模型用尽",
+      "zh-Hant": "Cursor 模型用盡"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 881
+      }
+    ]
+  },
+  "d4e645fc": {
+    "source": "Other Models run out",
+    "translated": {
+      "pt-BR": "Outros Modelos esgotam",
+      "es": "Otros modelos se agotan",
+      "de": "Andere Modelle laufen ab",
+      "fr": "Autres modèles épuisés",
+      "ko": "기타 모델 소진됨",
+      "ja": "その他のモデルが尽きる",
+      "hi": "अन्य मॉडल खत्म हो जाते हैं",
+      "zh-Hans": "其他模型用尽",
+      "zh-Hant": "其他模型用盡"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 882
+      }
+    ]
+  },
+  "3e10475f": {
+    "source": "Cursor back on pace",
+    "translated": {
+      "pt-BR": "Cursor de volta ao ritmo",
+      "es": "Cursor de nuevo al ritmo",
+      "de": "Cursor wieder im Soll",
+      "fr": "Cursor de nouveau dans les temps",
+      "ko": "Cursor 정상 속도 복귀",
+      "ja": "Cursorがペースに戻る",
+      "hi": "Cursor वापस गति पर",
+      "zh-Hans": "Cursor 恢复正常",
+      "zh-Hant": "Cursor 恢復正常進度"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 889
+      }
+    ]
+  },
+  "6db0eb17": {
+    "source": "Other back on pace",
+    "translated": {
+      "pt-BR": "Outros de volta ao ritmo",
+      "es": "Otros de nuevo al ritmo",
+      "de": "Andere wieder im Soll",
+      "fr": "Autres de nouveau dans les temps",
+      "ko": "기타 정상 속도 복귀",
+      "ja": "その他がペースに戻る",
+      "hi": "अन्य वापस गति पर",
+      "zh-Hans": "其他恢复正常",
+      "zh-Hant": "其他恢復正常進度"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 890
+      }
+    ]
+  },
+  "57ffdfa6": {
+    "source": "Cursor Models at renewal",
+    "translated": {
+      "pt-BR": "Modelos Cursor na renovação",
+      "es": "Modelos de Cursor en la renovación",
+      "de": "Cursor Modelle bei Verlängerung",
+      "fr": "Modèles Cursor au renouvellement",
+      "ko": "Cursor 모델 갱신 시",
+      "ja": "Cursorモデル (更新時)",
+      "hi": "Cursor मॉडल नवीनीकरण पर",
+      "zh-Hans": "Cursor 续订时模型",
+      "zh-Hant": "Cursor 模型續訂時"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 897
+      }
+    ]
+  },
+  "3cc296d4": {
+    "source": "Other Models at renewal",
+    "translated": {
+      "pt-BR": "Outros Modelos na renovação",
+      "es": "Otros modelos en la renovación",
+      "de": "Andere Modelle bei Verlängerung",
+      "fr": "Autres modèles au renouvellement",
+      "ko": "기타 모델 갱신 시",
+      "ja": "その他のモデル (更新時)",
+      "hi": "अन्य मॉडल नवीनीकरण पर",
+      "zh-Hans": "其他续订时模型",
+      "zh-Hant": "其他模型續訂時"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/MainViewModel.cs",
+        "line": 898
+      }
+    ]
+  },
+  "8c94134f": {
+    "source": "2D",
+    "translated": {
+      "pt-BR": "2D",
+      "es": "2D",
+      "de": "2D",
+      "fr": "2J",
+      "ko": "2D",
+      "ja": "2D",
+      "hi": "2D",
+      "zh-Hans": "2D",
+      "zh-Hant": "2 天"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/SampleDetailOption.cs",
+        "line": 15
+      },
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 83
+      }
+    ]
+  },
+  "4129f7dc": {
+    "source": "4D",
+    "translated": {
+      "pt-BR": "4D",
+      "es": "4D",
+      "de": "4D",
+      "fr": "4J",
+      "ko": "4D",
+      "ja": "4D",
+      "hi": "4D",
+      "zh-Hans": "4D",
+      "zh-Hant": "4 天"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/SampleDetailOption.cs",
+        "line": 16
+      }
+    ]
+  },
+  "0e34ff00": {
+    "source": "7D",
+    "translated": {
+      "pt-BR": "7D",
+      "es": "7D",
+      "de": "7D",
+      "fr": "7J",
+      "ko": "7D",
+      "ja": "7D",
+      "hi": "7D",
+      "zh-Hans": "7D",
+      "zh-Hant": "7 天"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/SampleDetailOption.cs",
+        "line": 17
+      },
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 91
+      }
+    ]
+  },
+  "9e4735eb": {
+    "source": "14D",
+    "translated": {
+      "pt-BR": "14D",
+      "es": "14D",
+      "de": "14D",
+      "fr": "14J",
+      "ko": "14D",
+      "ja": "14D",
+      "hi": "14D",
+      "zh-Hans": "14D",
+      "zh-Hant": "14 天"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/SampleDetailOption.cs",
+        "line": 18
+      }
+    ]
+  },
+  "a45da96d": {
+    "source": "System",
+    "translated": {
+      "pt-BR": "Sistema",
+      "es": "Sistema",
+      "de": "System",
+      "fr": "Système",
+      "ko": "시스템",
+      "ja": "システム",
+      "hi": "सिस्टम",
+      "zh-Hans": "系统",
+      "zh-Hant": "系統"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/ThemeModeChoice.cs",
+        "line": 13
+      }
+    ]
+  },
+  "9914a0ce": {
+    "source": "Light",
+    "translated": {
+      "pt-BR": "Claro",
+      "es": "Claro",
+      "de": "Hell",
+      "fr": "Clair",
+      "ko": "밝게",
+      "ja": "ライト",
+      "hi": "लाइट",
+      "zh-Hans": "浅色",
+      "zh-Hant": "淺色"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/ThemeModeChoice.cs",
+        "line": 14
+      }
+    ]
+  },
+  "a18366b2": {
+    "source": "Dark",
+    "translated": {
+      "pt-BR": "Escuro",
+      "es": "Oscuro",
+      "de": "Dunkel",
+      "fr": "Sombre",
+      "ko": "어둡게",
+      "ja": "ダーク",
+      "hi": "डार्क",
+      "zh-Hans": "深色",
+      "zh-Hant": "深色"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "ViewModels/ThemeModeChoice.cs",
+        "line": 15
+      }
+    ]
+  },
+  "e0aa021e": {
+    "source": "OK",
+    "translated": {
+      "pt-BR": "OK",
+      "es": "Aceptar",
+      "de": "OK",
+      "fr": "OK",
+      "ko": "확인",
+      "ja": "OK",
+      "hi": "ठीक है",
+      "zh-Hans": "确定",
+      "zh-Hant": "確定"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/ConfirmDialog.axaml.cs",
+        "line": 38
+      },
+      {
+        "file": "Views/ConfirmDialog.axaml.cs",
+        "line": 58
+      }
+    ]
+  },
+  "f28302b7": {
+    "source": "Refresh now",
+    "translated": {
+      "pt-BR": "Atualizar agora",
+      "es": "Actualizar ahora",
+      "de": "Jetzt aktualisieren",
+      "fr": "Actualiser maintenant",
+      "ko": "지금 새로 고침",
+      "ja": "今すぐ更新",
+      "hi": "अभी रीफ़्रेश करें",
+      "zh-Hans": "立即刷新",
+      "zh-Hant": "立即重新整理"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 52
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 151
+      }
+    ]
+  },
+  "63a6a88c": {
+    "source": "Refresh",
+    "translated": {
+      "pt-BR": "Atualizar",
+      "es": "Actualizar",
+      "de": "Aktualisieren",
+      "fr": "Actualiser",
+      "ko": "새로 고침",
+      "ja": "更新",
+      "hi": "रीफ़्रेश करें",
+      "zh-Hans": "刷新",
+      "zh-Hant": "重新整理"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 53
+      },
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 56
+      }
+    ]
+  },
+  "f4f70727": {
+    "source": "Settings",
+    "translated": {
+      "pt-BR": "Configurações",
+      "es": "Configuración",
+      "de": "Einstellungen",
+      "fr": "Paramètres",
+      "ko": "설정",
+      "ja": "設定",
+      "hi": "सेटिंग्स",
+      "zh-Hans": "设置",
+      "zh-Hant": "設定"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 70
+      },
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 158
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 23
+      }
+    ]
+  },
+  "d27532d9": {
+    "source": "Minimize",
+    "translated": {
+      "pt-BR": "Minimizar",
+      "es": "Minimizar",
+      "de": "Minimieren",
+      "fr": "Réduire",
+      "ko": "최소화",
+      "ja": "最小化",
+      "hi": "छोटा करें",
+      "zh-Hans": "最小化",
+      "zh-Hant": "最小化"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 83
+      },
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 84
+      }
+    ]
+  },
+  "9369ba14": {
+    "source": "Maximize",
+    "translated": {
+      "pt-BR": "Maximizar",
+      "es": "Maximizar",
+      "de": "Maximieren",
+      "fr": "Agrandir",
+      "ko": "최대화",
+      "ja": "最大化",
+      "hi": "बड़ा करें",
+      "zh-Hans": "最大化",
+      "zh-Hant": "最大化"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 99
+      },
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 100
+      },
+      {
+        "file": "Views/MainWindow.axaml.cs",
+        "line": 371
+      }
+    ]
+  },
+  "3cb21525": {
+    "source": "Hide to tray",
+    "translated": {
+      "pt-BR": "Ocultar na bandeja",
+      "es": "Ocultar en la bandeja",
+      "de": "In den Infobereich minimieren",
+      "fr": "Masquer dans la barre d'état système",
+      "ko": "트레이로 숨기기",
+      "ja": "トレイに隠す",
+      "hi": "ट्रे में छिपाएँ",
+      "zh-Hans": "隐藏到托盘",
+      "zh-Hant": "隱藏到系統匣"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 122
+      },
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 123
+      }
+    ]
+  },
+  "b6d4223e": {
+    "source": "Sign in",
+    "translated": {
+      "pt-BR": "Fazer login",
+      "es": "Iniciar sesión",
+      "de": "Anmelden",
+      "fr": "Se connecter",
+      "ko": "로그인",
+      "ja": "サインイン",
+      "hi": "साइन इन करें",
+      "zh-Hans": "登录",
+      "zh-Hant": "登入"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 154
+      },
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 414
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 148
+      }
+    ]
+  },
+  "0150d890": {
+    "source": "Cycle start",
+    "translated": {
+      "pt-BR": "Início do ciclo",
+      "es": "Inicio del ciclo",
+      "de": "Zyklusbeginn",
+      "fr": "Début du cycle",
+      "ko": "청구 주기 시작",
+      "ja": "サイクル開始",
+      "hi": "चक्र प्रारंभ",
+      "zh-Hans": "周期开始",
+      "zh-Hant": "週期開始"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 175
+      }
+    ]
+  },
+  "bdb0d50b": {
+    "source": "Next renewal",
+    "translated": {
+      "pt-BR": "Próxima renovação",
+      "es": "Próxima renovación",
+      "de": "Nächste Verlängerung",
+      "fr": "Prochain renouvellement",
+      "ko": "다음 갱신",
+      "ja": "次回更新",
+      "hi": "अगला नवीनीकरण",
+      "zh-Hans": "下次续订",
+      "zh-Hant": "下次續訂"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 182
+      }
+    ]
+  },
+  "02dd742d": {
+    "source": "Last measure",
+    "translated": {
+      "pt-BR": "Última medição",
+      "es": "Última medición",
+      "de": "Letzte Messung",
+      "fr": "Dernière mesure",
+      "ko": "마지막 측정",
+      "ja": "最終測定",
+      "hi": "अंतिम माप",
+      "zh-Hans": "上次测量",
+      "zh-Hant": "上次測量"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 301
+      }
+    ]
+  },
+  "190f441b": {
+    "source": "Previous cycle",
+    "translated": {
+      "pt-BR": "Ciclo anterior",
+      "es": "Ciclo anterior",
+      "de": "Vorheriger Zyklus",
+      "fr": "Cycle précédent",
+      "ko": "이전 청구 주기",
+      "ja": "前回サイクル",
+      "hi": "पिछला चक्र",
+      "zh-Hans": "上一周期",
+      "zh-Hant": "上個週期"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 433
+      },
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 434
+      }
+    ]
+  },
+  "a9521e17": {
+    "source": "Next cycle",
+    "translated": {
+      "pt-BR": "Próximo ciclo",
+      "es": "Siguiente ciclo",
+      "de": "Nächster Zyklus",
+      "fr": "Cycle suivant",
+      "ko": "다음 청구 주기",
+      "ja": "次回サイクル",
+      "hi": "अगला चक्र",
+      "zh-Hans": "下一周期",
+      "zh-Hant": "下個週期"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 456
+      },
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 457
+      }
+    ]
+  },
+  "bb8985c9": {
+    "source": "Updated:",
+    "translated": {
+      "pt-BR": "Atualizado:",
+      "es": "Actualizado:",
+      "de": "Aktualisiert:",
+      "fr": "Mis à jour :",
+      "ko": "업데이트됨:",
+      "ja": "更新済み:",
+      "hi": "अपडेट किया गया:",
+      "zh-Hans": "更新时间:",
+      "zh-Hant": "已更新："
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 467
+      }
+    ]
+  },
+  "9cc36c17": {
+    "source": "Cursor account",
+    "translated": {
+      "pt-BR": "Conta Cursor",
+      "es": "Cuenta de Cursor",
+      "de": "Cursor Konto",
+      "fr": "Compte Cursor",
+      "ko": "Cursor 계정",
+      "ja": "Cursorアカウント",
+      "hi": "Cursor खाता",
+      "zh-Hans": "Cursor 帐户",
+      "zh-Hant": "Cursor 帳戶"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 484
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 130
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 131
+      }
+    ]
+  },
+  "41f63644": {
+    "source": "Open Cursor account settings",
+    "translated": {
+      "pt-BR": "Abrir configurações da conta Cursor",
+      "es": "Abrir configuración de la cuenta de Cursor",
+      "de": "Cursor Kontoeinstellungen öffnen",
+      "fr": "Ouvrir les paramètres du compte Cursor",
+      "ko": "Cursor 계정 설정 열기",
+      "ja": "Cursorアカウント設定を開く",
+      "hi": "Cursor खाता सेटिंग्स खोलें",
+      "zh-Hans": "打开 Cursor 帐户设置",
+      "zh-Hant": "開啟 Cursor 帳戶設定"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 485
+      }
+    ]
+  },
+  "d4d65140": {
+    "source": "Sync server",
+    "translated": {
+      "pt-BR": "Servidor de Sincronização",
+      "es": "Servidor de sincronización",
+      "de": "Sync-Server",
+      "fr": "Serveur de synchronisation",
+      "ko": "동기화 서버",
+      "hi": "सिंक सर्वर",
+      "ja": "同期サーバー",
+      "zh-Hans": "同步服务器",
+      "zh-Hant": "同步伺服器"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 506
+      },
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 511
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 190
+      }
+    ]
+  },
+  "3e7ed34c": {
+    "source": "Open sync server",
+    "translated": {
+      "pt-BR": "Abrir servidor de sincronização",
+      "es": "Abrir servidor de sincronización",
+      "de": "Sync-Server öffnen",
+      "fr": "Ouvrir le serveur de synchronisation",
+      "ko": "동기화 서버 열기",
+      "hi": "सिंक सर्वर खोलें",
+      "ja": "同期サーバーを開く",
+      "zh-Hans": "打开同步服务器",
+      "zh-Hant": "開啟同步伺服器"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml",
+        "line": 507
+      }
+    ]
+  },
+  "b33277fb": {
+    "source": "Restore",
+    "context": "window",
+    "translated": {
+      "pt-BR": "Restaurar",
+      "es": "Restaurar",
+      "de": "Wiederherstellen",
+      "fr": "Restaurer",
+      "ko": "복원",
+      "hi": "पुनर्स्थापित करें",
+      "ja": "復元",
+      "zh-Hans": "恢复",
+      "zh-Hant": "還原"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/MainWindow.axaml.cs",
+        "line": 371
+      }
+    ]
+  },
+  "0557fa92": {
+    "source": "Back",
+    "translated": {
+      "pt-BR": "Voltar",
+      "es": "Atrás",
+      "de": "Zurück",
+      "fr": "Retour",
+      "ko": "뒤로",
+      "hi": "वापस",
+      "ja": "戻る",
+      "zh-Hans": "返回",
+      "zh-Hant": "返回"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 17
+      }
+    ]
+  },
+  "bf8ea11e": {
+    "source": "Startup & Display",
+    "translated": {
+      "pt-BR": "Inicialização e Exibição",
+      "es": "Inicio y pantalla",
+      "de": "Start & Anzeige",
+      "fr": "Démarrage et affichage",
+      "ko": "시작 및 표시",
+      "hi": "शुरुआत और प्रदर्शन",
+      "ja": "起動と表示",
+      "zh-Hans": "启动与显示",
+      "zh-Hant": "啟動與顯示"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 37
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 38
+      }
+    ]
+  },
+  "13e68596": {
+    "source": "Startup",
+    "translated": {
+      "pt-BR": "Inicialização",
+      "es": "Inicio",
+      "de": "Start",
+      "fr": "Démarrage",
+      "ko": "시작",
+      "hi": "शुरुआत",
+      "ja": "起動",
+      "zh-Hans": "启动",
+      "zh-Hant": "啟動"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 48
+      }
+    ]
+  },
+  "9056e5fc": {
+    "source": "Launch at login and start in the notification tray.",
+    "translated": {
+      "pt-BR": "Iniciar ao fazer login e iniciar na bandeja de notificação.",
+      "es": "Iniciar al iniciar sesión y en la bandeja de notificaciones.",
+      "de": "Beim Anmelden starten und im Infobereich anzeigen.",
+      "fr": "Lancer à la connexion et démarrer dans la zone de notification.",
+      "ko": "로그인 시 실행하고 알림 트레이에서 시작합니다.",
+      "hi": "लॉगिन पर लॉन्च करें और सूचना ट्रे में शुरू करें।",
+      "ja": "ログイン時に起動し、通知トレイに表示します。",
+      "zh-Hans": "登录时启动并在通知托盘中运行。",
+      "zh-Hant": "登入時啟動並在通知區域中開始。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 49
+      }
+    ]
+  },
+  "9c4d1899": {
+    "source": "Launch at login",
+    "translated": {
+      "pt-BR": "Iniciar ao fazer login",
+      "es": "Iniciar al iniciar sesión",
+      "de": "Beim Anmelden starten",
+      "fr": "Lancer à la connexion",
+      "ko": "로그인 시 실행",
+      "hi": "लॉगिन पर लॉन्च करें",
+      "ja": "ログイン時に起動",
+      "zh-Hans": "登录时启动",
+      "zh-Hant": "登入時啟動"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 56
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 59
+      }
+    ]
+  },
+  "4e648bbe": {
+    "source": "Start in notification tray",
+    "translated": {
+      "pt-BR": "Iniciar na bandeja de notificação",
+      "es": "Iniciar en la bandeja de notificaciones",
+      "de": "Im Infobereich starten",
+      "fr": "Démarrer dans la zone de notification",
+      "ko": "알림 트레이에서 시작",
+      "hi": "सूचना ट्रे में शुरू करें",
+      "ja": "通知トレイに表示",
+      "zh-Hans": "在通知托盘中运行",
+      "zh-Hant": "在通知區域中開始"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 62
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 65
+      }
+    ]
+  },
+  "a1c58e94": {
+    "source": "Appearance",
+    "translated": {
+      "pt-BR": "Aparência",
+      "es": "Apariencia",
+      "de": "Erscheinungsbild",
+      "fr": "Apparence",
+      "ko": "모양",
+      "hi": "दिखावट",
+      "ja": "外観",
+      "zh-Hans": "外观",
+      "zh-Hant": "外觀"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 78
+      }
+    ]
+  },
+  "1dc15d72": {
+    "source": "Override the interface theme, or follow the system light or dark setting.",
+    "translated": {
+      "pt-BR": "Substituir o tema da interface ou seguir a configuração clara ou escura do sistema.",
+      "es": "Anular el tema de la interfaz o seguir la configuración de luz u oscuridad del sistema.",
+      "de": "Das Oberflächenthema überschreiben oder der hellen oder dunklen Systemeinstellung folgen.",
+      "fr": "Ignorer le thème de l'interface ou suivre le réglage clair ou sombre du système.",
+      "ko": "인터페이스 테마를 재정의하거나 시스템 밝음 또는 어두움 설정을 따릅니다.",
+      "hi": "इंटरफ़ेस थीम को ओवरराइड करें, या सिस्टम की हल्की या गहरी सेटिंग का पालन करें।",
+      "ja": "インターフェースのテーマを上書きするか、システムのライト/ダーク設定に従います。",
+      "zh-Hans": "覆盖界面主题，或遵循系统浅色/深色设置。",
+      "zh-Hant": "覆寫介面主題，或遵循系統的淺色或深色設定。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 79
+      }
+    ]
+  },
+  "d7217571": {
+    "source": "Theme",
+    "translated": {
+      "pt-BR": "Tema",
+      "es": "Tema",
+      "de": "Design",
+      "fr": "Thème",
+      "ko": "테마",
+      "hi": "थीम",
+      "ja": "テーマ",
+      "zh-Hans": "主题",
+      "zh-Hant": "主題"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 85
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 90
+      }
+    ]
+  },
+  "4994a8ff": {
+    "source": "Language",
+    "translated": {
+      "pt-BR": "Idioma",
+      "es": "Idioma",
+      "de": "Sprache",
+      "fr": "Langue",
+      "ko": "언어",
+      "hi": "भाषा",
+      "ja": "言語",
+      "zh-Hans": "语言",
+      "zh-Hant": "語言"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 93
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 98
+      }
+    ]
+  },
+  "1d36783e": {
+    "source": "Chart",
+    "translated": {
+      "pt-BR": "Gráfico",
+      "es": "Gráfico",
+      "de": "Diagramm",
+      "fr": "Graphique",
+      "ko": "차트",
+      "hi": "चार्ट",
+      "ja": "チャート",
+      "zh-Hans": "图表",
+      "zh-Hant": "圖表"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 110
+      }
+    ]
+  },
+  "7bf40f13": {
+    "source": "Plot every sample for intervals up to this length. Longer intervals keep the last sample of each day.",
+    "translated": {
+      "pt-BR": "Plotar cada amostra para intervalos até este comprimento. Intervalos mais longos mantêm a última amostra de cada dia.",
+      "es": "Trazar cada muestra para intervalos de hasta esta duración. Los intervalos más largos conservan la última muestra de cada día.",
+      "de": "Jede Stichprobe für Intervalle bis zu dieser Länge darstellen. Längere Intervalle behalten die letzte Stichprobe jedes Tages bei.",
+      "fr": "Tracer chaque échantillon pour des intervalles allant jusqu'à cette durée. Les intervalles plus longs conservent le dernier échantillon de chaque jour.",
+      "ko": "이 길이까지의 간격에 대해 모든 샘플을 그립니다. 더 긴 간격은 각 날짜의 마지막 샘플을 유지합니다.",
+      "hi": "इस लंबाई तक के अंतरालों के लिए हर नमूना प्लॉट करें। लंबे अंतराल प्रत्येक दिन का अंतिम नमूना रखते हैं।",
+      "ja": "この長さまでの間隔ではすべてのサンプルをプロットします。それより長い間隔では、各日の最後のサンプルを保持します。",
+      "zh-Hans": "绘制此长度以内时间间隔的所有样本。更长的时间间隔将保留每天的最后一个样本。",
+      "zh-Hant": "繪製此長度內所有間隔的每個樣本。較長的間隔會保留每天的最後一個樣本。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 111
+      }
+    ]
+  },
+  "f92627cc": {
+    "source": "Every sample up to",
+    "translated": {
+      "pt-BR": "Cada amostra até",
+      "es": "Cada muestra hasta",
+      "de": "Jede Stichprobe bis zu",
+      "fr": "Chaque échantillon jusqu'à",
+      "ko": "다음까지 모든 샘플",
+      "hi": "हर नमूना इस तक",
+      "ja": "までのすべてのサンプル",
+      "zh-Hans": "所有样本，最长可达",
+      "zh-Hant": "每個樣本最長"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 117
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 122
+      }
+    ]
+  },
+  "c87aacf5": {
+    "source": "Sign out",
+    "translated": {
+      "pt-BR": "Sair",
+      "es": "Cerrar sesión",
+      "de": "Abmelden",
+      "fr": "Se déconnecter",
+      "ko": "로그아웃",
+      "hi": "साइन आउट करें",
+      "ja": "サインアウト",
+      "zh-Hans": "退出登录",
+      "zh-Hant": "登出"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 152
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 489
+      }
+    ]
+  },
+  "6a34f40a": {
+    "source": "Update usage automatically",
+    "translated": {
+      "pt-BR": "Atualizar uso automaticamente",
+      "es": "Actualizar uso automáticamente",
+      "de": "Nutzung automatisch aktualisieren",
+      "fr": "Mettre à jour l'utilisation automatiquement",
+      "ko": "사용량 자동 업데이트",
+      "hi": "उपयोग को स्वचालित रूप से अपडेट करें",
+      "ja": "使用状況を自動的に更新",
+      "zh-Hans": "自动更新使用情况",
+      "zh-Hant": "自動更新用量"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 156
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 159
+      }
+    ]
+  },
+  "5a25061e": {
+    "source": "Refresh interval (hours)",
+    "translated": {
+      "pt-BR": "Intervalo de atualização (horas)",
+      "es": "Intervalo de actualización (horas)",
+      "de": "Aktualisierungsintervall (Stunden)",
+      "fr": "Intervalle d'actualisation (heures)",
+      "ko": "새로 고침 간격 (시간)",
+      "hi": "रिफ्रेश अंतराल (घंटे)",
+      "ja": "更新間隔（時間）",
+      "zh-Hans": "刷新间隔（小时）",
+      "zh-Hant": "重新整理間隔 (小時)"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 162
+      }
+    ]
+  },
+  "73090aa7": {
+    "source": "The billing cycle and usage come from your Cursor account after you sign in.",
+    "translated": {
+      "pt-BR": "O ciclo de faturamento e o uso vêm da sua conta Cursor depois que você faz login.",
+      "es": "El ciclo de facturación y el uso provienen de su cuenta de Cursor después de iniciar sesión.",
+      "de": "Der Abrechnungszeitraum und die Nutzung stammen nach der Anmeldung von Ihrem Cursor-Konto.",
+      "fr": "Le cycle de facturation et l'utilisation proviennent de votre compte Cursor après votre connexion.",
+      "ko": "청구 주기 및 사용량은 로그인 후 Cursor 계정에서 가져옵니다.",
+      "hi": "बिलिंग चक्र और उपयोग आपके Cursor खाते से साइन इन करने के बाद आते हैं।",
+      "ja": "請求サイクルと使用状況は、サインイン後にCursorアカウントから取得されます。",
+      "zh-Hans": "登录后，账单周期和使用情况将从您的 Cursor 账户获取。",
+      "zh-Hant": "登入後，帳單週期和用量會來自您的 Cursor 帳戶。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 169
+      }
+    ]
+  },
+  "4006b1f1": {
+    "source": "Sync Server",
+    "translated": {
+      "pt-BR": "Servidor de Sincronização",
+      "es": "Servidor de sincronización",
+      "de": "Sync-Server",
+      "fr": "Serveur de synchronisation",
+      "ko": "동기화 서버",
+      "hi": "सिंक सर्वर",
+      "ja": "同期サーバー",
+      "zh-Hans": "同步服务器",
+      "zh-Hant": "同步伺服器"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 179
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 180
+      }
+    ]
+  },
+  "638e161e": {
+    "source": "Sync with server",
+    "translated": {
+      "pt-BR": "Sincronizar com o servidor",
+      "es": "Sincronizar con el servidor",
+      "de": "Mit Server synchronisieren",
+      "fr": "Synchroniser avec le serveur",
+      "ko": "서버와 동기화",
+      "hi": "सर्वर के साथ सिंक करें",
+      "ja": "サーバーと同期",
+      "zh-Hans": "与服务器同步",
+      "zh-Hant": "與伺服器同步"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 197
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 200
+      }
+    ]
+  },
+  "030e80c4": {
+    "source": "Server URL",
+    "translated": {
+      "pt-BR": "URL do servidor",
+      "es": "URL del servidor",
+      "de": "Server-URL",
+      "fr": "URL du serveur",
+      "ko": "서버 URL",
+      "hi": "सर्वर यूआरएल",
+      "ja": "サーバーURL",
+      "zh-Hans": "服务器 URL",
+      "zh-Hant": "伺服器 URL"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 204
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 207
+      }
+    ]
+  },
+  "2786acbb": {
+    "source": "http://server:8000",
+    "translated": {
+      "pt-BR": "http://server:8000",
+      "es": "http://server:8000",
+      "de": "http://server:8000",
+      "fr": "http://serveur:8000",
+      "ko": "http://server:8000",
+      "hi": "http://server:8000",
+      "ja": "http://server:8000",
+      "zh-Hans": "http://server:8000",
+      "zh-Hant": "http://server:8000"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 206
+      }
+    ]
+  },
+  "faf98e72": {
+    "source": "Machine name",
+    "translated": {
+      "pt-BR": "Nome da máquina",
+      "es": "Nombre de la máquina",
+      "de": "Computername",
+      "fr": "Nom de la machine",
+      "ko": "컴퓨터 이름",
+      "hi": "मशीन का नाम",
+      "ja": "マシン名",
+      "zh-Hans": "机器名称",
+      "zh-Hant": "機器名稱"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 210
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 212
+      }
+    ]
+  },
+  "51408f1c": {
+    "source": "API token",
+    "translated": {
+      "pt-BR": "Token de API",
+      "es": "Token de API",
+      "de": "API-Token",
+      "fr": "Jeton API",
+      "ko": "API 토큰",
+      "hi": "एपीआई टोकन",
+      "ja": "APIトークン",
+      "zh-Hans": "API 令牌",
+      "zh-Hant": "API 權杖"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 216
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 224
+      }
+    ]
+  },
+  "c3df292d": {
+    "source": "Create this on the Tokens page of your CursorPace Sync server.",
+    "translated": {
+      "pt-BR": "Crie isso na página Tokens do seu servidor de Sincronização CursorPace.",
+      "es": "Cree esto en la página Tokens de su servidor de sincronización de CursorPace.",
+      "de": "Dies auf der Seite „Token“ Ihres CursorPace-Sync-Servers erstellen.",
+      "fr": "Créez-le sur la page Jetons de votre serveur de synchronisation CursorPace.",
+      "ko": "CursorPace 동기화 서버의 토큰 페이지에서 생성하세요.",
+      "hi": "इसे अपने CursorPace सिंक सर्वर के टोकन पेज पर बनाएं।",
+      "ja": "これはCursorPace同期サーバーのトークンページで作成してください。",
+      "zh-Hans": "在您的 CursorPace 同步服务器的“令牌”页面上创建此项。",
+      "zh-Hant": "在您的 CursorPace 同步伺服器的「權杖」頁面上建立此項目。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 217
+      }
+    ]
+  },
+  "274564cd": {
+    "source": "Show token",
+    "translated": {
+      "pt-BR": "Mostrar token",
+      "es": "Mostrar token",
+      "de": "Token anzeigen",
+      "fr": "Afficher le jeton",
+      "ko": "토큰 표시",
+      "hi": "टोकन दिखाएं",
+      "ja": "トークンを表示",
+      "zh-Hans": "显示令牌",
+      "zh-Hant": "顯示權杖"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 233
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 454
+      }
+    ]
+  },
+  "092cdc7b": {
+    "source": "Show API token",
+    "translated": {
+      "pt-BR": "Mostrar token de API",
+      "es": "Mostrar token de API",
+      "de": "API-Token anzeigen",
+      "fr": "Afficher le jeton API",
+      "ko": "API 토큰 표시",
+      "hi": "एपीआई टोकन दिखाएं",
+      "ja": "APIトークンを表示",
+      "zh-Hans": "显示 API 令牌",
+      "zh-Hant": "顯示 API 權杖"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 234
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 457
+      }
+    ]
+  },
+  "a256a86f": {
+    "source": "Re-sync now",
+    "translated": {
+      "pt-BR": "Sincronizar novamente agora",
+      "es": "Volver a sincronizar ahora",
+      "de": "Jetzt erneut synchronisieren",
+      "fr": "Resynchroniser maintenant",
+      "ko": "지금 다시 동기화",
+      "hi": "अभी फिर से सिंक करें",
+      "ja": "今すぐ再同期",
+      "zh-Hans": "立即重新同步",
+      "zh-Hant": "立即重新同步"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 253
+      }
+    ]
+  },
+  "f7d4197e": {
+    "source": "Shares usage samples and billing-cycle bounds with your other machines. Syncs on launch, after each new Cursor measurement, every 10 minutes, and on demand.",
+    "translated": {
+      "pt-BR": "Compartilha amostras de uso e limites do ciclo de faturamento com suas outras máquinas. Sincroniza ao iniciar, após cada nova medição Cursor, a cada 10 minutos e sob demanda.",
+      "es": "Comparte muestras de uso y límites del ciclo de facturación con sus otras máquinas. Se sincroniza al iniciar, después de cada nueva medición de Cursor, cada 10 minutos y bajo demanda.",
+      "de": "Teilt Nutzungsstichproben und Abrechnungszeitraumgrenzen mit Ihren anderen Computern. Synchronisiert beim Start, nach jeder neuen Cursor-Messung, alle 10 Minuten und bei Bedarf.",
+      "fr": "Partage les échantillons d'utilisation et les limites du cycle de facturation avec vos autres machines. Se synchronise au lancement, après chaque nouvelle mesure Cursor, toutes les 10 minutes et à la demande.",
+      "ko": "사용량 샘플과 청구 주기 범위를 다른 컴퓨터와 공유합니다. 실행 시, 새로운 Cursor 측정 후, 10분마다, 그리고 요청 시 동기화됩니다.",
+      "hi": "आपके अन्य मशीनों के साथ उपयोग के नमूने और बिलिंग-चक्र की सीमाएं साझा करता है। लॉन्च होने पर, प्रत्येक नए Cursor माप के बाद, हर 10 मिनट में, और मांग पर सिंक करता है।",
+      "ja": "使用状況のサンプルと請求サイクルの境界を他のマシンと共有します。起動時、新しいCursor測定後、10分ごと、およびオンデマンドで同期します。",
+      "zh-Hans": "与您的其他机器共享使用情况样本和账单周期范围。在启动时、每次新的 Cursor 测量后、每 10 分钟以及按需进行同步。",
+      "zh-Hant": "與您的其他機器共用用量樣本和帳單週期界限。在啟動時、每次新的 Cursor 測量後、每 10 分鐘以及按需同步。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 255
+      }
+    ]
+  },
+  "95d178e6": {
+    "source": "CursorPace sync server",
+    "translated": {
+      "pt-BR": "Servidor de sincronização CursorPace",
+      "es": "Servidor de sincronización de CursorPace",
+      "de": "CursorPace-Sync-Server",
+      "fr": "Serveur de synchronisation CursorPace",
+      "ko": "CursorPace 동기화 서버",
+      "hi": "CursorPace सिंक सर्वर",
+      "ja": "CursorPace同期サーバー",
+      "zh-Hans": "CursorPace 同步服务器",
+      "zh-Hant": "CursorPace 同步伺服器"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 269
+      }
+    ]
+  },
+  "22b887ea": {
+    "source": "A CursorPace sync server can be installed by following the instructions at",
+    "translated": {
+      "pt-BR": "Um servidor de sincronização CursorPace pode ser instalado seguindo as instruções em",
+      "es": "Se puede instalar un servidor de sincronización de CursorPace siguiendo las instrucciones en",
+      "de": "Ein CursorPace-Sync-Server kann gemäß den Anweisungen unter installiert werden",
+      "fr": "Un serveur de synchronisation CursorPace peut être installé en suivant les instructions sur",
+      "ko": "CursorPace 동기화 서버는 다음 지침에 따라 설치할 수 있습니다.",
+      "hi": "एक CursorPace सिंक सर्वर को यहां दिए गए निर्देशों का पालन करके स्थापित किया जा सकता है:",
+      "ja": "CursorPace同期サーバーは、次の手順に従ってインストールできます。",
+      "zh-Hans": "可以按照以下说明安装 CursorPace 同步服务器：",
+      "zh-Hant": "可以依照以下說明安裝 CursorPace 同步伺服器："
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 270
+      }
+    ]
+  },
+  "59522fcf": {
+    "source": "The sync is configured. See the repository for updates or more information.",
+    "translated": {
+      "pt-BR": "A sincronização está configurada. Consulte o repositório para atualizações ou mais informações.",
+      "es": "La sincronización está configurada. Consulte el repositorio para actualizaciones o más información.",
+      "de": "Die Synchronisierung ist konfiguriert. Weitere Informationen oder Updates finden Sie im Repository.",
+      "fr": "La synchronisation est configurée. Consultez le dépôt pour les mises à jour ou plus d'informations.",
+      "ko": "동기화가 구성되었습니다. 업데이트 또는 자세한 정보는 저장소를 참조하세요.",
+      "hi": "सिंक कॉन्फ़िगर किया गया है। अपडेट या अधिक जानकारी के लिए रिपॉजिटरी देखें।",
+      "ja": "同期は設定済みです。更新または詳細についてはリポジトリを参照してください。",
+      "zh-Hans": "同步已配置。请查看存储库以获取更新或更多信息。",
+      "zh-Hant": "同步已設定。請參閱儲存庫以取得更新或更多資訊。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 275
+      }
+    ]
+  },
+  "9e4d0189": {
+    "source": "CursorPace Sync Server repository",
+    "translated": {
+      "pt-BR": "Repositório do Servidor de Sincronização CursorPace",
+      "es": "Repositorio del servidor de sincronización de CursorPace",
+      "de": "CursorPace-Sync-Server-Repository",
+      "fr": "Dépôt du serveur de synchronisation CursorPace",
+      "ko": "CursorPace 동기화 서버 저장소",
+      "hi": "CursorPace सिंक सर्वर रिपॉजिटरी",
+      "ja": "CursorPace同期サーバーリポジトリ",
+      "zh-Hans": "CursorPace 同步服务器存储库",
+      "zh-Hant": "CursorPace 同步伺服器儲存庫"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 286
+      }
+    ]
+  },
+  "ef56750a": {
+    "source": "Export & Backup",
+    "translated": {
+      "pt-BR": "Exportar e Backup",
+      "es": "Exportar y copia de seguridad",
+      "de": "Export & Sicherung",
+      "fr": "Exporter et sauvegarder",
+      "ko": "내보내기 및 백업",
+      "hi": "निर्यात और बैकअप",
+      "ja": "エクスポートとバックアップ",
+      "zh-Hans": "导出与备份",
+      "zh-Hant": "匯出與備份"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 293
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 294
+      }
+    ]
+  },
+  "f6068daa": {
+    "source": "Data",
+    "translated": {
+      "pt-BR": "Dados",
+      "es": "Datos",
+      "de": "Daten",
+      "fr": "Données",
+      "ko": "데이터",
+      "hi": "डेटा",
+      "ja": "データ",
+      "zh-Hans": "数据",
+      "zh-Hant": "資料"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 304
+      }
+    ]
+  },
+  "342e3d95": {
+    "source": "Export the displayed cycle, or all collected usage samples, as CSV.",
+    "translated": {
+      "pt-BR": "Exporte o ciclo exibido, ou todas as amostras de uso coletadas, como CSV.",
+      "es": "Exporte el ciclo mostrado, o todas las muestras de uso recopiladas, como CSV.",
+      "de": "Den angezeigten Zyklus oder alle gesammelten Nutzungsstichproben als CSV exportieren.",
+      "fr": "Exportez le cycle affiché, ou tous les échantillons d'utilisation collectés, au format CSV.",
+      "ko": "표시된 주기 또는 수집된 모든 사용량 샘플을 CSV로 내보냅니다.",
+      "hi": "प्रदर्शित चक्र, या सभी एकत्रित उपयोग के नमूनों को CSV के रूप में निर्यात करें।",
+      "ja": "表示されているサイクル、または収集されたすべての使用状況サンプルをCSVとしてエクスポートします。",
+      "zh-Hans": "将显示的周期或所有收集的使用情况样本导出为 CSV。",
+      "zh-Hant": "將顯示的週期或所有收集的用量樣本匯出為 CSV。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 305
+      }
+    ]
+  },
+  "46b422db": {
+    "source": "Export Cycle CSV",
+    "translated": {
+      "pt-BR": "Exportar CSV do Ciclo",
+      "es": "Exportar ciclo CSV",
+      "de": "Zyklus-CSV exportieren",
+      "fr": "Exporter le CSV du cycle",
+      "ko": "주기 CSV 내보내기",
+      "hi": "चक्र CSV निर्यात करें",
+      "ja": "サイクルCSVをエクスポート",
+      "zh-Hans": "导出周期 CSV",
+      "zh-Hant": "匯出週期 CSV"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 311
+      }
+    ]
+  },
+  "eac563c2": {
+    "source": "Sign in and load a billing cycle first",
+    "translated": {
+      "pt-BR": "Faça login e carregue um ciclo de faturamento primeiro",
+      "es": "Inicie sesión y cargue un ciclo de facturación primero",
+      "de": "Zuerst anmelden und einen Abrechnungszeitraum laden",
+      "fr": "Connectez-vous et chargez d'abord un cycle de facturation",
+      "ko": "먼저 로그인하고 청구 주기를 로드하세요.",
+      "hi": "पहले साइन इन करें और बिलिंग चक्र लोड करें",
+      "ja": "まずサインインして請求サイクルを読み込んでください",
+      "zh-Hans": "请先登录并加载账单周期",
+      "zh-Hant": "請先登入並載入帳單週期"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 314
+      }
+    ]
+  },
+  "1d9967d0": {
+    "source": "Export Usage",
+    "translated": {
+      "pt-BR": "Exportar Uso",
+      "es": "Exportar uso",
+      "de": "Nutzung exportieren",
+      "fr": "Exporter l'utilisation",
+      "ko": "사용량 내보내기",
+      "hi": "उपयोग निर्यात करें",
+      "ja": "使用状況をエクスポート",
+      "zh-Hans": "导出使用情况",
+      "zh-Hant": "匯出用量"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 315
+      }
+    ]
+  },
+  "3500ba09": {
+    "source": "Backup",
+    "translated": {
+      "pt-BR": "Backup",
+      "es": "Copia de seguridad",
+      "de": "Sicherung",
+      "fr": "Sauvegarde",
+      "ko": "백업",
+      "hi": "बैकअप",
+      "ja": "バックアップ",
+      "zh-Hans": "备份",
+      "zh-Hant": "備份"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 329
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 336
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 241
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 298
+      }
+    ]
+  },
+  "6bd95d3d": {
+    "source": "Save settings and usage samples as a single zip file. The Cursor sign-in session is not included.",
+    "translated": {
+      "pt-BR": "Salve as configurações e as amostras de uso como um único arquivo zip. A sessão de login Cursor não está incluída.",
+      "es": "Guarde la configuración y las muestras de uso como un único archivo zip. La sesión de inicio de sesión de Cursor no está incluida.",
+      "de": "Einstellungen und Nutzungsstichproben als einzelne Zip-Datei speichern. Die Cursor-Anmeldesitzung ist nicht enthalten.",
+      "fr": "Enregistrez les paramètres et les échantillons d'utilisation dans un seul fichier zip. La session de connexion Cursor n'est pas incluse.",
+      "ko": "설정 및 사용량 샘플을 단일 zip 파일로 저장합니다. Cursor 로그인 세션은 포함되지 않습니다.",
+      "hi": "सेटिंग्स और उपयोग के नमूनों को एक ही ज़िप फ़ाइल के रूप में सहेजें। Cursor साइन-इन सत्र शामिल नहीं है।",
+      "ja": "設定と使用状況サンプルを単一のzipファイルとして保存します。Cursorサインインセッションは含まれません。",
+      "zh-Hans": "将设置和使用情况样本保存为单个 zip 文件。不包括 Cursor 登录会话。",
+      "zh-Hant": "將設定和用量樣本儲存為單一 zip 檔案。不包含 Cursor 登入工作階段。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 330
+      }
+    ]
+  },
+  "8f7f4c1c": {
+    "source": "About",
+    "translated": {
+      "pt-BR": "Sobre",
+      "es": "Acerca de",
+      "de": "Info",
+      "fr": "À propos",
+      "ko": "정보",
+      "hi": "के बारे में",
+      "ja": "バージョン情報",
+      "zh-Hans": "关于",
+      "zh-Hant": "關於"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 345
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 346
+      },
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 356
+      }
+    ]
+  },
+  "dcaba061": {
+    "source": "Version, license, and source.",
+    "translated": {
+      "pt-BR": "Versão, licença e código-fonte.",
+      "es": "Versión, licencia y código fuente.",
+      "de": "Version, Lizenz und Quelle.",
+      "fr": "Version, licence et source.",
+      "ko": "버전, 라이선스 및 소스.",
+      "hi": "संस्करण, लाइसेंस और स्रोत।",
+      "ja": "バージョン、ライセンス、およびソース。",
+      "zh-Hans": "版本、许可证和来源。",
+      "zh-Hant": "版本、授權和來源。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 357
+      }
+    ]
+  },
+  "34b6cd75": {
+    "source": "Version",
+    "translated": {
+      "pt-BR": "Versão",
+      "es": "Versión",
+      "de": "Version",
+      "fr": "Version",
+      "ko": "버전",
+      "hi": "संस्करण",
+      "ja": "バージョン",
+      "zh-Hans": "版本",
+      "zh-Hant": "版本"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 366
+      }
+    ]
+  },
+  "804dc1b3": {
+    "source": "Build date",
+    "translated": {
+      "pt-BR": "Data da compilação",
+      "es": "Fecha de compilación",
+      "de": "Erstellungsdatum",
+      "fr": "Date de compilation",
+      "ko": "빌드 날짜",
+      "hi": "बिल्ड तिथि",
+      "ja": "ビルド日時",
+      "zh-Hans": "构建日期",
+      "zh-Hant": "建置日期"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 371
+      }
+    ]
+  },
+  "794df379": {
+    "source": "License",
+    "translated": {
+      "pt-BR": "Licença",
+      "es": "Licencia",
+      "de": "Lizenz",
+      "fr": "Licence",
+      "ko": "라이선스",
+      "hi": "लाइसेंस",
+      "ja": "ライセンス",
+      "zh-Hans": "许可证",
+      "zh-Hant": "授權"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 377
+      }
+    ]
+  },
+  "33fcf2b3": {
+    "source": "Repository",
+    "translated": {
+      "pt-BR": "Repositório",
+      "es": "Repositorio",
+      "de": "Repository",
+      "fr": "Dépôt",
+      "ko": "저장소",
+      "hi": "रिपॉजिटरी",
+      "ja": "リポジトリ",
+      "zh-Hans": "存储库",
+      "zh-Hant": "儲存庫"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 383
+      }
+    ]
+  },
+  "4a6c7893": {
+    "source": "GitHub repository",
+    "translated": {
+      "pt-BR": "Repositório do GitHub",
+      "es": "Repositorio de GitHub",
+      "de": "GitHub-Repository",
+      "fr": "Dépôt GitHub",
+      "ko": "GitHub 저장소",
+      "hi": "गिटहब रिपॉजिटरी",
+      "ja": "GitHubリポジトリ",
+      "zh-Hans": "GitHub 存储库",
+      "zh-Hant": "GitHub 儲存庫"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml",
+        "line": 391
+      }
+    ]
+  },
+  "112f9966": {
+    "source": "Restore",
+    "context": "backup",
+    "translated": {
+      "pt-BR": "Restaurar",
+      "de": "Wiederherstellen",
+      "es": "Restaurar",
+      "fr": "Restaurer",
+      "hi": "पुनर्स्थापित करें",
+      "ko": "복원",
+      "zh-Hans": "恢复",
+      "ja": "復元",
+      "zh-Hant": "恢復"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 24
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 68
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 188
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 308
+      }
+    ]
+  },
+  "efb7b1e6": {
+    "source": "Export failed",
+    "translated": {
+      "pt-BR": "Falha na exportação",
+      "de": "Export fehlgeschlagen",
+      "es": "Exportación fallida",
+      "fr": "Échec de l'exportation",
+      "hi": "निर्यात विफल रहा",
+      "ko": "내보내기 실패",
+      "zh-Hans": "导出失败",
+      "ja": "エクスポートに失敗しました",
+      "zh-Hant": "匯出失敗"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 199
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 218
+      }
+    ]
+  },
+  "0aaa0297": {
+    "source": "There is no cycle data to export.",
+    "translated": {
+      "pt-BR": "Não há dados de ciclo para exportar.",
+      "de": "Es sind keine Zyklusdaten zum Exportieren vorhanden.",
+      "es": "No hay datos de ciclo para exportar.",
+      "fr": "Il n'y a pas de données de cycle à exporter.",
+      "hi": "निर्यात करने के लिए कोई चक्र डेटा नहीं है।",
+      "ko": "내보낼 주기 데이터가 없습니다.",
+      "zh-Hans": "没有可导出的周期数据。",
+      "ja": "エクスポートするサイクルデータがありません。",
+      "zh-Hant": "沒有可匯出的週期資料。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 199
+      }
+    ]
+  },
+  "c04f1e48": {
+    "source": "Export CSV",
+    "translated": {
+      "pt-BR": "Exportar CSV",
+      "de": "CSV exportieren",
+      "es": "Exportar CSV",
+      "fr": "Exporter CSV",
+      "hi": "CSV निर्यात करें",
+      "ko": "CSV 내보내기",
+      "zh-Hans": "导出CSV",
+      "ja": "CSVをエクスポート",
+      "zh-Hant": "匯出 CSV"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 204
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 223
+      }
+    ]
+  },
+  "cc8d68c5": {
+    "source": "CSV",
+    "translated": {
+      "pt-BR": "CSV",
+      "de": "CSV",
+      "es": "CSV",
+      "fr": "CSV",
+      "hi": "CSV",
+      "ko": "CSV",
+      "zh-Hans": "CSV",
+      "ja": "CSV",
+      "zh-Hant": "CSV"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 207
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 226
+      }
+    ]
+  },
+  "9580ec86": {
+    "source": "There is no usage data to export.",
+    "translated": {
+      "pt-BR": "Não há dados de uso para exportar.",
+      "de": "Es sind keine Nutzungsdaten zum Exportieren vorhanden.",
+      "es": "No hay datos de uso para exportar.",
+      "fr": "Il n'y a pas de données d'utilisation à exporter.",
+      "hi": "निर्यात करने के लिए कोई उपयोग डेटा नहीं है।",
+      "ko": "내보낼 사용량 데이터가 없습니다.",
+      "zh-Hans": "没有可导出的使用数据。",
+      "ja": "エクスポートする使用状況データがありません。",
+      "zh-Hant": "沒有可匯出的使用量資料。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 218
+      }
+    ]
+  },
+  "5ef4a306": {
+    "source": "Backup data",
+    "translated": {
+      "pt-BR": "Backup de dados",
+      "de": "Daten sichern",
+      "es": "Copia de seguridad",
+      "fr": "Sauvegarder les données",
+      "hi": "डेटा का बैकअप लें",
+      "ko": "데이터 백업",
+      "zh-Hans": "备份数据",
+      "ja": "データのバックアップ",
+      "zh-Hant": "備份資料"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 238
+      }
+    ]
+  },
+  "d7f31683": {
+    "source": "Backup failed",
+    "translated": {
+      "pt-BR": "Falha no backup",
+      "de": "Sicherung fehlgeschlagen",
+      "es": "Copia de seguridad fallida",
+      "fr": "Échec de la sauvegarde",
+      "hi": "बैकअप विफल रहा",
+      "ko": "백업 실패",
+      "zh-Hans": "备份失败",
+      "ja": "バックアップに失敗しました",
+      "zh-Hant": "備份失敗"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 252
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 264
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 274
+      }
+    ]
+  },
+  "f840e773": {
+    "source": "Backup complete",
+    "translated": {
+      "pt-BR": "Backup concluído",
+      "de": "Sicherung abgeschlossen",
+      "es": "Copia de seguridad completada",
+      "fr": "Sauvegarde terminée",
+      "hi": "बैकअप पूरा हुआ",
+      "ko": "백업 완료",
+      "zh-Hans": "备份完成",
+      "ja": "バックアップが完了しました",
+      "zh-Hant": "備份完成"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 256
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 269
+      }
+    ]
+  },
+  "d78e2e29": {
+    "source": "Saved the backup file.",
+    "translated": {
+      "pt-BR": "Arquivo de backup salvo.",
+      "de": "Die Sicherungsdatei wurde gespeichert.",
+      "es": "Se guardó el archivo de copia de seguridad.",
+      "fr": "Le fichier de sauvegarde a été enregistré.",
+      "hi": "बैकअप फ़ाइल सहेजी गई।",
+      "ko": "백업 파일을 저장했습니다.",
+      "zh-Hans": "已保存备份文件。",
+      "ja": "バックアップファイルを保存しました。",
+      "zh-Hant": "已儲存備份檔案。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 256
+      }
+    ]
+  },
+  "1ce6744c": {
+    "source": "Saved to {0}",
+    "translated": {
+      "pt-BR": "Salvo em {0}",
+      "de": "Gespeichert unter {0}",
+      "es": "Guardado en {0}",
+      "fr": "Enregistré dans {0}",
+      "hi": "{0} में सहेजा गया",
+      "ko": "{0}에 저장됨",
+      "zh-Hans": "已保存到 {0}",
+      "ja": "{0}に保存しました",
+      "zh-Hant": "已儲存至 {0}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 269
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 371
+      }
+    ]
+  },
+  "dd06bebe": {
+    "source": "Restore backup",
+    "translated": {
+      "pt-BR": "Restaurar backup",
+      "de": "Sicherung wiederherstellen",
+      "es": "Restaurar copia de seguridad",
+      "fr": "Restaurer la sauvegarde",
+      "hi": "बैकअप पुनर्स्थापित करें",
+      "ko": "백업 복원",
+      "zh-Hans": "恢复备份",
+      "ja": "バックアップを復元",
+      "zh-Hant": "恢復備份"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 294
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 306
+      }
+    ]
+  },
+  "c8f76b99": {
+    "source": "This replaces the current settings and collected usage samples with the backup. Your Cursor sign-in session in this app is not changed.",
+    "translated": {
+      "pt-BR": "Isso substitui as configurações atuais e as amostras de uso coletadas pelo backup. Sua sessão de login do Cursor neste aplicativo não será alterada.",
+      "de": "Dies ersetzt die aktuellen Einstellungen und gesammelten Nutzungsdaten durch die Sicherung. Ihre Cursor-Anmeldesitzung in dieser App wird nicht geändert.",
+      "es": "Esto reemplaza la configuración actual y las muestras de uso recopiladas con la copia de seguridad. Su sesión de inicio de sesión de Cursor en esta aplicación no se modificará.",
+      "fr": "Ceci remplace les paramètres actuels et les échantillons d'utilisation collectés par la sauvegarde. Votre session de connexion Cursor dans cette application n'est pas modifiée.",
+      "hi": "यह वर्तमान सेटिंग्स और एकत्रित उपयोग के नमूनों को बैकअप से बदल देगा। इस ऐप में आपका Cursor साइन-इन सत्र नहीं बदलेगा।",
+      "ko": "현재 설정과 수집된 사용량 샘플을 백업으로 교체합니다. 이 앱의 Cursor 로그인 세션은 변경되지 않습니다.",
+      "zh-Hans": "这会将当前设置和收集到的使用样本替换为备份。您在此应用中的 Cursor 登录会话不会更改。",
+      "ja": "これにより、現在の設定と収集された使用状況サンプルがバックアップで置き換えられます。このアプリでのCursorサインインセッションは変更されません。",
+      "zh-Hant": "這會將目前的設定和收集到的使用量樣本替換為備份。您在此應用程式中的 Cursor 登入工作階段不會改變。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 307
+      }
+    ]
+  },
+  "ea478870": {
+    "source": "Cancel",
+    "translated": {
+      "pt-BR": "Cancelar",
+      "de": "Abbrechen",
+      "es": "Cancelar",
+      "fr": "Annuler",
+      "hi": "रद्द करें",
+      "ko": "취소",
+      "zh-Hans": "取消",
+      "ja": "キャンセル",
+      "zh-Hant": "取消"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 309
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 490
+      }
+    ]
+  },
+  "30c446b5": {
+    "source": "Restore failed",
+    "translated": {
+      "pt-BR": "Falha na restauração",
+      "de": "Wiederherstellung fehlgeschlagen",
+      "es": "Restauración fallida",
+      "fr": "Échec de la restauration",
+      "hi": "पुनर्स्थापना विफल रही",
+      "ko": "복원 실패",
+      "zh-Hans": "恢复失败",
+      "ja": "復元に失敗しました",
+      "zh-Hant": "恢復失敗"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 320
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 332
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 342
+      }
+    ]
+  },
+  "8b09692f": {
+    "source": "Restore complete",
+    "translated": {
+      "pt-BR": "Restauração concluída",
+      "de": "Wiederherstellung abgeschlossen",
+      "es": "Restauración completada",
+      "fr": "Restauration terminée",
+      "hi": "पुनर्स्थापना पूरी हुई",
+      "ko": "복원 완료",
+      "zh-Hans": "恢复完成",
+      "ja": "復元が完了しました",
+      "zh-Hant": "恢復完成"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 324
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 337
+      }
+    ]
+  },
+  "8515fbe8": {
+    "source": "Restored settings and usage samples.",
+    "translated": {
+      "pt-BR": "Configurações e amostras de uso restauradas.",
+      "de": "Einstellungen und Nutzungsdaten wiederhergestellt.",
+      "es": "Configuración y muestras de uso restauradas.",
+      "fr": "Paramètres et échantillons d'utilisation restaurés.",
+      "hi": "सेटिंग्स और उपयोग के नमूने पुनर्स्थापित किए गए।",
+      "ko": "설정 및 사용량 샘플을 복원했습니다.",
+      "zh-Hans": "已恢复设置和使用样本。",
+      "ja": "設定と使用状況サンプルを復元しました。",
+      "zh-Hant": "已恢復設定和使用量樣本。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 324
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 337
+      }
+    ]
+  },
+  "d87b522e": {
+    "source": "Export complete",
+    "translated": {
+      "pt-BR": "Exportação concluída",
+      "de": "Export abgeschlossen",
+      "es": "Exportación completada",
+      "fr": "Exportation terminée",
+      "hi": "निर्यात पूरा हुआ",
+      "ko": "내보내기 완료",
+      "zh-Hans": "导出完成",
+      "ja": "エクスポートが完了しました",
+      "zh-Hant": "匯出完成"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 366
+      },
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 371
+      }
+    ]
+  },
+  "1f0fdeb7": {
+    "source": "Saved the {0} file.",
+    "translated": {
+      "pt-BR": "Arquivo {0} salvo.",
+      "de": "Die Datei {0} wurde gespeichert.",
+      "es": "Se guardó el archivo {0}.",
+      "fr": "Le fichier {0} a été enregistré.",
+      "hi": "{0} फ़ाइल सहेजी गई।",
+      "ko": "{0} 파일을 저장했습니다.",
+      "zh-Hans": "已保存 {0} 文件。",
+      "ja": "{0}ファイルを保存しました。",
+      "zh-Hant": "已儲存 {0} 檔案。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 366
+      }
+    ]
+  },
+  "49f9895d": {
+    "source": "Open Folder",
+    "translated": {
+      "pt-BR": "Abrir Pasta",
+      "de": "Ordner öffnen",
+      "es": "Abrir carpeta",
+      "fr": "Ouvrir le dossier",
+      "hi": "फ़ोल्डर खोलें",
+      "ko": "폴더 열기",
+      "zh-Hans": "打开文件夹",
+      "ja": "フォルダーを開く",
+      "zh-Hant": "開啟資料夾"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 421
+      }
+    ]
+  },
+  "138c1e6f": {
+    "source": "Open folder failed",
+    "translated": {
+      "pt-BR": "Falha ao abrir pasta",
+      "de": "Öffnen des Ordners fehlgeschlagen",
+      "es": "Error al abrir la carpeta",
+      "fr": "Échec de l'ouverture du dossier",
+      "hi": "फ़ोल्डर खोलने में विफल रहा",
+      "ko": "폴더 열기 실패",
+      "zh-Hans": "打开文件夹失败",
+      "ja": "フォルダーを開けませんでした",
+      "zh-Hant": "開啟資料夾失敗"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 426
+      }
+    ]
+  },
+  "a1de494d": {
+    "source": "Hide token",
+    "translated": {
+      "pt-BR": "Ocultar token",
+      "de": "Token ausblenden",
+      "es": "Ocultar token",
+      "fr": "Masquer le jeton",
+      "hi": "टोकन छिपाएँ",
+      "ko": "토큰 숨기기",
+      "zh-Hans": "隐藏令牌",
+      "ja": "トークンを非表示",
+      "zh-Hant": "隱藏權杖"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 454
+      }
+    ]
+  },
+  "ab654108": {
+    "source": "Hide API token",
+    "translated": {
+      "pt-BR": "Ocultar token de API",
+      "de": "API-Token ausblenden",
+      "es": "Ocultar token de API",
+      "fr": "Masquer le jeton API",
+      "hi": "API टोकन छिपाएँ",
+      "ko": "API 토큰 숨기기",
+      "zh-Hans": "隐藏 API 令牌",
+      "ja": "APIトークンを非表示",
+      "zh-Hant": "隱藏 API 權杖"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 457
+      }
+    ]
+  },
+  "a1997959": {
+    "source": "Sign out of Cursor",
+    "translated": {
+      "pt-BR": "Sair do Cursor",
+      "de": "Von Cursor abmelden",
+      "es": "Cerrar sesión de Cursor",
+      "fr": "Se déconnecter de Cursor",
+      "hi": "Cursor से साइन आउट करें",
+      "ko": "Cursor에서 로그아웃",
+      "zh-Hans": "退出 Cursor",
+      "ja": "Cursorからサインアウト",
+      "zh-Hant": "從 Cursor 登出"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 487
+      }
+    ]
+  },
+  "abf117cc": {
+    "source": "This signs out of Cursor in this app. Any Google or GitHub session stored in the app's private browser profile is kept when possible, so signing in again may not ask for that password. Your regular browser is not affected. Collected usage samples stay on disk.",
+    "translated": {
+      "pt-BR": "Isso encerra a sessão do Cursor neste aplicativo. Qualquer sessão do Google ou GitHub armazenada no perfil de navegador privado do aplicativo é mantida, se possível, para que o login novamente possa não solicitar a senha. Seu navegador regular não é afetado. As amostras de uso coletadas permanecem no disco.",
+      "de": "Dies meldet Sie in dieser App von Cursor ab. Alle im privaten Browserprofil der App gespeicherten Google- oder GitHub-Sitzungen bleiben, wenn möglich, erhalten, sodass bei einer erneuten Anmeldung möglicherweise nicht nach dem Passwort gefragt wird. Ihr regulärer Browser ist davon nicht betroffen. Gesammelte Nutzungsdaten bleiben auf der Festplatte.",
+      "es": "Esto cierra la sesión de Cursor en esta aplicación. Cualquier sesión de Google o GitHub almacenada en el perfil de navegador privado de la aplicación se mantiene cuando es posible, por lo que iniciar sesión de nuevo podría no solicitar esa contraseña. Su navegador habitual no se ve afectado. Las muestras de uso recopiladas permanecen en el disco.",
+      "fr": "Ceci vous déconnecte de Cursor dans cette application. Toute session Google ou GitHub stockée dans le profil de navigateur privé de l'application est conservée si possible, donc une nouvelle connexion pourrait ne pas demander ce mot de passe. Votre navigateur habituel n'est pas affecté. Les échantillons d'utilisation collectés restent sur le disque.",
+      "hi": "यह इस ऐप में Cursor से साइन आउट करता है। ऐप के निजी ब्राउज़र प्रोफ़ाइल में संग्रहीत कोई भी Google या GitHub सत्र, जहाँ संभव हो, रखा जाता है, इसलिए फिर से साइन इन करने पर उस पासवर्ड के लिए नहीं पूछा जा सकता है। आपका नियमित ब्राउज़र प्रभावित नहीं होता है। एकत्रित उपयोग के नमूने डिस्क पर रहते हैं।",
+      "ko": "이 앱에서 Cursor 로그아웃합니다. 앱의 비공개 브라우저 프로필에 저장된 Google 또는 GitHub 세션은 가능한 경우 유지되므로, 다시 로그인할 때 비밀번호를 묻지 않을 수 있습니다. 일반 브라우저에는 영향을 주지 않습니다. 수집된 사용량 샘플은 디스크에 유지됩니다.",
+      "zh-Hans": "这将退出此应用中的 Cursor。应用私有浏览器配置文件中存储的任何 Google 或 GitHub 会话将尽可能保留，因此再次登录时可能不会要求输入密码。您的常规浏览器不受影响。收集到的使用样本会保留在磁盘上。",
+      "ja": "これにより、このアプリのCursorからサインアウトします。アプリのプライベートブラウザプロファイルに保存されているGoogleまたはGitHubのセッションは可能な限り保持されるため、再度サインインしてもパスワードを求められない場合があります。通常のブラウザには影響しません。収集された使用状況サンプルはディスクに残ります。",
+      "zh-Hant": "這會將您從此應用程式中的 Cursor 登出。應用程式私有瀏覽器設定檔中儲存的任何 Google 或 GitHub 工作階段將盡可能保留，因此再次登入時可能不會要求輸入密碼。您的常規瀏覽器不受影響。收集到的使用量樣本會保留在磁碟上。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/SettingsView.axaml.cs",
+        "line": 488
+      }
+    ]
+  },
+  "3a5837d1": {
+    "source": "Not enough data yet",
+    "translated": {
+      "pt-BR": "Ainda não há dados suficientes",
+      "de": "Noch nicht genügend Daten",
+      "es": "Aún no hay datos suficientes",
+      "fr": "Pas assez de données pour l'instant",
+      "hi": "अभी पर्याप्त डेटा नहीं है",
+      "ko": "아직 데이터가 충분하지 않습니다.",
+      "zh-Hans": "暂无足够数据",
+      "ja": "まだ十分なデータがありません",
+      "zh-Hant": "尚無足夠資料"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 59
+      }
+    ]
+  },
+  "f149c23c": {
+    "source": "1D",
+    "translated": {
+      "pt-BR": "1D",
+      "de": "1T",
+      "es": "1D",
+      "fr": "1J",
+      "hi": "1D",
+      "ko": "1일",
+      "zh-Hans": "1天",
+      "ja": "1日",
+      "zh-Hant": "1 天"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 75
+      }
+    ]
+  },
+  "e3b481d5": {
+    "source": "1 day",
+    "translated": {
+      "pt-BR": "1 dia",
+      "de": "1 Tag",
+      "es": "1 día",
+      "fr": "1 jour",
+      "hi": "1 दिन",
+      "ko": "1일",
+      "zh-Hans": "1天",
+      "ja": "1日",
+      "zh-Hant": "1 天"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 82
+      }
+    ]
+  },
+  "0359f566": {
+    "source": "2 days",
+    "translated": {
+      "pt-BR": "2 dias",
+      "de": "2 Tage",
+      "es": "2 días",
+      "fr": "2 jours",
+      "hi": "2 दिन",
+      "ko": "2일",
+      "zh-Hans": "2天",
+      "ja": "2日",
+      "zh-Hant": "2 天"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 90
+      }
+    ]
+  },
+  "cb8f14fd": {
+    "source": "7 days",
+    "translated": {
+      "pt-BR": "7 dias",
+      "de": "7 Tage",
+      "es": "7 días",
+      "fr": "7 jours",
+      "hi": "7 दिन",
+      "ko": "7일",
+      "zh-Hans": "7天",
+      "ja": "7日",
+      "zh-Hant": "7 天"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 98
+      }
+    ]
+  },
+  "6a0a215c": {
+    "source": "1W",
+    "translated": {
+      "pt-BR": "1W",
+      "de": "1W",
+      "es": "1W",
+      "fr": "1S",
+      "hi": "1W",
+      "ko": "1주",
+      "zh-Hans": "1周",
+      "ja": "1週間",
+      "zh-Hant": "1 週"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 99
+      }
+    ]
+  },
+  "705fbbd6": {
+    "source": "1 week",
+    "translated": {
+      "pt-BR": "1 semana",
+      "de": "1 Woche",
+      "es": "1 semana",
+      "fr": "1 semaine",
+      "hi": "1 सप्ताह",
+      "ko": "1주",
+      "zh-Hans": "1周",
+      "ja": "1週間",
+      "zh-Hant": "1 週"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 106
+      }
+    ]
+  },
+  "81c78acb": {
+    "source": "2W",
+    "translated": {
+      "pt-BR": "2W",
+      "de": "2W",
+      "es": "2W",
+      "fr": "2S",
+      "hi": "2W",
+      "ko": "2주",
+      "zh-Hans": "2周",
+      "ja": "2週間",
+      "zh-Hant": "2 週"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 107
+      }
+    ]
+  },
+  "a9adf02f": {
+    "source": "2 weeks",
+    "translated": {
+      "pt-BR": "2 semanas",
+      "de": "2 Wochen",
+      "es": "2 semanas",
+      "fr": "2 semaines",
+      "hi": "2 सप्ताह",
+      "ko": "2주",
+      "zh-Hans": "2周",
+      "ja": "2週間",
+      "zh-Hant": "2 週"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 114
+      }
+    ]
+  },
+  "7e4bff1b": {
+    "source": "1M",
+    "translated": {
+      "pt-BR": "1M",
+      "de": "1M",
+      "es": "1M",
+      "fr": "1M",
+      "hi": "1M",
+      "ko": "1개월",
+      "zh-Hans": "1个月",
+      "ja": "1ヶ月",
+      "zh-Hant": "1 個月"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 115
+      }
+    ]
+  },
+  "1634e66b": {
+    "source": "1 month",
+    "translated": {
+      "pt-BR": "1 mês",
+      "de": "1 Monat",
+      "es": "1 mes",
+      "fr": "1 mois",
+      "hi": "1 महीना",
+      "ko": "1개월",
+      "zh-Hans": "1个月",
+      "ja": "1ヶ月",
+      "zh-Hant": "1 個月"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml",
+        "line": 122
+      }
+    ]
+  },
+  "6774ebb8": {
+    "source": "Cursor {0} estimated",
+    "translated": {
+      "pt-BR": "Cursor {0} estimado",
+      "de": "Cursor {0} geschätzt",
+      "es": "Cursor {0} estimado",
+      "fr": "Cursor {0} estimé",
+      "hi": "Cursor {0} अनुमानित",
+      "ko": "Cursor {0} 예상",
+      "zh-Hans": "Cursor {0} 估算",
+      "ja": "Cursor {0} (推定)",
+      "zh-Hant": "Cursor {0} 估計"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 447
+      }
+    ]
+  },
+  "3a8d6e1e": {
+    "source": "Other {0} estimated",
+    "translated": {
+      "pt-BR": "Outros {0} estimados",
+      "de": "Andere {0} geschätzt",
+      "es": "Otros {0} estimados",
+      "fr": "Autre {0} estimé",
+      "hi": "अन्य {0} अनुमानित",
+      "ko": "기타 {0} 예상",
+      "zh-Hans": "其他 {0} 估算",
+      "ja": "その他 {0} (推定)",
+      "zh-Hant": "其他 {0} 估計"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 453
+      }
+    ]
+  },
+  "32237bc4": {
+    "source": "start {0} estimated, {1}",
+    "translated": {
+      "pt-BR": "início {0} estimado, {1}",
+      "de": "Start {0} geschätzt, {1}",
+      "es": "inicio {0} estimado, {1}",
+      "fr": "début {0} estimé, {1}",
+      "hi": "प्रारंभ {0} अनुमानित, {1}",
+      "ko": "시작 {0} 예상, {1}",
+      "zh-Hans": "开始 {0} 估算，{1}",
+      "ja": "開始 {0} (推定), {1}",
+      "zh-Hant": "開始 {0} 估計，{1}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 466
+      }
+    ]
+  },
+  "147f4911": {
+    "source": "start {0}, {1}",
+    "translated": {
+      "pt-BR": "início {0}, {1}",
+      "de": "Start {0}, {1}",
+      "es": "inicio {0}, {1}",
+      "fr": "début {0}, {1}",
+      "hi": "प्रारंभ {0}, {1}",
+      "ko": "시작 {0}, {1}",
+      "zh-Hans": "开始 {0}，{1}",
+      "ja": "開始 {0}, {1}",
+      "zh-Hant": "開始 {0}，{1}"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 467
+      },
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 471
+      }
+    ]
+  },
+  "71218f7b": {
+    "source": "Expected usage",
+    "translated": {
+      "pt-BR": "Uso esperado",
+      "de": "Erwartete Nutzung",
+      "es": "Uso esperado",
+      "fr": "Utilisation prévue",
+      "hi": "अपेक्षित उपयोग",
+      "ko": "예상 사용량",
+      "zh-Hans": "预期用量",
+      "ja": "予想される使用状況",
+      "zh-Hant": "預期使用量"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 969
+      }
+    ]
+  },
+  "9abdae4f": {
+    "source": "Cursor",
+    "translated": {
+      "pt-BR": "Cursor",
+      "de": "Cursor",
+      "es": "Cursor",
+      "fr": "Cursor",
+      "hi": "Cursor",
+      "ko": "Cursor",
+      "zh-Hans": "Cursor",
+      "ja": "Cursor",
+      "zh-Hant": "Cursor"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 971
+      }
+    ]
+  },
+  "d9ecafea": {
+    "source": "Other Models",
+    "translated": {
+      "pt-BR": "Outros Modelos",
+      "de": "Andere Modelle",
+      "es": "Otros modelos",
+      "fr": "Autres modèles",
+      "hi": "अन्य मॉडल",
+      "ko": "기타 모델",
+      "zh-Hans": "其他模型",
+      "ja": "その他のモデル",
+      "zh-Hant": "其他模型"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 973
+      }
+    ]
+  },
+  "cf3bd6a7": {
+    "source": "Cursor (estimated)",
+    "translated": {
+      "pt-BR": "Cursor (estimado)",
+      "de": "Cursor (geschätzt)",
+      "es": "Cursor (estimado)",
+      "fr": "Cursor (estimé)",
+      "hi": "Cursor (अनुमानित)",
+      "ko": "Cursor (예상)",
+      "zh-Hans": "Cursor (估算)",
+      "ja": "Cursor (推定)",
+      "zh-Hant": "Cursor (估計)"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 975
+      }
+    ]
+  },
+  "065d3604": {
+    "source": "Other Models (estimated)",
+    "translated": {
+      "pt-BR": "Outros Modelos (estimado)",
+      "de": "Andere Modelle (geschätzt)",
+      "es": "Otros modelos (estimados)",
+      "fr": "Autres modèles (estimé)",
+      "hi": "अन्य मॉडल (अनुमानित)",
+      "ko": "기타 모델 (예상)",
+      "zh-Hans": "其他模型 (估算)",
+      "ja": "その他のモデル (推定)",
+      "zh-Hant": "其他模型 (估計)"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/UsageChartControl.axaml.cs",
+        "line": 977
+      }
+    ]
+  },
+  "f41b53c4": {
+    "source": "Sign in to Cursor",
+    "translated": {
+      "pt-BR": "Entrar no Cursor",
+      "de": "Bei Cursor anmelden",
+      "es": "Iniciar sesión en Cursor",
+      "fr": "Se connecter à Cursor",
+      "hi": "Cursor में साइन इन करें",
+      "ko": "Cursor에 로그인",
+      "zh-Hans": "登录 Cursor",
+      "ja": "Cursorにサインイン",
+      "zh-Hant": "登入 Cursor"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/WebViewHostWindow.axaml",
+        "line": 5
+      },
+      {
+        "file": "Views/WebViewHostWindow.axaml.cs",
+        "line": 14
+      },
+      {
+        "file": "Views/WebViewHostWindow.axaml.cs",
+        "line": 35
+      }
+    ]
+  },
+  "d481350f": {
+    "source": "Sign in with your Cursor account (Google, GitHub, and two-factor authentication work here). This window closes by itself when the session is accepted. If you already see your Cursor account, click Continue.",
+    "translated": {
+      "pt-BR": "Faça login com sua conta Cursor (Google, GitHub e autenticação de dois fatores funcionam aqui). Esta janela se fechará automaticamente quando a sessão for aceita. Se você já vir sua conta Cursor, clique em Continuar.",
+      "de": "Melden Sie sich mit Ihrem Cursor-Konto an (Google, GitHub und Zwei-Faktor-Authentifizierung funktionieren hier). Dieses Fenster schließt sich automatisch, sobald die Sitzung akzeptiert wurde. Wenn Sie Ihr Cursor-Konto bereits sehen, klicken Sie auf Weiter.",
+      "es": "Inicie sesión con su cuenta de Cursor (Google, GitHub y la autenticación de dos factores funcionan aquí). Esta ventana se cerrará automáticamente cuando se acepte la sesión. Si ya ve su cuenta de Cursor, haga clic en Continuar.",
+      "fr": "Connectez-vous avec votre compte Cursor (Google, GitHub et l'authentification à deux facteurs fonctionnent ici). Cette fenêtre se fermera automatiquement lorsque la session sera acceptée. Si vous voyez déjà votre compte Cursor, cliquez sur Continuer.",
+      "hi": "अपने Cursor खाते से साइन इन करें (Google, GitHub और दो-कारक प्रमाणीकरण यहाँ काम करते हैं)। सत्र स्वीकार होने पर यह विंडो अपने आप बंद हो जाएगी। यदि आप पहले से ही अपना Cursor खाता देखते हैं, तो जारी रखें पर क्लिक करें।",
+      "ko": "Cursor 계정으로 로그인하세요 (Google, GitHub 및 2단계 인증이 지원됩니다). 세션이 수락되면 이 창은 자동으로 닫힙니다. 이미 Cursor 계정이 보이면 계속을 클릭하세요.",
+      "zh-Hans": "使用您的 Cursor 账户登录（Google、GitHub 和双重身份验证在此处均可使用）。会话接受后，此窗口将自动关闭。如果您已看到您的 Cursor 账户，请点击“继续”。",
+      "ja": "Cursorアカウントでサインインしてください（Google、GitHub、二段階認証が利用可能です）。セッションが承認されると、このウィンドウは自動的に閉じます。すでにCursorアカウントが表示されている場合は、「続行」をクリックしてください。",
+      "zh-Hant": "使用您的 Cursor 帳戶登入 (支援 Google、GitHub 和雙重驗證)。工作階段接受後，此視窗會自動關閉。如果您已看到您的 Cursor 帳戶，請按一下「繼續」。"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/WebViewHostWindow.axaml",
+        "line": 25
+      }
+    ]
+  },
+  "a0bfb8e5": {
+    "source": "Continue",
+    "translated": {
+      "pt-BR": "Continuar",
+      "de": "Weiter",
+      "es": "Continuar",
+      "fr": "Continuer",
+      "hi": "जारी रखें",
+      "ko": "계속",
+      "zh-Hans": "继续",
+      "ja": "続行",
+      "zh-Hant": "繼續"
+    },
+    "models": {
+      "pt-BR": "gemini-2.5-flash",
+      "de": "gemini-2.5-flash",
+      "es": "gemini-2.5-flash",
+      "fr": "gemini-2.5-flash",
+      "hi": "gemini-2.5-flash",
+      "ko": "gemini-2.5-flash",
+      "zh-Hans": "gemini-2.5-flash",
+      "ja": "gemini-2.5-flash",
+      "zh-Hant": "gemini-2.5-flash"
+    },
+    "locations": [
+      {
+        "file": "Views/WebViewHostWindow.axaml",
+        "line": 28
+      }
+    ]
+  }
+}

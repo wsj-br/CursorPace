@@ -7,7 +7,7 @@ public class MacStartupRegistrationTests
     [Fact]
     public void ResolveAppBundlePath_ReturnsBundleWhenProcessIsInnerExecutable()
     {
-        var spaced = Path.Combine("Applications", "Cursor Pace.app");
+        var spaced = Path.Combine("Applications", "CursorPace.app");
         var current = Path.Combine("Applications", "CursorPace.app");
 
         Assert.Equal(
@@ -28,7 +28,7 @@ public class MacStartupRegistrationTests
     [Fact]
     public void ResolveAppBundlePath_ReturnsNullWhenContentsMacOSShapeIsMissing()
     {
-        var exe = Path.Combine("Applications", "Cursor Pace.app", "CursorPace");
+        var exe = Path.Combine("Applications", "CursorPace.app", "CursorPace");
         Assert.Null(MacStartupRegistration.ResolveAppBundlePath(exe));
     }
 
@@ -43,8 +43,8 @@ public class MacStartupRegistrationTests
     [Fact]
     public void BuildLaunchProgramArguments_WhenBundledAndStartInTray_UsesOpenWithoutExecingInnerBinary()
     {
-        var bundle = "/Applications/Cursor Pace.app";
-        var exe = "/Applications/Cursor Pace.app/Contents/MacOS/CursorPace";
+        var bundle = "/Applications/CursorPace.app";
+        var exe = "/Applications/CursorPace.app/Contents/MacOS/CursorPace";
 
         var args = MacStartupRegistration.BuildLaunchProgramArguments(bundle, exe, startInTray: true);
 
@@ -65,7 +65,7 @@ public class MacStartupRegistrationTests
     [Fact]
     public void BuildLaunchProgramArguments_WhenBundledAndWindowShouldShow_OpensAppWithoutBackground()
     {
-        var bundle = "/Applications/Cursor Pace.app";
+        var bundle = "/Applications/CursorPace.app";
         var args = MacStartupRegistration.BuildLaunchProgramArguments(
             bundle,
             bundle + "/Contents/MacOS/CursorPace",
@@ -97,8 +97,8 @@ public class MacStartupRegistrationTests
         var plist = MacStartupRegistration.BuildLaunchAgentPlist(
             MacStartupRegistration.Label,
             MacStartupRegistration.BuildLaunchProgramArguments(
-                "/Applications/Cursor Pace.app",
-                "/Applications/Cursor Pace.app/Contents/MacOS/CursorPace",
+                "/Applications/CursorPace.app",
+                "/Applications/CursorPace.app/Contents/MacOS/CursorPace",
                 startInTray: true));
 
         Assert.Contains("<string>com.cursorpace.app</string>", plist);
@@ -107,7 +107,7 @@ public class MacStartupRegistrationTests
         Assert.Contains("<string>/usr/bin/open</string>", plist);
         Assert.Contains("<string>-g</string>", plist);
         Assert.Contains("<string>-a</string>", plist);
-        Assert.Contains("<string>/Applications/Cursor Pace.app</string>", plist);
+        Assert.Contains("<string>/Applications/CursorPace.app</string>", plist);
         Assert.Contains("<string>--background</string>", plist);
         Assert.Contains("<key>AssociatedBundleIdentifiers</key>", plist);
         Assert.Contains("<string>com.cursorpace.app</string>", plist);

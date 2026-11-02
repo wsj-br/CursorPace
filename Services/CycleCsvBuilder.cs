@@ -13,7 +13,7 @@ public static class CycleCsvBuilder
     {
         var builder = new StringBuilder();
         builder.AppendLine(
-            "day number,date,Cursor (expected),Other Models (expected),Cursor (estimated),Other Models (estimated),IsDataPoint");
+            T("day number,date,Cursor (expected),Other Models (expected),Cursor (estimated),Other Models (estimated),IsDataPoint"));
 
         foreach (var day in cycle.Days)
         {

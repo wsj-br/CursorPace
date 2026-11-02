@@ -1,6 +1,7 @@
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using Avalonia.Platform.Storage;
 using CursorPace.Models;
 using CursorPace.Services;
@@ -14,12 +15,17 @@ public partial class SettingsView : UserControl
     private bool _applyingSettingsTab;
     private bool _settingsTabReady;
 
+    private bool _applyingLanguage;
+    private bool _localeRefreshPosted;
+
     public SettingsView()
     {
         InitializeComponent();
+        RestoreButton.Content = Tp("backup", "Restore");
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
         DataContextChanged += OnDataContextChanged;
+        LocaleChanged += OnLocaleChanged;
     }
 
     private Window? HostWindow => TopLevel.GetTopLevel(this) as Window;
@@ -57,6 +63,9 @@ public partial class SettingsView : UserControl
         SyncIntervalBox();
         SyncThemeBox();
         SyncSampleDetailBox();
+        SyncLanguageBox();
+        if (RestoreButton != null)
+            RestoreButton.Content = Tp("backup", "Restore");
     }
 
     private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -93,9 +102,15 @@ public partial class SettingsView : UserControl
 
     private void OnSettingsTabChanged(object? sender, SelectionChangedEventArgs e)
     {
+        // ComboBox selection changes bubble. Refreshing a combo from that event
+        // replaces its items while the selection update is still on the stack.
+        if (!ReferenceEquals(e.Source, SettingsTabs))
+            return;
+
         SyncIntervalBox();
         SyncThemeBox();
         SyncSampleDetailBox();
+        SyncLanguageBox();
 
         if (!_settingsTabReady || _applyingSettingsTab || _viewModel == null)
             return;
@@ -123,8 +138,9 @@ public partial class SettingsView : UserControl
         if (_viewModel == null || ThemeBox == null)
             return;
 
-        ThemeBox.ItemsSource = _viewModel.ThemeModeOptions;
-        ThemeBox.SelectedItem = _viewModel.ThemeMode;
+        var options = _viewModel.ThemeModeOptions;
+        ThemeBox.ItemsSource = options;
+        ThemeBox.SelectedItem = options.First(option => option.Mode == _viewModel.ThemeMode);
     }
 
     private void SyncSampleDetailBox()
@@ -132,9 +148,45 @@ public partial class SettingsView : UserControl
         if (_viewModel == null || SampleDetailBox == null)
             return;
 
-        SampleDetailBox.ItemsSource = _viewModel.SampleDetailOptions;
-        SampleDetailBox.SelectedItem = _viewModel.SampleDetailOptions
-            .First(option => option.Days == _viewModel.RawSampleMaxDays);
+        var options = _viewModel.SampleDetailOptions;
+        SampleDetailBox.ItemsSource = options;
+        SampleDetailBox.SelectedItem = options.First(option => option.Days == _viewModel.RawSampleMaxDays);
+    }
+
+    private void SyncLanguageBox()
+    {
+        if (_viewModel == null || LanguageBox == null)
+            return;
+
+        var options = _viewModel.LanguageOptions;
+        _applyingLanguage = true;
+        try
+        {
+            LanguageBox.ItemsSource = options;
+            LanguageBox.SelectedItem = options.First(option => option.Code == _viewModel.UiLocale);
+        }
+        finally
+        {
+            _applyingLanguage = false;
+        }
+    }
+
+    private void OnLocaleChanged()
+    {
+        if (_localeRefreshPosted)
+            return;
+
+        _localeRefreshPosted = true;
+        Dispatcher.UIThread.Post(() =>
+        {
+            _localeRefreshPosted = false;
+            SyncThemeBox();
+            SyncSampleDetailBox();
+            SyncLanguageBox();
+            UpdateTokenRevealCaption();
+            if (RestoreButton != null)
+                RestoreButton.Content = Tp("backup", "Restore");
+        });
     }
 
     private async void OnExportCsvClick(object? sender, RoutedEventArgs e)
@@ -144,15 +196,15 @@ public partial class SettingsView : UserControl
 
         if (!_viewModel.TryBuildCycleCsv(out var csv))
         {
-            await ShowMessageAsync("Export failed", "There is no cycle data to export.");
+            await ShowMessageAsync(T("Export failed"), T("There is no cycle data to export."));
             return;
         }
 
         await SaveTextFileAsync(
-            "Export CSV",
+            T("Export CSV"),
             _viewModel.SuggestedCycleFileName,
             "csv",
-            "CSV",
+            T("CSV"),
             csv);
     }
 
@@ -163,15 +215,15 @@ public partial class SettingsView : UserControl
 
         if (!_viewModel.TryBuildUsageSamplesCsv(out var csv))
         {
-            await ShowMessageAsync("Export failed", "There is no usage data to export.");
+            await ShowMessageAsync(T("Export failed"), T("There is no usage data to export."));
             return;
         }
 
         await SaveTextFileAsync(
-            "Export CSV",
+            T("Export CSV"),
             _viewModel.SuggestedUsageSamplesFileName,
             "csv",
-            "CSV",
+            T("CSV"),
             csv);
     }
 
@@ -182,47 +234,47 @@ public partial class SettingsView : UserControl
 
         try
         {
-        var file = await PickSaveFileAsync(
-            "Backup data",
-            _viewModel.SuggestedBackupFileName,
-            "zip",
-            "Backup",
-            "*.zip");
-        if (file == null)
-            return;
+            var file = await PickSaveFileAsync(
+                T("Backup data"),
+                _viewModel.SuggestedBackupFileName,
+                "zip",
+                T("Backup"),
+                "*.zip");
+            if (file == null)
+                return;
 
-        var path = file.TryGetLocalPath();
-        if (string.IsNullOrEmpty(path))
-        {
-            await using var stream = await file.OpenWriteAsync();
-            if (!_viewModel.TryWriteBackup(stream, out var error))
+            var path = file.TryGetLocalPath();
+            if (string.IsNullOrEmpty(path))
             {
-                await ShowMessageAsync("Backup failed", error ?? "Could not write the backup file.");
+                await using var stream = await file.OpenWriteAsync();
+                if (!_viewModel.TryWriteBackup(stream, out var error))
+                {
+                    await ShowMessageAsync(T("Backup failed"), UiText.Translate(error ?? "Could not write the backup file."));
+                    return;
+                }
+
+                await ShowSavedFileAsync(T("Backup complete"), T("Saved the backup file."));
                 return;
             }
 
-            await ShowSavedFileAsync("Backup complete", "Saved the backup file.");
-            return;
-        }
-
-        await using (var stream = File.Create(path))
-        {
-            if (!_viewModel.TryWriteBackup(stream, out var error))
+            await using (var stream = File.Create(path))
             {
-                await ShowMessageAsync("Backup failed", error ?? "Could not write the backup file.");
-                return;
+                if (!_viewModel.TryWriteBackup(stream, out var error))
+                {
+                    await ShowMessageAsync(T("Backup failed"), UiText.Translate(error ?? "Could not write the backup file."));
+                    return;
+                }
             }
-        }
 
-        await ShowSavedFileAsync("Backup complete", $"Saved to {path}", path);
+            await ShowSavedFileAsync(T("Backup complete"), T("Saved to {0}", path), path);
         }
         catch (Exception ex)
         {
             await ShowMessageAsync(
-                "Backup failed",
-                string.IsNullOrWhiteSpace(ex.Message)
+                T("Backup failed"),
+                UiText.Translate(string.IsNullOrWhiteSpace(ex.Message)
                     ? "Could not write the backup file."
-                    : ex.Message);
+                    : ex.Message));
         }
     }
 
@@ -233,64 +285,64 @@ public partial class SettingsView : UserControl
 
         try
         {
-        var window = HostWindow;
-        if (window == null)
-            return;
+            var window = HostWindow;
+            if (window == null)
+                return;
 
-        var files = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = "Restore backup",
-            AllowMultiple = false,
-            FileTypeFilter =
-            [
-                new FilePickerFileType("Backup") { Patterns = ["*.zip"] }
-            ]
-        });
-        if (files.Count == 0)
-            return;
-
-        var confirmed = await ConfirmDialog.ConfirmAsync(
-            window,
-            "Restore backup",
-            "This replaces the current settings and collected usage samples with the backup. Your Cursor sign-in session in this app is not changed.",
-            "Restore",
-            "Cancel");
-        if (!confirmed)
-            return;
-
-        var file = files[0];
-        var path = file.TryGetLocalPath();
-        if (string.IsNullOrEmpty(path))
-        {
-            await using var stream = await file.OpenReadAsync();
-            if (!_viewModel.TryRestoreBackup(stream, out var error))
+            var files = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
-                await ShowMessageAsync("Restore failed", error ?? "Could not restore the backup file.");
+                Title = T("Restore backup"),
+                AllowMultiple = false,
+                FileTypeFilter =
+                [
+                    new FilePickerFileType(T("Backup")) { Patterns = ["*.zip"] }
+                ]
+            });
+            if (files.Count == 0)
+                return;
+
+            var confirmed = await ConfirmDialog.ConfirmAsync(
+                window,
+                T("Restore backup"),
+                T("This replaces the current settings and collected usage samples with the backup. Your Cursor sign-in session in this app is not changed."),
+                Tp("backup", "Restore"),
+                T("Cancel"));
+            if (!confirmed)
+                return;
+
+            var file = files[0];
+            var path = file.TryGetLocalPath();
+            if (string.IsNullOrEmpty(path))
+            {
+                await using var stream = await file.OpenReadAsync();
+                if (!_viewModel.TryRestoreBackup(stream, out var error))
+                {
+                    await ShowMessageAsync(T("Restore failed"), UiText.Translate(error ?? "Could not restore the backup file."));
+                    return;
+                }
+
+                await ShowMessageAsync(T("Restore complete"), T("Restored settings and usage samples."));
                 return;
             }
 
-            await ShowMessageAsync("Restore complete", "Restored settings and usage samples.");
-            return;
-        }
-
-        await using (var stream = File.OpenRead(path))
-        {
-            if (!_viewModel.TryRestoreBackup(stream, out var error))
+            await using (var stream = File.OpenRead(path))
             {
-                await ShowMessageAsync("Restore failed", error ?? "Could not restore the backup file.");
-                return;
+                if (!_viewModel.TryRestoreBackup(stream, out var error))
+                {
+                    await ShowMessageAsync(T("Restore failed"), UiText.Translate(error ?? "Could not restore the backup file."));
+                    return;
+                }
             }
-        }
 
-        await ShowMessageAsync("Restore complete", "Restored settings and usage samples.");
+            await ShowMessageAsync(T("Restore complete"), T("Restored settings and usage samples."));
         }
         catch (Exception ex)
         {
             await ShowMessageAsync(
-                "Restore failed",
-                string.IsNullOrWhiteSpace(ex.Message)
+                T("Restore failed"),
+                UiText.Translate(string.IsNullOrWhiteSpace(ex.Message)
                     ? "Could not restore the backup file."
-                    : ex.Message);
+                    : ex.Message));
         }
     }
 
@@ -311,12 +363,12 @@ public partial class SettingsView : UserControl
             await using var stream = await file.OpenWriteAsync();
             await using var writer = new StreamWriter(stream);
             await writer.WriteAsync(contents);
-            await ShowSavedFileAsync("Export complete", $"Saved the {fileTypeName} file.");
+            await ShowSavedFileAsync(T("Export complete"), T("Saved the {0} file.", fileTypeName));
             return;
         }
 
         await File.WriteAllTextAsync(path, contents);
-        await ShowSavedFileAsync("Export complete", $"Saved to {path}", path);
+        await ShowSavedFileAsync(T("Export complete"), T("Saved to {0}", path), path);
     }
 
     private async Task<IStorageFile?> PickSaveFileAsync(
@@ -366,13 +418,13 @@ public partial class SettingsView : UserControl
             window,
             title,
             body,
-            "Open Folder");
+            T("Open Folder"));
         if (openFolder && !FolderOpener.TryOpenContainingFolder(localPath, out var error))
         {
             await ConfirmDialog.ShowMessageAsync(
                 window,
-                "Open folder failed",
-                error ?? "Could not open the destination folder.");
+                T("Open folder failed"),
+                UiText.Translate(error ?? "Could not open the destination folder."));
         }
     }
 
@@ -388,24 +440,40 @@ public partial class SettingsView : UserControl
         RemoteSyncApiTokenBox.PasswordChar = reveal ? '\0' : '•';
         ShowRemoteSyncApiTokenIcon.IsVisible = !reveal;
         HideRemoteSyncApiTokenIcon.IsVisible = reveal;
+        UpdateTokenRevealCaption();
+    }
+
+    private void UpdateTokenRevealCaption()
+    {
+        if (RemoteSyncApiTokenBox == null || RemoteSyncApiTokenRevealButton == null)
+            return;
+
+        var reveal = RemoteSyncApiTokenBox.PasswordChar == '\0';
         RemoteSyncApiTokenRevealButton.SetValue(
             ToolTip.TipProperty,
-            reveal ? "Hide token" : "Show token");
+            reveal ? T("Hide token") : T("Show token"));
         AutomationProperties.SetName(
             RemoteSyncApiTokenRevealButton,
-            reveal ? "Hide API token" : "Show API token");
+            reveal ? T("Hide API token") : T("Show API token"));
     }
 
     private void OnThemeChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (_viewModel != null && ThemeBox.SelectedItem is UiThemeMode mode)
-            _viewModel.ThemeMode = mode;
+        if (_viewModel != null && ThemeBox.SelectedItem is ThemeModeChoice choice)
+            _viewModel.ThemeMode = choice.Mode;
     }
 
     private void OnSampleDetailChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (_viewModel != null && SampleDetailBox.SelectedItem is SampleDetailChoice choice)
-            _viewModel.RawSampleMaxDays = choice.Days;
+        if (_viewModel != null && SampleDetailBox.SelectedItem is SampleDetailOption option)
+            _viewModel.RawSampleMaxDays = option.Days;
+    }
+
+    private void OnLanguageChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (_applyingLanguage || _viewModel == null || LanguageBox.SelectedItem is not LanguageChoice choice)
+            return;
+        _viewModel.UiLocale = choice.Code;
     }
 
     private async void OnDisconnectClick(object? sender, RoutedEventArgs e)
@@ -416,10 +484,10 @@ public partial class SettingsView : UserControl
 
         var confirmed = await ConfirmDialog.ConfirmAsync(
             window,
-            "Sign out of Cursor",
-            "This signs out of Cursor in this app. Any Google or GitHub session stored in the app's private browser profile is kept when possible, so signing in again may not ask for that password. Your regular browser is not affected. Collected usage samples stay on disk.",
-            "Sign out",
-            "Cancel");
+            T("Sign out of Cursor"),
+            T("This signs out of Cursor in this app. Any Google or GitHub session stored in the app's private browser profile is kept when possible, so signing in again may not ask for that password. Your regular browser is not affected. Collected usage samples stay on disk."),
+            T("Sign out"),
+            T("Cancel"));
         if (confirmed && _viewModel.DisconnectCommand.CanExecute(null))
             _viewModel.DisconnectCommand.Execute(null);
     }

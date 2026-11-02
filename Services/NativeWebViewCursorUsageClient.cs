@@ -237,14 +237,14 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
                     if (fromUser)
                     {
                         host.SetBannerStatus(
-                            "Finish signing in until you see your Cursor account, then click Continue.");
+                            T("Finish signing in until you see your Cursor account, then click Continue."));
                     }
 
                     return;
                 }
 
                 if (fromUser)
-                    host.SetBannerStatus("Checking Cursor session…");
+                    host.SetBannerStatus(T("Checking Cursor session…"));
 
                 await Task.Delay(fromUser ? 200 : 400, cancellationToken);
                 var fetch = await ExecuteFetchAsync(webView, cancellationToken);
@@ -257,7 +257,7 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
                 if (fromUser)
                 {
                     host.SetBannerStatus(
-                        "Cursor has not accepted the session yet. Stay on cursor.com after signing in, then click Continue.");
+                        T("Cursor has not accepted the session yet. Stay on cursor.com after signing in, then click Continue."));
                 }
             }
             catch (OperationCanceledException)
@@ -424,7 +424,7 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
                 if (invokeError != null)
                     throw new InvalidOperationException(invokeError.Message, invokeError);
 
-                throw new InvalidOperationException("The usage request timed out.");
+                throw new InvalidOperationException(T("The usage request timed out."));
             }
         }
         finally
@@ -436,7 +436,7 @@ public sealed class NativeWebViewCursorUsageClient : ICursorUsageClient
     private static ScriptFetchResult ParseFetchResult(string encoded)
     {
         if (!WebView2ScriptResultParser.TryParse(encoded, out var status, out var body))
-            throw new InvalidOperationException("Unable to parse the usage request result.");
+            throw new InvalidOperationException(T("Unable to parse the usage request result."));
 
         return new ScriptFetchResult { Status = status, Body = body };
     }

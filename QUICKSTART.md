@@ -1,6 +1,10 @@
 # Quick start
 
-End-user guide for Cursor Pace. For building from source, see [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md).
+**Read in other languages:**
+
+<small id="lang-list">[English](./QUICKSTART.md) · [Português (Brasil)](./translated-docs/QUICKSTART.pt-BR.md) · [Deutsch](./translated-docs/QUICKSTART.de.md) · [Español](./translated-docs/QUICKSTART.es.md) · [Français](./translated-docs/QUICKSTART.fr.md) · [हिन्दी](./translated-docs/QUICKSTART.hi.md) · [日本語](./translated-docs/QUICKSTART.ja.md) · [한국어](./translated-docs/QUICKSTART.ko.md) · [简体中文](./translated-docs/QUICKSTART.zh-Hans.md) · [繁體中文](./translated-docs/QUICKSTART.zh-Hant.md)</small>
+
+End-user guide for CursorPace. For building from source, see [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md).
 
 ## Install
 
@@ -29,7 +33,7 @@ With **Update usage automatically** on, refreshes fall on a 1, 2, 4, 6, or 12 ho
 ## Main window
 
 <p align="center">
-  <img src="Assets/cursor_pace_screenshot.png" alt="Cursor Pace" width="600">
+  <img src="Assets/cursor_pace_screenshot.png" alt="CursorPace" width="600">
 </p>
 
 
@@ -77,11 +81,11 @@ Cursor Models and Other Models stay independent.
 
 Settings replace the chart. **Back**, or the **Settings** heading, returns to it. The last tab opens again next time, including after a restart.
 
-**Sync Server** is optional. [CursorPace Sync Server](https://github.com/wsj-br/CursorPace-SyncServer) shares usage samples and billing-cycle bounds across machines on a local network, so a Mac, a Windows PC, and a Linux machine in the same development environment show the same chart. Install and run the server from that repository. Theme, window placement, and startup options stay on each computer.
+**Sync Server** is optional. [CursorPace Sync Server](https://github.com/wsj-br/CursorPace-SyncServer) shares usage samples and billing-cycle bounds across machines on a local network, so a Mac, a Windows PC, and a Linux machine in the same development environment show the same chart. Install and run the server from that repository. Theme, language, window placement, and startup options stay on each computer.
 
 | Tab | What you can set |
 | --- | --- |
-| Startup & Display | **Launch at login**, **Start in notification tray**, theme (System, Light, or Dark), and **Every sample up to** |
+| Startup & Display | **Launch at login**, **Start in notification tray**, theme (System, Light, or Dark), **Language** (the locales in `locales/ui-languages.json`, or English when that file is missing), and **Every sample up to** |
 | Cursor account | **Sign in** (hidden while connected), **Refresh now**, **Sign out**, and automatic refresh at 1, 2, 4, 6, or 12 hours |
 | Sync Server | **Sync with server**, server URL, API token, machine name (the hostname by default), and **Re-sync now**. The link opens the sync server repository |
 | Export & Backup | **Export Cycle CSV** for the cycle on screen, **Export Usage** for every stored sample while signed in, and **Backup** / **Restore** of settings and samples as one zip. **Open Folder** opens the destination |
@@ -117,7 +121,7 @@ A fetch that reports a new cycle start archives the previous cycle and keeps its
 
 ## Uninstall
 
-Quit from the tray menu. On Windows, uninstall **Cursor Pace** from **Installed apps**. On Linux and macOS, delete the app and, for a clean start, the data folder above.
+Quit from the tray menu. On Windows, uninstall **CursorPace** from **Installed apps**. On Linux and macOS, delete the app and, for a clean start, the data folder above.
 
 ## Troubleshooting
 
@@ -134,3 +138,5 @@ Quit from the tray menu. On Windows, uninstall **Cursor Pace** from **Installed 
 **Launch at login does nothing.** Confirm the setting is on. Windows stores `CursorPace` in the current user's Run key, and adds `--background` when tray start is on. A signed macOS app appears under **Open at Login**. An unsigned build uses `~/Library/LaunchAgents/com.cursorpace.app.plist` and starts the `.app` with `/usr/bin/open`. Linux uses `~/.config/autostart/cursor-pace.desktop`. An AppImage entry has to point at the `.AppImage` file. Turn the setting off and on, or launch the new AppImage once, to rewrite it.
 
 **Two tray icons, or signed out after a Linux reboot.** Quit from the tray and start the app once. On Linux, sign in again on a current build so the session is stored in `cookies.sqlite`.
+
+Translations of this page are produced automatically. Prefer this English page when a translation disagrees with the app.

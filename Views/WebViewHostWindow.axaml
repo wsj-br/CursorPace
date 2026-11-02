@@ -1,7 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:CursorPace"
         x:Class="CursorPace.Views.WebViewHostWindow"
-        Title="Sign in to Cursor"
+        Title="{loc:Tr 'Sign in to Cursor'}"
         Width="900"
         Height="700"
         MinWidth="400"
@@ -21,10 +22,10 @@
                            TextWrapping="Wrap"
                            VerticalAlignment="Center"
                            Opacity="0.85"
-                           Text="Sign in with your Cursor account (Google, GitHub, and two-factor authentication work here). This window closes by itself when the session is accepted. If you already see your Cursor account, click Continue."/>
+                           Text="{loc:Tr 'Sign in with your Cursor account (Google, GitHub, and two-factor authentication work here). This window closes by itself when the session is accepted. If you already see your Cursor account, click Continue.'}"/>
                 <Button x:Name="ContinueButton"
                         Grid.Column="1"
-                        Content="Continue"
+                        Content="{loc:Tr 'Continue'}"
                         VerticalAlignment="Center"
                         Click="OnContinueClick"
                         Classes="accent"/>

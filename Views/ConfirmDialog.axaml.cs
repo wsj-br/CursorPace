@@ -17,6 +17,7 @@ public partial class ConfirmDialog : Window
     public static Task<bool> ConfirmAsync(Window owner, string title, string body, string primaryText, string secondaryText)
     {
         var dialog = new ConfirmDialog();
+        TrExtension.ApplyFlowDirection(dialog);
         dialog.Title = title;
         dialog.TitleText.Text = title;
         dialog.BodyText.Text = body;
@@ -30,10 +31,11 @@ public partial class ConfirmDialog : Window
     public static Task ShowMessageAsync(Window owner, string title, string body)
     {
         var dialog = new ConfirmDialog();
+        TrExtension.ApplyFlowDirection(dialog);
         dialog.Title = title;
         dialog.TitleText.Text = title;
         dialog.BodyText.Text = body;
-        dialog.PrimaryButton.Content = "OK";
+        dialog.PrimaryButton.Content = T("OK");
         dialog.PrimaryButton.IsDefault = true;
         dialog.SecondaryButton.IsVisible = false;
         dialog.ArrangeButtons(confirm: false);
@@ -48,11 +50,12 @@ public partial class ConfirmDialog : Window
         string dismissText = "OK")
     {
         var dialog = new ConfirmDialog();
+        TrExtension.ApplyFlowDirection(dialog);
         dialog.Title = title;
         dialog.TitleText.Text = title;
         dialog.BodyText.Text = body;
         dialog.PrimaryButton.Content = actionText;
-        dialog.SecondaryButton.Content = dismissText;
+        dialog.SecondaryButton.Content = dismissText == "OK" ? T("OK") : dismissText;
         dialog.SecondaryButton.IsDefault = true;
         dialog.ArrangeActionButtons();
         return dialog.ShowDialog<bool>(owner);

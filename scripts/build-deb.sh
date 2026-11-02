@@ -141,7 +141,7 @@ cp "$APPDATA_SOURCE" "$META_DIR/io.github.wsj_br.CursorPace.appdata.xml"
 cat >"$APP_DIR/cursor-pace.desktop" <<'EOF'
 [Desktop Entry]
 Type=Application
-Name=Cursor Pace
+Name=CursorPace
 Comment=Track Cursor quota across a billing cycle
 Exec=/opt/CursorPace/CursorPace
 Icon=/usr/share/icons/hicolor/256x256/apps/cursor-pace.png

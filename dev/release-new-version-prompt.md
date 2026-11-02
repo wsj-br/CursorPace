@@ -1,4 +1,4 @@
-Create a new release notes file `release-notes/RELEASE_NOTES_<version>.md` for Cursor Pace using the instructions below. The release scripts require this file, and the tag-triggered Release workflow uses it as the GitHub Release description.
+Create a new release notes file `release-notes/RELEASE_NOTES_<version>.md` for CursorPace using the instructions below. The release scripts require this file, and the tag-triggered Release workflow uses it as the GitHub Release description.
 
 **Instructions:**
 
@@ -6,7 +6,7 @@ Create a new release notes file `release-notes/RELEASE_NOTES_<version>.md` for C
 2. **Open `dev/CHANGELOG.md`**.
 3. **Copy all entries under the `## [Unreleased]` section** up to (but not including) the next `## [` heading (the last released version). If `[Unreleased]` has no bullets, stop and say there is nothing to release.
 4. **Format the new file** according to prior notes in `release-notes/RELEASE_NOTES_x.y.z.md`:
-   - Title: `# Cursor Pace <version> Release Notes`
+   - Title: `# CursorPace <version> Release Notes`
    - Sections:
      - `## Highlights` — Summarize the most important user-facing changes from the changelog bullets (features, fixes, major improvements). Do not list every change verbatim; write clear summaries for people who install the app.
      - `## Why this release matters` — One or two sentences on the main impact or reason for this release.
@@ -25,7 +25,7 @@ Create a new release notes file `release-notes/RELEASE_NOTES_<version>.md` for C
 **Example format for the file:**
 
 ```markdown
-# Cursor Pace 1.0.1 Release Notes
+# CursorPace 1.0.1 Release Notes
 
 ## Highlights
 

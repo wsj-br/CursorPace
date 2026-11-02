@@ -40,6 +40,7 @@ public sealed class UsageSyncService : IUsageSyncService
         _timer = dispatcher.CreateTimer();
         _timer.IsRepeating = false;
         _timer.Tick += OnTimerTick;
+        LocaleChanged += OnLocaleChanged;
 
         var connected = settings.CursorAccountConnected
             || (settings.ActiveCycle != null && settings.LastUsageSyncUtc != null);
@@ -49,19 +50,19 @@ public sealed class UsageSyncService : IUsageSyncService
                 ? SyncStatus.Ok
                 : SyncStatus.Idle;
             IsSignedIn = true;
-            StatusText = Status == SyncStatus.Ok ? FormatUpdatedText() : "Connected";
+            StatusText = Status == SyncStatus.Ok ? FormatUpdatedText() : T("Connected");
         }
         else
         {
             Status = SyncStatus.SignedOut;
             IsSignedIn = false;
-            StatusText = "Not signed in";
+            StatusText = T("Not signed in");
         }
     }
 
     public SyncStatus Status { get; private set; }
     public bool IsSignedIn { get; private set; }
-    public string StatusText { get; private set; } = "Not signed in";
+    public string StatusText { get; private set; } = "";
     public DateTimeOffset? LastSuccessUtc =>
         _lastSuccessUtc ?? (_document.Samples.Count == 0 ? null : _document.Samples[^1].TimestampUtc);
     public IReadOnlyList<UsageSample> Samples => _document.Samples;
@@ -99,7 +100,7 @@ public sealed class UsageSyncService : IUsageSyncService
     public async Task DisconnectAsync()
     {
         await _client.DisconnectAsync();
-        SetStatus(SyncStatus.SignedOut, "Not signed in");
+        SetStatus(SyncStatus.SignedOut, null);
         ResetTimer();
     }
 
@@ -149,6 +150,7 @@ public sealed class UsageSyncService : IUsageSyncService
 
     public void Dispose()
     {
+        LocaleChanged -= OnLocaleChanged;
         _timer.Stop();
         _timer.Tick -= OnTimerTick;
     }
@@ -209,7 +211,7 @@ public sealed class UsageSyncService : IUsageSyncService
         if (Status == SyncStatus.Syncing)
             return;
 
-        SetStatus(SyncStatus.Syncing, "Updating…");
+        SetStatus(SyncStatus.Syncing, null);
         var result = await _client.FetchAsync(allowInteractiveLogin);
         ApplyFetchResult(result);
         ResetTimer();
@@ -236,12 +238,12 @@ public sealed class UsageSyncService : IUsageSyncService
                 break;
 
             case UsageFetchStatus.AuthRequired:
-                SetStatus(SyncStatus.AuthRequired, result.Message ?? "Sign in to Cursor to sync usage.");
+                SetStatus(SyncStatus.AuthRequired, result.Message);
                 break;
 
             case UsageFetchStatus.RateLimited:
                 _backoffUntilUtc = new DateTimeOffset(_clock.Now).AddHours(_intervalHours);
-                SetStatus(SyncStatus.RateLimited, result.Message ?? "Cursor rate-limited the request. Will retry later.");
+                SetStatus(SyncStatus.RateLimited, result.Message);
                 break;
 
             default:
@@ -279,11 +281,31 @@ public sealed class UsageSyncService : IUsageSyncService
         _timer.Start();
     }
 
-    private void SetStatus(SyncStatus status, string text)
+    private string? _statusDetail;
+
+    private void OnLocaleChanged() => PublishStatus();
+
+    private void SetStatus(SyncStatus status, string? detail)
     {
         Status = status;
-        StatusText = status == SyncStatus.Ok ? FormatUpdatedText() : text;
-        IsSignedIn = status switch
+        _statusDetail = detail;
+        PublishStatus();
+    }
+
+    private void PublishStatus()
+    {
+        StatusText = Status switch
+        {
+            SyncStatus.Ok => FormatUpdatedText(),
+            SyncStatus.Syncing => T("Updating…"),
+            SyncStatus.SignedOut => T("Not signed in"),
+            SyncStatus.Idle => T("Connected"),
+            SyncStatus.AuthRequired => ShownDetail("Sign in to Cursor to sync usage."),
+            SyncStatus.RateLimited => ShownDetail("Cursor rate-limited the request. Will retry later."),
+            SyncStatus.Error => ShownDetail("Could not update usage."),
+            _ => throw new ArgumentOutOfRangeException(nameof(Status), Status, null)
+        };
+        IsSignedIn = Status switch
         {
             SyncStatus.Ok or SyncStatus.Idle => true,
             SyncStatus.SignedOut => false,
@@ -305,9 +327,12 @@ public sealed class UsageSyncService : IUsageSyncService
     private string FormatUpdatedText()
     {
         if (LastSuccessUtc is not { } last)
-            return "Connected";
+            return T("Connected");
 
         var local = last.ToLocalTime().DateTime;
-        return "Cursor " + local.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture);
+        return T("Cursor {0}", local.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture));
     }
+
+    private string ShownDetail(string fallback) =>
+        string.IsNullOrWhiteSpace(_statusDetail) ? UiText.Translate(fallback) : UiText.Translate(_statusDetail);
 }

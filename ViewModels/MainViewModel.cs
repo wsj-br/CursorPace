@@ -27,7 +27,10 @@ public sealed class MainViewModel : ViewModelBase
     private bool _remoteSyncRunning;
     private bool _isRemoteSyncing;
     private bool _lastRemoteSyncFailed;
-    private string _remoteSyncStatusText = string.Empty;
+    private RemoteSyncPhrase _remotePhrase;
+    private DateTime? _remoteSyncedLocal;
+    private int _remoteSampleCount;
+    private string? _remoteFailure;
     private readonly IUiTimer _remoteSyncTimer;
 
     public MainViewModel(
@@ -75,7 +78,8 @@ public sealed class MainViewModel : ViewModelBase
         _sync.StateChanged += OnSyncStateChanged;
         _sync.SnapshotReceived += OnSnapshotReceived;
         _sync.SampleAppended += OnSampleAppended;
-        _remoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+        LocaleChanged += OnLocaleChanged;
+        ShowIdleRemoteSyncStatus();
         PersistCursorAccountConnected();
         PersistLastUsageSync();
         ScheduleRemoteSyncTimer();
@@ -178,6 +182,12 @@ public sealed class MainViewModel : ViewModelBase
             ? UsageChartSeriesBuilder.FormatEndpointPercent(measure.Expected)
             : "—";
 
+    public string LastMeasureCursorLine => T("Cursor {0}", LastMeasureCursorText);
+
+    public string LastMeasureOtherLine => T("Other {0}", LastMeasureOtherText);
+
+    public string LastMeasureExpectedLine => T("Expected usage {0}", LastMeasureExpectedText);
+
     public bool LastMeasureHasSample => GetLastMeasure() != null;
 
     public string LastMeasureCursorDeltaText => FormatLastMeasureDelta(sample => sample.CursorModelsPercent);
@@ -210,17 +220,34 @@ public sealed class MainViewModel : ViewModelBase
         {
             var live = _settings.ActiveCycle;
             if (live == null || !TryGetLiveTodayDay(out var day))
-                return "Cursor Pace";
+                return T("CursorPace");
 
             var samples = _sync.Samples;
             var cursorEop = _calculator.ProjectedPercentAt(live, QuotaKind.CursorModels, live.NextRenewal, samples);
             var otherEop = _calculator.ProjectedPercentAt(live, QuotaKind.OtherModels, live.NextRenewal, samples);
-            return $"Cursor Pace\nCursor: {FormatPercent(day.CursorModelsPercent)}{FormatEop(cursorEop)}\nOther models: {FormatPercent(day.OtherModelsPercent)}{FormatEop(otherEop)}";
+            return T("CursorPace")
+                + "\n"
+                + FormatCursorTrayLine(day.CursorModelsPercent, cursorEop)
+                + "\n"
+                + FormatOtherTrayLine(day.OtherModelsPercent, otherEop);
         }
     }
 
-    private static string FormatEop(decimal? value) =>
-        value.HasValue ? $" - projected at renewal {FormatPercent(value.Value)}" : string.Empty;
+    private static string FormatCursorTrayLine(decimal percent, decimal? atRenewal)
+    {
+        var shown = FormatPercent(percent);
+        return atRenewal.HasValue
+            ? T("Cursor: {0} - projected at renewal {1}", shown, FormatPercent(atRenewal.Value))
+            : T("Cursor: {0}", shown);
+    }
+
+    private static string FormatOtherTrayLine(decimal percent, decimal? atRenewal)
+    {
+        var shown = FormatPercent(percent);
+        return atRenewal.HasValue
+            ? T("Other models: {0} - projected at renewal {1}", shown, FormatPercent(atRenewal.Value))
+            : T("Other models: {0}", shown);
+    }
 
     public bool RunAtStartup
     {
@@ -269,7 +296,28 @@ public sealed class MainViewModel : ViewModelBase
         }
     }
 
-    public IReadOnlyList<UiThemeMode> ThemeModeOptions => UiTheme.AllowedModes;
+    public IReadOnlyList<ThemeModeChoice> ThemeModeOptions =>
+        UiTheme.AllowedModes.Select(mode => new ThemeModeChoice(mode)).ToArray();
+
+    public string UiLocale
+    {
+        get => UiLocales.Normalize(_settings.UiLocale);
+        set
+        {
+            var code = UiLocales.Normalize(value);
+            if (string.Equals(_settings.UiLocale, code, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(UiLocales.Normalize(_settings.UiLocale), code, StringComparison.Ordinal))
+                return;
+
+            _settings.UiLocale = code;
+            ApplyUiLocale(code);
+            OnPropertyChanged();
+            _store.Save(_settings);
+        }
+    }
+
+    public IReadOnlyList<LanguageChoice> LanguageOptions =>
+        SupportedLocales.Select(locale => new LanguageChoice(locale)).ToArray();
 
     public SettingsTab SettingsTab
     {
@@ -298,7 +346,8 @@ public sealed class MainViewModel : ViewModelBase
         }
     }
 
-    public IReadOnlyList<SampleDetailChoice> SampleDetailOptions => SampleDetail.Options;
+    public IReadOnlyList<SampleDetailOption> SampleDetailOptions =>
+        SampleDetail.Options.Select(option => new SampleDetailOption(option)).ToArray();
 
     public bool AutoSyncEnabled
     {
@@ -338,7 +387,7 @@ public sealed class MainViewModel : ViewModelBase
             _settings.RemoteSyncEnabled = value;
             OnPropertyChanged();
             _store.Save(_settings);
-            RemoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+            ShowIdleRemoteSyncStatus();
             RaiseRemoteSyncIndicatorChanged();
             if (value)
                 _ = RunRemoteSyncAsync();
@@ -359,7 +408,7 @@ public sealed class MainViewModel : ViewModelBase
             _settings.RemoteSyncUrl = url;
             OnPropertyChanged();
             _store.Save(_settings);
-            RemoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+            ShowIdleRemoteSyncStatus();
             RaiseRemoteSyncIndicatorChanged();
             ScheduleRemoteSyncTimer();
         }
@@ -377,7 +426,7 @@ public sealed class MainViewModel : ViewModelBase
             _settings.RemoteSyncApiKey = key;
             OnPropertyChanged();
             _store.Save(_settings);
-            RemoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+            ShowIdleRemoteSyncStatus();
             RaiseRemoteSyncIndicatorChanged();
             ScheduleRemoteSyncTimer();
         }
@@ -411,11 +460,21 @@ public sealed class MainViewModel : ViewModelBase
         }
     }
 
-    public string RemoteSyncStatusText
+    public string RemoteSyncStatusText => _remotePhrase switch
     {
-        get => _remoteSyncStatusText;
-        private set => SetProperty(ref _remoteSyncStatusText, value);
-    }
+        RemoteSyncPhrase.Off => T("Sync server is off."),
+        RemoteSyncPhrase.NeedsCredentials => T("Set the server URL and API token to sync."),
+        RemoteSyncPhrase.NeverSynced => T("Not synced yet."),
+        RemoteSyncPhrase.Syncing => T("Syncing with the server…"),
+        RemoteSyncPhrase.Failed => UiText.Translate(_remoteFailure),
+        RemoteSyncPhrase.LastSynced => T("Last synced {0}", FormatRemoteStamp(_remoteSyncedLocal)),
+        RemoteSyncPhrase.LastSyncedWithSamples => Tn(
+            "Last synced {1} · 1 sample",
+            "Last synced {1} · {0} samples",
+            _remoteSampleCount,
+            FormatRemoteStamp(_remoteSyncedLocal)),
+        _ => throw new ArgumentOutOfRangeException(nameof(_remotePhrase), _remotePhrase, null)
+    };
 
     public bool IsRemoteSyncConfigured =>
         !string.IsNullOrWhiteSpace(_settings.RemoteSyncUrl)
@@ -440,7 +499,7 @@ public sealed class MainViewModel : ViewModelBase
     public string RemoteSyncIndicatorText =>
         _settings.LastRemoteSyncUtc is { } last
             ? last.ToLocalTime().DateTime.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
-            : "Not synced yet";
+            : T("Not synced yet");
 
     public string SyncStatusText => _sync.StatusText;
 
@@ -463,25 +522,35 @@ public sealed class MainViewModel : ViewModelBase
 
     public string EmptyStateText =>
         IsSyncing && IsCursorConnected
-            ? "Connected — loading usage…"
+            ? T("Connected — loading usage…")
             : IsSyncing
-                ? "Signing in…"
-                : "Sign in to Cursor to load your billing cycle and usage.";
+                ? T("Signing in…")
+                : T("Sign in to Cursor to load your billing cycle and usage.");
 
     public bool ShowEmptySignIn => !IsInitialized && !IsSyncing && !IsCursorConnected;
 
     public bool IsCursorConnected => _sync.IsSignedIn;
 
     public string CursorAccountTitle =>
-        IsCursorConnected ? "Cursor account (connected)" : "Cursor account (disconnected)";
+        IsCursorConnected ? T("Cursor account (connected)") : T("Cursor account (disconnected)");
 
     public string AboutVersion => AppInfo.Current.Version;
 
-    public string AboutBuildDate => AppInfo.Current.FormatBuildDate(CultureInfo.CurrentCulture);
+    public string AboutBuildDate
+    {
+        get
+        {
+            var formatted = AppInfo.Current.FormatBuildDate(CultureInfo.CurrentCulture);
+            const string suffix = " UTC";
+            if (!formatted.EndsWith(suffix, StringComparison.Ordinal))
+                return formatted;
+            return T("{0} UTC", formatted[..^suffix.Length]);
+        }
+    }
 
-    public string AboutCopyright => AppInfo.Current.Copyright;
+    public string AboutCopyright => T("Copyright © 2026 Waldemar Scudeller Jr.");
 
-    public string AboutLicense => AppInfo.LicenseName;
+    public string AboutLicense => T("MIT License");
 
     public string AboutRepositoryUrl => AppInfo.RepositoryUrl;
 
@@ -649,7 +718,49 @@ public sealed class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(LastMeasureOtherIsOnPace));
         OnPropertyChanged(nameof(LastMeasureCursorPaceHint));
         OnPropertyChanged(nameof(LastMeasureOtherPaceHint));
+        OnPropertyChanged(nameof(LastMeasureCursorLine));
+        OnPropertyChanged(nameof(LastMeasureOtherLine));
+        OnPropertyChanged(nameof(LastMeasureExpectedLine));
         OnPropertyChanged(nameof(TrayToolTipText));
+    }
+
+    private void OnLocaleChanged()
+    {
+        OnPropertyChanged(nameof(CycleHeading));
+        OnPropertyChanged(nameof(CycleStartText));
+        OnPropertyChanged(nameof(NextRenewalText));
+        OnPropertyChanged(nameof(EmptyStateText));
+        OnPropertyChanged(nameof(CursorAccountTitle));
+        OnPropertyChanged(nameof(SyncStatusText));
+        OnPropertyChanged(nameof(LastSyncText));
+        OnPropertyChanged(nameof(RemoteSyncStatusText));
+        OnPropertyChanged(nameof(RemoteSyncIndicatorText));
+        OnPropertyChanged(nameof(AboutBuildDate));
+        OnPropertyChanged(nameof(AboutCopyright));
+        OnPropertyChanged(nameof(AboutLicense));
+        OnPropertyChanged(nameof(ThemeModeOptions));
+        OnPropertyChanged(nameof(SampleDetailOptions));
+        OnPropertyChanged(nameof(LanguageOptions));
+        NotifyTodayQuotaTexts();
+    }
+
+    private static void ApplyUiLocale(string code)
+    {
+        var culture = CultureInfo.GetCultureInfo(code);
+        CultureInfo.CurrentCulture = culture;
+        CultureInfo.CurrentUICulture = culture;
+        SetLocale(code);
+    }
+
+    private enum RemoteSyncPhrase
+    {
+        Off,
+        NeedsCredentials,
+        NeverSynced,
+        LastSynced,
+        Syncing,
+        Failed,
+        LastSyncedWithSamples
     }
 
     private string FormatLastMeasure(Func<UsageSample, string> format)
@@ -740,7 +851,7 @@ public sealed class MainViewModel : ViewModelBase
                 BackOnPaceLabel(kind),
                 instant.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture),
                 wait,
-                $"Expected usage reaches {shown} then, if this reading stays at {shown}.");
+                T("Expected usage reaches {0} then, if this reading stays at {0}.", shown));
         }
 
         var projected = _calculator.ProjectedPercentAt(
@@ -761,30 +872,30 @@ public sealed class MainViewModel : ViewModelBase
     private static string FormatReturnWait(TimeSpan wait)
     {
         var duration = UsageChartSeriesBuilder.FormatPaceWait(wait);
-        return duration == "now" ? "now" : "in " + duration;
+        return duration == "now" ? T("now") : T("in {0}", duration);
     }
 
     private static string RunOutLabel(QuotaKind kind) =>
         kind switch
         {
-            QuotaKind.CursorModels => "Cursor Models run out",
-            QuotaKind.OtherModels => "Other Models run out",
+            QuotaKind.CursorModels => T("Cursor Models run out"),
+            QuotaKind.OtherModels => T("Other Models run out"),
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
         };
 
     private static string BackOnPaceLabel(QuotaKind kind) =>
         kind switch
         {
-            QuotaKind.CursorModels => "Cursor back on pace",
-            QuotaKind.OtherModels => "Other back on pace",
+            QuotaKind.CursorModels => T("Cursor back on pace"),
+            QuotaKind.OtherModels => T("Other back on pace"),
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
         };
 
     private static string AtRenewalLabel(QuotaKind kind) =>
         kind switch
         {
-            QuotaKind.CursorModels => "Cursor Models at renewal",
-            QuotaKind.OtherModels => "Other Models at renewal",
+            QuotaKind.CursorModels => T("Cursor Models at renewal"),
+            QuotaKind.OtherModels => T("Other Models at renewal"),
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
         };
 
@@ -961,7 +1072,7 @@ public sealed class MainViewModel : ViewModelBase
 
         _remoteSyncRunning = true;
         IsRemoteSyncing = true;
-        RemoteSyncStatusText = "Syncing with the server…";
+        SetRemotePhrase(RemoteSyncPhrase.Syncing);
 
         var machineName = RemoteSyncMachineName;
 
@@ -982,9 +1093,11 @@ public sealed class MainViewModel : ViewModelBase
             if (!result.Success || result.Canonical == null)
             {
                 _lastRemoteSyncFailed = true;
-                RemoteSyncStatusText = string.IsNullOrWhiteSpace(result.ErrorMessage)
-                    ? "Could not sync with the server."
-                    : result.ErrorMessage;
+                SetRemotePhrase(
+                    RemoteSyncPhrase.Failed,
+                    failure: string.IsNullOrWhiteSpace(result.ErrorMessage)
+                        ? "Could not sync with the server."
+                        : result.ErrorMessage);
                 RaiseRemoteSyncIndicatorChanged();
                 return;
             }
@@ -1038,9 +1151,7 @@ public sealed class MainViewModel : ViewModelBase
 
             _lastRemoteSyncFailed = false;
             var syncedLocal = _settings.LastRemoteSyncUtc.Value.ToLocalTime().DateTime;
-            RemoteSyncStatusText = "Last synced "
-                + syncedLocal.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture)
-                + $" · {canonical.Samples.Count} samples";
+            SetRemotePhrase(RemoteSyncPhrase.LastSyncedWithSamples, syncedLocal, canonical.Samples.Count);
             RaiseRemoteSyncIndicatorChanged();
         }
         finally
@@ -1089,18 +1200,34 @@ public sealed class MainViewModel : ViewModelBase
         return left.CycleStart == right.CycleStart && left.NextRenewal == right.NextRenewal;
     }
 
-    private string ComputeIdleRemoteSyncStatus()
+    private void ShowIdleRemoteSyncStatus()
     {
         if (!_settings.RemoteSyncEnabled)
-            return "Sync server is off.";
-        if (string.IsNullOrWhiteSpace(_settings.RemoteSyncUrl)
+            SetRemotePhrase(RemoteSyncPhrase.Off);
+        else if (string.IsNullOrWhiteSpace(_settings.RemoteSyncUrl)
             || string.IsNullOrWhiteSpace(_settings.RemoteSyncApiKey))
-            return "Set the server URL and API token to sync.";
-        if (_settings.LastRemoteSyncUtc is { } last)
-            return "Last synced "
-                + last.ToLocalTime().DateTime.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture);
-        return "Not synced yet.";
+            SetRemotePhrase(RemoteSyncPhrase.NeedsCredentials);
+        else if (_settings.LastRemoteSyncUtc is { } last)
+            SetRemotePhrase(RemoteSyncPhrase.LastSynced, last.ToLocalTime().DateTime);
+        else
+            SetRemotePhrase(RemoteSyncPhrase.NeverSynced);
     }
+
+    private void SetRemotePhrase(
+        RemoteSyncPhrase phrase,
+        DateTime? syncedLocal = null,
+        int sampleCount = 0,
+        string? failure = null)
+    {
+        _remotePhrase = phrase;
+        _remoteSyncedLocal = syncedLocal;
+        _remoteSampleCount = sampleCount;
+        _remoteFailure = failure;
+        OnPropertyChanged(nameof(RemoteSyncStatusText));
+    }
+
+    private static string FormatRemoteStamp(DateTime? local) =>
+        local?.ToString(InfoCardDateTimeFormat, CultureInfo.CurrentCulture) ?? "";
 
     private void RaiseRemoteSyncIndicatorChanged()
     {
@@ -1264,9 +1391,9 @@ public sealed class MainViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            error = string.IsNullOrWhiteSpace(ex.Message)
+            error = UiText.Translate(string.IsNullOrWhiteSpace(ex.Message)
                 ? "Could not write the backup file."
-                : ex.Message;
+                : ex.Message);
             return false;
         }
     }
@@ -1278,7 +1405,7 @@ public sealed class MainViewModel : ViewModelBase
             var result = _backup.RestoreBackup(source);
             if (!result.Success)
             {
-                error = result.ErrorMessage ?? "Could not restore the backup file.";
+                error = UiText.Translate(result.ErrorMessage ?? "Could not restore the backup file.");
                 return false;
             }
 
@@ -1288,9 +1415,9 @@ public sealed class MainViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            error = string.IsNullOrWhiteSpace(ex.Message)
+            error = UiText.Translate(string.IsNullOrWhiteSpace(ex.Message)
                 ? "Could not restore the backup file."
-                : ex.Message;
+                : ex.Message);
             return false;
         }
     }
@@ -1348,7 +1475,9 @@ public sealed class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(RemoteSyncApiKey));
         OnPropertyChanged(nameof(RemoteSyncMachineName));
         _lastRemoteSyncFailed = false;
-        RemoteSyncStatusText = ComputeIdleRemoteSyncStatus();
+        ApplyUiLocale(UiLocales.Normalize(_settings.UiLocale));
+        OnPropertyChanged(nameof(UiLocale));
+        ShowIdleRemoteSyncStatus();
         RaiseRemoteSyncIndicatorChanged();
         ScheduleRemoteSyncTimer();
         PersistCursorAccountConnected();

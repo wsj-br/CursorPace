@@ -60,7 +60,7 @@ public static class DataBackupArchive
                     && !string.IsNullOrWhiteSpace(manifest.Product)
                     && !string.Equals(manifest.Product, ProductName, StringComparison.Ordinal))
                 {
-                    return DataBackupReadResult.Fail("This file is not a Cursor Pace backup.");
+                    return DataBackupReadResult.Fail("This file is not a CursorPace backup.");
                 }
             }
 

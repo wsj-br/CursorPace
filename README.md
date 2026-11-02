@@ -1,7 +1,11 @@
-# Cursor Pace
+# CursorPace
+
+**Read in other languages:**
+
+<small id="lang-list">[English](./README.md) · [Português (Brasil)](./translated-docs/README.pt-BR.md) · [Deutsch](./translated-docs/README.de.md) · [Español](./translated-docs/README.es.md) · [Français](./translated-docs/README.fr.md) · [हिन्दी](./translated-docs/README.hi.md) · [日本語](./translated-docs/README.ja.md) · [한국어](./translated-docs/README.ko.md) · [简体中文](./translated-docs/README.zh-Hans.md) · [繁體中文](./translated-docs/README.zh-Hant.md)</small>
 
 <p align="center">
-  <img src="Assets/cursor_pace_screenshot.png" alt="Cursor Pace" width="400">
+  <img src="Assets/cursor_pace_screenshot.png" alt="CursorPace" width="400">
 </p>
 
 Desktop app for Windows, Linux, and macOS that tracks Cursor model quota across a billing cycle. Sign in with your Cursor account to pull usage automatically. The chart shows two independent percentages: **Cursor Models** and **Other Models**.
@@ -38,16 +42,16 @@ See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, 
 - Summary cards for the cycle dates, each model's forecast, and the latest reading versus the expected pace
 - Chart ranges **1D**, **2D**, **7D**, **1W**, **2W**, and **1M**, with drag-to-zoom and a pointer readout
 - Closes to the notification tray. Optional launch at login. A second launch opens the window that is already running
-- Light, dark, or system theme. The window remembers its size, position, and maximized state
+- Light, dark, or system theme, and a language choice taken from `locales/ui-languages.json`. If that file is missing, the only choice is English. The window remembers its size, position, and maximized state
 - Export usage as CSV, and back up or restore settings and samples
-- **Optional.** [CursorPace Sync Server](https://github.com/wsj-br/CursorPace-SyncServer) keeps Cursor Pace installs on a local network synchronized. It shares usage samples and billing-cycle bounds, so a Mac, a Windows PC, and a Linux machine in the same development environment show the same chart. Install and run the server from that repository.
+- **Optional.** [CursorPace Sync Server](https://github.com/wsj-br/CursorPace-SyncServer) keeps CursorPace installs on a local network synchronized. It shares usage samples and billing-cycle bounds, so a Mac, a Windows PC, and a Linux machine in the same development environment show the same chart. Install and run the server from that repository.
 
 ## Build from source
 
 On Windows (PowerShell) or Linux/macOS (bash):
 
 ```bash
-dotnet restore[cursor.com
+dotnet restore
 dotnet build
 dotnet test ./Tests/CursorPace.Tests.csproj
 dotnet run --project ./CursorPace.csproj
@@ -97,12 +101,14 @@ Full contributor workflow is in [dev/DEVELOPMENT.md](dev/DEVELOPMENT.md).
 
 ## Disclaimer
 
-[Cursor](https://cursor.com/home) is a product of Anysphere, Inc. Cursor Pace is an independent project and is not associated with or endorsed by Cursor or Anysphere.
+[Cursor](https://cursor.com/home) is a product of Anysphere, Inc. CursorPace is an independent project and is not associated with or endorsed by Cursor or Anysphere.
 
 ## License
 
 Copyright 2026 Waldemar Scudeller Jr.
 
 This software is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+Translations of this page are produced automatically. Prefer this English page when a translation disagrees with the app.
 
 

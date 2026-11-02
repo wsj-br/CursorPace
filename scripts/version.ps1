@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Show or set the Cursor Pace version.
+  Show or set the CursorPace version.
 
 .DESCRIPTION
   With no argument, prints the current version from CursorPace.csproj.

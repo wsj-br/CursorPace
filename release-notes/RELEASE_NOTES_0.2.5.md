@@ -1,4 +1,4 @@
-# Cursor Pace 0.2.5 Release Notes
+# CursorPace 0.2.5 Release Notes
 
 ## Highlights
 

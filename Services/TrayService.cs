@@ -23,7 +23,6 @@ public sealed class TrayService : ITrayService
         var openCommand = new RelayCommand(() => _onOpenRequested?.Invoke());
         var quitCommand = new RelayCommand(() => _onQuitRequested?.Invoke());
         _icon.Command = openCommand;
-
         // macOS native exporter throws if TrayIcon.Menu is replaced after export.
         // Keep the App.axaml menu instance and only set item commands.
         if (_icon.Menu is { } menu)
@@ -32,11 +31,30 @@ public sealed class TrayService : ITrayService
             {
                 if (item is not NativeMenuItem menuItem)
                     continue;
-                if (menuItem.Header == "Open")
+                if (menuItem.CommandParameter as string == "tray-open")
                     menuItem.Command = openCommand;
-                else if (menuItem.Header == "Quit")
+                else if (menuItem.CommandParameter as string == "tray-quit")
                     menuItem.Command = quitCommand;
             }
+        }
+
+        LocaleChanged += ApplyMenuHeaders;
+        ApplyMenuHeaders();
+    }
+
+    private void ApplyMenuHeaders()
+    {
+        if (_icon?.Menu is not { } menu)
+            return;
+
+        foreach (var item in menu.Items)
+        {
+            if (item is not NativeMenuItem menuItem)
+                continue;
+            if (menuItem.CommandParameter as string == "tray-open")
+                menuItem.Header = Tp("tray", "Open");
+            else if (menuItem.CommandParameter as string == "tray-quit")
+                menuItem.Header = Tp("tray", "Quit");
         }
     }
 
@@ -47,7 +65,7 @@ public sealed class TrayService : ITrayService
         if (_icon == null)
             return;
         _icon.ToolTipText = string.IsNullOrWhiteSpace(text)
-            ? "Cursor Pace"
+            ? T("CursorPace")
             : text;
     }
 
@@ -55,6 +73,7 @@ public sealed class TrayService : ITrayService
     {
         if (_icon == null)
             return;
+        LocaleChanged -= ApplyMenuHeaders;
         _icon.IsVisible = false;
         _icon = null;
     }

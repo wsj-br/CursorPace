@@ -1,3 +1,4 @@
+using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -35,7 +36,9 @@ public partial class App : Application
 
         var clock = new SystemClock();
         var calculator = new CycleCalculator();
+        UiLocales.TryApplyFromDisk();
         var store = new JsonPlanStore();
+        ApplyUiLocale(store.Load().UiLocale);
         var startupReg = StartupRegistration.Create();
         var sampleStore = new JsonUsageSampleStore();
         var usageClient = new NativeWebViewCursorUsageClient(_dispatcher);
@@ -87,6 +90,15 @@ public partial class App : Application
             _trayService?.UpdateToolTip(_viewModel!.TrayToolTipText);
         else if (e.PropertyName == nameof(MainViewModel.ThemeMode))
             ApplyTheme(_viewModel!.ThemeMode);
+    }
+
+    private static void ApplyUiLocale(string? code)
+    {
+        var resolved = UiLocales.Normalize(code);
+        var culture = CultureInfo.GetCultureInfo(resolved);
+        CultureInfo.CurrentCulture = culture;
+        CultureInfo.CurrentUICulture = culture;
+        SetLocale(resolved);
     }
 
     private void ApplyTheme(UiThemeMode mode)

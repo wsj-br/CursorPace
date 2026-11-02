@@ -111,7 +111,7 @@ public sealed class LinuxStartupRegistration : IStartupRegistration
         return $"""
             [Desktop Entry]
             Type=Application
-            Name=Cursor Pace
+            Name=CursorPace
             Exec={exec}
             TryExec={exePath}
             X-GNOME-Autostart-enabled=true

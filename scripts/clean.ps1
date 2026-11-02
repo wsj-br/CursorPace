@@ -66,7 +66,7 @@ function Remove-GeneratedFile {
     }
 }
 
-Write-Host "Cleaning Cursor Pace ($Configuration)..."
+Write-Host "Cleaning CursorPace ($Configuration)..."
 if (-not $DryRun) {
     & dotnet clean .\CursorPace.csproj -c $Configuration --nologo
     if ($LASTEXITCODE -ne 0) {

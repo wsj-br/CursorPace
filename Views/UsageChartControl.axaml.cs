@@ -66,6 +66,8 @@ public partial class UsageChartControl : UserControl
     public UsageChartControl()
     {
         InitializeComponent();
+        LocaleChanged += OnLocaleChanged;
+        DetachedFromVisualTree += (_, _) => LocaleChanged -= OnLocaleChanged;
         DocumentProperty.Changed.AddClassHandler<UsageChartControl>((control, _) => control.RebuildPlot());
         SelectedRangeProperty.Changed.AddClassHandler<UsageChartControl>((control, _) => control.UpdateRangeButtons());
         ActualThemeVariantChanged += (_, _) => RebuildPlot();
@@ -110,6 +112,8 @@ public partial class UsageChartControl : UserControl
         }
     }
 
+    private void OnLocaleChanged() => RebuildPlot();
+
     private void OnPlotSizeChanged(object? sender, SizeChangedEventArgs e) => RebuildPlot();
 
     private void RebuildPlot()
@@ -125,74 +129,74 @@ public partial class UsageChartControl : UserControl
         _rebuilding = true;
         try
         {
-        ClearPlotDirty();
-        CancelSelection();
-        PlotCanvas.Children.Clear();
-        HoverCanvas.Children.Clear();
-        SelectionCanvas.Children.Clear();
-        HoverBox.IsVisible = false;
-        _plotReady = false;
-        LegendPanel.Children.Clear();
-        var document = Document;
-        var hostWidth = PlotSize.Width;
-        var hostHeight = PlotSize.Height;
-        var hasSeries = document != null && document.ExpectedUsage.Count >= 2;
-        EmptyPlotText.IsVisible = document == null || !hasSeries;
-        if (document == null)
-            return;
+            ClearPlotDirty();
+            CancelSelection();
+            PlotCanvas.Children.Clear();
+            HoverCanvas.Children.Clear();
+            SelectionCanvas.Children.Clear();
+            HoverBox.IsVisible = false;
+            _plotReady = false;
+            LegendPanel.Children.Clear();
+            var document = Document;
+            var hostWidth = PlotSize.Width;
+            var hostHeight = PlotSize.Height;
+            var hasSeries = document != null && document.ExpectedUsage.Count >= 2;
+            EmptyPlotText.IsVisible = document == null || !hasSeries;
+            if (document == null)
+                return;
 
-        PlotCanvas.Width = hostWidth;
-        PlotCanvas.Height = hostHeight;
-        HoverCanvas.Width = hostWidth;
-        HoverCanvas.Height = hostHeight;
+            PlotCanvas.Width = hostWidth;
+            PlotCanvas.Height = hostHeight;
+            HoverCanvas.Width = hostWidth;
+            HoverCanvas.Height = hostHeight;
 
-        var plot = new Rect(
-            PlotLeft,
-            PlotTop,
-            Math.Max(40, hostWidth - PlotLeft - PlotRightPad),
-            Math.Max(40, hostHeight - PlotTop - PlotBottomPad));
+            var plot = new Rect(
+                PlotLeft,
+                PlotTop,
+                Math.Max(40, hostWidth - PlotLeft - PlotRightPad),
+                Math.Max(40, hostHeight - PlotTop - PlotBottomPad));
 
-        var xMin = document.VisibleStartX;
-        var xMax = document.VisibleEndX > xMin ? document.VisibleEndX : xMin + 1m;
-        var yMin = document.YMin;
-        var yMax = document.YMax > yMin ? document.YMax : yMin + UsageChartSeriesBuilder.YTickStep;
-        _plot = plot;
-        _xMin = xMin;
-        _xMax = xMax;
+            var xMin = document.VisibleStartX;
+            var xMax = document.VisibleEndX > xMin ? document.VisibleEndX : xMin + 1m;
+            var yMin = document.YMin;
+            var yMax = document.YMax > yMin ? document.YMax : yMin + UsageChartSeriesBuilder.YTickStep;
+            _plot = plot;
+            _xMin = xMin;
+            _xMax = xMax;
 
-        var mutedBrush = ThemeBrush("ThemeForegroundLowBrush", Color.FromArgb(255, 120, 120, 120));
-        var gridBrush = ThemeBrush("CardStrokeBrush", Color.FromArgb(60, 128, 128, 128));
-        var verticalBrush = new SolidColorBrush(ThemeColor("ChartGridLineColor", Color.FromArgb(40, 160, 160, 160)));
-        var boxBrush = ThemeBrush("CardStrokeBrush", Color.FromArgb(140, 140, 140, 140));
-        var limitBrush = ThemeBrush("CalendarMutedForegroundBrush", Color.FromArgb(180, 128, 128, 128));
-        var expectedUsage = ThemeColor("ChartExpectedUsageColor", ExpectedUsageColor);
-        var cursorColor = ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor);
-        var otherColor = ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor);
+            var mutedBrush = ThemeBrush("ThemeForegroundLowBrush", Color.FromArgb(255, 120, 120, 120));
+            var gridBrush = ThemeBrush("CardStrokeBrush", Color.FromArgb(60, 128, 128, 128));
+            var verticalBrush = new SolidColorBrush(ThemeColor("ChartGridLineColor", Color.FromArgb(40, 160, 160, 160)));
+            var boxBrush = ThemeBrush("CardStrokeBrush", Color.FromArgb(140, 140, 140, 140));
+            var limitBrush = ThemeBrush("CalendarMutedForegroundBrush", Color.FromArgb(180, 128, 128, 128));
+            var expectedUsage = ThemeColor("ChartExpectedUsageColor", ExpectedUsageColor);
+            var cursorColor = ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor);
+            var otherColor = ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor);
 
-        var intradayMarks = document.UsesIntradayAxis
-            ? IntradayMarkedSlots(document, plot, xMin, xMax)
-            : null;
-        DrawGrid(document, plot, xMin, xMax, yMin, yMax, gridBrush, verticalBrush, mutedBrush, limitBrush, intradayMarks);
-        DrawPlotBox(plot, boxBrush);
-        DrawPolyline(document.ExpectedUsage, plot, xMin, xMax, yMin, yMax, expectedUsage, dashed: true, EstimatedStrokeThickness);
-        if (document.HasCursorUsage)
-            DrawPolyline(document.CursorUsage, plot, xMin, xMax, yMin, yMax, cursorColor, dashed: false, UsageStrokeThickness);
-        if (document.HasOtherUsage)
-            DrawPolyline(document.OtherUsage, plot, xMin, xMax, yMin, yMax, otherColor, dashed: false, UsageStrokeThickness);
-        if (document.HasCursorEstimated)
-            DrawPolyline(document.CursorEstimated, plot, xMin, xMax, yMin, yMax, cursorColor, dashed: false, EstimatedStrokeThickness, dotted: true);
-        if (document.HasOtherEstimated)
-            DrawPolyline(document.OtherEstimated, plot, xMin, xMax, yMin, yMax, otherColor, dashed: false, EstimatedStrokeThickness, dotted: true);
-        if (document.UsesIntradayAxis)
-        {
-            DrawSampleMarkers(document.CursorUsage, plot, xMin, xMax, yMin, yMax, cursorColor);
-            DrawSampleMarkers(document.OtherUsage, plot, xMin, xMax, yMin, yMax, otherColor);
-        }
-        DrawLastSampleAnnotations(document, plot, xMin, xMax, yMin, yMax, expectedUsage, cursorColor, otherColor);
-        DrawAxes(document, plot, xMin, xMax, mutedBrush, intradayMarks);
-        DrawLegend(document, mutedBrush);
-        _plotReady = true;
-        UpdateRangeButtons();
+            var intradayMarks = document.UsesIntradayAxis
+                ? IntradayMarkedSlots(document, plot, xMin, xMax)
+                : null;
+            DrawGrid(document, plot, xMin, xMax, yMin, yMax, gridBrush, verticalBrush, mutedBrush, limitBrush, intradayMarks);
+            DrawPlotBox(plot, boxBrush);
+            DrawPolyline(document.ExpectedUsage, plot, xMin, xMax, yMin, yMax, expectedUsage, dashed: true, EstimatedStrokeThickness);
+            if (document.HasCursorUsage)
+                DrawPolyline(document.CursorUsage, plot, xMin, xMax, yMin, yMax, cursorColor, dashed: false, UsageStrokeThickness);
+            if (document.HasOtherUsage)
+                DrawPolyline(document.OtherUsage, plot, xMin, xMax, yMin, yMax, otherColor, dashed: false, UsageStrokeThickness);
+            if (document.HasCursorEstimated)
+                DrawPolyline(document.CursorEstimated, plot, xMin, xMax, yMin, yMax, cursorColor, dashed: false, EstimatedStrokeThickness, dotted: true);
+            if (document.HasOtherEstimated)
+                DrawPolyline(document.OtherEstimated, plot, xMin, xMax, yMin, yMax, otherColor, dashed: false, EstimatedStrokeThickness, dotted: true);
+            if (document.UsesIntradayAxis)
+            {
+                DrawSampleMarkers(document.CursorUsage, plot, xMin, xMax, yMin, yMax, cursorColor);
+                DrawSampleMarkers(document.OtherUsage, plot, xMin, xMax, yMin, yMax, otherColor);
+            }
+            DrawLastSampleAnnotations(document, plot, xMin, xMax, yMin, yMax, expectedUsage, cursorColor, otherColor);
+            DrawAxes(document, plot, xMin, xMax, mutedBrush, intradayMarks);
+            DrawLegend(document, mutedBrush);
+            _plotReady = true;
+            UpdateRangeButtons();
         }
         finally
         {
@@ -382,9 +386,9 @@ public partial class UsageChartControl : UserControl
         var expectedBrush = new SolidColorBrush(ThemeColor("ChartExpectedUsageColor", ExpectedUsageColor));
         var showZoomChange = document.IsCustomViewport;
         HoverTimeText.Text = readout.LocalTime.ToString("dd-MMM HH:mm", CultureInfo.CurrentCulture);
-        HoverCursorText.Text = FormatHoverSeries("Cursor", readout.CursorPercent, readout.CursorIsEstimated);
-        HoverOtherText.Text = FormatHoverSeries("Other", readout.OtherPercent, readout.OtherIsEstimated);
-        HoverExpectedText.Text = "Expected usage " + UsageChartSeriesBuilder.FormatEndpointPercent(readout.ExpectedPercent);
+        HoverCursorText.Text = FormatCursorHover(readout.CursorPercent, readout.CursorIsEstimated);
+        HoverOtherText.Text = FormatOtherHover(readout.OtherPercent, readout.OtherIsEstimated);
+        HoverExpectedText.Text = T("Expected usage {0}", UsageChartSeriesBuilder.FormatEndpointPercent(readout.ExpectedPercent));
         HoverCursorDeltaText.IsVisible = showZoomChange;
         HoverOtherDeltaText.IsVisible = showZoomChange;
         HoverExpectedDeltaText.IsVisible = showZoomChange;
@@ -437,10 +441,16 @@ public partial class UsageChartControl : UserControl
         }
     }
 
-    private static string FormatHoverSeries(string name, decimal? percent, bool estimated)
+    private static string FormatCursorHover(decimal? percent, bool estimated)
     {
-        var text = name + " " + FormatHoverPercent(percent);
-        return estimated ? text + " estimated" : text;
+        var value = FormatHoverPercent(percent);
+        return estimated ? T("Cursor {0} estimated", value) : T("Cursor {0}", value);
+    }
+
+    private static string FormatOtherHover(decimal? percent, bool estimated)
+    {
+        var value = FormatHoverPercent(percent);
+        return estimated ? T("Other {0} estimated", value) : T("Other {0}", value);
     }
 
     private static string FormatHoverPercent(decimal? percent) =>
@@ -452,14 +462,15 @@ public partial class UsageChartControl : UserControl
             ? UsageChartSeriesBuilder.FormatSignedEndpointPercent(delta.Value)
             : "—";
         var startText = FormatHoverPercent(start);
-        if (startEstimated)
-            startText += " estimated";
-        return "start " + startText + ", " + change;
+        return startEstimated
+            ? T("start {0} estimated, {1}", startText, change)
+            : T("start {0}, {1}", startText, change);
     }
 
     private static string FormatRangeChange(decimal start, decimal delta) =>
-        "start " + UsageChartSeriesBuilder.FormatEndpointPercent(start) + ", "
-        + UsageChartSeriesBuilder.FormatSignedEndpointPercent(delta);
+        T("start {0}, {1}",
+            UsageChartSeriesBuilder.FormatEndpointPercent(start),
+            UsageChartSeriesBuilder.FormatSignedEndpointPercent(delta));
 
     private void CancelSelection()
     {
@@ -955,15 +966,15 @@ public partial class UsageChartControl : UserControl
     {
         var primary = CreateLegendRow();
         var estimated = CreateLegendRow();
-        AddLegendItem(primary, mutedBrush, "Expected usage", ThemeColor("ChartExpectedUsageColor", ExpectedUsageColor), dashed: true, thin: true);
+        AddLegendItem(primary, mutedBrush, T("Expected usage"), ThemeColor("ChartExpectedUsageColor", ExpectedUsageColor), dashed: true, thin: true);
         if (document.HasCursorUsage)
-            AddLegendItem(primary, mutedBrush, "Cursor", ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor), dashed: false, thin: false);
+            AddLegendItem(primary, mutedBrush, T("Cursor"), ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor), dashed: false, thin: false);
         if (document.HasOtherUsage)
-            AddLegendItem(primary, mutedBrush, "Other Models", ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor), dashed: false, thin: false);
+            AddLegendItem(primary, mutedBrush, T("Other Models"), ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor), dashed: false, thin: false);
         if (document.HasCursorEstimated)
-            AddLegendItem(estimated, mutedBrush, "Cursor (estimated)", ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor), dashed: false, thin: true, dotted: true);
+            AddLegendItem(estimated, mutedBrush, T("Cursor (estimated)"), ThemeColor("ChartCursorEstimatedColor", CursorEstimatedColor), dashed: false, thin: true, dotted: true);
         if (document.HasOtherEstimated)
-            AddLegendItem(estimated, mutedBrush, "Other Models (estimated)", ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor), dashed: false, thin: true, dotted: true);
+            AddLegendItem(estimated, mutedBrush, T("Other Models (estimated)"), ThemeColor("ChartOtherEstimatedColor", OtherEstimatedColor), dashed: false, thin: true, dotted: true);
 
         LegendPanel.Children.Add(primary);
         if (estimated.Children.Count > 0)

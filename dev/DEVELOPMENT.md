@@ -342,6 +342,7 @@ Current `settings.json` fields (defaults on `AppSettings` / `StoredSettings` so 
 | `runAtStartup`                 | Launch at login (Windows Run key, macOS `SMAppService` / attributed Launch Agent fallback, Linux XDG autostart) |
 | `startInNotificationTray`      | Default `true`; hide the window on launch; startup registration includes `--background` |
 | `themeMode`                    | `System` (default), `Light`, or `Dark`; sets Avalonia `RequestedThemeVariant`           |
+| `uiLocale`                     | A code from `locales/ui-languages.json` (source locale when omitted). A missing manifest leaves English as the only choice. Unknown codes load as omitted. Not sent to the sync server |
 | `settingsTab`                  | Last Settings tab: `Startup` (default), `Account`, `SyncServer`, `Export`, or `About`. Unknown values stay on Startup & Display |
 | `autoSyncEnabled`              | Default `true`                                                                          |
 | `syncIntervalHours`            | 1, 2, 4, 6, or 12; other values clamp to 1                                              |
@@ -483,7 +484,7 @@ If auto-detection still fails, set **Theme** to **Light** or **Dark** in Setting
 
 1. Match existing naming, MVVM boundaries, and interface-based services. Follow [../AGENTS.md](../AGENTS.md) for cycle math, sync, and persistence.
 2. Put calculation changes in `CycleCalculator` and cover them with xUnit facts. Chart mapping belongs in `UsageChartSeriesBuilder`.
-3. Keep user-facing docs (`README.md`, `QUICKSTART.md`) in sync with UI changes. Log user-visible work under `## [Unreleased]` in `dev/CHANGELOG.md`.
+3. Keep user-facing docs (`README.md`, `QUICKSTART.md`) in sync with UI changes. Refresh `translated-docs/` with `ai-i18n-tools sync --no-ui`. Edit the English sources, not the generated locale files. Log user-visible work under `## [Unreleased]` in `dev/CHANGELOG.md`.
 4. Do not commit `bin/`, `obj/`, or `installer/` outputs.
 
 The project is MIT licensed (`LICENSE`). Open an issue for bugs or proposals. There is no published code of conduct or security policy file yet.

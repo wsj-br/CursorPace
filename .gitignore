@@ -86,6 +86,7 @@ coverage*.info
 *.log
 *.tlog
 *.tmp
+*.backup.*
 
 # OS
 .DS_Store
@@ -114,6 +115,9 @@ Desktop.ini
 
 # AI agents temp files
 .kilo/
+
+# Local translation cache. Commit translated-docs/, not this database.
+.translation-cache/
 
 # Secrets
 .env*

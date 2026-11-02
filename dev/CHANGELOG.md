@@ -8,6 +8,11 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+- **Added**: docs - `README.md` and `QUICKSTART.md` have machine translations under `translated-docs/`, linked from a language list on each English page.
+- **Fixed**: docs - the source build steps start with `dotnet restore` again.
+- **Added**: settings - **Language** on Startup & Display, stored as `uiLocale`. The choices come from `locales/ui-languages.json`. When that file is missing, the menu offers English only.
+- **Fixed**: settings - choosing a language no longer crashes. A combo box selection was bubbling to the tab control, which replaced the theme list while that list was still updating.
+
 ## [0.3.6] - 2026-10-31
 
 - **Changed**: dashboard - a run-out date on the live cycle shows how long until that instant, in the same form as the next-renewal wait.
@@ -85,7 +90,7 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 - **Added**: window - title-bar **Refresh** next to Settings runs the same Cursor fetch as Settings **Refresh now**.
 - **Fixed**: install - macOS login registration now uses `SMAppService.mainApp` for signed bundles so System Settings shows `CursorPace` with its app icon under **Open at Login**; unsigned and older-system fallback plists include `AssociatedBundleIdentifiers` instead of appearing as `/usr/bin/open`.
 - **Fixed**: install - macOS **Launch at login** now starts the `.app` with `/usr/bin/open` instead of exec'ing `Contents/MacOS/CursorPace` as a Launch Agent, so login gets a GUI process with a tray icon and a hidden Dock.
-- **Changed**: install - the macOS bundle is now `CursorPace.app` (`CFBundleName` / `CFBundleDisplayName` match), so Finder and the zip no longer use `Cursor Pace.app`.
+- **Changed**: install - the macOS bundle is now `CursorPace.app` (`CFBundleName` / `CFBundleDisplayName` match), so Finder and the zip no longer use `CursorPace.app`.
 
 ## [0.2.5] - 2026-09-19
 
@@ -138,7 +143,7 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 ## [0.2.1] - 2026-08-30
 
 - **Changed**: install - version is `0.2.1`.
-- **Changed**: rebrand - renamed the app from `CursorUsageProgress` / Cursor Usage Progress to `CursorPace` / Cursor Pace across namespaces, project files, packaging, installer identity (`AppId`, mutex, AppData folder, desktop id, macOS bundle id), and documentation. No settings or WebView profile migration; a new `%LocalAppData%\CursorPace` folder starts empty.
+- **Changed**: rebrand - renamed the app from `CursorUsageProgress` / Cursor Usage Progress to `CursorPace` / CursorPace across namespaces, project files, packaging, installer identity (`AppId`, mutex, AppData folder, desktop id, macOS bundle id), and documentation. No settings or WebView profile migration; a new `%LocalAppData%\CursorPace` folder starts empty.
 - **Fixed**: install - `packaging/cursor-usage-progress.appdata.xml` is renamed to `packaging/io.github.wsj_br.CursorUsageProgress.appdata.xml` (matching the component `<id>`), and `build-appimage.sh` copies it into `usr/share/metainfo/` under that same name; `appstreamcli`'s tree validation flagged the previous mismatched filename as a `metainfo-filename-cid-mismatch` warning, which made `appimagetool` fail AppStream validation and abort the `linux-arm64` AppImage build in CI.
 
 ## [0.2.0] - 2026-08-30
@@ -181,7 +186,7 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 - **Changed**: settings - `Sign in` is hidden while connected; Export Cycle CSV explains why it is disabled.
 - **Fixed**: dialogs - Escape cancels, focus starts on the safe button, and Windows uses primary-then-cancel order.
 - **Changed**: install - keep `Avalonia.Controls.WebView` on the latest published version that matches Avalonia 12 (currently 12.1.0).
-- **Fixed**: window - restore the `Cursor Pace` label to the left side of the custom title bar.
+- **Fixed**: window - restore the `CursorPace` label to the left side of the custom title bar.
 - **Changed**: window - add a small gap between `Quit` and the window controls.
 - **Fixed**: window - use a fully custom fixed-size title bar so Minimize and Close are right-aligned without competing with Avalonia's overlay caption controls.
 - **Changed**: settings - opens in the main window with a `Back` control and clickable `Settings` heading below the title bar.

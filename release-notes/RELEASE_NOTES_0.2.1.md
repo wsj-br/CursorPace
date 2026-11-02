@@ -1,14 +1,14 @@
-# Cursor Pace 0.2.1 Release Notes
+# CursorPace 0.2.1 Release Notes
 
 ## Highlights
 
-- The app is now **Cursor Pace** (`CursorPace`). Installer names, the Windows AppId and mutex, the local data folder, the Linux desktop id, and the macOS bundle id all use the new identity.
+- The app is now **CursorPace** (`CursorPace`). Installer names, the Windows AppId and mutex, the local data folder, the Linux desktop id, and the macOS bundle id all use the new identity.
 - Settings and the WebView sign-in profile are not migrated from Cursor Usage Progress. A new `%LocalAppData%\CursorPace` folder starts empty; sign in again after installing.
 - Linux ARM64 AppImage packaging succeeds again: AppStream metadata is installed under the filename that matches its component id, so `appimagetool` validation no longer aborts that CI build.
 
 ## Why this release matters
 
-This is the first release under the Cursor Pace name, with matching package identities, and it restores the Linux ARM64 AppImage that 0.2.0 CI could not publish.
+This is the first release under the CursorPace name, with matching package identities, and it restores the Linux ARM64 AppImage that 0.2.0 CI could not publish.
 
 ## Detailed Changes
 

@@ -1,0 +1,105 @@
+{
+  "sourceLocale": "en",
+  "targetLocales": [
+    "pt-BR",
+    "de",
+    "es",
+    "fr",
+    "hi",
+    "ja",
+    "ko",
+    "zh-Hans",
+    "zh-Hant"
+  ],
+  "provider": "cheaperinference",
+  "providers": {
+    "cheaperinference": {
+      "translationModels": [
+        "gemini-2.5-flash",
+        "deepseek-v4-flash",
+        "gpt-5-mini",
+        "gemma-3-27b-it",
+        "glm-4.5-air",
+        "gpt-oss-120b",
+        "gpt-5-nano",
+        "gpt-oss-20b",
+        "qwen3-30b-a3b",
+        "gemini-3.1-flash-lite"
+      ],
+      "requestTimeout": 120
+    }
+  },
+  "features": {
+    "translateUIStrings": true,
+    "translateDocs": true,
+    "translateJson": false,
+    "translateSVG": false
+  },
+  "glossary": {
+    "userGlossary": "glossary-user.csv"
+  },
+  "ui": {
+    "sourceRoots": [
+      "."
+    ],
+    "stringsJson": "locales/strings.json",
+    "flatOutputDir": "locales",
+    "flatOutput": true,
+    "uiExtractor": {
+      "extensions": [
+        ".cs",
+        ".razor",
+        ".cshtml",
+        ".xaml",
+        ".axaml"
+      ],
+      "funcNames": [
+        "T",
+        "Tn",
+        "Tp",
+        "N",
+        "Tr",
+        "Loc"
+      ],
+      "placeholderStyle": "dotnet",
+      "exclude": [
+        "**/bin/**",
+        "**/obj/**",
+        "**/Tests/**",
+        "**/*.Tests/**",
+        "TrExtension.cs"
+      ],
+      "includePackageDescription": false
+    }
+  },
+  "cacheDir": ".translation-cache",
+  "docs": [
+    {
+      "description": "README and Markdown files (flat, locale-suffixed filenames)",
+      "contentPaths": [
+        "README.md",
+        "QUICKSTART.md"
+      ],
+      "outputDir": "translated-docs",
+      "addFrontmatter": false,
+      "docsOutput": {
+        "style": "flat",
+        "flatPreserveRelativeDir": true,
+        "linkRewriteDocsRoot": ".",
+        "postProcessing": {
+          "languageListBlock": {
+            "start": "<small id=\"lang-list\">",
+            "end": "</small>",
+            "separator": " · "
+          }
+        }
+      }
+    }
+  ],
+  "json": [],
+  "concurrency": 4,
+  "uiBatchConcurrency": 2,
+  "batchSize": 20,
+  "maxBatchChars": 4096,
+  "languagesManifestPath": "locales/ui-languages.json"
+}

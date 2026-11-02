@@ -1,11 +1,11 @@
-; Cursor Pace Installer Script
+; CursorPace Installer Script
 ; Inno Setup 6.x required
 
-#define MyAppName "Cursor Pace"
+#define MyAppName "CursorPace"
 #ifndef MyAppVersion
 #define MyAppVersion "0.3.6"
 #endif
-#define MyAppPublisher "Cursor Pace"
+#define MyAppPublisher "CursorPace"
 #define MyAppExeName "CursorPace.exe"
 #ifndef PublishDir
 #define PublishDir "bin\Release\net10.0\win-x64\publish"
@@ -69,7 +69,7 @@ begin
   Result := True;
   while CheckForMutexes('CursorPace_SingleInstance') do
   begin
-    if MsgBox('Cursor Pace is currently running. Close it, then click Retry to continue ' + ActionPhrase + ', or click Cancel to abort.', mbError, MB_RETRYCANCEL) <> IDRETRY then
+    if MsgBox('CursorPace is currently running. Close it, then click Retry to continue ' + ActionPhrase + ', or click Cancel to abort.', mbError, MB_RETRYCANCEL) <> IDRETRY then
     begin
       Result := False;
       Exit;

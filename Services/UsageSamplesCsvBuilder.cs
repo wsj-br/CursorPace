@@ -9,7 +9,7 @@ public static class UsageSamplesCsvBuilder
     public static string Build(IReadOnlyList<UsageSample> samples)
     {
         var builder = new StringBuilder();
-        builder.AppendLine("timestamp,Cursor,Other Models");
+        builder.AppendLine(T("timestamp,Cursor,Other Models"));
 
         foreach (var sample in samples.OrderBy(s => s.TimestampUtc))
         {

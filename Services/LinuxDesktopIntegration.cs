@@ -72,7 +72,7 @@ public static class LinuxDesktopIntegration
         return $"""
             [Desktop Entry]
             Type=Application
-            Name=Cursor Pace
+            Name=CursorPace
             Comment=Track Cursor quota across a billing cycle
             Exec="{execPath}"
             TryExec={execPath}

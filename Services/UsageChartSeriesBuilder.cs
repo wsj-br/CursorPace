@@ -130,9 +130,9 @@ public sealed class UsageChartSeriesBuilder
         var rounded = RoundDisplayedDelta(delta);
         return ClassifyUsagePace(delta) switch
         {
-            UsagePace.Under => FormatEndpointPercent(-rounded) + " under expected",
-            UsagePace.Over => FormatEndpointPercent(rounded) + " over expected",
-            UsagePace.OnPace => "on expected usage",
+            UsagePace.Under => T("{0} under expected", FormatEndpointPercent(-rounded)),
+            UsagePace.Over => T("{0} over expected", FormatEndpointPercent(rounded)),
+            UsagePace.OnPace => T("on expected usage"),
             _ => throw new ArgumentOutOfRangeException(nameof(delta), delta, null)
         };
     }

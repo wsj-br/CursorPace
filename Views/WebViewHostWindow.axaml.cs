@@ -11,7 +11,9 @@ public partial class WebViewHostWindow : Window
     public WebViewHostWindow()
     {
         InitializeComponent();
-        Title = "Sign in to Cursor";
+        Title = T("Sign in to Cursor");
+        TrExtension.ApplyFlowDirection(this);
+        LocaleChanged += OnLocaleChanged;
         Browser.EnvironmentRequested += OnEnvironmentRequested;
         // macOS WKWebView aborts if it is created with a NaN frame. Keep the
         // attach until a finite arrange there. Linux WebKitGTK already worked
@@ -26,6 +28,12 @@ public partial class WebViewHostWindow : Window
     public event EventHandler? ContinueRequested;
 
     public void SetBannerStatus(string text) => SignInBannerText.Text = text;
+
+    private void OnLocaleChanged()
+    {
+        TrExtension.ApplyFlowDirection(this);
+        Title = T("Sign in to Cursor");
+    }
 
     public async Task EnsureReadyAsync()
     {

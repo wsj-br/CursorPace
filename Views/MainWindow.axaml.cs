@@ -47,6 +47,8 @@ public partial class MainWindow : Window
         _resizeDrag = new WindowResizeDrag(this);
 
         SetupWindow();
+        TrExtension.ApplyFlowDirection(this);
+        LocaleChanged += OnLocaleChanged;
         ApplySavedWindowPlacement();
         ConcealUntilPlaced();
         UpdateMaximizeCaption();
@@ -73,7 +75,7 @@ public partial class MainWindow : Window
 
     private void SetupWindow()
     {
-        Title = "Cursor Pace";
+        Title = T("CursorPace");
         MinWidth = DefaultWindowWidth;
         MinHeight = DefaultWindowHeight;
         Width = DefaultWindowWidth;
@@ -366,9 +368,16 @@ public partial class MainWindow : Window
         var maximized = WindowState == WindowState.Maximized;
         MaximizeIconControl.IsVisible = !maximized;
         RestoreIconControl.IsVisible = maximized;
-        var caption = maximized ? "Restore" : "Maximize";
+        var caption = maximized ? Tp("window", "Restore") : T("Maximize");
         ToolTip.SetTip(MaximizeButton, caption);
         AutomationProperties.SetName(MaximizeButton, caption);
+    }
+
+    private void OnLocaleChanged()
+    {
+        TrExtension.ApplyFlowDirection(this);
+        Title = T("CursorPace");
+        UpdateMaximizeCaption();
     }
 
     private void OnWindowCloseClick(object? sender, RoutedEventArgs e) =>

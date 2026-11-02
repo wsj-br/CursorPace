@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "skills": {
+    "ai-i18n-astro-website": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-astro-website/SKILL.md",
+      "computedHash": "e067f5c99e439393bfc6f562bd0f67eddb4f14321203a2afe5ef193f985ae874"
+    },
+    "ai-i18n-django": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-django/SKILL.md",
+      "computedHash": "55530f512a9bce2a0e0c9c51234c7c4a16f9502a391099db7135097635e4b7b6"
+    },
+    "ai-i18n-docusaurus": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-docusaurus/SKILL.md",
+      "computedHash": "6af2261350c0105be921ef7970c2f17bbd7b91cc0bad72876770ea716c4037dc"
+    },
+    "ai-i18n-dotnet": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-dotnet/SKILL.md",
+      "computedHash": "97f6128333579ddb569e36eea19fbcb62c3a52ce08a6c514fd445580a25f3ae5"
+    },
+    "ai-i18n-fumadocs": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-fumadocs/SKILL.md",
+      "computedHash": "e8c6bf9759255000aac77a9b1120ce792b8a2d9f7b5dcfe4ec5d229abcfb932b"
+    },
+    "ai-i18n-js": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-js/SKILL.md",
+      "computedHash": "b0fbaa7cd86058f5e1a8fb527d3eddf139478ee46645341571906d6031d5f883"
+    },
+    "ai-i18n-migrate-intlayer": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-migrate-intlayer/SKILL.md",
+      "computedHash": "b4ab7d82bb837db04fbfc6337b8e21b52f89c766e9b3c502157911786f0fa838"
+    },
+    "ai-i18n-nextra": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-nextra/SKILL.md",
+      "computedHash": "3d6fe94b1e8a0d404283271bac8420d74959b34d362ce563c83bd83967c22982"
+    },
+    "ai-i18n-plain-html": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-plain-html/SKILL.md",
+      "computedHash": "b0ab0724b0caed7ac1aa4482eb61c6daaebcf9b1dcabe7fe5194905d6c0f0021"
+    },
+    "ai-i18n-plain-html-docs": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-plain-html-docs/SKILL.md",
+      "computedHash": "998b32a242abd80fb3358c07069ec3f9c62dda203247231c0d28fcf5e4012c24"
+    },
+    "ai-i18n-python": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-python/SKILL.md",
+      "computedHash": "22910218afa1a88695cc2f7898da3486c4d94b75f320a597c11382044399ff1a"
+    },
+    "ai-i18n-readme": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-readme/SKILL.md",
+      "computedHash": "181e9c88f6edfafbe09eeece759dc1cb37c60e956519097bbb20b236acfdebef"
+    },
+    "ai-i18n-starlight": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-starlight/SKILL.md",
+      "computedHash": "3a3c9917917bde2bda73c6d5a5f387fe9353d9e3cc53d2b910769d1c4b69c2bb"
+    },
+    "ai-i18n-tools": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-tools/SKILL.md",
+      "computedHash": "932294b5b6818119bcec1ff9db0af544698b90cfeda56917dd80fa4dcc256ff3"
+    },
+    "ai-i18n-translate-intlayer": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-translate-intlayer/SKILL.md",
+      "computedHash": "3501b69ace44f613b041469a8fdd92085fdb9bf38b28bc5231746c31c1c076bf"
+    },
+    "ai-i18n-vitepress": {
+      "source": "wsj-br/ai-i18n-tools",
+      "sourceType": "github",
+      "skillPath": "skills/ai-i18n-vitepress/SKILL.md",
+      "computedHash": "6c75fe0310877a2056c8fe4f268fae7a21b33d727cad9a54ca5c38f853e89b2b"
+    }
+  }
+}

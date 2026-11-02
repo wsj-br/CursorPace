@@ -1,11 +1,11 @@
-# Cursor Pace 0.2.6 Release Notes
+# CursorPace 0.2.6 Release Notes
 
 ## Highlights
 
 - The title bar now has **Refresh** next to Settings, so you can fetch Cursor usage without opening Settings.
 - macOS **Launch at login** opens `CursorPace.app` as a GUI app, so login gets a tray icon and can hide the Dock. Previously it launched the inner binary as a background item.
 - Signed macOS builds register under **Open at Login**, so System Settings shows `CursorPace` with its app icon. Unsigned and older-system fallbacks still identify as CursorPace instead of `/usr/bin/open`.
-- The macOS bundle is now `CursorPace.app`. Finder and the release zip no longer use `Cursor Pace.app`.
+- The macOS bundle is now `CursorPace.app`. Finder and the release zip no longer use `CursorPace.app`.
 
 ## Why this release matters
 

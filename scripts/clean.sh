@@ -82,7 +82,7 @@ remove_generated_path() {
   fi
 }
 
-echo "Cleaning Cursor Pace ($CONFIGURATION)..."
+echo "Cleaning CursorPace ($CONFIGURATION)..."
 if [[ "$DRY_RUN" -eq 0 ]]; then
   if ! dotnet clean ./CursorPace.csproj -c "$CONFIGURATION" --nologo; then
     echo "Warning: dotnet clean exited with a non-zero status. Continuing with forced artifact cleanup." >&2

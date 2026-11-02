@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:models="using:CursorPace.Models"
+             xmlns:loc="using:CursorPace"
              x:Class="CursorPace.Views.UsageChartControl">
 
     <Grid RowDefinitions="*,Auto">
@@ -55,7 +56,7 @@
                     </StackPanel>
                 </Border>
                 <SelectableTextBlock x:Name="EmptyPlotText"
-                                     Text="Not enough data yet"
+                                     Text="{loc:Tr 'Not enough data yet'}"
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center"
                                      Opacity="0.65"
@@ -71,54 +72,54 @@
                 Background="{DynamicResource CardBackgroundBrush}"
                 BorderBrush="{DynamicResource CardStrokeBrush}">
             <StackPanel x:Name="RangeButtons" Orientation="Horizontal" Spacing="2">
-                <Button Content="1D"
+                <Button Content="{loc:Tr '1D'}"
                         Padding="10,4"
                         MinWidth="40"
                         BorderThickness="0"
                         CornerRadius="6"
                         Tag="{x:Static models:UsageChartRange.OneDay}"
                         Click="OnRangeClick"
-                        AutomationProperties.Name="1 day"/>
-                <Button Content="2D"
+                        AutomationProperties.Name="{loc:Tr '1 day'}"/>
+                <Button Content="{loc:Tr '2D'}"
                         Padding="10,4"
                         MinWidth="40"
                         BorderThickness="0"
                         CornerRadius="6"
                         Tag="{x:Static models:UsageChartRange.TwoDays}"
                         Click="OnRangeClick"
-                        AutomationProperties.Name="2 days"/>
-                <Button Content="7D"
+                        AutomationProperties.Name="{loc:Tr '2 days'}"/>
+                <Button Content="{loc:Tr '7D'}"
                         Padding="10,4"
                         MinWidth="40"
                         BorderThickness="0"
                         CornerRadius="6"
                         Tag="{x:Static models:UsageChartRange.SevenDays}"
                         Click="OnRangeClick"
-                        AutomationProperties.Name="7 days"/>
-                <Button Content="1W"
+                        AutomationProperties.Name="{loc:Tr '7 days'}"/>
+                <Button Content="{loc:Tr '1W'}"
                         Padding="10,4"
                         MinWidth="40"
                         BorderThickness="0"
                         CornerRadius="6"
                         Tag="{x:Static models:UsageChartRange.OneWeek}"
                         Click="OnRangeClick"
-                        AutomationProperties.Name="1 week"/>
-                <Button Content="2W"
+                        AutomationProperties.Name="{loc:Tr '1 week'}"/>
+                <Button Content="{loc:Tr '2W'}"
                         Padding="10,4"
                         MinWidth="40"
                         BorderThickness="0"
                         CornerRadius="6"
                         Tag="{x:Static models:UsageChartRange.TwoWeeks}"
                         Click="OnRangeClick"
-                        AutomationProperties.Name="2 weeks"/>
-                <Button Content="1M"
+                        AutomationProperties.Name="{loc:Tr '2 weeks'}"/>
+                <Button Content="{loc:Tr '1M'}"
                         Padding="10,4"
                         MinWidth="40"
                         BorderThickness="0"
                         CornerRadius="6"
                         Tag="{x:Static models:UsageChartRange.OneMonth}"
                         Click="OnRangeClick"
-                        AutomationProperties.Name="1 month"/>
+                        AutomationProperties.Name="{loc:Tr '1 month'}"/>
             </StackPanel>
         </Border>
         <StackPanel x:Name="LegendPanel"

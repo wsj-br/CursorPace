@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:CursorPace.ViewModels"
+             xmlns:loc="using:CursorPace"
              x:Class="CursorPace.Views.SettingsView"
              x:DataType="vm:MainViewModel">
 
@@ -13,13 +14,13 @@
                 Margin="0,0,0,16"
                 CornerRadius="8"
                 HorizontalAlignment="Left"
-                ToolTip.Tip="Back">
+                ToolTip.Tip="{loc:Tr 'Back'}">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <PathIcon Data="{StaticResource BackIcon}"
                           Width="22"
                           Height="22"
                           VerticalAlignment="Center"/>
-                <TextBlock Text="Settings"
+                <TextBlock Text="{loc:Tr 'Settings'}"
                            FontSize="26"
                            FontWeight="SemiBold"
                            VerticalAlignment="Center"/>
@@ -33,8 +34,8 @@
                     <Setter Property="FontSize" Value="16"/>
                 </Style>
             </TabControl.Styles>
-            <TabItem Header="Startup &amp; Display"
-                     AutomationProperties.Name="Startup &amp; Display">
+            <TabItem Header="{loc:Tr 'Startup &amp; Display'}"
+                     AutomationProperties.Name="{loc:Tr 'Startup &amp; Display'}">
                 <ScrollViewer>
                     <StackPanel Spacing="12" Margin="0,8,0,0">
                         <Border Background="{DynamicResource CardBackgroundBrush}"
@@ -44,24 +45,24 @@
                                 Padding="16">
                             <StackPanel Spacing="12">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Startup" FontSize="16" FontWeight="SemiBold"/>
-                                    <SelectableTextBlock Text="Launch at login and start in the notification tray."
+                                    <TextBlock Text="{loc:Tr 'Startup'}" FontSize="16" FontWeight="SemiBold"/>
+                                    <SelectableTextBlock Text="{loc:Tr 'Launch at login and start in the notification tray.'}"
                                                          TextWrapping="Wrap"
                                                          Opacity="0.7"
                                                          FontSize="12"/>
                                 </StackPanel>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="48">
                                     <StackPanel Grid.Column="0" Spacing="4">
-                                        <TextBlock Text="Launch at login" Opacity="0.8" FontSize="12"/>
+                                        <TextBlock Text="{loc:Tr 'Launch at login'}" Opacity="0.8" FontSize="12"/>
                                         <ToggleSwitch IsChecked="{Binding RunAtStartup, Mode=TwoWay}"
                                                       HorizontalAlignment="Left"
-                                                      AutomationProperties.Name="Launch at login"/>
+                                                      AutomationProperties.Name="{loc:Tr 'Launch at login'}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="4">
-                                        <TextBlock Text="Start in notification tray" Opacity="0.8" FontSize="12"/>
+                                        <TextBlock Text="{loc:Tr 'Start in notification tray'}" Opacity="0.8" FontSize="12"/>
                                         <ToggleSwitch IsChecked="{Binding StartInNotificationTray, Mode=TwoWay}"
                                                       HorizontalAlignment="Left"
-                                                      AutomationProperties.Name="Start in notification tray"/>
+                                                      AutomationProperties.Name="{loc:Tr 'Start in notification tray'}"/>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
@@ -74,19 +75,27 @@
                                 Padding="16">
                             <StackPanel Spacing="12">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Appearance" FontSize="16" FontWeight="SemiBold"/>
-                                    <SelectableTextBlock Text="Override the interface theme, or follow the system light or dark setting."
+                                    <TextBlock Text="{loc:Tr 'Appearance'}" FontSize="16" FontWeight="SemiBold"/>
+                                    <SelectableTextBlock Text="{loc:Tr 'Override the interface theme, or follow the system light or dark setting.'}"
                                                          TextWrapping="Wrap"
                                                          Opacity="0.7"
                                                          FontSize="12"/>
                                 </StackPanel>
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Theme" Opacity="0.8" FontSize="12"/>
+                                    <TextBlock Text="{loc:Tr 'Theme'}" Opacity="0.8" FontSize="12"/>
                                     <ComboBox x:Name="ThemeBox"
                                               MinWidth="160"
                                               HorizontalAlignment="Left"
                                               SelectionChanged="OnThemeChanged"
-                                              AutomationProperties.Name="Theme"/>
+                                              AutomationProperties.Name="{loc:Tr 'Theme'}"/>
+                                </StackPanel>
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="{loc:Tr 'Language'}" Opacity="0.8" FontSize="12"/>
+                                    <ComboBox x:Name="LanguageBox"
+                                              MinWidth="160"
+                                              HorizontalAlignment="Left"
+                                              SelectionChanged="OnLanguageChanged"
+                                              AutomationProperties.Name="{loc:Tr 'Language'}"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -98,19 +107,19 @@
                                 Padding="16">
                             <StackPanel Spacing="12">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Chart" FontSize="16" FontWeight="SemiBold"/>
-                                    <SelectableTextBlock Text="Plot every sample for intervals up to this length. Longer intervals keep the last sample of each day."
+                                    <TextBlock Text="{loc:Tr 'Chart'}" FontSize="16" FontWeight="SemiBold"/>
+                                    <SelectableTextBlock Text="{loc:Tr 'Plot every sample for intervals up to this length. Longer intervals keep the last sample of each day.'}"
                                                          TextWrapping="Wrap"
                                                          Opacity="0.7"
                                                          FontSize="12"/>
                                 </StackPanel>
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Every sample up to" Opacity="0.8" FontSize="12"/>
+                                    <TextBlock Text="{loc:Tr 'Every sample up to'}" Opacity="0.8" FontSize="12"/>
                                     <ComboBox x:Name="SampleDetailBox"
                                               MinWidth="160"
                                               HorizontalAlignment="Left"
                                               SelectionChanged="OnSampleDetailChanged"
-                                              AutomationProperties.Name="Every sample up to"/>
+                                              AutomationProperties.Name="{loc:Tr 'Every sample up to'}"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -118,8 +127,8 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Cursor account"
-                     AutomationProperties.Name="Cursor account">
+            <TabItem Header="{loc:Tr 'Cursor account'}"
+                     AutomationProperties.Name="{loc:Tr 'Cursor account'}">
                 <ScrollViewer>
                     <StackPanel Spacing="12" Margin="0,8,0,0">
                         <Border Background="{DynamicResource CardBackgroundBrush}"
@@ -136,28 +145,28 @@
                                                          FontSize="12"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Button Content="Sign in"
+                                    <Button Content="{loc:Tr 'Sign in'}"
                                             Command="{Binding SignInCommand}"
                                             IsVisible="{Binding ShowSignInButton}"/>
-                                    <Button Content="Refresh now" Command="{Binding RefreshNowCommand}"/>
-                                    <Button Content="Sign out" Click="OnDisconnectClick"/>
+                                    <Button Content="{loc:Tr 'Refresh now'}" Command="{Binding RefreshNowCommand}"/>
+                                    <Button Content="{loc:Tr 'Sign out'}" Click="OnDisconnectClick"/>
                                 </StackPanel>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="48">
                                     <StackPanel Grid.Column="0" Spacing="4">
-                                        <TextBlock Text="Update usage automatically" Opacity="0.8" FontSize="12"/>
+                                        <TextBlock Text="{loc:Tr 'Update usage automatically'}" Opacity="0.8" FontSize="12"/>
                                         <ToggleSwitch IsChecked="{Binding AutoSyncEnabled, Mode=TwoWay}"
                                                       HorizontalAlignment="Left"
-                                                      AutomationProperties.Name="Update usage automatically"/>
+                                                      AutomationProperties.Name="{loc:Tr 'Update usage automatically'}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="4">
-                                        <TextBlock Text="Refresh interval (hours)" Opacity="0.8" FontSize="12"/>
+                                        <TextBlock Text="{loc:Tr 'Refresh interval (hours)'}" Opacity="0.8" FontSize="12"/>
                                         <ComboBox x:Name="IntervalBox"
                                                   MinWidth="160"
                                                   HorizontalAlignment="Left"
                                                   SelectionChanged="OnIntervalChanged"/>
                                     </StackPanel>
                                 </Grid>
-                                <SelectableTextBlock Text="The billing cycle and usage come from your Cursor account after you sign in."
+                                <SelectableTextBlock Text="{loc:Tr 'The billing cycle and usage come from your Cursor account after you sign in.'}"
                                                      TextWrapping="Wrap"
                                                      Opacity="0.7"
                                                      FontSize="12"/>
@@ -167,8 +176,8 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Sync Server"
-                     AutomationProperties.Name="Sync Server">
+            <TabItem Header="{loc:Tr 'Sync Server'}"
+                     AutomationProperties.Name="{loc:Tr 'Sync Server'}">
                 <ScrollViewer>
                     <StackPanel Spacing="12" Margin="0,8,0,0">
                         <Border Background="{DynamicResource CardBackgroundBrush}"
@@ -178,41 +187,41 @@
                                 Padding="16">
                             <StackPanel Spacing="12">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Sync server" FontSize="16" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{loc:Tr 'Sync server'}" FontSize="16" FontWeight="SemiBold"/>
                                     <SelectableTextBlock Text="{Binding RemoteSyncStatusText}"
                                                          TextWrapping="Wrap"
                                                          Opacity="0.7"
                                                          FontSize="12"/>
                                 </StackPanel>
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Sync with server" Opacity="0.8" FontSize="12"/>
+                                    <TextBlock Text="{loc:Tr 'Sync with server'}" Opacity="0.8" FontSize="12"/>
                                     <ToggleSwitch IsChecked="{Binding RemoteSyncEnabled, Mode=TwoWay}"
                                                   HorizontalAlignment="Left"
-                                                  AutomationProperties.Name="Sync with server"/>
+                                                  AutomationProperties.Name="{loc:Tr 'Sync with server'}"/>
                                 </StackPanel>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="48">
                                     <StackPanel Grid.Column="0" Spacing="4">
-                                        <TextBlock Text="Server URL" Opacity="0.8" FontSize="12"/>
+                                        <TextBlock Text="{loc:Tr 'Server URL'}" Opacity="0.8" FontSize="12"/>
                                         <TextBox Text="{Binding RemoteSyncUrl, Mode=TwoWay}"
-                                                 PlaceholderText="http://server:8000"
-                                                 AutomationProperties.Name="Server URL"/>
+                                                 PlaceholderText="{loc:Tr 'http://server:8000'}"
+                                                 AutomationProperties.Name="{loc:Tr 'Server URL'}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="4">
-                                        <TextBlock Text="Machine name" Opacity="0.8" FontSize="12"/>
+                                        <TextBlock Text="{loc:Tr 'Machine name'}" Opacity="0.8" FontSize="12"/>
                                         <TextBox Text="{Binding RemoteSyncMachineName, Mode=TwoWay}"
-                                                 AutomationProperties.Name="Machine name"/>
+                                                 AutomationProperties.Name="{loc:Tr 'Machine name'}"/>
                                     </StackPanel>
                                 </Grid>
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="API token" Opacity="0.8" FontSize="12"/>
-                                    <SelectableTextBlock Text="Create this on the Tokens page of your CursorPace Sync server."
+                                    <TextBlock Text="{loc:Tr 'API token'}" Opacity="0.8" FontSize="12"/>
+                                    <SelectableTextBlock Text="{loc:Tr 'Create this on the Tokens page of your CursorPace Sync server.'}"
                                                          TextWrapping="Wrap"
                                                          Opacity="0.7"
                                                          FontSize="12"/>
                                     <TextBox x:Name="RemoteSyncApiTokenBox"
                                              Text="{Binding RemoteSyncApiKey, Mode=TwoWay}"
                                              PasswordChar="•"
-                                             AutomationProperties.Name="API token">
+                                             AutomationProperties.Name="{loc:Tr 'API token'}">
                                         <TextBox.InnerRightContent>
                                             <Button x:Name="RemoteSyncApiTokenRevealButton"
                                                     Click="OnToggleRemoteSyncApiTokenClick"
@@ -221,8 +230,8 @@
                                                     Padding="6,4"
                                                     Margin="0,0,2,0"
                                                     VerticalAlignment="Stretch"
-                                                    ToolTip.Tip="Show token"
-                                                    AutomationProperties.Name="Show API token">
+                                                    ToolTip.Tip="{loc:Tr 'Show token'}"
+                                                    AutomationProperties.Name="{loc:Tr 'Show API token'}">
                                                 <Panel>
                                                     <PathIcon x:Name="ShowRemoteSyncApiTokenIcon"
                                                               Data="{StaticResource EyeIcon}"
@@ -241,9 +250,9 @@
                                     </TextBox>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Button Content="Re-sync now" Command="{Binding ResyncNowCommand}"/>
+                                    <Button Content="{loc:Tr 'Re-sync now'}" Command="{Binding ResyncNowCommand}"/>
                                 </StackPanel>
-                                <SelectableTextBlock Text="Shares usage samples and billing-cycle bounds with your other machines. Syncs on launch, after each new Cursor measurement, every 10 minutes, and on demand."
+                                <SelectableTextBlock Text="{loc:Tr 'Shares usage samples and billing-cycle bounds with your other machines. Syncs on launch, after each new Cursor measurement, every 10 minutes, and on demand.'}"
                                                      TextWrapping="Wrap"
                                                      Opacity="0.7"
                                                      FontSize="12"/>
@@ -257,13 +266,13 @@
                                 Padding="16">
                             <StackPanel Spacing="12">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="CursorPace sync server" FontSize="16" FontWeight="SemiBold"/>
-                                    <SelectableTextBlock Text="A CursorPace sync server can be installed by following the instructions at"
+                                    <TextBlock Text="{loc:Tr 'CursorPace sync server'}" FontSize="16" FontWeight="SemiBold"/>
+                                    <SelectableTextBlock Text="{loc:Tr 'A CursorPace sync server can be installed by following the instructions at'}"
                                                          TextWrapping="Wrap"
                                                          Opacity="0.7"
                                                          FontSize="12"
                                                          IsVisible="{Binding IsRemoteSyncUnconfigured}"/>
-                                    <SelectableTextBlock Text="The sync is configured. See the repository for updates or more information."
+                                    <SelectableTextBlock Text="{loc:Tr 'The sync is configured. See the repository for updates or more information.'}"
                                                          TextWrapping="Wrap"
                                                          Opacity="0.7"
                                                          FontSize="12"
@@ -274,15 +283,15 @@
                                                  Padding="0"
                                                  HorizontalAlignment="Left"
                                                  FontSize="12"
-                                                 AutomationProperties.Name="CursorPace Sync Server repository"/>
+                                                 AutomationProperties.Name="{loc:Tr 'CursorPace Sync Server repository'}"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Export &amp; Backup"
-                     AutomationProperties.Name="Export &amp; Backup">
+            <TabItem Header="{loc:Tr 'Export &amp; Backup'}"
+                     AutomationProperties.Name="{loc:Tr 'Export &amp; Backup'}">
                 <ScrollViewer>
                     <StackPanel Spacing="12" Margin="0,8,0,0">
                         <Border Background="{DynamicResource CardBackgroundBrush}"
@@ -292,18 +301,18 @@
                                 Padding="16">
                             <StackPanel Spacing="12">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Data" FontSize="16" FontWeight="SemiBold"/>
-                                    <SelectableTextBlock Text="Export the displayed cycle, or all collected usage samples, as CSV."
+                                    <TextBlock Text="{loc:Tr 'Data'}" FontSize="16" FontWeight="SemiBold"/>
+                                    <SelectableTextBlock Text="{loc:Tr 'Export the displayed cycle, or all collected usage samples, as CSV.'}"
                                                          TextWrapping="Wrap"
                                                          Opacity="0.7"
                                                          FontSize="12"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Button Content="Export Cycle CSV"
+                                    <Button Content="{loc:Tr 'Export Cycle CSV'}"
                                             Click="OnExportCsvClick"
                                             IsEnabled="{Binding IsInitialized}"
-                                            ToolTip.Tip="Sign in and load a billing cycle first"/>
-                                    <Button Content="Export Usage"
+                                            ToolTip.Tip="{loc:Tr 'Sign in and load a billing cycle first'}"/>
+                                    <Button Content="{loc:Tr 'Export Usage'}"
                                             Click="OnExportUsageClick"
                                             IsVisible="{Binding IsCursorConnected}"/>
                                 </StackPanel>
@@ -317,15 +326,15 @@
                                 Padding="16">
                             <StackPanel Spacing="12">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Backup" FontSize="16" FontWeight="SemiBold"/>
-                                    <SelectableTextBlock Text="Save settings and usage samples as a single zip file. The Cursor sign-in session is not included."
+                                    <TextBlock Text="{loc:Tr 'Backup'}" FontSize="16" FontWeight="SemiBold"/>
+                                    <SelectableTextBlock Text="{loc:Tr 'Save settings and usage samples as a single zip file. The Cursor sign-in session is not included.'}"
                                                          TextWrapping="Wrap"
                                                          Opacity="0.7"
                                                          FontSize="12"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Button Content="Backup" Click="OnBackupClick"/>
-                                    <Button Content="Restore" Click="OnRestoreClick"/>
+                                    <Button Content="{loc:Tr 'Backup'}" Click="OnBackupClick"/>
+                                    <Button x:Name="RestoreButton" Click="OnRestoreClick"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -333,8 +342,8 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="About"
-                     AutomationProperties.Name="About">
+            <TabItem Header="{loc:Tr 'About'}"
+                     AutomationProperties.Name="{loc:Tr 'About'}">
                 <ScrollViewer>
                     <StackPanel Spacing="12" Margin="0,8,0,0">
                         <Border Background="{DynamicResource CardBackgroundBrush}"
@@ -344,8 +353,8 @@
                                 Padding="16">
                             <StackPanel Spacing="12">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="About" FontSize="16" FontWeight="SemiBold"/>
-                                    <SelectableTextBlock Text="Version, license, and source."
+                                    <TextBlock Text="{loc:Tr 'About'}" FontSize="16" FontWeight="SemiBold"/>
+                                    <SelectableTextBlock Text="{loc:Tr 'Version, license, and source.'}"
                                                          TextWrapping="Wrap"
                                                          Opacity="0.7"
                                                          FontSize="12"/>
@@ -354,24 +363,24 @@
                                       ColumnSpacing="16"
                                       RowDefinitions="Auto,Auto,Auto,Auto"
                                       RowSpacing="8">
-                                    <TextBlock Text="Version" Opacity="0.8" FontSize="12" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{loc:Tr 'Version'}" Opacity="0.8" FontSize="12" VerticalAlignment="Center"/>
                                     <SelectableTextBlock Grid.Column="1"
                                                          Text="{Binding AboutVersion}"
                                                          FontSize="12"
                                                          VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Row="1" Text="Build date" Opacity="0.8" FontSize="12" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Row="1" Text="{loc:Tr 'Build date'}" Opacity="0.8" FontSize="12" VerticalAlignment="Center"/>
                                     <SelectableTextBlock Grid.Row="1"
                                                          Grid.Column="1"
                                                          Text="{Binding AboutBuildDate}"
                                                          FontSize="12"
                                                          VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Row="2" Text="License" Opacity="0.8" FontSize="12" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Row="2" Text="{loc:Tr 'License'}" Opacity="0.8" FontSize="12" VerticalAlignment="Center"/>
                                     <SelectableTextBlock Grid.Row="2"
                                                          Grid.Column="1"
                                                          Text="{Binding AboutLicense}"
                                                          FontSize="12"
                                                          VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Row="3" Text="Repository" Opacity="0.8" FontSize="12" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Row="3" Text="{loc:Tr 'Repository'}" Opacity="0.8" FontSize="12" VerticalAlignment="Center"/>
                                     <HyperlinkButton Grid.Row="3"
                                                      Grid.Column="1"
                                                      NavigateUri="{Binding AboutRepositoryUri}"
@@ -379,7 +388,7 @@
                                                      Padding="0"
                                                      HorizontalAlignment="Left"
                                                      FontSize="12"
-                                                     AutomationProperties.Name="GitHub repository"/>
+                                                     AutomationProperties.Name="{loc:Tr 'GitHub repository'}"/>
                                 </Grid>
                                 <SelectableTextBlock Text="{Binding AboutCopyright}"
                                                      TextWrapping="Wrap"

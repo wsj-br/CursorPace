@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Show or set the Cursor Pace version.
+# Show or set the CursorPace version.
 #
 # With no argument, prints the current version from CursorPace.csproj.
 # With a version argument, writes that version to CursorPace.csproj and

@@ -9,7 +9,7 @@
     <ApplicationIcon>Assets\cursor_pace.ico</ApplicationIcon>
     <Version>0.3.6</Version>
     <Company>https://github.com/wsj-br/CursorPace</Company>
-    <Product>Cursor Pace</Product>
+    <Product>CursorPace</Product>
     <Copyright>Copyright © 2026 Waldemar Scudeller Jr.</Copyright>
     <DefaultItemExcludes>$(DefaultItemExcludes);Tests/**</DefaultItemExcludes>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <EmbeddedResource Include="locales/*.json" />
   </ItemGroup>
 
   <ItemGroup>

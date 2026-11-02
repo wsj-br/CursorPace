@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run Cursor Pace for local development.
+# Run CursorPace for local development.
 #
 # Usage:
 #   ./scripts/dev.sh
@@ -76,7 +76,7 @@ if [[ "$TEST" -eq 1 ]]; then
   exec dotnet test ./Tests/CursorPace.Tests.csproj -c "$CONFIGURATION"
 fi
 
-echo "Starting Cursor Pace ($CONFIGURATION)..."
+echo "Starting CursorPace ($CONFIGURATION)..."
 # Cursor/Chromium export FC_FONTATIONS=1. Combined with Zorin OpenDyslexic
 # WOFF fonts that hang Avalonia/Skia before the window or tray appear.
 export FC_FONTATIONS=0
