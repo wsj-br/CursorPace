@@ -35,6 +35,8 @@ O login usa um WebView nativo incorporado (WebView2 no Windows, WKWebView no mac
 
 Consulte [QUICKSTART.md](QUICKSTART.pt-BR.md) para configuração inicial, login na conta Cursor, o gráfico de uso, comportamento da bandeja e solução de problemas.
 
+No macOS 15 ou posterior, conectar-se a um Servidor de Sincronização na sua LAN pode solicitar acesso à **Rede Local**. Se o aplicativo não assinado ainda não conseguir se conectar depois que você permitir, consulte [soluções alternativas de sincronização local do macOS](QUICKSTART.pt-BR.md#macos-local-sync-workarounds) para opções de VPN, Terminal e exceção de host único que não exigem a assinatura do aplicativo.
+
 ## Recursos
 
 - Faça login no Cursor e atualize o uso sob demanda, ou automaticamente a cada 1, 2, 4, 6 ou 12 horas

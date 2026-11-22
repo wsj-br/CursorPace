@@ -130,6 +130,8 @@ Sal de la aplicación desde el menú de la bandeja. En Windows, desinstala **Cur
 
 **El uso no se actualiza.** Confirma **Cuenta de Cursor (conectada)** y las actualizaciones automáticas, o elige **Actualizar**. Comprueba la fecha, hora y zona horaria del sistema. Después de un límite de tasa de Cursor, la aplicación espera el siguiente intervalo.
 
+**Un servidor de sincronización local no es accesible en macOS.** Consulta [soluciones alternativas para la sincronización local en macOS](#macos-local-sync-workarounds).
+
 **Falta el icono de la bandeja o la barra de tareas.** Abre el desbordamiento de notificaciones. En Linux, reinicia la aplicación para que pueda escribir `~/.local/share/applications/CursorPace.desktop`. Si el icono de la barra de tareas sigue siendo un engranaje genérico, cierra la sesión una vez, o en X11 presiona Alt+F2, escribe `r` y presiona Enter.
 
 **La configuración no se guarda, o el porcentaje de hoy parece incorrecto.** Confirma que puedes escribir en la carpeta de datos. Si `settings.corrupt.json` existe, elimínalo y `settings.json` para restablecer. Luego, verifica la hora y elige **Actualizar**.
@@ -137,5 +139,27 @@ Sal de la aplicación desde el menú de la bandeja. En Windows, desinstala **Cur
 **Iniciar al iniciar sesión no hace nada.** Confirma que la configuración está activada. Windows almacena `CursorPace` en la clave Run del usuario actual y añade `--background` cuando el inicio en la bandeja está activado. Una aplicación firmada de macOS aparece en **Abrir al iniciar sesión**. Una compilación sin firmar usa `~/Library/LaunchAgents/com.cursorpace.app.plist` e inicia el `.app` con `/usr/bin/open`. Linux usa `~/.config/autostart/cursor-pace.desktop`. Una entrada de AppImage debe apuntar al archivo `.AppImage`. Desactiva y activa la configuración, o inicia la nueva AppImage una vez, para reescribirla.
 
 **Dos iconos en la bandeja, o cierre de sesión después de un reinicio de Linux.** Salga de la bandeja y abra la aplicación una vez. En Linux, inicie sesión de nuevo en una compilación actual para que la sesión se guarde en `cookies.sqlite`.
+
+### Soluciones alternativas para la sincronización local en macOS
+
+En macOS 15 o posterior, permite que CursorPace acceda a la **Red local** cuando lo solicite. Verifica la configuración en **Ajustes del Sistema → Privacidad y seguridad → Red local**. El `Info.plist` de la aplicación explica por qué se solicita el acceso, pero no concede acceso ni reemplaza una identidad de firma. Si la aplicación sin firmar aún no puede acceder a tu servidor de sincronización LAN, prueba una de estas opciones:
+
+1. **Usa la dirección VPN del servidor (recomendado).** Si ambos dispositivos usan una VPN como Tailscale, introduce la dirección VPN del servidor y el puerto existente en **Configuración → Servidor de sincronización**. Mantén el mismo token de API y elige **Volver a sincronizar ahora**. Esto no cambia la configuración de privacidad de macOS.
+2. **Intenta iniciar directamente desde Terminal.** Cierra completamente CursorPace desde su menú de la bandeja, luego ejecuta el ejecutable a continuación desde Terminal.app en lugar de usar `open -a`. Intenta sincronizar con la URL de la LAN. Apple documenta una excepción de Red local para las herramientas de línea de comandos iniciadas desde Terminal y sus procesos secundarios; esto no es una concesión persistente para lanzamientos desde Finder o elementos de inicio de sesión.
+
+   ```bash
+   /Applications/CursorPace.app/Contents/MacOS/CursorPace
+   ```
+
+3. **Permite solo la IP LAN del servidor en todo el sistema.** En macOS 15.5 o posterior, Apple documenta una excepción de dirección para cada tipo de interfaz. Si necesitas que la URL de la LAN funcione desde Finder o al iniciar sesión, reemplaza `192.0.2.10` con la dirección IPv4 de tu servidor, mantén `/32` para limitar la excepción a ese host, y reinicia tu Mac después de ejecutar el comando. Para Wi-Fi, usa `AllowedWiFiLocalNetworkAddresses` en su lugar.
+
+   ```bash
+   sudo defaults write com.apple.network.local-network \
+     AllowedEthernetLocalNetworkAddresses -array-add "192.0.2.10/32"
+   ```
+
+Esta excepción permite que **todas las aplicaciones** en el Mac accedan a esa IP en **cualquier puerto** a través del tipo de interfaz seleccionado. Usa la opción de VPN si quieres dejar las protecciones de LAN por aplicación sin cambios.
+
+Consulta la [nota técnica de privacidad de Red local de Apple](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy#macOS-considerations) para obtener más detalles.
 
 Las traducciones de esta página se producen automáticamente. Prefiere esta página en inglés cuando una traducción no coincida con la aplicación.

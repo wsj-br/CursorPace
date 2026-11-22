@@ -130,6 +130,8 @@ Beenden Sie über das Infobereich-Menü. Unter Windows deinstallieren Sie **Curs
 
 **Die Nutzung wird nicht aktualisiert.** Bestätigen Sie **Cursor Konto (verbunden)** und automatische Updates, oder wählen Sie **Aktualisieren**. Überprüfen Sie das Systemdatum, die Uhrzeit und die Zeitzone. Nach einer Cursor-Ratenbegrenzung wartet die App auf das nächste Intervall.
 
+**Ein lokaler Sync-Server ist unter macOS nicht erreichbar.** Siehe [Problemumgehungen für die lokale Synchronisierung unter macOS](#macos-local-sync-workarounds).
+
 **Das Tray- oder Taskleistensymbol fehlt.** Öffnen Sie den Benachrichtigungsüberlauf. Unter Linux starten Sie die App neu, damit sie `~/.local/share/applications/CursorPace.desktop` schreiben kann. Wenn das Taskleistensymbol immer noch ein generisches Zahnrad ist, melden Sie sich einmal ab, oder drücken Sie unter X11 Alt+F2, geben Sie `r` ein und drücken Sie die Eingabetaste.
 
 **Einstellungen werden nicht gespeichert, oder der heutige Prozentsatz sieht falsch aus.** Bestätigen Sie, dass Sie den Datenordner schreiben können. Wenn `settings.corrupt.json` existiert, löschen Sie es und `settings.json`, um zurückzusetzen. Überprüfen Sie dann die Uhrzeit und wählen Sie **Aktualisieren**.
@@ -137,5 +139,27 @@ Beenden Sie über das Infobereich-Menü. Unter Windows deinstallieren Sie **Curs
 **Beim Anmelden starten funktioniert nicht.** Bestätigen Sie, dass die Einstellung aktiviert ist. Windows speichert `CursorPace` im Run-Schlüssel des aktuellen Benutzers und fügt `--background` hinzu, wenn der Tray-Start aktiviert ist. Eine signierte macOS-App erscheint unter **Beim Anmelden öffnen**. Ein unsignierter Build verwendet `~/Library/LaunchAgents/com.cursorpace.app.plist` und startet die `.app` mit `/usr/bin/open`. Linux verwendet `~/.config/autostart/cursor-pace.desktop`. Ein AppImage-Eintrag muss auf die Datei `.AppImage` verweisen. Deaktivieren und aktivieren Sie die Einstellung, oder starten Sie das neue AppImage einmal, um es neu zu schreiben.
 
 **Zwei Tray-Symbole, oder nach einem Linux-Neustart abgemeldet.** Beenden Sie die App über das Tray und starten Sie sie einmal. Melden Sie sich unter Linux bei einem aktuellen Build erneut an, damit die Sitzung in `cookies.sqlite` gespeichert wird.
+
+### Problemumgehungen für die lokale Synchronisierung unter macOS
+
+Unter macOS 15 oder neuer erlauben Sie CursorPace den Zugriff auf das **Lokale Netzwerk**, wenn es danach fragt. Überprüfen Sie die Einstellung unter **Systemeinstellungen → Datenschutz & Sicherheit → Lokales Netzwerk**. Das `Info.plist` der App erklärt, warum der Zugriff angefordert wird, gewährt jedoch keinen Zugriff und ersetzt keine Signaturidentität. Wenn die unsignierte App Ihren LAN-Sync-Server immer noch nicht erreichen kann, versuchen Sie eine der folgenden Optionen:
+
+1. **Verwenden Sie die VPN-Adresse des Servers (empfohlen).** Wenn beide Geräte ein VPN wie Tailscale verwenden, geben Sie die VPN-Adresse des Servers und den vorhandenen Port unter **Einstellungen → Sync-Server** ein. Behalten Sie dasselbe API-Token bei und wählen Sie **Jetzt erneut synchronisieren**. Dies ändert keine macOS-Datenschutzeinstellungen.
+2. **Versuchen Sie, direkt über das Terminal zu starten.** Beenden Sie CursorPace vollständig über das Tray-Menü und führen Sie dann die unten stehende ausführbare Datei über Terminal.app aus, anstatt `open -a` zu verwenden. Versuchen Sie, mit der LAN-URL zu synchronisieren. Apple dokumentiert eine Ausnahme für das Lokale Netzwerk für Befehlszeilentools, die über das Terminal und deren untergeordnete Prozesse gestartet werden; dies ist keine dauerhafte Berechtigung für Finder- oder Anmeldeobjekt-Starts.
+
+   ```bash
+   /Applications/CursorPace.app/Contents/MacOS/CursorPace
+   ```
+
+3. **Erlauben Sie nur die LAN-IP des Servers systemweit.** Unter macOS 15.5 oder neuer dokumentiert Apple eine Adressausnahme für jeden Schnittstellentyp. Wenn Sie möchten, dass die LAN-URL vom Finder oder beim Anmelden funktioniert, ersetzen Sie `192.0.2.10` durch die IPv4-Adresse Ihres Servers, behalten Sie `/32` bei, um die Ausnahme auf diesen Host zu beschränken, und starten Sie Ihren Mac neu, nachdem Sie den Befehl ausgeführt haben. Verwenden Sie für Wi-Fi stattdessen `AllowedWiFiLocalNetworkAddresses`.
+
+   ```bash
+   sudo defaults write com.apple.network.local-network \
+     AllowedEthernetLocalNetworkAddresses -array-add "192.0.2.10/32"
+   ```
+
+Diese Ausnahme erlaubt es **jeder App** auf dem Mac, diese IP auf **jedem Port** über den ausgewählten Schnittstellentyp zu erreichen. Verwenden Sie die VPN-Option, wenn Sie die LAN-Schutzmaßnahmen pro App unverändert lassen möchten.
+
+Weitere Informationen finden Sie in [Apples Technischer Notiz zum Datenschutz für lokale Netzwerke](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy#macOS-considerations).
 
 Übersetzungen dieser Seite werden automatisch erstellt. Bevorzugen Sie diese englische Seite, wenn eine Übersetzung nicht mit der App übereinstimmt.

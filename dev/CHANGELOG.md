@@ -8,6 +8,8 @@ Add new entries in the `## [Unreleased]` section. When releasing, move those ent
 
 ## [Unreleased]
 
+## [0.3.9] - 2026-11-22
+
 - **Added**: install - the macOS bundle declares `NSLocalNetworkUsageDescription` to explain why CursorPace connects to a local sync server.
 
 ## [0.3.8] - 2026-11-02

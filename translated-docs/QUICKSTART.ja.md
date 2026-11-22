@@ -130,6 +130,8 @@ macOS:   ~/Library/Application Support/CursorPace/
 
 **利用状況が更新されません。** **Cursorアカウント (接続済み)** と自動更新を確認するか、**更新**を選択してください。システムの日付、時刻、およびタイムゾーンを確認してください。Cursorのレート制限後、アプリは次のインターバルまで待機します。
 
+**macOSでローカル同期サーバーに到達できません。**[macOSローカル同期の回避策](#macos-local-sync-workarounds)を参照してください。
+
 **トレイまたはタスクバーのアイコンが表示されない。** 通知オーバーフローを開いてください。Linuxでは、`~/.local/share/applications/CursorPace.desktop`を書き込めるようにアプリを再起動してください。タスクバーのアイコンがまだ一般的な歯車のままであれば、一度ログアウトするか、X11でAlt+F2を押して`r`と入力し、Enterを押してください。
 
 **設定が保存されない、または今日のパーセンテージが正しくない。** データフォルダーに書き込みができることを確認してください。`settings.corrupt.json`が存在する場合は、それを削除し、`settings.json`も削除してリセットしてください。その後、時計を確認し、**更新**を選択してください。
@@ -137,5 +139,27 @@ macOS:   ~/Library/Application Support/CursorPace/
 **ログイン時に起動が機能しない。** 設定がオンになっていることを確認してください。Windowsは、現在のユーザーのRunキーに`CursorPace`を保存し、トレイ起動がオンの場合に`--background`を追加します。署名されたmacOSアプリは、**ログイン時に開く**の下に表示されます。署名されていないビルドは`~/Library/LaunchAgents/com.cursorpace.app.plist`を使用し、`/usr/bin/open`で`.app`を起動します。Linuxは`~/.config/autostart/cursor-pace.desktop`を使用します。AppImageのエントリは`.AppImage`ファイルを指している必要があります。設定をオフにしてからオンにするか、新しいAppImageを一度起動して、それを書き換えてください。
 
 **トレイアイコンが２つ表示される、またはLinuxの再起動後にサインアウトされる。** トレイから終了し、アプリをもう一度起動してください。Linuxでは、`cookies.sqlite`にセッションが保存されるように、最新ビルドで再度サインインしてください。
+
+### macOSローカル同期の回避策
+
+macOS 15以降では、CursorPaceが**ローカルネットワーク**アクセスを要求したときに許可してください。設定は**システム設定 → プライバシーとセキュリティ → ローカルネットワーク**で確認できます。アプリの`Info.plist`はアクセスが要求される理由を説明していますが、アクセスを許可したり、署名IDを置き換えたりするものではありません。署名されていないアプリがLAN同期サーバーに到達できない場合は、以下のいずれかのオプションを試してください。
+
+1. **サーバーのVPNアドレスを使用する（推奨）。** 両方のデバイスがTailscaleなどのVPNを使用している場合、**設定 → 同期サーバー**にサーバーのVPNアドレスと既存のポートを入力します。同じAPIトークンを保持し、**今すぐ再同期**を選択します。これによりmacOSのプライバシー設定は変更されません。
+2. **Terminalから直接起動してみる。** CursorPaceをトレイメニューから完全に終了し、`open -a`を使用する代わりにTerminal.appから以下の実行可能ファイルを実行します。LAN URLで同期を試してください。Appleは、Terminalから起動されたコマンドラインツールとその子プロセスに対してローカルネットワークの例外を文書化していますが、これはFinderやログイン項目からの起動に対する永続的な許可ではありません。
+
+   ```bash
+   /Applications/CursorPace.app/Contents/MacOS/CursorPace
+   ```
+
+3. **サーバーのLAN IPのみをシステム全体で許可する。** macOS 15.5以降では、Appleは各インターフェースタイプに対するアドレス例外を文書化しています。Finderまたはログイン時にLAN URLを機能させる必要がある場合は、`192.0.2.10`をサーバーのIPv4アドレスに置き換え、`/32`を保持して例外をそのホストに限定し、コマンド実行後にMacを再起動してください。Wi-Fiの場合は、代わりに`AllowedWiFiLocalNetworkAddresses`を使用してください。
+
+   ```bash
+   sudo defaults write com.apple.network.local-network \
+     AllowedEthernetLocalNetworkAddresses -array-add "192.0.2.10/32"
+   ```
+
+この例外により、Mac上の**すべてのアプリ**が、選択されたインターフェースタイプを介して、**任意のポート**でそのIPに到達できるようになります。アプリごとのLAN保護を変更しないでおきたい場合は、VPNオプションを使用してください。
+
+詳細については、[Appleのローカルネットワークプライバシーに関するテクニカルノート](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy#macOS-considerations)を参照してください。
 
 このページの翻訳は自動的に生成されています。翻訳がアプリと一致しない場合は、この英語のページを参照してください。

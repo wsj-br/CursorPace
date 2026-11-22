@@ -130,6 +130,8 @@ macOS:   ~/Library/Application Support/CursorPace/
 
 **使用情况未更新。** 确认**Cursor 帐户 (已连接)** 和自动更新，或选择**刷新**。检查系统日期、时间以及时区。在达到 Cursor 速率限制后，应用会等待下一个间隔。
 
+**macOS 上无法访问本地同步服务器。** 请参阅[macOS 本地同步解决方案](#macos-local-sync-workarounds)。
+
 **托盘或任务栏图标不见了。** 打开通知溢出区域。在 Linux 上，重启应用，使其能够写入 `~/.local/share/applications/CursorPace.desktop`。如果任务栏图标仍然是通用齿轮图标，请注销一次，或者在 X11 上按 Alt+F2，输入 `r`，然后按 Enter。
 
 **设置未保存，或今天的百分比看起来不对。** 确认您可以写入数据文件夹。如果 `settings.corrupt.json` 存在，请删除它和 `settings.json` 以重置。然后检查时钟并选择**刷新**。
@@ -137,5 +139,27 @@ macOS:   ~/Library/Application Support/CursorPace/
 **登录时启动无效。** 确认该设置已开启。Windows 将 `CursorPace` 存储在当前用户的 Run 键中，并在托盘启动开启时添加 `--background`。已签名的 macOS 应用会出现在**登录时打开**下。未签名的构建使用 `~/Library/LaunchAgents/com.cursorpace.app.plist` 并通过 `/usr/bin/open` 启动 `.app`。Linux 使用 `~/.config/autostart/cursor-pace.desktop`。AppImage 条目必须指向 `.AppImage` 文件。关闭并重新开启该设置，或启动新的 AppImage 一次，以重写它。
 
 **两个托盘图标，或 Linux 重启后已注销。** 从托盘退出并启动应用一次。在 Linux 上，使用当前构建再次登录，以便会话存储在 `cookies.sqlite` 中。
+
+### macOS 本地同步解决方案
+
+在 macOS 15 或更高版本上，当 CursorPace 请求**本地网络**访问权限时，请允许它。在**系统设置 → 隐私与安全性 → 本地网络**中检查该设置。应用的 `Info.plist` 解释了请求访问的原因，但它不授予访问权限，也不替换签名身份。如果未签名的应用仍然无法访问您的局域网同步服务器，请尝试以下选项之一：
+
+1. **使用服务器的 VPN 地址（推荐）。** 如果两台设备都使用 VPN（例如 Tailscale），请在**设置 → 同步服务器**中输入服务器的 VPN 地址和现有端口。保留相同的 API 令牌并选择**立即重新同步**。这不会更改 macOS 隐私设置。
+2. **尝试直接从终端启动。** 从托盘菜单完全退出 CursorPace，然后从 Terminal.app 运行下面的可执行文件，而不是使用 `open -a`。尝试使用局域网 URL 进行同步。Apple 文档中说明，从终端启动的命令行工具及其子进程存在本地网络例外；这并非针对 Finder 或登录项启动的持久授权。
+
+   ```bash
+   /Applications/CursorPace.app/Contents/MacOS/CursorPace
+   ```
+
+3. **仅允许服务器的局域网 IP 全系统访问。** 在 macOS 15.5 或更高版本上，Apple 文档中说明了每种接口类型的地址例外。如果您需要局域网 URL 在 Finder 或登录时工作，请将 `192.0.2.10` 替换为服务器的 IPv4 地址，保留 `/32` 以将例外限制在该主机，并在运行命令后重新启动 Mac。对于 Wi-Fi，请改用 `AllowedWiFiLocalNetworkAddresses`。
+
+   ```bash
+   sudo defaults write com.apple.network.local-network \
+     AllowedEthernetLocalNetworkAddresses -array-add "192.0.2.10/32"
+   ```
+
+此例外允许 Mac 上的**每个应用**通过所选接口类型在**任何端口**上访问该 IP。如果您希望保持每个应用的局域网保护不变，请使用 VPN 选项。
+
+有关详细信息，请参阅[Apple 的本地网络隐私技术说明](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy#macOS-considerations)。
 
 本页面的翻译是自动生成的。如果翻译与应用不符，请以英文页面为准。

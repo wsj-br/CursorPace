@@ -130,6 +130,8 @@ macOS:   ~/Library/Application Support/CursorPace/
 
 **사용량이 업데이트되지 않습니다.** **Cursor 계정 (연결됨)** 및 자동 업데이트를 확인하거나 **새로 고침**을 선택하십시오. 시스템 날짜, 시간 및 시간대를 확인하십시오. Cursor 속도 제한에 도달하면 앱은 다음 간격까지 기다립니다.
 
+**macOS에서 로컬 동기화 서버에 연결할 수 없습니다.** [macOS 로컬 동기화 해결 방법](#macos-local-sync-workarounds)을 참조하십시오.
+
 **트레이 또는 작업 표시줄 아이콘이 없습니다.** 알림 오버플로를 엽니다. Linux에서는 앱이 `~/.local/share/applications/CursorPace.desktop`을(를) 쓸 수 있도록 앱을 다시 시작합니다. 작업 표시줄 아이콘이 여전히 일반적인 톱니바퀴 모양이라면 한 번 로그아웃하거나, X11에서는 Alt+F2를 누르고 `r`을(를) 입력한 다음 Enter를 누릅니다.
 
 **설정이 저장되지 않거나 오늘 백분율이 잘못된 것 같습니다.** 데이터 폴더에 쓰기 권한이 있는지 확인하세요. `settings.corrupt.json`이(가) 있다면 삭제하고 `settings.json`하여 재설정하세요. 그런 다음 시계를 확인하고 **새로 고침**을 선택하세요.
@@ -137,5 +139,27 @@ macOS:   ~/Library/Application Support/CursorPace/
 **로그인 시 실행**이 작동하지 않습니다. 설정이 켜져 있는지 확인하세요. Windows는 현재 사용자의 실행(Run) 키에 `CursorPace`을 저장하며, 트레이 시작이 켜져 있을 때 `--background`을 추가합니다. 서명된 macOS 앱은 **로그인 시 열기** 아래에 나타납니다. 서명되지 않은 빌드는 `~/Library/LaunchAgents/com.cursorpace.app.plist`를 사용하고 `/usr/bin/open`로 `.app`을 시작합니다. Linux는 `~/.config/autostart/cursor-pace.desktop`를 사용합니다. AppImage 항목은 `.AppImage` 파일을 가리켜야 합니다. 설정을 껐다가 다시 켜거나, 새 AppImage를 한 번 실행하여 다시 작성하세요.
 
 **두 개의 트레이 아이콘이 보이거나, Linux 재부팅 후 로그아웃된 경우.** 트레이에서 종료하고 앱을 한 번 시작하세요. Linux에서, 세션이 `cookies.sqlite`에 저장되도록 최신 빌드에서 다시 로그인하세요.
+
+### macOS 로컬 동기화 해결 방법
+
+macOS 15 이상에서는 CursorPace가 **로컬 네트워크** 접근을 요청할 때 허용하십시오. **시스템 설정 → 개인정보 보호 및 보안 → 로컬 네트워크**에서 설정을 확인하십시오. 앱의 `Info.plist`은(는) 접근이 요청되는 이유를 설명하지만, 접근 권한을 부여하거나 서명 ID를 대체하지는 않습니다. 서명되지 않은 앱이 여전히 LAN 동기화 서버에 연결할 수 없는 경우, 다음 옵션 중 하나를 시도해 보십시오.
+
+1. **서버의 VPN 주소 사용(권장).** 두 장치 모두 Tailscale과 같은 VPN을 사용하는 경우, **설정 → 동기화 서버**에 서버의 VPN 주소와 기존 포트를 입력하십시오. 동일한 API 토큰을 유지하고 **지금 다시 동기화**를 선택하십시오. 이렇게 해도 macOS 개인정보 보호 설정은 변경되지 않습니다.
+2. **터미널에서 직접 실행해 보십시오.** CursorPace를 트레이 메뉴에서 완전히 종료한 다음, `open -a`을(를) 사용하는 대신 Terminal.app에서 아래 실행 파일을 실행하십시오. LAN URL로 동기화를 시도해 보십시오. Apple은 터미널에서 실행된 명령줄 도구 및 해당 하위 프로세스에 대한 로컬 네트워크 예외를 문서화하고 있습니다. 이는 Finder 또는 로그인 항목 실행에 대한 영구적인 권한 부여가 아닙니다.
+
+   ```bash
+   /Applications/CursorPace.app/Contents/MacOS/CursorPace
+   ```
+
+3. **서버의 LAN IP만 시스템 전체에서 허용.** macOS 15.5 이상에서는 Apple이 각 인터페이스 유형에 대한 주소 예외를 문서화하고 있습니다. Finder 또는 로그인 시 LAN URL이 작동해야 하는 경우, `192.0.2.10`을(를) 서버의 IPv4 주소로 바꾸고, `/32`을(를) 유지하여 예외를 해당 호스트로 제한한 다음, 명령을 실행한 후 Mac을 재시동하십시오. Wi-Fi의 경우, 대신 `AllowedWiFiLocalNetworkAddresses`를 사용하십시오.
+
+   ```bash
+   sudo defaults write com.apple.network.local-network \
+     AllowedEthernetLocalNetworkAddresses -array-add "192.0.2.10/32"
+   ```
+
+이 예외는 Mac의 **모든 앱**이 선택된 인터페이스 유형을 통해 **모든 포트**에서 해당 IP에 도달하도록 허용합니다. 앱별 LAN 보호를 변경하지 않으려면 VPN 옵션을 사용하십시오.
+
+자세한 내용은 [Apple의 로컬 네트워크 개인 정보 보호 기술 문서](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy#macOS-considerations)를 참조하십시오.
 
 이 페이지의 번역은 자동으로 생성됩니다. 번역이 앱과 일치하지 않을 경우 이 영어 페이지를 참조하십시오.

@@ -35,6 +35,8 @@ La connexion utilise un WebView natif intégré (WebView2 sur Windows, WKWebView
 
 Consultez [QUICKSTART.md](QUICKSTART.fr.md) pour la configuration initiale, la connexion au compte Cursor, le graphique d'utilisation, le comportement de la zone de notification et le dépannage.
 
+Sous macOS 15 ou version ultérieure, la connexion à un serveur de synchronisation sur votre réseau local (LAN) peut demander l'accès au **Réseau local**. Si l'application non signée ne parvient toujours pas à se connecter après que vous l'ayez autorisée, consultez [Solutions de contournement pour la synchronisation locale sous macOS](QUICKSTART.fr.md#macos-local-sync-workarounds) pour les options VPN, Terminal et d'exception d'hôte unique qui ne nécessitent pas de signer l'application.
+
 ## Fonctionnalités
 
 - Se connecter à Cursor et actualiser l'utilisation à la demande, ou automatiquement toutes les 1, 2, 4, 6 ou 12 heures

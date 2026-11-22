@@ -130,6 +130,8 @@ macOS:   ~/Library/Application Support/CursorPace/
 
 **用量未更新。** 確認**Cursor 帳戶 (已連線)** 和自動更新，或選擇**重新整理**。檢查系統日期、時間和時區。在達到 Cursor 速率限制後，應用程式會等待下一個間隔。
 
+**本機同步伺服器在 macOS 上無法連線。** 請參閱 [macOS 本機同步因應措施](#macos-local-sync-workarounds)。
+
 **系統匣或工作列圖示遺失。** 開啟通知溢位區。在 Linux 上，重新啟動應用程式，使其可以寫入 `~/.local/share/applications/CursorPace.desktop`。如果工作列圖示仍是通用齒輪圖示，請登出一次，或在 X11 上按下 Alt+F2，輸入 `r`，然後按下 Enter。
 
 **設定未儲存，或今日百分比看起來不正確。** 確認您可以寫入資料夾。如果 `settings.corrupt.json` 存在，請刪除它和 `settings.json` 以重設。然後檢查時鐘並選擇 **重新整理**。
@@ -137,5 +139,27 @@ macOS:   ~/Library/Application Support/CursorPace/
 **登入時啟動**沒有作用。確認此設定已開啟。Windows 會將 `CursorPace` 儲存在目前使用者的 Run 機碼中，並在系統匣啟動開啟時新增 `--background`。已簽署的 macOS 應用程式會出現在 **登入時開啟** 下方。未簽署的版本會使用 `~/Library/LaunchAgents/com.cursorpace.app.plist` 並以 `/usr/bin/open` 啟動 `.app`。Linux 使用 `~/.config/autostart/cursor-pace.desktop`。AppImage 項目必須指向 `.AppImage` 檔案。關閉再開啟此設定，或啟動新的 AppImage 一次，以重新寫入它。
 
 **兩個托盤圖示，或在 Linux 重新啟動後登出。** 從托盤退出並啟動應用程式一次。在 Linux 上，在目前的版本上再次登入，以便工作階段儲存在 `cookies.sqlite` 中。
+
+### macOS 本機同步解決方法
+
+在 macOS 15 或更新版本上，當 CursorPace 要求**本機網路**存取時，請允許它。請在**系統設定 → 隱私權與安全性 → 本機網路**中檢查設定。該應用程式的`Info.plist`解釋了為何要求存取權限，但它不會授予存取權限或取代簽署識別碼。如果未簽署的應用程式仍然無法連線到您的區域網路同步伺服器，請嘗試以下其中一個選項：
+
+1. **使用伺服器的 VPN 位址 (建議)。** 如果兩部裝置都使用 VPN (例如 Tailscale)，請在**設定 → 同步伺服器**中輸入伺服器的 VPN 位址和現有連接埠。保留相同的 API 權杖，然後選擇**立即重新同步**。這不會變更 macOS 隱私權設定。
+2. **嘗試直接從終端機啟動。** 從其托盤選單完全退出 CursorPace，然後從 Terminal.app 執行以下可執行檔，而不是使用`open -a`。嘗試使用 LAN URL 進行同步。Apple 文件記載了從終端機啟動的命令列工具及其子程序的本機網路例外；這並非針對 Finder 或登入項目啟動的持續授權。
+
+   ```bash
+   /Applications/CursorPace.app/Contents/MacOS/CursorPace
+   ```
+
+3. **僅允許伺服器的區域網路 IP 位址在系統範圍內生效。** 在 macOS 15.5 或更新版本上，Apple 記載了每種介面類型的位址例外狀況。如果您需要區域網路 URL 在 Finder 或登入時運作，請將 `192.0.2.10` 替換為您伺服器的 IPv4 位址，保留 `/32` 以將例外狀況限制於該主機，並在執行指令後重新啟動您的 Mac。若為 Wi-Fi，請改用 `AllowedWiFiLocalNetworkAddresses`。
+
+   ```bash
+   sudo defaults write com.apple.network.local-network \
+     AllowedEthernetLocalNetworkAddresses -array-add "192.0.2.10/32"
+   ```
+
+這個例外允許 Mac 上的**每個應用程式**透過選定的介面類型，在**任何連接埠**上存取該 IP。如果您想保持每個應用程式的區域網路保護不變，請使用 VPN 選項。
+
+如需詳細資訊，請參閱 [Apple 的本機網路隱私權技術說明](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy#macOS-considerations)。
 
 本頁面的翻譯是自動產生的。當翻譯與應用程式不符時，請參考此英文頁面。

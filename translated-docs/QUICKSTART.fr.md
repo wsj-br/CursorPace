@@ -130,6 +130,8 @@ Quittez depuis le menu de la zone de notification. Sous Windows, désinstallez *
 
 **L'utilisation ne se met pas à jour.** Confirmez **Compte Cursor (connecté)** et les mises à jour automatiques, ou choisissez **Actualiser**. Vérifiez la date, l'heure et le fuseau horaire du système. Après une limite de débit Cursor, l'application attend le prochain intervalle.
 
+**Un serveur de synchronisation local est inaccessible sur macOS.** Consultez [Solutions de contournement pour la synchronisation locale sur macOS](#macos-local-sync-workarounds).
+
 **L'icône de la barre d'état système ou de la barre des tâches est manquante.** Ouvrez le débordement des notifications. Sous Linux, redémarrez l'application pour qu'elle puisse écrire `~/.local/share/applications/CursorPace.desktop`. Si l'icône de la barre des tâches est toujours un engrenage générique, déconnectez-vous une fois, ou sous X11, appuyez sur Alt+F2, tapez `r`, puis appuyez sur Entrée.
 
 **Les Paramètres ne sont pas enregistrés, ou le pourcentage d'aujourd'hui semble incorrect.** Confirmez que vous pouvez écrire dans le dossier de Données. Si `settings.corrupt.json` existe, supprimez-le ainsi que `settings.json` pour réinitialiser. Vérifiez ensuite l'horloge et choisissez **Actualiser**.
@@ -137,5 +139,27 @@ Quittez depuis le menu de la zone de notification. Sous Windows, désinstallez *
 **Lancer à la connexion ne fait rien.** Confirmez que le paramètre est activé. Windows stocke `CursorPace` dans la clé Run de l'utilisateur actuel, et ajoute `--background` lorsque le démarrage depuis la barre d'état système est activé. Une application macOS signée apparaît sous **Ouvrir à la connexion**. Une version non signée utilise `~/Library/LaunchAgents/com.cursorpace.app.plist` et démarre le `.app` avec `/usr/bin/open`. Linux utilise `~/.config/autostart/cursor-pace.desktop`. Une entrée AppImage doit pointer vers le fichier `.AppImage`. Désactivez et réactivez le paramètre, ou lancez la nouvelle AppImage une fois, pour la réécrire.
 
 **Deux icônes de barre d'état système, ou déconnecté après un redémarrage Linux.** Quittez depuis la barre d'état système et démarrez l'application une fois. Sous Linux, connectez-vous à nouveau sur une version actuelle afin que la session soit stockée dans `cookies.sqlite`.
+
+### Solutions de contournement pour la synchronisation locale sur macOS
+
+Sur macOS 15 ou version ultérieure, autorisez CursorPace lorsqu'il demande l'accès au **Réseau local**. Vérifiez le réglage dans **Réglages Système → Confidentialité et sécurité → Réseau local**. Le `Info.plist` de l'application explique pourquoi l'accès est demandé, mais il n'accorde pas l'accès et ne remplace pas une identité de signature. Si l'application non signée ne peut toujours pas atteindre votre serveur de synchronisation LAN, essayez l'une de ces options :
+
+1. **Utilisez l'adresse VPN du serveur (recommandé).** Si les deux appareils utilisent un VPN tel que Tailscale, saisissez l'adresse VPN du serveur et le port existant dans **Paramètres → Serveur de synchronisation**. Conservez le même Jeton API et choisissez **Resynchroniser maintenant**. Cela ne modifie pas les réglages de confidentialité de macOS.
+2. **Essayez de lancer directement depuis le Terminal.** Quittez complètement CursorPace depuis son menu de la barre d'état, puis exécutez l'exécutable ci-dessous depuis Terminal.app plutôt que d'utiliser `open -a`. Essayez de synchroniser avec l'URL LAN. Apple documente une exception de Réseau local pour les outils en ligne de commande lancés depuis le Terminal et leurs processus enfants ; il ne s'agit pas d'une autorisation persistante pour les lancements depuis le Finder ou les éléments de connexion.
+
+   ```bash
+   /Applications/CursorPace.app/Contents/MacOS/CursorPace
+   ```
+
+3. **Autorisez uniquement l'adresse IP LAN du serveur à l'échelle du système.** Sur macOS 15.5 ou version ultérieure, Apple documente une exception d'adresse pour chaque type d'interface. Si vous avez besoin que l'URL LAN fonctionne depuis le Finder ou à la connexion, remplacez `192.0.2.10` par l'adresse IPv4 de votre serveur, conservez `/32` pour limiter l'exception à cet hôte, et redémarrez votre Mac après avoir exécuté la commande. Pour le Wi-Fi, utilisez `AllowedWiFiLocalNetworkAddresses` à la place.
+
+   ```bash
+   sudo defaults write com.apple.network.local-network \
+     AllowedEthernetLocalNetworkAddresses -array-add "192.0.2.10/32"
+   ```
+
+Cette exception permet à **chaque application** sur le Mac d'atteindre cette IP sur **n'importe quel port** via le type d'interface sélectionné. Utilisez l'option VPN si vous souhaitez laisser les protections LAN par application inchangées.
+
+Consultez la [note technique d'Apple sur la confidentialité du réseau local](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy#macOS-considerations) pour plus de détails.
 
 Les traductions de cette page sont produites automatiquement. Préférez cette page en anglais lorsqu'une traduction ne correspond pas à l'application.

@@ -35,6 +35,8 @@ Die Anmeldung verwendet eine eingebettete native WebView (WebView2 unter Windows
 
 Siehe [QUICKSTART.md](QUICKSTART.de.md) für die Ersteinrichtung, die Anmeldung beim Cursor Konto, das Nutzungsdiagramm, das Verhalten des Infobereichs und die Fehlerbehebung.
 
+Unter macOS 15 oder neuer kann beim Verbinden mit einem Sync-Server in Ihrem LAN eine Aufforderung für den Zugriff auf das **Lokale Netzwerk** erscheinen. Wenn die unsignierte App nach der Erlaubnis immer noch keine Verbindung herstellen kann, siehe [Problemumgehungen für die lokale Synchronisierung unter macOS](QUICKSTART.de.md#macos-local-sync-workarounds) für Optionen wie VPN, Terminal und Einzelhost-Ausnahmen, die kein Signieren der App erfordern.
+
 ## Funktionen
 
 - Bei Cursor anmelden und die Nutzung bei Bedarf oder automatisch alle 1, 2, 4, 6 oder 12 Stunden aktualisieren

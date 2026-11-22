@@ -35,6 +35,8 @@
 
 請參閱 [QUICKSTART.md](QUICKSTART.zh-Hant.md) 以了解首次執行設定、Cursor 帳戶登入、用量圖表、通知區域行為和疑難排解。
 
+在 macOS 15 或更新版本上，連接到您區域網路上的同步伺服器可能會提示您授予**本機網路**存取權。如果您允許後，未簽署的應用程式仍然無法連線，請參閱 [macOS 本機同步解決方法](QUICKSTART.zh-Hant.md#macos-local-sync-workarounds) 以了解無需簽署應用程式的 VPN、終端機和單一主機例外選項。
+
 ## 功能
 
 - 登入 Cursor 並按需重新整理用量，或每 1、2、4、6 或 12 小時自動重新整理

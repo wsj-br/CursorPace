@@ -35,6 +35,8 @@ Iniciar sesión utiliza un WebView nativo incrustado (WebView2 en Windows, WKWeb
 
 Consulte [QUICKSTART.md](QUICKSTART.es.md) para la configuración inicial, el inicio de sesión en la cuenta de Cursor, el gráfico de uso, el comportamiento de la bandeja y la resolución de problemas.
 
+En macOS 15 o posterior, al conectarse a un servidor de sincronización en su LAN puede solicitar acceso a la **Red local**. Si la aplicación sin firmar aún no puede conectarse después de permitirlo, consulte [soluciones alternativas de sincronización local de macOS](QUICKSTART.es.md#macos-local-sync-workarounds) para opciones de VPN, Terminal y excepciones de host único que no requieren firmar la aplicación.
+
 ## Características
 
 - Iniciar sesión en Cursor y actualizar el uso bajo demanda, o automáticamente cada 1, 2, 4, 6 o 12 horas

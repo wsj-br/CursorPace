@@ -35,6 +35,8 @@
 
 有关首次运行设置、Cursor 帐户登录、用量图表、托盘行为和故障排除，请参阅 [QUICKSTART.md](QUICKSTART.zh-Hans.md)。
 
+在 macOS 15 或更高版本上，连接到局域网中的同步服务器时，可能会提示授予**本地网络**访问权限。如果允许后未签名的应用仍无法连接，请参阅 [macOS 本地同步变通方法](QUICKSTART.zh-Hans.md#macos-local-sync-workarounds)，了解无需为应用签名的 VPN、终端和单主机例外选项。
+
 ## 功能
 
 - 登录 Cursor 并按需刷新用量，或每 1、2、4、6 或 12 小时自动刷新

@@ -35,6 +35,8 @@ Windows, Linux, macOS용 데스크톱 앱으로, 청구 주기 동안 Cursor 모
 
 첫 실행 설정, Cursor 계정 로그인, 사용량 차트, 트레이 동작 및 문제 해결에 대한 자세한 내용은 [QUICKSTART.md](QUICKSTART.ko.md)를 참조하십시오.
 
+macOS 15 이상에서, LAN의 동기화 서버에 연결할 때 **로컬 네트워크** 접근 권한을 요청할 수 있습니다. 허용한 후에도 서명되지 않은 앱이 여전히 연결할 수 없다면, 앱 서명 없이 VPN, 터미널, 단일 호스트 예외 옵션을 사용할 수 있는 [macOS 로컬 동기화 해결 방법](QUICKSTART.ko.md#macos-local-sync-workarounds)을 참조하십시오.
+
 ## 기능
 
 - Cursor에 로그인하고 필요에 따라 사용량을 새로 고치거나 1, 2, 4, 6, 12시간마다 자동으로 새로 고칩니다.
