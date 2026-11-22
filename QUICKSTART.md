@@ -131,6 +131,8 @@ Quit from the tray menu. On Windows, uninstall **CursorPace** from **Installed a
 
 **Usage does not update.** Confirm **Cursor account (connected)** and automatic updates, or choose **Refresh**. Check the system date, time, and time zone. After a Cursor rate limit, the app waits for the next interval.
 
+**A local sync server is unreachable on macOS.** See [macOS local sync workarounds](#macos-local-sync-workarounds).
+
 **The tray or taskbar icon is missing.** Open the notification overflow. On Linux, restart the app so it can write `~/.local/share/applications/CursorPace.desktop`. If the taskbar icon is still a generic gear, log out once, or on X11 press Alt+F2, type `r`, and press Enter.
 
 **Settings are not saving, or today's percent looks wrong.** Confirm you can write the data folder. If `settings.corrupt.json` exists, delete it and `settings.json` to reset. Then check the clock and choose **Refresh**.
@@ -138,5 +140,27 @@ Quit from the tray menu. On Windows, uninstall **CursorPace** from **Installed a
 **Launch at login does nothing.** Confirm the setting is on. Windows stores `CursorPace` in the current user's Run key, and adds `--background` when tray start is on. A signed macOS app appears under **Open at Login**. An unsigned build uses `~/Library/LaunchAgents/com.cursorpace.app.plist` and starts the `.app` with `/usr/bin/open`. Linux uses `~/.config/autostart/cursor-pace.desktop`. An AppImage entry has to point at the `.AppImage` file. Turn the setting off and on, or launch the new AppImage once, to rewrite it.
 
 **Two tray icons, or signed out after a Linux reboot.** Quit from the tray and start the app once. On Linux, sign in again on a current build so the session is stored in `cookies.sqlite`.
+
+### macOS local sync workarounds
+
+On macOS 15 or later, allow CursorPace when it asks for **Local Network** access. Check the setting in **System Settings → Privacy & Security → Local Network**. The app's `Info.plist` explains why access is requested, but it doesn't grant access or replace a signing identity. If the unsigned app still can't reach your LAN sync server, try one of these options:
+
+1. **Use the server's VPN address (recommended).** If both devices use a VPN such as Tailscale, enter the server's VPN address and existing port in **Settings → Sync Server**. Keep the same API token and choose **Re-sync now**. This doesn't change macOS privacy settings.
+2. **Try launching directly from Terminal.** Fully quit CursorPace from its tray menu, then run the executable below from Terminal.app rather than using `open -a`. Try syncing with the LAN URL. Apple documents a Local Network exception for command-line tools launched from Terminal and their child processes; this isn't a persistent grant for Finder or login-item launches.
+
+   ```bash
+   /Applications/CursorPace.app/Contents/MacOS/CursorPace
+   ```
+
+3. **Allow only the server's LAN IP system-wide.** On macOS 15.5 or later, Apple documents an address exception for each interface type. If you need the LAN URL to work from Finder or at login, replace `192.0.2.10` with your server's IPv4 address, keep `/32` to limit the exception to that host, and restart your Mac after running the command. For Wi-Fi, use `AllowedWiFiLocalNetworkAddresses` instead.
+
+   ```bash
+   sudo defaults write com.apple.network.local-network \
+     AllowedEthernetLocalNetworkAddresses -array-add "192.0.2.10/32"
+   ```
+
+   This exception lets **every app** on the Mac reach that IP on **any port** over the selected interface type. Use the VPN option if you want to leave per-app LAN protections unchanged.
+
+See [Apple's Local Network Privacy technote](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy#macOS-considerations) for details.
 
 Translations of this page are produced automatically. Prefer this English page when a translation disagrees with the app.

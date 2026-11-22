@@ -150,9 +150,12 @@ cat >"$BUNDLE_DIR/Contents/Info.plist" <<EOF
   <string>11.0</string>
   <key>NSHighResolutionCapable</key>
   <true/>
+  <key>NSLocalNetworkUsageDescription</key>
+  <string>CursorPace connects to your configured sync server to synchronize usage samples and billing-cycle information.</string>
 </dict>
 </plist>
 EOF
+plutil -lint "$BUNDLE_DIR/Contents/Info.plist"
 
 if ! command -v python3 >/dev/null 2>&1; then
   echo "Error: python3 is required to lay out the macOS DMG." >&2

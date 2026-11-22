@@ -35,6 +35,8 @@ Sign in uses an embedded native WebView (WebView2 on Windows, WKWebView on macOS
 
 See [QUICKSTART.md](QUICKSTART.md) for first-run setup, Cursor account sign-in, the usage chart, tray behavior, and troubleshooting.
 
+On macOS 15 or later, connecting to a sync server on your LAN may prompt for **Local Network** access. If the unsigned app still can't connect after you allow it, see [macOS local sync workarounds](QUICKSTART.md#macos-local-sync-workarounds) for VPN, Terminal, and single-host exception options that don't require signing the app.
+
 ## Features
 
 - Sign in to Cursor and refresh usage on demand, or automatically every 1, 2, 4, 6, or 12 hours
@@ -110,5 +112,3 @@ Copyright 2026 Waldemar Scudeller Jr.
 This software is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 Translations of this page are produced automatically. Prefer this English page when a translation disagrees with the app.
-
-
